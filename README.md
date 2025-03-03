@@ -8,9 +8,6 @@ Admin Dashboard UI crafted with Shadcn and Vite.
 - Responsive
 - Accessible
 - With built-in Sidebar component
-- Global Search Command
-- 10+ pages
-- Extra custom components
 
 ## Tech Stack
 
