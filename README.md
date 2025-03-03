@@ -9,6 +9,11 @@ Admin Dashboard UI crafted with Shadcn and Vite.
 - Accessible
 - With built-in Sidebar component
 
+## WIP
+
+- add env validation with zod
+- add translation engine
+
 ## Tech Stack
 
 **UI:** [ShadcnUI](https://ui.shadcn.com) (TailwindCSS + RadixUI)
