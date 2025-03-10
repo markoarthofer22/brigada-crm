@@ -1,0 +1,15 @@
+{
+	"require": {
+		"slim/slim": "^3.0",
+		"phpmailer/phpmailer": "^5.2",
+		"vlucas/phpdotenv": "^5.5",
+		"shuchkin/simplexlsxgen": "^1.4"
+	},
+	"autoload": {
+		"psr-4": {
+			"PP\\Classes\\": "classes/",
+			"PP\\Controller\\": "controllers/"
+		}
+	},
+	"platform-check": false
+}
