@@ -59,7 +59,7 @@ class SettingsController extends BaseController
 		$settings = new stdClass;
 		$settings->user = $_SESSION["user"];
 		$settings->translations = $translations;
-		$settings->sid =  $_SESSION["sid"];
+		$settings->sid =  $_SESSION["session_id"];
 		$settings->lang = $_SESSION["lang"];
 		$settings->langs = $this->langs;
 		$settings->defaultValues = array(

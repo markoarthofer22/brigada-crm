@@ -26,10 +26,159 @@ class Users
 	public function __construct(PDO $db)
 	{
 		$this->database = $db;
-		$this->ldapServer = 'ldap://10.63.1.22/';
-		$this->ldapDomain = 'dpd.hr';
 	}
 
+
+	/**
+	 * GetAll function
+	 *
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetAll(): array
+	{
+
+		$Helper = new Helper($this->database);
+
+		$sql = "SELECT 
+					* 
+				FROM {$_SESSION["SCHEMA"]}.users u
+				ORDER BY u.firstname
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->execute();
+
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		foreach ($results as &$result) {
+			$result["data"] = json_decode($result["data"]);
+			unset($result["password"]);
+			unset($result["data"]->password);
+		}
+		return $results;
+	}
+
+	/**
+	 * Get function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Get(object $params): array
+	{
+		$Helper = new Helper($this->database);
+
+		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.users u WHERE 1=1";
+
+		if ($params->id) {
+			$sql .= " AND u.id_users = :ID";
+		}
+		if (!empty($params->email)) {
+			$sql .= " AND u.email = :EMAIL";
+		}
+
+		$stmt = $this->database->prepare($sql);
+
+		if ($params->id) {
+			$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
+		}
+		if (!empty($params->email)) {
+			$stmt->bindParam(':EMAIL', $params->email, PDO::PARAM_STR);
+		}
+
+		$stmt->execute();
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		if ($result) {
+			$result["data"] = json_decode($result["data"]);
+			unset($result["password"]);
+			unset($result["data"]->password);
+			$_SESSION["user"] = $result;
+		}
+
+		return $result ?: [];
+	}
+
+
+	/**
+	 * Add function
+	 *
+	 * @param object $params
+	 * @return int
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Add(object $params): int
+	{
+
+		$user = $this->Get((object) array("email" => $params->data->email));
+
+		if ($user) {
+			throw new Exception("User with email " . $params->data->email . " already exists", 400);
+		}
+
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.users 
+					(data, admin) 
+				VALUES 
+					(:DATA, :ADMIN)
+				RETURNING id_users
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':DATA', json_encode($params->data));
+		$stmt->bindParam(':ADMIN', $params->admin);
+		$stmt->execute();
+
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		return (int)$result['id_users'];
+	}
+
+	/**
+	 * Update function
+	 *
+	 * @param object $params
+	 * @return boolean
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Update(object $params): bool
+	{
+
+		$sql = "UPDATE {$_SESSION["SCHEMA"]}.users 
+				SET 
+					data = :DATA, 
+					admin = :ADMIN
+				WHERE id_users = :ID
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':DATA', json_encode($params->data));
+		$stmt->bindParam(':ADMIN', $params->admin);
+		$stmt->bindParam(':ID', $params->id);
+		$stmt->execute();
+
+		return true;
+	}
+
+
+	/**
+	 * Delete function
+	 *
+	 * @param object $params
+	 * @return boolean
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Delete(object $params): bool
+	{
+		$sql = "DELETE FROM {$_SESSION["SCHEMA"]}.users 
+				WHERE id_users = :ID
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID', $params->id);
+		$stmt->execute();
+
+		return true;
+	}
 
 	/**
 	 * Login function
@@ -42,65 +191,27 @@ class Users
 	{
 
 		$Helper = new Helper($this->database);
-		$ip_address = $Helper->get_client_ip();
-		$ldapConn = ldap_connect($this->ldapServer) or die("Unable to connect to LDAP server.");
 
-		// print_r($params);
-		// exit;
+		$sql = "SELECT 
+					* 
+				FROM {$_SESSION["SCHEMA"]}.users u
+				WHERE 
+					u.email = :EMAIL
+					AND u.password = MD5(:PASSWORD)
+		";
 
-		ldap_set_option($ldapConn, LDAP_OPT_PROTOCOL_VERSION, 3);
-		ldap_set_option($ldapConn, LDAP_OPT_REFERRALS, 0);
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':EMAIL', $params->username);
+		$stmt->bindParam(':PASSWORD', $params->password);
+		$stmt->execute();
 
-		$ldapBind = ldap_bind($ldapConn, "{$params->username}@{$this->ldapDomain}", $params->password);
-		if ($ldapBind) {
-			// echo "2";
-			$result = ldap_search($ldapConn, "DC=dpd,DC=hr", "(&(objectClass=user)(samaccountname={$params->username})(memberof=CN=cpm_user,OU=CPM,OU=Groups,DC=dpd,DC=hr))", ['displayname']);
-			$data = ldap_get_entries($ldapConn, $result);
-
-			// print_r($data);
-
-			$isCPMUser = $data['count'] > 0;
-			if ($isCPMUser) {
-				$realName = $data[0]['displayname'][0];
-			}
-
-			$result = ldap_search($ldapConn, "DC=dpd,DC=hr", "(&(objectClass=user)(samaccountname={$params->username})(memberof=CN=cpm_upload,OU=CPM,OU=Groups,DC=dpd,DC=hr))", ['displayname']);
-			$data = ldap_get_entries($ldapConn, $result);
-
-			$canUpload = $data['count'] > 0;
-
-			$result = ldap_search($ldapConn, "DC=dpd,DC=hr", "(&(objectClass=user)(samaccountname={$params->username})(memberof=CN=cpm_settings,OU=CPM,OU=Groups,DC=dpd,DC=hr))", ['displayname']);
-			$data = ldap_get_entries($ldapConn, $result);
-
-			$canSettings = $data['count'] > 0;
-
-			$sql = "SELECT id FROM public.userlist WHERE username = :USERNAME LIMIT 1";
-			$stmt = $this->database->prepare($sql);
-			$stmt->bindParam(':USERNAME', $params->username);
-			$stmt->execute();
-			$result = $stmt->fetchObject();
-
-			// print_r($result);
-			// exit;
-
-			if (!$result->id) {
-				$sql = "INSERT INTO public.userlist (username, realname) VALUES (:USERNAME, :REALNAME) RETURNING id";
-				$stmt = $this->database->prepare($sql);
-				$stmt->bindParam(':USERNAME', $params->username);
-				$stmt->bindParam(':REALNAME', $realName);
-				$stmt->execute();
-				$result = $stmt->fetchObject();
-			}
-			$userId = $result->id;
-
-			$_SESSION["user"]['userId'] = $userId;
-			$_SESSION["user"]['userName'] = $params->username;
-			$_SESSION["user"]['realName'] = $realName;
-			$_SESSION["user"]['isCPMUser'] = $isCPMUser;
-			$_SESSION["user"]['canUpload'] = $canUpload;
-			$_SESSION["user"]['canSettings'] = $canSettings;
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		if ($result) {
+			$result["data"] = json_decode($result["data"]);
+			unset($result["password"]);
+			unset($result["data"]->password);
+			$_SESSION["user"] = $result;
 		}
-
 		return $_SESSION["user"] ? $_SESSION["user"] : array();
 	}
 

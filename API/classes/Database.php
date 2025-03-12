@@ -25,35 +25,14 @@ class Database
 	public static function PDODBConnect($db): PDO
 	{
 
-		if (!$db) {
-			$dbhost = $_ENV["DB_HOST"];
-			$dbuser = $_ENV["DB_USER"];
-			$dbpass = $_ENV["DB_PASS"];
-			$dbname = $_ENV["DB_NAME"];
-			$dbport = $_ENV["DB_PORT"] ?? 5432;
-		} else if ($db == "it4em") {
-			$dsn = 'oci:dbname=' . $_ENV["IT4EM_CONNSTR"];
-			$dbuser = $_ENV["IT4EM_USER"];
-			$dbpass = $_ENV["IT4EM_PASSWORD"];
-			$options = array(
-				PDO::ATTR_ORACLE_NULLS => PDO::NULL_EMPTY_STRING // Handling Oracle nulls in a manner similar to OCI8
-			);
-		} else {
-			$dbhost = $_ENV["DB_HOST_" . strtoupper($db)];
-			$dbuser = $_ENV["DB_USER_" . strtoupper($db)];
-			$dbpass = $_ENV["DB_PASS_" . strtoupper($db)];
-			$dbname = $_ENV["DB_NAME_" . strtoupper($db)];
-			$dbport = $_ENV["DB_PORT_" . strtoupper($db)] ?? 5432;
-		}
+		$dbhost = $_ENV["DB_HOST"];
+		$dbuser = $_ENV["DB_USER"];
+		$dbpass = $_ENV["DB_PASS"];
+		$dbname = $_ENV["DB_NAME"];
+		$dbport = $_ENV["DB_PORT"] ?? 5432;
 
 		try {
-			if ($db == "it4em") {
-				// echo "{$dsn}<br>{$dbuser}<br>{$dbpass}";
-				// exit;
-				$dbh = new PDO($dsn, $dbuser, $dbpass, $options);
-			} else {
-				$dbh = new PDO("pgsql:host=$dbhost;dbname=$dbname;port=$dbport", $dbuser, $dbpass);
-			}
+			$dbh = new PDO("pgsql:host=$dbhost;dbname=$dbname;port=$dbport", $dbuser, $dbpass);
 		} catch (\PDOException $e) {
 			throw new \PDOException($e->getMessage(), (int)$e->getCode());
 		}

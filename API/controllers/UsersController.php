@@ -33,7 +33,7 @@ class UsersController extends BaseController
 	}
 
 	/**
-	 * Get function
+	 * GetLogedUser function
 	 *
 	 * @param Request $request
 	 * @param Response $response
@@ -41,9 +41,9 @@ class UsersController extends BaseController
 	 * @return Response
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function Get(Request $request, Response $response, array $args): Response
+	public function GetLogedUser(Request $request, Response $response, array $args): Response
 	{
-		return $response->withJson($_SESSION["USER"]);
+		return $response->withJson($_SESSION["user"]);
 	}
 
 	/**
@@ -62,22 +62,11 @@ class UsersController extends BaseController
 		$Helper = new Helper($this->db);
 		$User = new Users($this->db);
 
-		// if (!$vars["username"] || $vars["username"] == "" || $vars["username"] == NULL) {
-		// 	return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Data missing (email)"))), $response);
-		// }
-		// if (!$vars["password"] || $vars["password"] == "" || $vars["password"] == NULL) {
-		// 	return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Data missing (password)"))), $response);
-		// }
-
 		$vars = !empty($request->getParsedBody()) ? $request->getParsedBody() : array();
 		$queryParams = !empty($request->getQueryParams()) ? $request->getQueryParams() : array();
 		$params = $Helper->ArrayToObject($vars);
 		$params->args = $Helper->ArrayToObject($args);
 		$params->query =  $Helper->ArrayToObject($queryParams);
-
-		// echo "<pre>";
-		// print_r($params);
-		// exit;
 
 		if (!isset($params->username) || $params->username == "") {
 			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing username"))), $response);
@@ -94,7 +83,6 @@ class UsersController extends BaseController
 			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized"))), $response);
 		}
 
-		// $User->UserSession($user->id_cms_users);
 		return $response->withJson($_SESSION["user"]);
 	}
 
@@ -122,6 +110,97 @@ class UsersController extends BaseController
 	}
 
 	/**
+	 * GetAll function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetAll(Request $request, Response $response, array $args): Response
+	{
+		$User = new Users($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+
+		$results = $User->GetAll();
+
+		return $response->withJson($results, 200);
+	}
+
+	/**
+	 * Get function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Get(Request $request, Response $response, array $args): Response
+	{
+		$User = new Users($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
+
+		$results = $User->Get($args);
+
+		return $response->withJson($results, 200);
+	}
+
+	/**
+	 * Add function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Add(Request $request, Response $response, array $args): Response
+	{
+
+		$Language = new Language($this->db);
+		$User = new Users($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
+
+		if (!isset($params->data->email) || $params->data->email == "") {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing email"))), $response);
+		}
+		if (!isset($params->data->firstname) || $params->data->firstname == "") {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing firstname"))), $response);
+		}
+		if (!isset($params->data->lastname) || $params->data->lastname == "") {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing lastname"))), $response);
+		}
+		if (!isset($params->data->password) || $params->data->password == "") {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
+		}
+
+		$params->admin = (int) !empty($params->admin);
+		$params->data->password = md5($params->data->password);
+
+		try {
+			$id = $User->Add($params);
+		} catch (\Throwable $th) {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Existing user"))), $response);
+		}
+		$result = $User->Get((object) array("id" => $id));
+
+		return $response->withJson($result, 200);
+	}
+
+	/**
 	 * Update function
 	 *
 	 * @param Request $request
@@ -135,10 +214,29 @@ class UsersController extends BaseController
 
 		$Language = new Language($this->db);
 		$User = new Users($this->db);
+		$Helper = new Helper($this->db);
 
 		$vars = $request->getParsedBody();
-		$params = (object)$vars;
+		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
 
+		if (!isset($params->data->email) || $params->data->email == "") {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing email"))), $response);
+		}
+		if (!isset($params->data->firstname) || $params->data->firstname == "") {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing firstname"))), $response);
+		}
+		if (!isset($params->data->lastname) || $params->data->lastname == "") {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing lastname"))), $response);
+		}
+		if (!isset($params->data->password) || $params->data->password == "") {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
+		}
+
+		$params->admin = (int) !empty($params->admin);
+
+		$params->id = $args->id;
+		$params->data->password = md5($params->data->password);
 		if ($User->Update($params)) {
 			return Message::WriteMessage(200, array("Message" => $Language->Translate(array("phrase" => "User updated"))), $response);
 		} else {
@@ -146,8 +244,9 @@ class UsersController extends BaseController
 		}
 	}
 
+
 	/**
-	 * GetUsers function
+	 * Delete function
 	 *
 	 * @param Request $request
 	 * @param Response $response
@@ -155,107 +254,18 @@ class UsersController extends BaseController
 	 * @return Response
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function GetUsers(Request $request, Response $response, array $args): Response
+	public function Delete(Request $request, Response $response, array $args): Response
 	{
 
-		$User = new Users($this->db);
-		$Helper = new Helper($this->db);
-
-		$queryparams = $Helper->ArrayToObject($request->getQueryParams());
-		$results = $User->GetUsers($queryparams);
-
-		return $response->withJson($results, 200);
-	}
-
-	/**
-	 * GetUser function
-	 *
-	 * @param Request $request
-	 * @param Response $response
-	 * @param array $args
-	 * @return Response
-	 * @author Ivan Gudelj <gudeljiv@gmail.com>
-	 */
-	public function GetUser(Request $request, Response $response, array $args): Response
-	{
-
-		$User = new Users($this->db);
-
-		$result = $User->GetUser($args["id"]);
-		$result->addresses = $User->GetUserAddresses($args["id"]);
-
-		return $response->withJson($result, 200);
-	}
-
-	/**
-	 * CreateUser function
-	 *
-	 * @param Request $request
-	 * @param Response $response
-	 * @param array $args
-	 * @return Response
-	 * @author Ivan Gudelj <gudeljiv@gmail.com>
-	 */
-	public function CreateUser(Request $request, Response $response, array $args): Response
-	{
-
+		$Language = new Language($this->db);
 		$User = new Users($this->db);
 		$Helper = new Helper($this->db);
 
 		$vars = $request->getParsedBody();
 		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
 
-		$id = $User->CreateUser($params);
-
-		$result = $User->GetUser($id);
-		$result->addresses = $User->GetUserAddresses($id);
-
-		return $response->withJson($result, 200);
-	}
-
-	/**
-	 * UpdateUser function
-	 *
-	 * @param Request $request
-	 * @param Response $response
-	 * @param array $args
-	 * @return Response
-	 * @author Ivan Gudelj <gudeljiv@gmail.com>
-	 */
-	public function UpdateUser(Request $request, Response $response, array $args): Response
-	{
-
-		$User = new Users($this->db);
-		$Helper = new Helper($this->db);
-
-		$vars = $request->getParsedBody();
-		$params = $Helper->ArrayToObject($vars);
-		$params->id_users = $args["id"];
-
-		$User->UpdateUser($params);
-
-		$result = $User->GetUser($args["id"]);
-		$result->addresses = $User->GetUserAddresses($args["id"]);
-
-		return $response->withJson($result, 200);
-	}
-
-	/**
-	 * DeleteUser function
-	 *
-	 * @param Request $request
-	 * @param Response $response
-	 * @param array $args
-	 * @return Response
-	 * @author Ivan Gudelj <gudeljiv@gmail.com>
-	 */
-	public function DeleteUser(Request $request, Response $response, array $args): Response
-	{
-
-		$User = new Users($this->db);
-
-		$User->DeleteUser($args["id"]);
-		$User->DeleteUserAddresses($args["id"]);
+		$User->Delete($args);
 
 		return $response->withStatus(204);
 	}
