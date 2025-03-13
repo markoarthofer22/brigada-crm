@@ -26,6 +26,7 @@ class ComposerStaticInitc7c310cc4ef7427f3b1de3c077da1ad9
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
             'PhpOption\\' => 10,
+            'PP\\Middleware\\' => 14,
             'PP\\Controller\\' => 14,
             'PP\\Classes\\' => 11,
         ),
@@ -71,6 +72,10 @@ class ComposerStaticInitc7c310cc4ef7427f3b1de3c077da1ad9
         'PhpOption\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
+        ),
+        'PP\\Middleware\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/middleware',
         ),
         'PP\\Controller\\' => 
         array (

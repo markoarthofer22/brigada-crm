@@ -110,7 +110,7 @@ class UsersController extends BaseController
 	}
 
 	/**
-	 * GetAll function
+	 * __invoke function
 	 *
 	 * @param Request $request
 	 * @param Response $response
@@ -118,7 +118,7 @@ class UsersController extends BaseController
 	 * @return Response
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function GetAll(Request $request, Response $response, array $args): Response
+	public function __invoke(Request $request, Response $response, array $args): Response
 	{
 		$User = new Users($this->db);
 		$Helper = new Helper($this->db);
@@ -197,7 +197,7 @@ class UsersController extends BaseController
 		}
 		$result = $User->Get((object) array("id" => $id));
 
-		return $response->withJson($result, 200);
+		return $response->withJson($result, 201);
 	}
 
 	/**
@@ -238,7 +238,7 @@ class UsersController extends BaseController
 		$params->id = $args->id;
 		$params->data->password = md5($params->data->password);
 		if ($User->Update($params)) {
-			return Message::WriteMessage(200, array("Message" => $Language->Translate(array("phrase" => "User updated"))), $response);
+			return $response->withStatus(204);
 		} else {
 			return Message::WriteMessage(520, array("Message" => $Language->Translate(array("phrase" => "Unknown error"))), $response);
 		}

@@ -8,7 +8,8 @@
 	"autoload": {
 		"psr-4": {
 			"PP\\Classes\\": "classes/",
-			"PP\\Controller\\": "controllers/"
+			"PP\\Controller\\": "controllers/",
+			"PP\\Middleware\\": "middleware/"
 		}
 	},
 	"platform-check": false

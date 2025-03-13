@@ -6,9 +6,17 @@ namespace CMS;
 use PP\Classes\Database;
 use PP\Classes\Helper;
 use PP\Classes\Language;
+use PP\Classes\Logs;
 use PP\Classes\Message;
 use PP\Classes\Users;
+use PP\Controller\ProjectsController;
+use PP\Controller\QuestionsController;
+use PP\Controller\SettingsController;
+use PP\Controller\TestController;
 use PP\Controller\UsersController;
+use PP\Controller\ZonesController;
+use PP\Middleware\Auth;
+use PP\Middleware\Main;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use stdClass;
@@ -105,219 +113,61 @@ $_SESSION["lang"] = isset($_GET["lang"]) ? $_GET["lang"] : (isset($_SESSION["lan
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// MIDDLEWARE ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-$middleware = function (Request $request, Response $response, $next): Response {
-	$db = Database::Connection($_SESSION["database_suffix"]);
-	$Helper = new Helper($db);
-
-	// $logs = new SaveLog($db);
-
-	//////// BEFORE //////////////////
-	$vars = $request->getParsedBody() ? $request->getParsedBody() : array();
-	$query = $request->getQueryParams() ? $request->getQueryParams() : array();
-	// $args = $request->getAttribute("routeInfo")[2];
-	$method = $request->getMethod();
-	$path = $request->getUri()->getPath();
-	// $logs->Write($path, $vars, $query, $method);
-
-	//////// NEXT //////////////////
-	$response = $next($request, $response);
-
-	//////// AFTER //////////////////
-	$status = $response->getStatusCode();
-	$body = ($content = $response->getBody()) ? json_decode($content, false) ?? new stdClass() : new stdClass();
-	$body = $Helper->ArrayToObject($body);
-	$body->session_id = $_SESSION["session_id"];
-
-	$body->lang = $_SESSION["lang"];
-	$body->memory_get_usage = $Helper->formatBytes(memory_get_usage(true));
-	$body->memory_get_peak_usage = $Helper->formatBytes(memory_get_peak_usage(true));
-
-	// if (is_array($body) || is_object($body)) {
-	// 	$body = json_encode($body);
-	// }
-
-
-	// $logs->Update($_SESSION["LID"], $status, $body);
-
-	return $response->withJson($body);
-};
-
-$auth = function (Request $request, Response $response, $next): Response {
-	$db = Database::Connection($_SESSION["database_suffix"]);
-	$User = new Users($db);
-	$Language = new Language($db);
-
-	$headers = apache_request_headers();
-	$token = trim(str_replace("Bearer", "", $headers["Authorization"] ? $headers["Authorization"] : $headers["authorization"]));
-
-	// if (!$token) {
-	// 	return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Token not provided"))), $response);
-	// }
-
-	// if ($token) {
-	// 	$login = $user->LoginWithToken($token);
-	// 	if ($login != new stdClass) {
-	// 		$user->UserSession($login->id_cms_users);
-	// 	} else {
-	// 		$user->Logout();
-	// 	}
-	// }
-
-	if (!$User->isUserLogedIn()) {
-		return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized"))), $response);
-	}
-
-	$response = $next($request, $response);
-
-	return $response;
-};
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// API ROUTES ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$app->group('', function () use ($app, $auth) {
+$app->group('', function () use ($app) {
+
+	$app->get('/settings', SettingsController::class);
 
 	$app->get('/', function (Request $request, Response $response, array $args) {
 		$out = new stdClass;
 		$out->message = "OK";
 		return $response->withJson($out, 200);
-	})->add($auth);
+	})->add([new Auth(), 'Auth']);
 
-	$app->group('/user', function () use ($app, $auth) {
+	$app->group('/user', function () use ($app) {
 		// $app->get('', UsersController::class . ":GetLogedUser")->add($auth);
-		$app->get('', UsersController::class . ":GetAll")->add($auth);
-		$app->get('/{id}', UsersController::class . ":Get")->add($auth);
-		$app->post('', UsersController::class . ":Add")->add($auth);
-		$app->put('/{id}', UsersController::class . ":Update")->add($auth);
-		$app->delete('/{id}', UsersController::class . ":Delete")->add($auth);
+		$app->get('', UsersController::class)->add([new Auth(), 'Auth']);
+		$app->get('/{id}', UsersController::class . ":Get")->add([new Auth(), 'Auth']);
+		$app->post('', UsersController::class . ":Add")->add([new Auth(), 'Auth']);
+		$app->put('/{id}', UsersController::class . ":Update")->add([new Auth(), 'Auth']);
+		$app->delete('/{id}', UsersController::class . ":Delete")->add([new Auth(), 'Auth']);
 		$app->post('/login', UsersController::class . ":Login");
 		$app->post('/logout', UsersController::class . ":Logout");
 	});
 
-	// $app->group('/files', function () use ($app) {
-	// 	$app->get('', FilesController::class);
-	// 	$app->post('/upload', FilesController::class . ":Upload");
-	// 	$app->post('/delete', FilesController::class . ":Delete");
-	// 	$app->get('/download', FilesController::class . ":Download");
-	// })->add($auth);
+	$app->group('/projects', function () use ($app) {
+		$app->get('', ProjectsController::class);
+		$app->get('/{id}', ProjectsController::class . ":Get");
+		$app->post('', ProjectsController::class . ":Add");
+		$app->put('/{id}', ProjectsController::class . ":Update");
+		$app->delete('/{id}', ProjectsController::class . ":Delete");
+	})->add([new Auth(), 'Auth']);
 
-	// $app->group('/data', function () use ($app, $auth) {
-	// 	$app->group('/directinjection', function () use ($app) {
-	// 		$app->get('', DirectInjectionController::class . ":Get");
-	// 		$app->put('/{id}', DirectInjectionController::class . ":Update");
-	// 	})->add($auth);
+	$app->group('/questions', function () use ($app) {
+		$app->get('', QuestionsController::class);
+		$app->get('/{id}', QuestionsController::class . ":Get");
+		$app->post('', QuestionsController::class . ":Add");
+		$app->put('/{id}', QuestionsController::class . ":Update");
+		$app->delete('/{id}', QuestionsController::class . ":Delete");
+	})->add([new Auth(), 'Auth']);
 
-	// 	$app->group('/custom', function () use ($app) {
-	// 		$app->get('', CustomController::class . ":Get");
-	// 		$app->post('', CustomController::class . ":Insert");
-	// 		$app->put('/{id}', CustomController::class . ":Update");
-	// 		$app->delete('/{id}', CustomController::class . ":Delete");
-	// 	})->add($auth);
+	$app->group('/zones', function () use ($app) {
+		$app->get('', ZonesController::class);
+		$app->get('/{id}', ZonesController::class . ":Get");
+		$app->post('', ZonesController::class . ":Add");
+		$app->put('/{id}', ZonesController::class . ":Update");
+		$app->delete('/{id}', ZonesController::class . ":Delete");
+	})->add([new Auth(), 'Auth']);
 
-	// 	$app->group('/customers', function () use ($app) {
-	// 		$app->get('', CustomersController::class . ":Get");
-	// 	})->add($auth);
-
-	// 	$app->group('/salespeople', function () use ($app) {
-	// 		$app->get('', SalesPeopleController::class . ":Get");
-	// 	})->add($auth);
-	// });
-
-	// $app->group('/mappings', function () use ($app, $auth) {
-	// 	$app->group('/it4em', function () use ($app) {
-	// 		$app->get('', IT4EMController::class . ":Get");
-	// 		$app->post('', IT4EMController::class . ":Insert");
-	// 		$app->put('/{id}', IT4EMController::class . ":Update");
-	// 		$app->delete('/{id}', IT4EMController::class . ":Delete");
-	// 	})->add($auth);
-
-	// 	$app->group('/ics', function () use ($app) {
-	// 		$app->get('', ICSController::class . ":Get");
-	// 		$app->post('', ICSController::class . ":Insert");
-	// 		$app->put('/{id}', ICSController::class . ":Update");
-	// 		$app->delete('/{id}', ICSController::class . ":Delete");
-	// 	})->add($auth);
-
-	// 	$app->group('/smm', function () use ($app) {
-	// 		$app->get('', SMMController::class . ":Get");
-	// 		// $app->post('', SMMController::class . ":Insert");
-	// 		$app->put('/{id}', SMMController::class . ":Update");
-	// 		// $app->delete('/{id}', SMMController::class . ":Delete");
-	// 	})->add($auth);
-
-	// 	$app->group('/linehaul', function () use ($app) {
-	// 		$app->get('', LinehaulController::class . ":Get");
-	// 		$app->post('', LinehaulController::class . ":Insert");
-	// 		$app->put('/{id}', LinehaulController::class . ":Update");
-	// 		$app->delete('/{id}', LinehaulController::class . ":Delete");
-	// 	})->add($auth);
-
-	// 	$app->group('/exportlinehaul', function () use ($app) {
-	// 		$app->get('', ExportLinehaulController::class . ":Get");
-	// 		$app->post('', ExportLinehaulController::class . ":Insert");
-	// 		$app->put('/{id}', ExportLinehaulController::class . ":Update");
-	// 		$app->delete('/{id}', ExportLinehaulController::class . ":Delete");
-	// 	})->add($auth);
-	// });
-
-	// $app->group('/reports', function () use ($app, $auth) {
-	// 	$app->group('/linehaul', function () use ($app) {
-	// 		$app->get('', LinehaulController::class . ":GetAverage");
-	// 	})->add($auth);
-
-	// 	$app->group('/calculate', function () use ($app) {
-	// 		$app->post('/download/delete', CalculateController::class . ":Delete");
-	// 		$app->get('/download', CalculateController::class . ":Download");
-	// 		$app->get('', CalculateController::class . ":Get");
-	// 	})->add($auth);
-
-	// 	$app->group('/detailed', function () use ($app) {
-	// 		$app->post('/download/delete', DetailedController::class . ":Delete");
-	// 		$app->post('/download', DetailedController::class . ":Download");
-	// 		$app->get('/data', DetailedController::class . ":Data");
-	// 		$app->post('', DetailedController::class . ":Get");
-	// 	})->add($auth);
-
-	// 	$app->group('/status', function () use ($app) {
-	// 		$app->put('/module/{id}', StatusController::class . ":Update");
-	// 		$app->get('', StatusController::class . ":GetAll");
-	// 		$app->put('/{id}', StatusController::class . ":Update");
-	// 	})->add($auth);
-	// });
-
-	// $app->group('/settings', function () use ($app, $auth) {
-	// 	$app->get('', SettingsController::class);
-	// 	$app->get('/app', SettingsController::class . ":Get")->add($auth);
-	// 	$app->post('/app', SettingsController::class . ":Insert")->add($auth);
-	// 	$app->put('/app/{id}', SettingsController::class . ":Update")->add($auth);
-	// 	$app->delete('/app/{id}', SettingsController::class . ":Delete")->add($auth);
-	// });
-
-	// $app->group('/import', function () use ($app) {
-	// 	$app->get('', ImportController::class);
-	// });
-
-	// $app->group('/sanitize', function () use ($app) {
-	// 	$app->get('', CleanController::class);
-	// });
-
-	// $app->group('/test', function () use ($app) {
-	// 	$app->get('/', TestController::class . ":Get");
-	// 	$app->get('/pp', TestController::class . ":PP");
-	// 	$app->get('/info', TestController::class . ":Info");
-	// 	$app->get('/oci', TestController::class . ":oci");
-	// });
-})->add($middleware);
+	$app->group('/test', function () use ($app) {
+		$app->get('/', TestController::class . ":Get");
+		$app->get('/pp', TestController::class . ":PP");
+		$app->get('/info', TestController::class . ":Info");
+		$app->get('/oci', TestController::class . ":oci");
+	});
+})->add([new Main(), 'Logs']);
 
 
 //SLIM NO ROUTE IS FOUND

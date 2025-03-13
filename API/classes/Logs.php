@@ -28,53 +28,62 @@ class Logs
 	}
 
 
-	/**
-	 * Insert function
-	 *
-	 * @return int
-	 * @author Ivan Gudelj <gudeljiv@gmail.com>
-	 */
-	public function Insert(array $params): int
+	public function Write($path, $parsedBody, $queryParams, $method)
 	{
 
-		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}._logs 
-				(module, module_name, description, command, output) 
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.logs
+					(\"user\", path, \"parsed_body\", \"query_params\", method, created_at)
 				VALUES 
-				(:MODULE, :MODULE_NAME, :DESCRIPTION, :COMMAND, :OUTPUT)
-				RETURNING id
+					(:USER, :PATH, :PARSEDBODY, :QUERYPARAMS, :METHOD, NOW())
+				RETURNING \"id_logs\"
 		";
 
 		$stmt = $this->database->prepare($sql);
-		$stmt->bindParam(':MODULE', $params["module"], PDO::PARAM_INT);
-		$stmt->bindParam(':MODULE_NAME', $params["module_name"], PDO::PARAM_STR);
-		$stmt->bindParam(':DESCRIPTION', $params["description"], PDO::PARAM_STR);
-		$stmt->bindParam(':COMMAND', $params["command"], PDO::PARAM_STR);
-		$stmt->bindParam(':OUTPUT', $params["output"], PDO::PARAM_STR);
+
+		if (is_string($parsedBody) && json_decode($parsedBody) !== null && json_last_error() === JSON_ERROR_NONE) {
+			// Already valid JSON string
+			$pb = $parsedBody;
+		} else {
+			// Not JSON, encode it
+			$pb = json_encode($parsedBody);
+		}
+
+		if (is_string($queryParams) && json_decode($queryParams) !== null && json_last_error() === JSON_ERROR_NONE) {
+			// Already valid JSON string
+			$qp = $queryParams;
+		} else {
+			// Not JSON, encode it
+			$qp = json_encode($queryParams);
+		}
+
+		$stmt->bindParam(":USER", json_encode($_SESSION["user"]));
+		$stmt->bindParam(":PATH", $path);
+		$stmt->bindValue(":PARSEDBODY", $pb);
+		$stmt->bindValue(":QUERYPARAMS", $qp);
+		$stmt->bindParam(":METHOD", $method);
 		$stmt->execute();
 
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
-		return (int)$result['id'];
+
+		return (int)$result['id_logs'];
 	}
 
-	/**
-	 * Update function
-	 *
-	 * @return bool
-	 * @author Ivan Gudelj <gudeljiv@gmail.com>
-	 */
-	public function Update(array $params): bool
+	public function Update($id, $responseCode, $response)
 	{
 
-		$sql = "UPDATE {$_SESSION["SCHEMA"]}._logs 
-				SET 
-					output = :OUTPUT,
-					execution_time = EXTRACT(EPOCH FROM (now() - created_at)) * 1000
-				WHERE id = :ID
-		";
+		if (is_string($response) && json_decode($response) !== null && json_last_error() === JSON_ERROR_NONE) {
+			// Already valid JSON string
+			$res = $response;
+		} else {
+			// Not JSON, encode it
+			$res = json_encode($response);
+		}
 
+		$sql = "UPDATE {$_SESSION["SCHEMA"]}.logs SET response = :RESPONSE, response_code = :RESPONSECODE WHERE id_logs = :ID";
 		$stmt = $this->database->prepare($sql);
-		$stmt->bindParam(':OUTPUT', $params["output"], PDO::PARAM_STR);
-		$stmt->bindParam(':ID', $params["id"], PDO::PARAM_INT);
+		$stmt->bindParam(":ID", $id);
+		$stmt->bindParam(":RESPONSE", $res);
+		$stmt->bindParam(":RESPONSECODE", $responseCode);
 		$stmt->execute();
 
 		return true;

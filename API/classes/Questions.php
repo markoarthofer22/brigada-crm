@@ -1,0 +1,200 @@
+<?php
+
+namespace PP\Classes;
+
+use Exception;
+use PDO;
+use stdClass;
+
+/**
+ * Questions class
+ *
+ * @author Ivan Gudelj <gudeljiv@gmail.com>
+ */
+class Questions
+{
+
+	protected $database;
+
+	/**
+	 * __construct function
+	 *
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function __construct(PDO $db)
+	{
+		$this->database = $db;
+	}
+
+	/**
+	 * GetAll function
+	 *
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetAll(): array
+	{
+		$sql = "SELECT 
+					* 
+				FROM {$_SESSION["SCHEMA"]}.questions q
+				ORDER BY q.sort ASC, q.label ASC
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->execute();
+
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		foreach ($results as &$result) {
+			$result["possible_answers"] = json_decode($result["possible_answers"]);
+		}
+		return $results;
+	}
+
+	/**
+	 * Get function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Get(object $params): array
+	{
+		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.questions q WHERE q.id_questions = :ID";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
+
+		$stmt->execute();
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		if ($result) {
+			$result["possible_answers"] = json_decode($result["possible_answers"]);
+		}
+
+		return $result ?: [];
+	}
+
+
+	/**
+	 * Add function
+	 *
+	 * @param object $params
+	 * @return int
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Add(object $params): int
+	{
+
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.questions 
+					(id_projects,label,id_questions_types,possible_answers,sort) 
+				VALUES 
+					(:ID_PROJECTS,:LABEL,:ID_QUESTIONS_TYPES,:POSSIBLE_ANSWERS,:SORT)
+				RETURNING id_questions
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':LABEL', $params->label);
+		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
+		$stmt->bindParam(':POSSIBLE_ANSWERS', json_encode($params->possible_answers));
+		$stmt->bindParam(':SORT', $params->sort);
+		$stmt->execute();
+
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		return (int)$result['id_questions'];
+	}
+
+	/**
+	 * Update function
+	 *
+	 * @param object $params
+	 * @return boolean
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Update(object $params): bool
+	{
+
+		$sql = "UPDATE {$_SESSION["SCHEMA"]}.questions 
+				SET 
+					id_projects = :ID_PROJECTS,
+					label = :LABEL,
+					id_questions_types = :ID_QUESTIONS_TYPES,
+					possible_answers = :POSSIBLE_ANSWERS,
+					sort = :SORT
+				WHERE id_questions = :ID
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':LABEL', $params->label);
+		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
+		$stmt->bindParam(':POSSIBLE_ANSWERS', json_encode($params->possible_answers));
+		$stmt->bindParam(':SORT', $params->sort);
+		$stmt->bindParam(':ID', $params->id);
+		$stmt->execute();
+
+		return true;
+	}
+
+
+	/**
+	 * Delete function
+	 *
+	 * @param object $params
+	 * @return boolean
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Delete(object $params): bool
+	{
+		$sql = "DELETE FROM {$_SESSION["SCHEMA"]}.questions 
+				WHERE id_questions = :ID
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID', $params->id);
+		$stmt->execute();
+
+		return true;
+	}
+
+	/**
+	 * GetTypes function
+	 *
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetTypes(): array
+	{
+		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.questions_types ORDER BY type ASC";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->execute();
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		return $results;
+	}
+
+	/**
+	 * GetForProject function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetForProject(object $params): array
+	{
+		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.questions q WHERE q.id_projects = :ID ORDER BY q.sort ASC, q.label ASC";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
+
+		$stmt->execute();
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($results as &$result) {
+			if ($result) {
+				$result["possible_answers"] = json_decode($result["possible_answers"]);
+			}
+		}
+
+		return $results ?: [];
+	}
+}
