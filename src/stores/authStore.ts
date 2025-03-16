@@ -1,29 +1,30 @@
 import Cookies from 'js-cookie'
 import { create } from 'zustand'
+import { User } from '@/api/services/user/schema.ts'
 
-const ACCESS_TOKEN = 'thisisjustarandomstring'
-
-interface AuthUser {
-  accountNo: string
-  email: string
-  role: string[]
-  exp: number
+export enum Languages {
+  HR = 'hr',
+  EN = 'en',
 }
 
 interface AuthState {
   auth: {
-    user: AuthUser | null
-    setUser: (user: AuthUser | null) => void
-    accessToken: string
+    user: User | null
+    lang: Languages | null
+    setLang: (lang: Languages) => void
+    setUser: (user: User | null) => void
+    accessToken: string | null
     setAccessToken: (accessToken: string) => void
     resetAccessToken: () => void
     reset: () => void
   }
 }
 
+const ACCESS_TOKEN = import.meta.env.VITE_COOKIE_ACCESS_TOKEN
+
 export const useAuthStore = create<AuthState>()((set) => {
   const cookieState = Cookies.get(ACCESS_TOKEN)
-  const initToken = cookieState ? JSON.parse(cookieState) : ''
+  const initToken = cookieState ? JSON.parse(cookieState) : null
   return {
     auth: {
       user: null,
@@ -40,6 +41,12 @@ export const useAuthStore = create<AuthState>()((set) => {
           Cookies.remove(ACCESS_TOKEN)
           return { ...state, auth: { ...state.auth, accessToken: '' } }
         }),
+      lang: null,
+      setLang: (lang) => {
+        set((state) => {
+          return { ...state, auth: { ...state.auth, lang } }
+        })
+      },
       reset: () =>
         set((state) => {
           Cookies.remove(ACCESS_TOKEN)

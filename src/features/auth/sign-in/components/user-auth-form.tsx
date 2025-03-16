@@ -1,8 +1,11 @@
-import { HTMLAttributes, useState } from 'react'
-import { z } from 'zod'
+import { HTMLAttributes } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from '@tanstack/react-router'
+import {
+  LoginPayload,
+  LoginSchema,
+} from '@/api/services/authorization/schema.ts'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,40 +21,18 @@ import { PasswordInput } from '@/components/password-input'
 
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>
 
-const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(1, {
-      message: 'Please enter your password',
-    })
-    .min(7, {
-      message: 'Password must be at least 7 characters long',
-    }),
-})
-
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = useState(false)
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<LoginPayload>({
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true)
+  function onSubmit(data: LoginPayload) {
     // eslint-disable-next-line no-console
     console.log(data)
-
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
   }
 
   return (
@@ -61,12 +42,16 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <div className='grid gap-2'>
             <FormField
               control={form.control}
-              name='email'
+              name='username'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder='name@example.com' {...field} />
+                    <Input
+                      type='text'
+                      placeholder='name@example.com'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -81,7 +66,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                     <FormLabel>Password</FormLabel>
                     <Link
                       to='/forgot-password'
-                      className='text-sm font-medium text-muted-foreground hover:opacity-75'
+                      className='text-sm font-medium text-muted-foreground transition-opacity duration-200 hover:opacity-75'
                     >
                       Forgot password?
                     </Link>
@@ -93,9 +78,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 </FormItem>
               )}
             />
-            <Button className='mt-2' disabled={isLoading}>
-              Login
-            </Button>
+            <Button className='mt-2'>Login</Button>
           </div>
         </form>
       </Form>

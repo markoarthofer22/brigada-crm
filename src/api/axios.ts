@@ -1,4 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import { logout } from '@/api/services/authorization/authorization.ts'
+import { useAuthStore } from '@/stores/authStore.ts'
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean
@@ -11,6 +13,8 @@ const api = axios.create({
 export const isAxiosError = axios.isAxiosError
 
 api.interceptors.request.use((config) => {
+  const accessToken = useAuthStore.getState().auth.accessToken
+  config.headers['Authorization'] = 'Bearer ' + accessToken
   return config
 })
 
@@ -50,7 +54,5 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-
-function logout() {}
 
 export default api
