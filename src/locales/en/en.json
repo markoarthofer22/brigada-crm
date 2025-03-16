@@ -1,0 +1,31 @@
+{
+  "Input": {
+    "label": {
+      "username": "Username",
+      "password": "Password"
+    },
+    "placeholder": {
+      "username": "Enter your username",
+      "password": "********"
+    }
+  },
+  "Login": {
+    "image": {
+      "title": "Brigada",
+      "quote": "This template has saved me countless hours of work and helped me deliver stunning designs to my clients faster than ever before.",
+      "author": "John Doe"
+    },
+    "title": "Login",
+    "description": "Enter your email or username and password below <0></0> to log into your account",
+    "forgotPassword": "Forgot password?",
+    "submit": "Login"
+  },
+  "Error": {
+    "required": "This field is required",
+    "password": {
+        "min": "Password must be at least {{min}} characters long",
+        "max": "Password must be at most {{max}} characters long"
+    }
+  }
+
+}
