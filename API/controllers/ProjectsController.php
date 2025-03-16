@@ -22,7 +22,7 @@ use stdClass;
 class ProjectsController extends BaseController
 {
 
-	protected $login_error;
+	protected $folder;
 
 	/**
 	 * __construct function
@@ -32,6 +32,7 @@ class ProjectsController extends BaseController
 	public function __construct()
 	{
 		parent::__construct();
+		$this->folder = "/files/projects";
 	}
 
 	/**
@@ -76,11 +77,12 @@ class ProjectsController extends BaseController
 		$params = $Helper->ArrayToObject($vars);
 		$args = $Helper->ArrayToObject($args);
 
-		$results = $Projects->Get($args);
-		$results["questions"] = $Questions->GetForProject($args);
-		$results["zones"] = $Zones->GetForProject($args);
+		$result = $Projects->Get($args);
+		$result["questions"] = $Questions->GetForProject($args);
+		$result["zones"] = $Zones->GetForProject($args);
+		$result["path"] = $_ENV["DOMAIN"] . $this->folder;
 
-		return $response->withJson($results, 200);
+		return $response->withJson($result, 200);
 	}
 
 	/**

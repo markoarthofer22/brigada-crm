@@ -5,6 +5,8 @@ namespace PP\Classes;
 use Exception;
 use PDO;
 use stdClass;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 /**
  * Users class
@@ -17,6 +19,7 @@ class Users
 	protected $database;
 	protected $ldapServer;
 	protected $ldapDomain;
+	protected $secret_key;
 
 	/**
 	 * __construct function
@@ -26,6 +29,7 @@ class Users
 	public function __construct(PDO $db)
 	{
 		$this->database = $db;
+		$this->secret_key = $_ENV["JWT_SECRET"];
 	}
 
 
@@ -184,13 +188,14 @@ class Users
 	 * Login function
 	 *
 	 * @param object $params
-	 * @return array
+	 * @return string
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function Login(object $params): array
+	public function Login(object $params): string
 	{
 
 		$Helper = new Helper($this->database);
+		$jwt = "";
 
 		$sql = "SELECT 
 					* 
@@ -210,9 +215,54 @@ class Users
 			$result["data"] = json_decode($result["data"]);
 			unset($result["password"]);
 			unset($result["data"]->password);
+			// $_SESSION["user"] = $result;
+
+			$payload = [
+				"iss" => "localhost",
+				"aud" => "localhost",
+				"iat" => time(),
+				"exp" => time() + 3600, // Token expires in 1 hour
+				"user" => $result["id_users"]
+			];
+
+			$jwt = JWT::encode($payload, $this->secret_key, 'HS256');
+		}
+
+
+		return $jwt;
+	}
+
+
+	/**
+	 * LoginWithID function
+	 *
+	 * @param object $params
+	 * @return bool
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function LoginWithID(int $id): bool
+	{
+
+		$sql = "SELECT 
+					* 
+				FROM {$_SESSION["SCHEMA"]}.users u
+				WHERE 
+					u.id_users = :ID
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID', $id);
+		$stmt->execute();
+
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		if ($result) {
+			$result["data"] = json_decode($result["data"]);
+			unset($result["password"]);
+			unset($result["data"]->password);
 			$_SESSION["user"] = $result;
 		}
-		return $_SESSION["user"] ? $_SESSION["user"] : array();
+
+		return true;
 	}
 
 

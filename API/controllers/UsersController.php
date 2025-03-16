@@ -78,12 +78,12 @@ class UsersController extends BaseController
 
 		$user = $User->Login($params);
 
-		if ($user == array()) {
+		if ($user == "") {
 			$User->Logout();
 			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized"))), $response);
 		}
 
-		return $response->withJson($_SESSION["user"]);
+		return $response->withJson(array("token" => $user));
 	}
 
 	/**
@@ -102,8 +102,7 @@ class UsersController extends BaseController
 		$User = new Users($this->db);
 
 		if ($User->Logout()) {
-			return $response->withJson($_SESSION);
-			return Message::WriteMessage(200, array("Message" => $Language->Translate(array("phrase" => "Success"))), $response);
+			return $response->withStatus(204);
 		} else {
 			return Message::WriteMessage(520, array("Message" => $Language->Translate(array("phrase" => "Unknown error"))), $response);
 		}

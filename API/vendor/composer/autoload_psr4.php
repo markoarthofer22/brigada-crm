@@ -17,6 +17,7 @@ return array(
     'PP\\Controller\\' => array($baseDir . '/controllers'),
     'PP\\Classes\\' => array($baseDir . '/classes'),
     'GrahamCampbell\\ResultType\\' => array($vendorDir . '/graham-campbell/result-type/src'),
+    'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
     'FastRoute\\' => array($vendorDir . '/nikic/fast-route/src'),
     'Dotenv\\' => array($vendorDir . '/vlucas/phpdotenv/src'),
 );

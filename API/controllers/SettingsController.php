@@ -51,7 +51,7 @@ class SettingsController extends BaseController
 
 		$settings = new stdClass;
 		$settings->user = $_SESSION["user"];
-		$settings->session_id =  $_SESSION["session_id"];
+		// $settings->session_id =  $_SESSION["session_id"];
 		$settings->lang = $_SESSION["lang"];
 		$settings->questions_types = $Questions->GetTypes();
 
