@@ -1,0 +1,17 @@
+{
+	"require": {
+		"slim/slim": "^3.0",
+		"phpmailer/phpmailer": "^5.2",
+		"vlucas/phpdotenv": "^5.5",
+		"shuchkin/simplexlsxgen": "^1.4",
+		"firebase/php-jwt": "^6.11"
+	},
+	"autoload": {
+		"psr-4": {
+			"PP\\Classes\\": "classes/",
+			"PP\\Controller\\": "controllers/",
+			"PP\\Middleware\\": "middleware/"
+		}
+	},
+	"platform-check": false
+}
