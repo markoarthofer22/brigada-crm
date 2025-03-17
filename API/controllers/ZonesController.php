@@ -99,6 +99,7 @@ class ZonesController extends BaseController
 
 		$requiredFields = [
 			'id_projects',
+			'id_images',
 			'name',
 			'coordinates'
 		];
@@ -143,6 +144,7 @@ class ZonesController extends BaseController
 
 		$requiredFields = [
 			'id_projects',
+			'id_images',
 			'name',
 			'coordinates'
 		];

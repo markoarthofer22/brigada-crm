@@ -128,7 +128,6 @@ class Projects
 		return true;
 	}
 
-
 	/**
 	 * Delete function
 	 *
@@ -150,84 +149,67 @@ class Projects
 	}
 
 	/**
-	 * Upload base64-encoded image to specified folder with random filename.
+	 * ConnectProjectsImages function
 	 *
-	 * @param string $image base64 encoded image
-	 * @return string Filename of saved image
-	 * @throws Exception if any error occurs during upload
+	 * @param object $params
+	 * @return boolean
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function UploadImage(string $image): string
+	public function ConnectProjectsImages(object $params): bool
 	{
-		// Verify and create folder if it doesn't exist
-		if (!is_dir($this->folder)) {
-			if (!mkdir($this->folder, 0777, true)) {
-				throw new Exception("Failed to create directory.");
-			}
-		}
 
-		// Set correct permissions
-		chmod($this->folder, 0777);
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.projects_images (id_projects, id_images) VALUES (:ID_PROJECTS, :ID_IMAGES)";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':ID_IMAGES', $params->id_images);
+		$stmt->execute();
 
-		// Extract base64 data
-		if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
-			$image = substr($image, strpos($image, ',') + 1);
-			$type = strtolower($type[1]); // jpg, png, gif, etc.
-
-			if (!in_array($type, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-				throw new Exception("Unsupported file type.");
-			}
-		} else {
-			throw new Exception("Invalid base64 format.");
-		}
-
-		// Decode base64
-		$image = base64_decode($image);
-
-		if ($image === false) {
-			throw new Exception("Decoding failed.");
-		}
-
-		// Generate random filename
-		$fileName = uniqid('', true) . '.' . $type;
-
-		// Save file
-		$filePath = rtrim($this->folder, '/') . '/' . $fileName;
-
-		if (file_put_contents($filePath, $image) === false) {
-			throw new Exception("Saving failed.");
-		}
-
-		return $fileName;
+		return true;
 	}
 
 	/**
-	 * Delete image from specified folder.
+	 * DisconnectProjectsImages function
 	 *
-	 * @param int $id ID of project
-	 * @return boolean True if image was deleted, false if it didn't exist or couldn't be deleted
-	 * @throws Exception if any error occurs during deletion
-	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 * @param object $params
 	 * @return boolean
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-
-	public function DeleteImage(int $id): bool
+	public function DisconnectProjectsImages(object $params): bool
 	{
-		$sql = "SELECT image FROM {$_SESSION['SCHEMA']}.projects WHERE id_projects = :ID";
-		$stmt = $this->database->prepare($sql);
-		$stmt->bindParam(':ID', $id);
-		$stmt->execute();
-		$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-		if ($result && $result["image"]) {
-			$filePath = rtrim($this->folder, '/') . '/' . $result["image"];
-			if (file_exists($filePath)) {
-				if (!unlink($filePath)) {
-					throw new Exception("Failed to delete image.");
-				}
-			}
-		}
+		$sql = "DELETE FROM {$_SESSION["SCHEMA"]}.projects_images WHERE id_projects = :ID_PROJECTS AND id_images = :ID_IMAGES";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':ID_IMAGES', $params->id_images);
+		$stmt->execute();
 
 		return true;
+	}
+
+	/**
+	 * GetImages function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetImages(object $params): array
+	{
+
+		$sql = "SELECT 
+					i.* 
+				FROM {$_SESSION["SCHEMA"]}.projects_images pi
+				LEFT JOIN {$_SESSION["SCHEMA"]}.images i ON pi.id_images = i.id_images
+				WHERE pi.id_projects = :ID_PROJECTS
+				ORDER BY i.name ASC
+		";
+		// echo $sql;
+		// echo $params->id;
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id);
+		$stmt->execute();
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		return $results;
 	}
 }

@@ -69,11 +69,11 @@ class UsersController extends BaseController
 		$params->query =  $Helper->ArrayToObject($queryParams);
 
 		if (!isset($params->username) || $params->username == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing username"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing username"))), $response);
 		}
 
 		if (!isset($params->password) || $params->password == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
 		}
 
 		$user = $User->Login($params);
@@ -174,16 +174,16 @@ class UsersController extends BaseController
 		$args = $Helper->ArrayToObject($args);
 
 		if (!isset($params->data->email) || $params->data->email == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing email"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing email"))), $response);
 		}
 		if (!isset($params->data->firstname) || $params->data->firstname == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing firstname"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing firstname"))), $response);
 		}
 		if (!isset($params->data->lastname) || $params->data->lastname == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing lastname"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing lastname"))), $response);
 		}
 		if (!isset($params->data->password) || $params->data->password == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
 		}
 
 		$params->admin = (int) !empty($params->admin);
@@ -192,7 +192,7 @@ class UsersController extends BaseController
 		try {
 			$id = $User->Add($params);
 		} catch (\Throwable $th) {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Existing user"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Existing user"))), $response);
 		}
 		$result = $User->Get((object) array("id" => $id));
 
@@ -220,16 +220,16 @@ class UsersController extends BaseController
 		$args = $Helper->ArrayToObject($args);
 
 		if (!isset($params->data->email) || $params->data->email == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing email"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing email"))), $response);
 		}
 		if (!isset($params->data->firstname) || $params->data->firstname == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing firstname"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing firstname"))), $response);
 		}
 		if (!isset($params->data->lastname) || $params->data->lastname == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing lastname"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing lastname"))), $response);
 		}
 		if (!isset($params->data->password) || $params->data->password == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
 		}
 
 		$params->admin = (int) !empty($params->admin);

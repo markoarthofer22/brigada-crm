@@ -55,6 +55,8 @@ class SettingsController extends BaseController
 		$settings->lang = $_SESSION["lang"];
 		$settings->questions_types = $Questions->GetTypes();
 
+		// print_r($_SESSION);
+
 		return $response->withJson($settings, 200);
 	}
 }

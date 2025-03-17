@@ -4,6 +4,7 @@ namespace PP\Controller;
 
 use Exception;
 use PP\Classes\Helper;
+use PP\Classes\Images;
 use PP\Classes\Language;
 use PP\Classes\Message;
 use PP\Classes\Projects;
@@ -23,6 +24,7 @@ class ProjectsController extends BaseController
 {
 
 	protected $folder;
+	protected $allowedTypes;
 
 	/**
 	 * __construct function
@@ -33,6 +35,7 @@ class ProjectsController extends BaseController
 	{
 		parent::__construct();
 		$this->folder = "/files/projects";
+		$this->allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 	}
 
 	/**
@@ -80,6 +83,7 @@ class ProjectsController extends BaseController
 		$result = $Projects->Get($args);
 		$result["questions"] = $Questions->GetForProject($args);
 		$result["zones"] = $Zones->GetForProject($args);
+		$result["images"] = $Projects->GetImages($args);
 		$result["path"] = $_ENV["DOMAIN"] . $this->folder;
 
 		return $response->withJson($result, 200);
@@ -106,7 +110,7 @@ class ProjectsController extends BaseController
 		$args = $Helper->ArrayToObject($args);
 
 		if (!isset($params->data->name) || $params->data->name == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing name"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing name"))), $response);
 		}
 
 		$id = $Projects->Add($params);
@@ -136,24 +140,9 @@ class ProjectsController extends BaseController
 		$args = $Helper->ArrayToObject($args);
 
 		if (!isset($params->data->name) || $params->data->name == "") {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Missing name"))), $response);
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing name"))), $response);
 		}
 
-		try {
-			$Projects->DeleteImage($args->id);
-		} catch (Exception $e) {
-			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => $e->getMessage()))), $response);
-		}
-		if (isset($params->image)) {
-			try {
-				$image_name = $Projects->UploadImage($params->image);
-			} catch (Exception $e) {
-				return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => $e->getMessage()))), $response);
-			}
-		}
-
-		unset($params->image);
-		$params->data->image = $image_name;
 		$params->id = $args->id;
 		if ($Projects->Update($params)) {
 			return $response->withStatus(204);
@@ -161,7 +150,6 @@ class ProjectsController extends BaseController
 			return Message::WriteMessage(520, array("Message" => $Language->Translate(array("phrase" => "Unknown error"))), $response);
 		}
 	}
-
 
 	/**
 	 * Delete function
@@ -185,6 +173,78 @@ class ProjectsController extends BaseController
 
 		$Projects->Delete($args);
 
+		return $response->withStatus(204);
+	}
+
+	/**
+	 * UploadImage function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function UploadImage(Request $request, Response $response, array $args): Response
+	{
+		$Language = new Language($this->db);
+		$Projects = new Projects($this->db);
+		$Images = new Images($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
+		$files = $request->getUploadedFiles();
+
+		if (empty($files)) {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing file"))), $response);
+		}
+
+		// Get only the first uploaded file
+		$firstFile = reset($files);
+
+		if ($firstFile->getError() !== UPLOAD_ERR_OK) {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Error uploading file"))), $response);
+		}
+
+		$params = array(
+			"type" => $firstFile->getClientMediaType(),
+			"temp_file" => $firstFile->file,
+			"file_name" => $firstFile->getClientFilename()
+		);
+
+		if (!in_array($params["type"], $this->allowedTypes)) {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Unsupported file type: {$params["type"]}"))), $response);
+		}
+
+		$image = $Images->Upload($params);
+		$Projects->ConnectProjectsImages((object)["id_projects" => $args->id, "id_images" => $image["id_images"]]);
+		return $response->withJson(array("name" => $image["name"], "id_images" => $image["id_images"]), 200);
+	}
+
+	/**
+	 * DeleteImage function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function DeleteImage(Request $request, Response $response, array $args): Response
+	{
+		$Language = new Language($this->db);
+		$Projects = new Projects($this->db);
+		$Images = new Images($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
+
+		$image = $Images->Delete($args->id_images);
+		$Projects->DisconnectProjectsImages((object)["id_projects" => $args->id, "id_images" => $args->id_images]);
 		return $response->withStatus(204);
 	}
 }

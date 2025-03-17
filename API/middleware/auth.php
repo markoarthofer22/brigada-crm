@@ -12,6 +12,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Firebase\JWT\ExpiredException;
 
 /**
  * Auth class
@@ -51,12 +52,13 @@ class Auth
 		if (!$token) {
 			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Token not provided"))), $response);
 		}
-		$decoded = JWT::decode($token, new Key($this->secret_key, 'HS256'));
 
 		try {
 			$decoded = JWT::decode($token, new Key($this->secret_key, 'HS256'));
 			$user = $decoded->user;
 			$User->LoginWithID($user);
+		} catch (ExpiredException $e) {
+			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Token expired. Unauthorized"))), $response);
 		} catch (Exception $e) {
 			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized"))), $response);
 		}

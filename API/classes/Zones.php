@@ -87,14 +87,15 @@ class Zones
 	{
 
 		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.zones 
-					(id_projects,name,coordinates,data) 
+					(id_projects,id_images,name,coordinates,data) 
 				VALUES 
-					(:ID_PROJECTS,:NAME,:COORDINATES,:DATA)
+					(:ID_PROJECTS,:ID_IMAGES,:NAME,:COORDINATES,:DATA)
 				RETURNING id_zones
 		";
 
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':ID_IMAGES', $params->id_images);
 		$stmt->bindParam(':NAME', $params->name);
 		$stmt->bindParam(':COORDINATES', json_encode($params->coordinates));
 		$stmt->bindParam(':DATA', json_encode($params->data));
@@ -117,6 +118,7 @@ class Zones
 		$sql = "UPDATE {$_SESSION["SCHEMA"]}.zones 
 				SET 
 					id_projects = :ID_PROJECTS,
+					id_images = :ID_IMAGES,
 					name = :NAME,
 					coordinates = :COORDINATES,
 					data = :DATA
@@ -125,6 +127,7 @@ class Zones
 
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':ID_IMAGES', $params->id_images);
 		$stmt->bindParam(':NAME', $params->name);
 		$stmt->bindParam(':COORDINATES', json_encode($params->coordinates));
 		$stmt->bindParam(':DATA', json_encode($params->data));

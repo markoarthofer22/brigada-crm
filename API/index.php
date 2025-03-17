@@ -118,7 +118,7 @@ $_SESSION["lang"] = isset($_GET["lang"]) ? $_GET["lang"] : (isset($_SESSION["lan
 
 $app->group('', function () use ($app) {
 
-	$app->get('/settings', SettingsController::class);
+	$app->get('/settings', SettingsController::class)->add([new Auth(), 'Auth']);
 
 	$app->get('/', function (Request $request, Response $response, array $args) {
 		$out = new stdClass;
@@ -142,7 +142,9 @@ $app->group('', function () use ($app) {
 		$app->get('/{id}', ProjectsController::class . ":Get");
 		$app->post('', ProjectsController::class . ":Add");
 		$app->put('/{id}', ProjectsController::class . ":Update");
+		$app->post('/{id}/image', ProjectsController::class . ":UploadImage");
 		$app->delete('/{id}', ProjectsController::class . ":Delete");
+		$app->delete('/{id}/image/{id_images}', ProjectsController::class . ":DeleteImage");
 	})->add([new Auth(), 'Auth']);
 
 	$app->group('/questions', function () use ($app) {
@@ -161,12 +163,12 @@ $app->group('', function () use ($app) {
 		$app->delete('/{id}', ZonesController::class . ":Delete");
 	})->add([new Auth(), 'Auth']);
 
-	$app->group('/test', function () use ($app) {
-		$app->get('/', TestController::class . ":Get");
-		$app->get('/pp', TestController::class . ":PP");
-		$app->get('/info', TestController::class . ":Info");
-		$app->get('/oci', TestController::class . ":oci");
-	});
+	// $app->group('/test', function () use ($app) {
+	// 	$app->get('/', TestController::class . ":Get");
+	// 	$app->get('/pp', TestController::class . ":PP");
+	// 	$app->get('/info', TestController::class . ":Info");
+	// 	$app->get('/oci', TestController::class . ":oci");
+	// });
 })->add([new Main(), 'Logs']);
 
 

@@ -218,10 +218,10 @@ class Users
 			// $_SESSION["user"] = $result;
 
 			$payload = [
-				"iss" => "localhost",
-				"aud" => "localhost",
+				"iss" => $_ENV["DOMAIN"],
+				"aud" => $_ENV["DOMAIN"],
 				"iat" => time(),
-				"exp" => time() + 3600, // Token expires in 1 hour
+				"exp" => strtotime("+1 year"), // Token expires in 1 year
 				"user" => $result["id_users"]
 			];
 
@@ -261,6 +261,8 @@ class Users
 			unset($result["data"]->password);
 			$_SESSION["user"] = $result;
 		}
+
+		// print_r($_SESSION["user"]);
 
 		return true;
 	}
