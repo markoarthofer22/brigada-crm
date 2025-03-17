@@ -46,13 +46,21 @@ class Main
 
 		//////// AFTER //////////////////
 		$status = $response->getStatusCode();
-		$body = ($content = $response->getBody()) ? json_decode($content, false) ?? new stdClass() : new stdClass();
-		$body = $Helper->ArrayToObject($body);
-		$body->session_id = $_SESSION["session_id"];
+		$body = ($content = $response->getBody()) ? json_decode($content, false) ?? [] : [];
 
-		$body->lang = $_SESSION["lang"];
-		$body->memory_get_usage = $Helper->formatBytes(memory_get_usage(true));
-		$body->memory_get_peak_usage = $Helper->formatBytes(memory_get_peak_usage(true));
+		if (is_array($body)) {
+			$body["session_id"] = $_SESSION["session_id"];
+			$body["lang"] = $_SESSION["lang"];
+			$body["memory_get_usage"] = $Helper->formatBytes(memory_get_usage(true));
+			$body["memory_get_peak_usage"] = $Helper->formatBytes(memory_get_peak_usage(true));
+		}
+		if (is_object($body)) {
+			$body->session_id = $_SESSION["session_id"];
+			$body->lang = $_SESSION["lang"];
+			$body->memory_get_usage = $Helper->formatBytes(memory_get_usage(true));
+			$body->memory_get_peak_usage = $Helper->formatBytes(memory_get_peak_usage(true));
+		}
+
 
 		// if (is_array($body) || is_object($body)) {
 		// 	$body = json_encode($body);
