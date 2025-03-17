@@ -12,6 +12,7 @@ import { Toaster } from '@/components/ui/sonner.tsx'
 const Root = () => {
 	const user = useAuthStore((state) => state.auth.user)
 	const setLanguage = useAuthStore((state) => state.auth.setLang)
+	const setSession = useAuthStore((state) => state.auth.setSessionId)
 	const setUser = useAuthStore((state) => state.auth.setUser)
 	const { showLoader, hideLoader } = useLoader()
 	const { theme } = useTheme()
@@ -24,11 +25,18 @@ const Root = () => {
 		if (!globalSettingsQuery.data) return
 
 		setLanguage(globalSettingsQuery.data.lang)
-
+		setSession(globalSettingsQuery.data.session_id)
 		if (globalSettingsQuery.data?.user) {
 			setUser(globalSettingsQuery.data.user)
 		}
-	}, [globalSettingsQuery.data, router, setLanguage, setUser, user?.id_users])
+	}, [
+		globalSettingsQuery.data,
+		router,
+		setLanguage,
+		setSession,
+		setUser,
+		user?.id_users,
+	])
 
 	useEffect(() => {
 		if (globalSettingsQuery.isLoading) {

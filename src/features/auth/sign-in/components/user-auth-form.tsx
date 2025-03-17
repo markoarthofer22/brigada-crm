@@ -1,8 +1,8 @@
 import { HTMLAttributes } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link, useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { login } from '@/api/services/authorization/authorization.ts'
 import { MIN_PASSWORD_LENGTH } from '@/api/services/authorization/const.ts'
@@ -10,6 +10,7 @@ import {
 	LoginPayload,
 	LoginSchema,
 } from '@/api/services/authorization/schema.ts'
+import { useAuthStore } from '@/stores/authStore.ts'
 import { cn } from '@/lib/utils'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
@@ -29,16 +30,27 @@ type UserAuthFormProps = HTMLAttributes<HTMLDivElement>
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
+	const queryClient = useQueryClient()
+
+	const setToken = useAuthStore((state) => state.auth.setAccessToken)
+	const setSession = useAuthStore((state) => state.auth.setSessionId)
+	const router = useRouter()
+
 	const loginMutation = useMutation({
 		mutationFn: (data: LoginPayload) => login(data),
-		onSuccess: () => {
-			// eslint-disable-next-line no-console
-			console.log('Login success')
+		onSuccess: async (res) => {
+			setToken(res.token)
+			setSession(res.session_id)
+			await queryClient.invalidateQueries({
+				queryKey: ['globalSettings'],
+			})
+			router.navigate({
+				to: '/',
+				replace: true,
+			})
 		},
 		onError: (error: unknown) => {
 			handleError(error)
-			// eslint-disable-next-line no-console
-			console.log('Login error')
 		},
 	})
 

@@ -26,6 +26,24 @@
         "min": "Password must be at least {{min}} characters long",
         "max": "Password must be at most {{max}} characters long"
     }
+  },
+  "Languages": {
+    "title": "Select Language",
+    "en": "English",
+    "hr": "Croatian"
+  },
+  "Header": {
+    "user": {
+      "profile": "Profile",
+      "logout": "Logout"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "title": "Theme"
+    }
   }
+
 
 }
