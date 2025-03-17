@@ -7,8 +7,7 @@ export const GlobalSettingsResponse = z.object({
 	lang: z.nativeEnum(Languages),
 	session_id: z.string(),
 	questions_types: z
-		.record(
-			z.string(),
+		.array(
 			z.object({
 				id_questions_types: z.number(),
 				type: z.string(),

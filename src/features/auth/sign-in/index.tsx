@@ -35,7 +35,7 @@ export default function SignIn() {
 				</div>
 			</div>
 			<div className='flex min-w-0 flex-col'>
-				<Header small />
+				<Header small showSidebarToggle={false} />
 				<div className='flex flex-1 items-center justify-center lg:p-8'>
 					<div className='mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[350px]'>
 						<div className='flex flex-col space-y-2 text-left'>
