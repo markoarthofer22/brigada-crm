@@ -11,13 +11,6 @@ export default function SignIn() {
 				<div className='relative z-20 flex items-center text-lg font-medium'>
 					{t('Login.image.title')}
 				</div>
-
-				<div className='relative z-20 mt-auto'>
-					<blockquote className='space-y-2'>
-						<p className='text-lg'>{t('Login.image.quote')}</p>
-						<footer className='text-sm'>{t('Login.image.author')}</footer>
-					</blockquote>
-				</div>
 			</div>
 			<div className='lg:p-8'>
 				<div className='mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[350px]'>
