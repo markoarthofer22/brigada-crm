@@ -52,6 +52,7 @@ class Projects
 		foreach ($results as &$result) {
 			$result["data"] = json_decode($result["data"]);
 		}
+
 		return $results;
 	}
 

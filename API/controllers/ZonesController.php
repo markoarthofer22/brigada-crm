@@ -51,7 +51,7 @@ class ZonesController extends BaseController
 
 		$results = $Zones->GetAll();
 
-		return $response->withJson($results, 200);
+		return $response->withJson(array("results" => $results), 200);
 	}
 
 	/**

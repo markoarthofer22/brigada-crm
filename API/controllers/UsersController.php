@@ -127,7 +127,7 @@ class UsersController extends BaseController
 
 		$results = $User->GetAll();
 
-		return $response->withJson($results, 200);
+		return $response->withJson(array("results" => $results), 200);
 	}
 
 	/**
