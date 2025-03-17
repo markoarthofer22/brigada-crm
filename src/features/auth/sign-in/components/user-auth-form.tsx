@@ -1,104 +1,134 @@
-import { HTMLAttributes, useState } from 'react'
-import { z } from 'zod'
+import { HTMLAttributes } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link, useRouter } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
+import { login } from '@/api/services/authorization/authorization.ts'
+import { MIN_PASSWORD_LENGTH } from '@/api/services/authorization/const.ts'
+import {
+	LoginPayload,
+	LoginSchema,
+} from '@/api/services/authorization/schema.ts'
+import { useAuthStore } from '@/stores/authStore.ts'
 import { cn } from '@/lib/utils'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>
 
-const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(1, {
-      message: 'Please enter your password',
-    })
-    .min(7, {
-      message: 'Password must be at least 7 characters long',
-    }),
-})
-
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = useState(false)
+	const { t } = useTranslation()
+	const { handleError } = useHandleGenericError()
+	const queryClient = useQueryClient()
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  })
+	const setToken = useAuthStore((state) => state.auth.setAccessToken)
+	const setSession = useAuthStore((state) => state.auth.setSessionId)
+	const router = useRouter()
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
+	const loginMutation = useMutation({
+		mutationFn: (data: LoginPayload) => login(data),
+		onSuccess: async (res) => {
+			setToken(res.token)
+			setSession(res.session_id)
+			await queryClient.invalidateQueries({
+				queryKey: ['globalSettings'],
+			})
+			router.navigate({
+				to: '/',
+				replace: true,
+			})
+		},
+		onError: (error: unknown) => {
+			handleError(error)
+		},
+	})
 
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
-  }
+	const form = useForm<LoginPayload>({
+		resolver: zodResolver(LoginSchema),
+		defaultValues: {
+			username: '',
+			password: '',
+		},
+	})
 
-  return (
-    <div className={cn('grid gap-6', className)} {...props}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className='grid gap-2'>
-            <FormField
-              control={form.control}
-              name='email'
-              render={({ field }) => (
-                <FormItem className='space-y-1'>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder='name@example.com' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='password'
-              render={({ field }) => (
-                <FormItem className='space-y-1'>
-                  <div className='flex items-center justify-between'>
-                    <FormLabel>Password</FormLabel>
-                    <Link
-                      to='/forgot-password'
-                      className='text-sm font-medium text-muted-foreground hover:opacity-75'
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <FormControl>
-                    <PasswordInput placeholder='********' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button className='mt-2' disabled={isLoading}>
-              Login
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
-  )
+	function onSubmit(data: LoginPayload) {
+		loginMutation.mutate(data)
+	}
+
+	return (
+		<div className={cn('grid gap-6', className)} {...props}>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
+					<div className='grid gap-2'>
+						<FormField
+							control={form.control}
+							name='username'
+							render={({ field }) => (
+								<FormItem className='space-y-1'>
+									<FormLabel>{t('Input.label.username')}</FormLabel>
+									<FormControl>
+										<Input
+											disabled={loginMutation.isPending}
+											type='text'
+											placeholder={t('Input.placeholder.username')}
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name='password'
+							render={({ field }) => (
+								<FormItem className='space-y-1'>
+									<div className='flex items-center justify-between'>
+										<FormLabel>{t('Input.label.password')}</FormLabel>
+										<Link
+											disabled={loginMutation.isPending}
+											to='/forgot-password'
+											className='text-sm font-medium text-muted-foreground transition-opacity duration-200 hover:opacity-75'
+										>
+											{t('Login.forgotPassword')}
+										</Link>
+									</div>
+									<FormControl>
+										<PasswordInput
+											disabled={loginMutation.isPending}
+											placeholder={t('Input.placeholder.password')}
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage
+										values={{
+											min: MIN_PASSWORD_LENGTH,
+										}}
+									/>
+								</FormItem>
+							)}
+						/>
+						<Button
+							disabled={loginMutation.isPending}
+							type='submit'
+							className='mt-2'
+						>
+							{t('Login.submit')}
+						</Button>
+					</div>
+				</form>
+			</Form>
+		</div>
+	)
 }

@@ -36,12 +36,6 @@ const AuthenticatedSettingsRouteLazyImport = createFileRoute(
 const AuthenticatedUsersIndexLazyImport = createFileRoute(
   '/_authenticated/users/',
 )()
-const AuthenticatedTasksIndexLazyImport = createFileRoute(
-  '/_authenticated/tasks/',
-)()
-const AuthenticatedSettingsIndexLazyImport = createFileRoute(
-  '/_authenticated/settings/',
-)()
 const AuthenticatedChatsIndexLazyImport = createFileRoute(
   '/_authenticated/chats/',
 )()
@@ -157,24 +151,6 @@ const AuthenticatedUsersIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/users/index.lazy').then((d) => d.Route),
-  )
-
-const AuthenticatedTasksIndexLazyRoute =
-  AuthenticatedTasksIndexLazyImport.update({
-    id: '/tasks/',
-    path: '/tasks/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/tasks/index.lazy').then((d) => d.Route),
-  )
-
-const AuthenticatedSettingsIndexLazyRoute =
-  AuthenticatedSettingsIndexLazyImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/settings/index.lazy').then((d) => d.Route),
   )
 
 const AuthenticatedChatsIndexLazyRoute =
@@ -324,20 +300,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatsIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/settings/': {
-      id: '/_authenticated/settings/'
-      path: '/'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof AuthenticatedSettingsIndexLazyImport
-      parentRoute: typeof AuthenticatedSettingsRouteLazyImport
-    }
-    '/_authenticated/tasks/': {
-      id: '/_authenticated/tasks/'
-      path: '/tasks'
-      fullPath: '/tasks'
-      preLoaderRoute: typeof AuthenticatedTasksIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
@@ -353,7 +315,6 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedSettingsRouteLazyRouteChildren {
   AuthenticatedSettingsAccountLazyRoute: typeof AuthenticatedSettingsAccountLazyRoute
   AuthenticatedSettingsAppearanceLazyRoute: typeof AuthenticatedSettingsAppearanceLazyRoute
-  AuthenticatedSettingsIndexLazyRoute: typeof AuthenticatedSettingsIndexLazyRoute
 }
 
 const AuthenticatedSettingsRouteLazyRouteChildren: AuthenticatedSettingsRouteLazyRouteChildren =
@@ -362,7 +323,6 @@ const AuthenticatedSettingsRouteLazyRouteChildren: AuthenticatedSettingsRouteLaz
       AuthenticatedSettingsAccountLazyRoute,
     AuthenticatedSettingsAppearanceLazyRoute:
       AuthenticatedSettingsAppearanceLazyRoute,
-    AuthenticatedSettingsIndexLazyRoute: AuthenticatedSettingsIndexLazyRoute,
   }
 
 const AuthenticatedSettingsRouteLazyRouteWithChildren =
@@ -374,7 +334,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteLazyRoute: typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
-  AuthenticatedTasksIndexLazyRoute: typeof AuthenticatedTasksIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
 }
 
@@ -383,7 +342,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedSettingsRouteLazyRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
-  AuthenticatedTasksIndexLazyRoute: AuthenticatedTasksIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
 }
 
@@ -406,8 +364,6 @@ export interface FileRoutesByFullPath {
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
-  '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
-  '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
 }
 
@@ -415,6 +371,7 @@ export interface FileRoutesByTo {
   '/500': typeof errors500LazyRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
+  '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/forgot-password': typeof authForgotPasswordLazyRoute
   '/sign-up': typeof authSignUpLazyRoute
   '/401': typeof errors401LazyRoute
@@ -425,8 +382,6 @@ export interface FileRoutesByTo {
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
-  '/settings': typeof AuthenticatedSettingsIndexLazyRoute
-  '/tasks': typeof AuthenticatedTasksIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
 }
 
@@ -448,8 +403,6 @@ export interface FileRoutesById {
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
-  '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
-  '/_authenticated/tasks/': typeof AuthenticatedTasksIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
 }
 
@@ -471,14 +424,13 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/settings/appearance'
     | '/chats'
-    | '/settings/'
-    | '/tasks'
     | '/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/500'
     | '/otp'
     | '/sign-in'
+    | '/settings'
     | '/forgot-password'
     | '/sign-up'
     | '/401'
@@ -489,8 +441,6 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/settings/appearance'
     | '/chats'
-    | '/settings'
-    | '/tasks'
     | '/users'
   id:
     | '__root__'
@@ -510,8 +460,6 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/chats/'
-    | '/_authenticated/settings/'
-    | '/_authenticated/tasks/'
     | '/_authenticated/users/'
   fileRoutesById: FileRoutesById
 }
@@ -573,7 +521,6 @@ export const routeTree = rootRoute
         "/_authenticated/settings",
         "/_authenticated/",
         "/_authenticated/chats/",
-        "/_authenticated/tasks/",
         "/_authenticated/users/"
       ]
     },
@@ -591,8 +538,7 @@ export const routeTree = rootRoute
       "parent": "/_authenticated",
       "children": [
         "/_authenticated/settings/account",
-        "/_authenticated/settings/appearance",
-        "/_authenticated/settings/"
+        "/_authenticated/settings/appearance"
       ]
     },
     "/(auth)/forgot-password": {
@@ -630,14 +576,6 @@ export const routeTree = rootRoute
     },
     "/_authenticated/chats/": {
       "filePath": "_authenticated/chats/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/settings/": {
-      "filePath": "_authenticated/settings/index.lazy.tsx",
-      "parent": "/_authenticated/settings"
-    },
-    "/_authenticated/tasks/": {
-      "filePath": "_authenticated/tasks/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/users/": {

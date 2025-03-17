@@ -1,0 +1,38 @@
+{
+  "Input": {
+    "label": {
+      "username": "Korisničko ime",
+      "password": "Lozinka"
+    },
+    "placeholder": {
+      "username": "Unesite korisničko ime",
+      "password": "********"
+    }
+  },
+  "Login": {
+    "image": {
+      "title": "Brigada",
+      "quote": "Ovaj predložak mi je uštedio nebrojene sate rada i pomogao mi da brže isporučim zadivljujuće dizajne svojim klijentima.",
+      "author": "John Doe"
+    },
+    "title": "Prijava",
+    "description": "Unesite svoju e-poštu ili korisničko ime i lozinku ispod <0></0> kako biste se prijavili na svoj račun",
+    "forgotPassword": "Zaboravljena lozinka?",
+    "submit": "Prijava"
+  },
+  "Error": {
+    "required": "Ovo polje je obavezno",
+    "password": {
+      "min": "Lozinka mora imati najmanje {{min}} znakova",
+      "max": "Lozinka može imati najviše {{max}} znakova"
+    }
+  },
+  "Languages": {
+    "title": "Odaberite jezik",
+    "en": "Engleski",
+    "hr": "Hrvatski"
+  },
+  "Header": {
+
+  }
+}
