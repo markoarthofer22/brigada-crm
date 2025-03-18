@@ -134,7 +134,8 @@ $app->group('', function () use ($app) {
 		$app->put('/{id}', UsersController::class . ":Update")->add([new Auth(), 'Auth']);
 		$app->delete('/{id}', UsersController::class . ":Delete")->add([new Auth(), 'Auth']);
 		$app->post('/login', UsersController::class . ":Login");
-		$app->post('/logout', UsersController::class . ":Logout");
+		$app->post('/logout', UsersController::class . ":Logout")->add([new Auth(), 'Auth']);
+		$app->post('/refresh-token', UsersController::class . ":RefreshToken");
 	});
 
 	$app->group('/projects', function () use ($app) {

@@ -188,14 +188,15 @@ class Users
 	 * Login function
 	 *
 	 * @param object $params
-	 * @return string
+	 * @return array
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function Login(object $params): string
+	public function Login(object $params): array
 	{
 
 		$Helper = new Helper($this->database);
-		$jwt = "";
+		$access_token = "";
+		$refresh_token = "";
 
 		$sql = "SELECT 
 					* 
@@ -215,23 +216,16 @@ class Users
 			$result["data"] = json_decode($result["data"]);
 			unset($result["password"]);
 			unset($result["data"]->password);
-			// $_SESSION["user"] = $result;
 
-			$payload = [
-				"iss" => $_ENV["DOMAIN"],
-				"aud" => $_ENV["DOMAIN"],
-				"iat" => time(),
-				"exp" => strtotime("+1 year"), // Token expires in 1 year
-				"user" => $result["id_users"]
-			];
-
-			$jwt = JWT::encode($payload, $this->secret_key, 'HS256');
+			$access_token = $this->GetAccessToken($result["id_users"]);
+			$refresh_token = $this->GetRefreshToken($result["id_users"]);
 		}
 
-
-		return $jwt;
+		return [
+			"access_token" => $access_token,
+			"refresh_token" => $refresh_token
+		];
 	}
-
 
 	/**
 	 * LoginWithID function
@@ -243,15 +237,25 @@ class Users
 	public function LoginWithID(int $id): bool
 	{
 
+		$sql = "SELECT id_users FROM {$_SESSION["SCHEMA"]}.users_tokens WHERE id_users = :ID_USERS";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_USERS', $id);
+		$stmt->execute();
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		if (empty($result)) {
+			throw new Exception("Unauthorized", 1);
+		}
+
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.users u
 				WHERE 
-					u.id_users = :ID
+					u.id_users = :ID_USERS
 		";
 
 		$stmt = $this->database->prepare($sql);
-		$stmt->bindParam(':ID', $id);
+		$stmt->bindParam(':ID_USERS', $id);
 		$stmt->execute();
 
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -267,16 +271,97 @@ class Users
 		return true;
 	}
 
+	/**
+	 * RefreshToken function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function RefreshToken(string $token): array
+	{
+
+		$sql = "SELECT id_users FROM {$_SESSION["SCHEMA"]}.users_tokens WHERE refresh_token = :REFRESH_TOKEN AND expires_at > NOW()";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':REFRESH_TOKEN', $token);
+		$stmt->execute();
+
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		if ($result) {
+			$access_token = $this->GetAccessToken($result["id_users"]);
+			$refresh_token = $this->GetRefreshToken($result["id_users"]);
+		}
+		return [
+			"access_token" => $access_token,
+			"refresh_token" => $refresh_token
+		];
+	}
+
+
+	/**
+	 * GetAccessToken function
+	 *
+	 * @param int $id_users
+	 * @return string
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetAccessToken(int $id_users): string
+	{
+		$accessPayload = [
+			"iss" => $_ENV["DOMAIN"],
+			"aud" => $_ENV["DOMAIN"],
+			"iat" => time(),
+			"exp" => strtotime("+1 month"),
+			"user" => $id_users
+		];
+		$access_token = JWT::encode($accessPayload, $this->secret_key, 'HS256');
+		return $access_token;
+	}
+
+	/**
+	 * GetRefreshToken function
+	 *
+	 * @param int $id_users
+	 * @return string
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetRefreshToken(int $id_users): string
+	{
+		$refresh_token = bin2hex(random_bytes(32));
+
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.users_tokens 
+					(id_users, refresh_token, expires_at) 
+				VALUES 
+					(:ID_USERS, :REFRESH_TOKEN, :EXPIRES_AT) 
+				ON CONFLICT (id_users) 
+				DO UPDATE SET 
+					refresh_token = EXCLUDED.refresh_token, 
+					expires_at = EXCLUDED.expires_at
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_USERS', $id_users);
+		$stmt->bindParam(':REFRESH_TOKEN', $refresh_token);
+		$stmt->bindParam(':EXPIRES_AT', date('Y-m-d H:i:s', strtotime("+3 months")));
+		$stmt->execute();
+
+		return $refresh_token;
+	}
 
 	/**
 	 * Logout function
 	 *
+	 * @param int $id_users
 	 * @return boolean
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function Logout(): bool
+	public function Logout(int $id_users): bool
 	{
-		unset($_SESSION["user"]);
+		$sql = "DELETE FROM {$_SESSION["SCHEMA"]}.users_tokens WHERE id_users = :ID_USERS";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_USERS', $id_users);
+		$stmt->execute();
 		return true;
 	}
 

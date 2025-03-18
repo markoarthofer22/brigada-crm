@@ -57,10 +57,11 @@ class Auth
 			$decoded = JWT::decode($token, new Key($this->secret_key, 'HS256'));
 			$user = $decoded->user;
 			$User->LoginWithID($user);
+			$request = $request->withAttribute("_user", $user);
 		} catch (ExpiredException $e) {
 			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Token expired. Unauthorized"))), $response);
 		} catch (Exception $e) {
-			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized"))), $response);
+			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => $e->getMessage()))), $response);
 		}
 
 		if (!$User->isUserLogedIn()) {

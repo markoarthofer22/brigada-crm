@@ -76,18 +76,18 @@ class UsersController extends BaseController
 			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
 		}
 
-		$user = $User->Login($params);
+		$result = $User->Login($params);
 
-		if ($user == "") {
+		if ($result == "" || !is_array($result) || empty($result)) {
 			$User->Logout();
-			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized"))), $response);
+			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Login error. Unathorized"))), $response);
 		}
 
-		return $response->withJson(array("token" => $user));
+		return $response->withJson($result);
 	}
 
 	/**
-	 * Login function
+	 * Logout function
 	 *
 	 * @param Request $request
 	 * @param Response $response
@@ -101,11 +101,48 @@ class UsersController extends BaseController
 		$Language = new Language($this->db);
 		$User = new Users($this->db);
 
-		if ($User->Logout()) {
-			return $response->withStatus(204);
-		} else {
-			return Message::WriteMessage(520, array("Message" => $Language->Translate(array("phrase" => "Unknown error"))), $response);
+		$id_users = $request->getAttribute("_user");
+		$User->Logout($id_users);
+		return $response->withStatus(204);
+	}
+
+	/**
+	 * RefreshToken function
+	 *
+	 * @param [type] $Request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function RefreshToken(Request $request, Response $response, array $args): Response
+	{
+
+		$Language = new Language($this->db);
+		$Helper = new Helper($this->db);
+		$User = new Users($this->db);
+
+		$vars = !empty($request->getParsedBody()) ? $request->getParsedBody() : array();
+		$queryParams = !empty($request->getQueryParams()) ? $request->getQueryParams() : array();
+		$params = $Helper->ArrayToObject($vars);
+		$params->args = $Helper->ArrayToObject($args);
+		$params->query =  $Helper->ArrayToObject($queryParams);
+
+		if (!isset($params->refresh_token) || $params->refresh_token == "") {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing refresh token"))), $response);
 		}
+
+		$result = $User->RefreshToken($params->refresh_token);
+
+		if (empty($result) || !is_array($result) || empty($result["access_token"]) || empty($result["refresh_token"])) {
+			$User->Logout();
+			return Message::WriteMessage(401, [
+				"Message" => $Language->Translate(["phrase" => "Login error. Unauthorized"])
+			], $response);
+		}
+
+
+		return $response->withJson($result);
 	}
 
 	/**
