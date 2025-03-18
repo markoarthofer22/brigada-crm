@@ -1,38 +1,121 @@
 {
-  "Input": {
-    "label": {
-      "username": "Korisničko ime",
-      "password": "Lozinka"
-    },
-    "placeholder": {
-      "username": "Unesite korisničko ime",
-      "password": "********"
-    }
-  },
-  "Login": {
-    "image": {
-      "title": "Brigada",
-      "quote": "Ovaj predložak mi je uštedio nebrojene sate rada i pomogao mi da brže isporučim zadivljujuće dizajne svojim klijentima.",
-      "author": "John Doe"
-    },
-    "title": "Prijava",
-    "description": "Unesite svoju e-poštu ili korisničko ime i lozinku ispod <0></0> kako biste se prijavili na svoj račun",
-    "forgotPassword": "Zaboravljena lozinka?",
-    "submit": "Prijava"
-  },
-  "Error": {
-    "required": "Ovo polje je obavezno",
-    "password": {
-      "min": "Lozinka mora imati najmanje {{min}} znakova",
-      "max": "Lozinka može imati najviše {{max}} znakova"
-    }
-  },
-  "Languages": {
-    "title": "Odaberite jezik",
-    "en": "Engleski",
-    "hr": "Hrvatski"
-  },
-  "Header": {
-
-  }
+	"Actions": {
+		"backToHome": "Nazad na početnu",
+		"delete": "Obriši",
+		"edit": "Uredi",
+		"goBack": "Idi natrag"
+	},
+	"Error": {
+		"401": {
+			"description": "Neovlašten pristup",
+			"explanation": "Nemate pristup. Molimo pokušajte s drugačijim podacima.",
+			"title": "401"
+		},
+		"403": {
+			"description": "Pristup zabranjen",
+			"explanation": "Nemate dozvolu za pristup ovoj stranici.",
+			"title": "403"
+		},
+		"404": {
+			"description": "Stranica nije pronađena",
+			"explanation": "Stranica koju tražite možda je uklonjena ili je privremeno nedostupna.",
+			"title": "404"
+		},
+		"500": {
+			"description": "Ups! Nešto nije u redu",
+			"explanation": "Žao nam je, ali trenutno ne možemo obraditi vaš zahtjev. Pokušajte ponovno kasnije.",
+			"title": "500"
+		},
+		"503": {
+			"description": "Web stranica je u izradi!",
+			"explanation": "Žao nam je, ali usluga trenutno nije dostupna. Pokušajte ponovno kasnije.",
+			"title": "503"
+		},
+		"password": {
+			"max": "Lozinka mora imati najviše {{max}} znakova",
+			"min": "Lozinka mora imati najmanje {{min}} znakova"
+		},
+		"required": "Ovo polje je obavezno"
+	},
+	"Header": {
+		"theme": {
+			"dark": "Tamna",
+			"light": "Svjetla",
+			"system": "Boja sustava",
+			"title": "Tema"
+		},
+		"user": {
+			"logout": "Odjava",
+			"profile": "Profil"
+		}
+	},
+	"Input": {
+		"label": {
+			"password": "Lozinka",
+			"username": "Korisničko ime"
+		},
+		"placeholder": {
+			"password": "********",
+			"username": "Unesite svoje korisničko ime"
+		}
+	},
+	"Languages": {
+		"en": "Engleski",
+		"hr": "Hrvatski",
+		"title": "Odaberite jezik"
+	},
+	"Login": {
+		"description": "Unesite svoju e-poštu ili korisničko ime i lozinku ispod <0></0> da biste se prijavili na svoj račun",
+		"forgotPassword": "Zaboravili ste lozinku?",
+		"image": {
+			"author": "John Doe",
+			"quote": "Ovaj mi je predložak uštedio nebrojene sate rada i pomogao mi da isporučim zapanjujuće dizajne svojim klijentima brže nego ikad prije.",
+			"title": "Brigada"
+		},
+		"submit": "Prijava",
+		"title": "Prijava"
+	},
+	"Table": {
+		"facetedFilter": {
+			"clearFilters": "Očisti filtre",
+			"noResultsFound": "Nema rezultata.",
+			"selectedBadge": "{{count}} odabrano"
+		},
+		"header": {
+			"actions": "Akcije",
+			"admin": "Pristup",
+			"email": "E-mail",
+			"firstname": "Ime",
+			"lastname": "Prezime",
+			"sort": {
+				"asc": "Asc",
+				"desc": "Desc",
+				"hide": "Sakrij"
+			}
+		},
+		"pagination": {
+			"goToFirstPage": "Idi na prvu stranicu",
+			"goToLastPage": "Idi na posljednju stranicu",
+			"goToNextPage": "Idi na sljedeću stranicu",
+			"goToPreviousPage": "Idi na prethodnu stranicu",
+			"pageInfo": "Stranica {{current}} od {{total}}",
+			"rowsPerPage": "Redovi po stranici",
+			"selected": " Odabrano {{selected}} od {{total}} ."
+		},
+		"viewOptions": {
+			"toggleColumns": "Uključi/isključi stupce",
+			"view": "Pregled"
+		}
+	},
+	"Users": {
+		"add": "Dodaj korisnika",
+		"admin": [
+			"Korisnik",
+			"Administrator"
+		],
+		"delete": "Izbriši korisnika",
+		"description": "Ovdje upravljajte svojim korisnicima i njihovim ulogama.",
+		"edit": "Uredi korisnika",
+		"title": "Korisnici"
+	}
 }

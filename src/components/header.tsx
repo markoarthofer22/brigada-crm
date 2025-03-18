@@ -1,10 +1,14 @@
-import { Link } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
+import { Link, useRouter } from '@tanstack/react-router'
 import { Globe, Laptop, LogOut, Moon, Sun, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { logout } from '@/api/services/authorization/authorization.ts'
 import { Languages, useAuthStore } from '@/stores/authStore.ts'
-import { cn } from '@/lib/utils.ts'
+import { cn, getInitials } from '@/lib/utils.ts'
+import { useLoader } from '@/context/loader-provider.tsx'
 import { useTheme } from '@/context/theme-context.tsx'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -30,6 +34,11 @@ export function Header({
 }: HeaderProps) {
 	const { setTheme, theme } = useTheme()
 	const setLanguage = useAuthStore((state) => state.auth.setLang)
+	const user = useAuthStore((state) => state.auth.user)
+	const resetState = useAuthStore((state) => state.auth.reset)
+	const router = useRouter()
+	const { showLoader, hideLoader } = useLoader()
+	const { handleError } = useHandleGenericError()
 	const {
 		t,
 		i18n: { changeLanguage, language: activeLang, services },
@@ -40,7 +49,26 @@ export function Header({
 		await changeLanguage(newLocale)
 		setLanguage(newLocale as Languages)
 	}
-	const user = useAuthStore((state) => state.auth.user)
+
+	const logoutMutation = useMutation({
+		mutationFn: () => {
+			showLoader()
+			return logout()
+		},
+		onSuccess: () => {
+			resetState()
+			router.navigate({
+				to: '/sign-in',
+				replace: true,
+				resetScroll: true,
+			})
+			hideLoader()
+		},
+		onError: (error: unknown) => {
+			handleError(error)
+			hideLoader()
+		},
+	})
 
 	return (
 		<header
@@ -132,34 +160,39 @@ export function Header({
 					{user && (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<Avatar className='h-8 w-8 cursor-pointer'>
-									<AvatarImage
-										src='/placeholder.svg?height=32&width=32'
-										alt='User'
-									/>
-									<AvatarFallback>JD</AvatarFallback>
+								<Avatar className='size-10 cursor-pointer'>
+									<AvatarFallback className='text-sm font-semibold uppercase'>
+										{getInitials(user.firstname, user.lastname)}
+									</AvatarFallback>
 								</Avatar>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent className='w-56' align='end' forceMount>
 								<DropdownMenuLabel className='font-normal'>
 									<div className='flex flex-col space-y-1'>
-										<p className='text-sm font-medium leading-none'>John Doe</p>
+										<p className='text-sm font-medium leading-none'>
+											{user.firstname} {user.lastname}
+										</p>
 										<p className='text-xs leading-none text-muted-foreground'>
-											john.doe@example.com
+											{user.email}
 										</p>
 									</div>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
 								<DropdownMenuGroup>
-									<DropdownMenuItem>
-										<User className='mr-2 h-4 w-4' />
-										<span>{t('Header.user.profile')}</span>
+									<DropdownMenuItem asChild>
+										<Link to={'/settings/account'}>
+											<User className='mr-2 h-4 w-4' />
+											{t('Header.user.profile')}
+										</Link>
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem>
+								<DropdownMenuItem
+									onClick={() => logoutMutation.mutate()}
+									disabled={logoutMutation.isPending}
+								>
 									<LogOut className='mr-2 h-4 w-4' />
-									<span>{t('Header.user.logout')}</span>
+									{t('Header.user.logout')}
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>

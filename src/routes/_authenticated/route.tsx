@@ -36,9 +36,9 @@ function RouteComponent() {
 						'peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)]',
 						'peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]',
 						'transition-[width] duration-200 ease-linear',
-						'flex h-svh flex-col',
+						'flex h-full min-h-screen flex-col self-stretch',
 						'group-data-[scroll-locked=1]/body:h-full',
-						'group-data-[scroll-locked=1]/body:has-[main.fixed-main]:h-svh'
+						'group-data-[scroll-locked=1]/body:has-[main.fixed-main]:h-full'
 					)}
 				>
 					<Outlet />

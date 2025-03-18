@@ -1,49 +1,121 @@
 {
-  "Input": {
-    "label": {
-      "username": "Username",
-      "password": "Password"
-    },
-    "placeholder": {
-      "username": "Enter your username",
-      "password": "********"
-    }
-  },
-  "Login": {
-    "image": {
-      "title": "Brigada",
-      "quote": "This template has saved me countless hours of work and helped me deliver stunning designs to my clients faster than ever before.",
-      "author": "John Doe"
-    },
-    "title": "Login",
-    "description": "Enter your email or username and password below <0></0> to log into your account",
-    "forgotPassword": "Forgot password?",
-    "submit": "Login"
-  },
-  "Error": {
-    "required": "This field is required",
-    "password": {
-        "min": "Password must be at least {{min}} characters long",
-        "max": "Password must be at most {{max}} characters long"
-    }
-  },
-  "Languages": {
-    "title": "Select Language",
-    "en": "English",
-    "hr": "Croatian"
-  },
-  "Header": {
-    "user": {
-      "profile": "Profile",
-      "logout": "Logout"
-    },
-    "theme": {
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System",
-      "title": "Theme"
-    }
-  }
-
-
+	"Actions": {
+		"backToHome": "Back to Home",
+		"delete": "Delete",
+		"edit": "Edit",
+		"goBack": "Go Back"
+	},
+	"Error": {
+		"401": {
+			"description": "Unauthorized",
+			"explanation": "Please log in with the appropriate credentials to access this resource.",
+			"title": "401"
+		},
+		"403": {
+			"description": "Forbidden",
+			"explanation": "You do not have permission to access this resource.",
+			"title": "403"
+		},
+		"404": {
+			"description": "Page not found",
+			"explanation": "The page you are looking for might have been removed or is temporarily unavailable.",
+			"title": "404"
+		},
+		"500": {
+			"description": "Oops! Something went wrong",
+			"explanation": "We are sorry, but we are unable to process your request at this time. Please try again later.",
+			"title": "500"
+		},
+		"503": {
+			"description": "Website is under maintenance!",
+			"explanation": "We are sorry, but the service is currently unavailable. Please try again later.",
+			"title": "503"
+		},
+		"password": {
+			"max": "Password must be at most {{max}} characters long",
+			"min": "Password must be at least {{min}} characters long"
+		},
+		"required": "This field is required"
+	},
+	"Header": {
+		"theme": {
+			"dark": "Dark",
+			"light": "Light",
+			"system": "System",
+			"title": "Theme"
+		},
+		"user": {
+			"logout": "Logout",
+			"profile": "Profile"
+		}
+	},
+	"Input": {
+		"label": {
+			"password": "Password",
+			"username": "Username"
+		},
+		"placeholder": {
+			"password": "********",
+			"username": "Enter your username"
+		}
+	},
+	"Languages": {
+		"en": "English",
+		"hr": "Croatian",
+		"title": "Select Language"
+	},
+	"Login": {
+		"description": "Enter your email or username and password below <0></0> to log into your account",
+		"forgotPassword": "Forgot password?",
+		"image": {
+			"author": "John Doe",
+			"quote": "This template has saved me countless hours of work and helped me deliver stunning designs to my clients faster than ever before.",
+			"title": "Brigada"
+		},
+		"submit": "Login",
+		"title": "Login"
+	},
+	"Table": {
+		"facetedFilter": {
+			"clearFilters": "Clear filters",
+			"noResultsFound": "No results found.",
+			"selectedBadge": "{{count}} selected"
+		},
+		"header": {
+			"actions": "Actions",
+			"admin": "Role",
+			"email": "Email",
+			"firstname": "Firstname",
+			"lastname": "Lastname",
+			"sort": {
+				"asc": "Asc",
+				"desc": "Desc",
+				"hide": "Hide"
+			}
+		},
+		"pagination": {
+			"goToFirstPage": "Go to first page",
+			"goToLastPage": "Go to last page",
+			"goToNextPage": "Go to next page",
+			"goToPreviousPage": "Go to previous page",
+			"pageInfo": "Page {{current}} of {{total}}",
+			"rowsPerPage": "Rows per page",
+			"selected": "{{selected}} of {{total}} row(s) selected."
+		},
+		"viewOptions": {
+			"toggleColumns": "Toggle columns",
+			"view": "View"
+		}
+	},
+	"Users": {
+		"add": "Add User",
+		"admin": [
+			"Regular user",
+			"Admin"
+		],
+		"delete": "Delete User",
+		"description": "Manage your users and their roles here.",
+		"edit": "Edit User",
+		"title": "Users"
+	}
 }
