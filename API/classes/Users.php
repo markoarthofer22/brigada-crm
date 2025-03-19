@@ -149,8 +149,8 @@ class Users
 
 		$sql = "UPDATE {$_SESSION["SCHEMA"]}.users 
 				SET 
-					data = :DATA, 
-					admin = :ADMIN
+					data = data || :DATA::jsonb,
+					admin = COALESCE(:ADMIN, admin)
 				WHERE id_users = :ID
 		";
 

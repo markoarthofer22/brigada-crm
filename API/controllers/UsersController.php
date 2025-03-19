@@ -79,7 +79,7 @@ class UsersController extends BaseController
 		$result = $User->Login($params);
 
 		if ($result == "" || !is_array($result) || empty($result)) {
-			$User->Logout();
+			$User->Logout(0);
 			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Login error. Unathorized"))), $response);
 		}
 
@@ -135,7 +135,7 @@ class UsersController extends BaseController
 		$result = $User->RefreshToken($params->refresh_token);
 
 		if (empty($result) || !is_array($result) || empty($result["access_token"]) || empty($result["refresh_token"])) {
-			$User->Logout();
+			$User->Logout(0);
 			return Message::WriteMessage(401, [
 				"Message" => $Language->Translate(["phrase" => "Login error. Unauthorized"])
 			], $response);
@@ -265,14 +265,19 @@ class UsersController extends BaseController
 		if (!isset($params->data->lastname) || $params->data->lastname == "") {
 			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing lastname"))), $response);
 		}
-		if (!isset($params->data->password) || $params->data->password == "") {
-			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
-		}
+		// if (!isset($params->data->password) || $params->data->password == "") {
+		// 	return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing password"))), $response);
+		// }
 
 		$params->admin = (int) !empty($params->admin);
 
 		$params->id = $args->id;
-		$params->data->password = md5($params->data->password);
+		if ($params->data->password && $params->data->password != "") {
+			$params->data->password = md5($params->data->password);
+		} else {
+			unset($params->data->password);
+		}
+
 		if ($User->Update($params)) {
 			return $response->withStatus(204);
 		} else {
