@@ -1,9 +1,12 @@
 {
 	"Actions": {
 		"backToHome": "Nazad na početnu",
+		"cancel": "Otkaži",
+		"continue": "Nastavi",
 		"delete": "Obriši",
 		"edit": "Uredi",
-		"goBack": "Idi natrag"
+		"goBack": "Idi natrag",
+		"submit": "Pošalji"
 	},
 	"Error": {
 		"401": {
@@ -31,11 +34,16 @@
 			"explanation": "Žao nam je, ali usluga trenutno nije dostupna. Pokušajte ponovno kasnije.",
 			"title": "503"
 		},
+		"email": "Unesite važeću adresu e-pošte",
 		"password": {
 			"max": "Lozinka mora imati najviše {{max}} znakova",
 			"min": "Lozinka mora imati najmanje {{min}} znakova"
 		},
 		"required": "Ovo polje je obavezno"
+	},
+	"Global": {
+		"deleteWarning": "Budite oprezni, ova se operacija ne može poništiti!",
+		"warning": "Upozorenje"
 	},
 	"Header": {
 		"theme": {
@@ -51,6 +59,10 @@
 	},
 	"Input": {
 		"label": {
+			"admin": "Prava korisnika",
+			"email": "E-mail",
+			"firstname": "Ime",
+			"lastname": "Prezime",
 			"password": "Lozinka",
 			"username": "Korisničko ime"
 		},
@@ -76,6 +88,8 @@
 		"title": "Prijava"
 	},
 	"Table": {
+		"deleteDescription": "Jeste li sigurni da želite izbrisati <0>{{value}}</0> iz sustava. Ovo se ne može poništiti.",
+		"deleteTitle": "Obriši zapis",
 		"facetedFilter": {
 			"clearFilters": "Očisti filtre",
 			"noResultsFound": "Nema rezultata.",
@@ -93,6 +107,7 @@
 				"hide": "Sakrij"
 			}
 		},
+		"noData": "Nema unesenih podataka",
 		"pagination": {
 			"goToFirstPage": "Idi na prvu stranicu",
 			"goToLastPage": "Idi na posljednju stranicu",
@@ -113,9 +128,14 @@
 			"Korisnik",
 			"Administrator"
 		],
+		"createSuccess": "Korisnik {{value}} je uspješno kreiran.",
 		"delete": "Izbriši korisnika",
+		"deletePlaceholder": "Unesite email za potvrdu brisanja",
+		"deleteSuccess": "Korisnik {{value}} uspješno izbrisan!",
 		"description": "Ovdje upravljajte svojim korisnicima i njihovim ulogama.",
 		"edit": "Uredi korisnika",
-		"title": "Korisnici"
+		"generatePassword": "Nasumična lozinka",
+		"title": "Korisnici",
+		"updateSuccess": "Korisnik {{value}} je uspješno ažuriran."
 	}
 }

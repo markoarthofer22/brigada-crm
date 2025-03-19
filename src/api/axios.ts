@@ -1,5 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
-import { logout } from '@/api/services/authorization/authorization.ts'
+import createAuthRefreshInterceptor from 'axios-auth-refresh'
+import {
+	getUserRefreshToken,
+	logout,
+} from '@/api/services/authorization/authorization.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -33,7 +37,6 @@ api.interceptors.response.use(
 		) {
 			originalRequest._retry = true
 			try {
-				// do intercept
 				return axios.request(error.config)
 			} catch (error) {
 				if (error instanceof AxiosError && error.response?.status === 403) {
@@ -57,5 +60,48 @@ api.interceptors.response.use(
 		return Promise.reject(error)
 	}
 )
+
+createAuthRefreshInterceptor(api, refreshAuthLogic)
+
+/**
+ * Refreshes the authentication token and retries the failed request.
+ * If the token refresh fails, the user is logged out.
+ *
+ * @param failedRequest - The Axios error object representing the failed request.
+ * @returns A promise that resolves after retrying the request or rejects if the token refresh fails.
+ */
+async function refreshAuthLogic(failedRequest: AxiosError) {
+	if (failedRequest?.response?.status === 401) {
+		try {
+			const refreshToken = useAuthStore.getState().auth.refreshToken
+			const setAccessToken = useAuthStore.getState().auth.setAccessToken
+			const setRefreshToken = useAuthStore.getState().auth.setRefreshToken
+
+			if (!refreshToken) {
+				await logout()
+				return Promise.reject(failedRequest)
+			}
+
+			const newToken = await getUserRefreshToken(refreshToken)
+
+			if (!newToken.refresh_token && !newToken.access_token) {
+				await logout()
+				return Promise.reject(failedRequest)
+			}
+
+			setRefreshToken(refreshToken)
+			setAccessToken(refreshToken)
+
+			if (failedRequest.config?.headers) {
+				failedRequest.config.headers['Authorization'] = `Bearer ${newToken}`
+			}
+
+			return Promise.resolve()
+		} catch (error) {
+			await logout()
+			return Promise.reject(error)
+		}
+	}
+}
 
 export default api

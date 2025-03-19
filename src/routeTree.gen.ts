@@ -48,6 +48,9 @@ const AuthenticatedSettingsAppearanceLazyImport = createFileRoute(
 const AuthenticatedSettingsAccountLazyImport = createFileRoute(
   '/_authenticated/settings/account',
 )()
+const AuthenticatedUsersIdIndexLazyImport = createFileRoute(
+  '/_authenticated/users/$id/',
+)()
 
 // Create/Update Routes
 
@@ -195,6 +198,15 @@ const AuthenticatedSettingsAccountLazyRoute =
     ),
   )
 
+const AuthenticatedUsersIdIndexLazyRoute =
+  AuthenticatedUsersIdIndexLazyImport.update({
+    id: '/users/$id/',
+    path: '/users/$id/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/users/$id/index.lazy').then((d) => d.Route),
+  )
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -325,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/users/$id/': {
+      id: '/_authenticated/users/$id/'
+      path: '/users/$id'
+      fullPath: '/users/$id'
+      preLoaderRoute: typeof AuthenticatedUsersIdIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
   }
 }
 
@@ -354,6 +373,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsersAddLazyRoute: typeof AuthenticatedUsersAddLazyRoute
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
+  AuthenticatedUsersIdIndexLazyRoute: typeof AuthenticatedUsersIdIndexLazyRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -363,6 +383,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUsersAddLazyRoute: AuthenticatedUsersAddLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
+  AuthenticatedUsersIdIndexLazyRoute: AuthenticatedUsersIdIndexLazyRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -386,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/users/add': typeof AuthenticatedUsersAddLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/users/$id': typeof AuthenticatedUsersIdIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -405,6 +427,7 @@ export interface FileRoutesByTo {
   '/users/add': typeof AuthenticatedUsersAddLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/users/$id': typeof AuthenticatedUsersIdIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -427,6 +450,7 @@ export interface FileRoutesById {
   '/_authenticated/users/add': typeof AuthenticatedUsersAddLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
+  '/_authenticated/users/$id/': typeof AuthenticatedUsersIdIndexLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -449,6 +473,7 @@ export interface FileRouteTypes {
     | '/users/add'
     | '/chats'
     | '/users'
+    | '/users/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/500'
@@ -467,6 +492,7 @@ export interface FileRouteTypes {
     | '/users/add'
     | '/chats'
     | '/users'
+    | '/users/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -487,6 +513,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users/add'
     | '/_authenticated/chats/'
     | '/_authenticated/users/'
+    | '/_authenticated/users/$id/'
   fileRoutesById: FileRoutesById
 }
 
@@ -548,7 +575,8 @@ export const routeTree = rootRoute
         "/_authenticated/",
         "/_authenticated/users/add",
         "/_authenticated/chats/",
-        "/_authenticated/users/"
+        "/_authenticated/users/",
+        "/_authenticated/users/$id/"
       ]
     },
     "/(auth)/500": {
@@ -611,6 +639,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/users/": {
       "filePath": "_authenticated/users/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/users/$id/": {
+      "filePath": "_authenticated/users/$id/index.lazy.tsx",
       "parent": "/_authenticated"
     }
   }

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import Cookies from 'js-cookie'
 import { createFileRoute, Outlet, useRouter } from '@tanstack/react-router'
+import { UserType } from '@/api/services/user/schema.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { cn } from '@/lib/utils'
 import { SearchProvider } from '@/context/search-context'
@@ -13,11 +14,12 @@ export const Route = createFileRoute('/_authenticated')({
 
 function RouteComponent() {
 	const defaultOpen = Cookies.get('sidebar:state') !== 'false'
+	const user = useAuthStore((state) => state.auth.user)
 	const authToken = useAuthStore((state) => state.auth.accessToken)
 	const router = useRouter()
 
 	useEffect(() => {
-		if (!authToken) {
+		if (!authToken || (user?.id_users && user?.admin !== UserType.ADMIN)) {
 			router.navigate({
 				to: '/sign-in',
 				search: { redirect: router.history.location.href },

@@ -1,9 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { IconAlertTriangle } from '@tabler/icons-react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { User } from '@/api/services/user/schema.ts'
+import { deleteUser } from '@/api/services/user/users.ts'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,11 +22,29 @@ interface Props {
 export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
 	const [value, setValue] = useState('')
 	const { t } = useTranslation()
+	const queryClient = useQueryClient()
+	const { handleError } = useHandleGenericError()
+
+	const userDeleteMutation = useMutation({
+		mutationFn: (id: number) => deleteUser(id),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: ['users'],
+			})
+
+			toast.success(t('Users.deleteSuccess', { value: currentRow.email }))
+
+			onOpenChange(false)
+		},
+		onError: (error) => {
+			handleError(error)
+		},
+	})
 
 	const handleDelete = () => {
-		if (value.trim() !== currentRow.firstname) return
+		if (value.trim() !== currentRow.email) return
 
-		onOpenChange(false)
+		userDeleteMutation.mutate(currentRow.id_users)
 	}
 
 	return (
@@ -30,50 +52,45 @@ export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
 			open={open}
 			onOpenChange={onOpenChange}
 			handleConfirm={handleDelete}
-			disabled={value.trim() !== currentRow.firstname}
+			isLoading={userDeleteMutation.isPending}
+			disabled={value.trim() !== currentRow.email}
 			title={
 				<span className='text-destructive'>
 					<IconAlertTriangle
 						className='mr-1 inline-block stroke-destructive'
 						size={18}
 					/>{' '}
-					Delete User
+					{t('Users.delete')}
 				</span>
 			}
 			desc={
 				<div className='space-y-4'>
-					<p className='mb-2'>
-						Are you sure you want to delete{' '}
-						<span className='font-bold'>
-							{currentRow.firstname} {currentRow.lastname}
-						</span>
-						?
-						<br />
-						This action will permanently remove the user with the role of{' '}
-						<span className='font-bold'>
-							{t('Users.admin.' + currentRow.admin)}
-						</span>{' '}
-						from the system. This cannot be undone.
-					</p>
+					<Trans
+						className='mb-2 block'
+						i18nKey='Table.deleteDescription'
+						components={[<span className='font-bold'></span>]}
+						values={{
+							name: currentRow.email,
+						}}
+					/>
 
-					<Label className='my-2'>
-						Username:
+					<Label className='my-2 block'>
+						<span className='ml-1'>{t('Input.label.email')}:</span>
 						<Input
 							value={value}
+							className='mt-2'
 							onChange={(e) => setValue(e.target.value)}
-							placeholder='Enter username to confirm deletion.'
+							placeholder={t('Users.deletePlaceholder')}
 						/>
 					</Label>
 
 					<Alert variant='destructive'>
-						<AlertTitle>Warning!</AlertTitle>
-						<AlertDescription>
-							Please be carefull, this operation can not be rolled back.
-						</AlertDescription>
+						<AlertTitle>{t('Global.warning')}</AlertTitle>
+						<AlertDescription>{t('Global.deleteWarning')}</AlertDescription>
 					</Alert>
 				</div>
 			}
-			confirmText='Delete'
+			confirmText={t('Actions.delete')}
 			destructive
 		/>
 	)

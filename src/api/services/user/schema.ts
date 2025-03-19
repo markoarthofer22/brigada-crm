@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { MIN_PASSWORD_LENGTH } from '@/api/services/authorization/const.ts'
 
 export enum UserType {
 	REGULAR,
@@ -19,3 +20,20 @@ export const AllUsersResponseSchema = z.object({
 })
 
 export type User = z.infer<typeof UserResponseSchema>
+
+export const UserUpsertSchema = z.object({
+	id_users: z.number().optional(),
+	email: z.string().email({ message: 'Error.email' }),
+	firstname: z.string().nonempty({ message: 'Error.required' }),
+	lastname: z.string().nonempty({ message: 'Error.required' }),
+	password: z
+		.string()
+		.min(MIN_PASSWORD_LENGTH, {
+			message: 'Error.password.min',
+		})
+		.optional()
+		.or(z.literal('')),
+	admin: z.nativeEnum(UserType).default(UserType.ADMIN),
+})
+
+export type UserUpsert = z.infer<typeof UserUpsertSchema>

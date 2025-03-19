@@ -1,11 +1,11 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
+import { userTypes } from '@/api/services/user/const.ts'
 import { User } from '@/api/services/user/schema.ts'
 import { cn } from '@/lib/utils.ts'
 import { Checkbox } from '@/components/ui/checkbox'
 import LongText from '@/components/long-text'
-import { DataTableColumnHeader } from '../../../components/table/data-table-column-header.tsx'
-import { userTypes } from '../data/data'
+import { DataTableColumnHeader } from '@/components/table/data-table-column-header.tsx'
 import { DataTableRowActions } from './data-table-row-actions'
 
 const columnHelper = createColumnHelper<User>()
@@ -76,7 +76,7 @@ export const columns = [
 			// eslint-disable-next-line react-hooks/rules-of-hooks
 			const { t } = useTranslation()
 			const { admin } = row.original
-			const userType = userTypes.find(({ value }) => value === admin)
+			const userType = userTypes.find(({ value }) => value === String(admin))
 			if (!userType) return null
 
 			return (

@@ -24,6 +24,7 @@ import { Separator } from '@/components/ui/separator.tsx'
 interface DataTableFacetedFilterProps<TData, TValue> {
 	column?: Column<TData, TValue>
 	title?: string
+	parseAsNumber?: boolean
 	options: {
 		label: string
 		value: string
@@ -35,17 +36,23 @@ export function DataTableFacetedFilter<TData, TValue>({
 	column,
 	title,
 	options,
+	parseAsNumber = false,
 }: DataTableFacetedFilterProps<TData, TValue>) {
 	const { t } = useTranslation()
 	const facets = column?.getFacetedUniqueValues()
-	const selectedValues = new Set(column?.getFilterValue() as string[])
+
+	// Use the generic type TValue so that selectedValues holds the proper type.
+	const selectedValues = new Set<TValue>(
+		(column?.getFilterValue() as TValue[]) ?? []
+	)
+
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
 				<Button variant='outline' size='sm' className='h-8 border-dashed'>
 					<PlusCircledIcon className='h-4 w-4' />
 					{title}
-					{selectedValues?.size > 0 && (
+					{selectedValues.size > 0 && (
 						<>
 							<Separator orientation='vertical' className='mx-2 h-4' />
 							<Badge
@@ -66,7 +73,13 @@ export function DataTableFacetedFilter<TData, TValue>({
 									</Badge>
 								) : (
 									options
-										.filter((option) => selectedValues.has(option.value))
+										.filter((option) => {
+											// Convert to the correct type when comparing.
+											const optionValue = parseAsNumber
+												? (Number(option.value) as unknown as TValue)
+												: (option.value as unknown as TValue)
+											return selectedValues.has(optionValue)
+										})
 										.map((option) => (
 											<Badge
 												variant='secondary'
@@ -91,15 +104,20 @@ export function DataTableFacetedFilter<TData, TValue>({
 						</CommandEmpty>
 						<CommandGroup>
 							{options.map((option) => {
-								const isSelected = selectedValues.has(option.value)
+								// Convert the option value to the correct type based on the flag.
+								const optionValue = parseAsNumber
+									? (Number(option.value) as unknown as TValue)
+									: (option.value as unknown as TValue)
+								const isSelected = selectedValues.has(optionValue)
+
 								return (
 									<CommandItem
 										key={option.value}
 										onSelect={() => {
 											if (isSelected) {
-												selectedValues.delete(option.value)
+												selectedValues.delete(optionValue)
 											} else {
-												selectedValues.add(option.value)
+												selectedValues.add(optionValue)
 											}
 											const filterValues = Array.from(selectedValues)
 											column?.setFilterValue(
@@ -115,7 +133,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 													: 'opacity-50 [&_svg]:invisible'
 											)}
 										>
-											<CheckIcon className={cn('h-4 w-4')} />
+											<CheckIcon className='h-4 w-4' />
 										</div>
 										{option.icon && (
 											<option.icon className='h-4 w-4 text-muted-foreground' />

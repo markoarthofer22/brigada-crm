@@ -10,9 +10,7 @@ export function UsersDialogs() {
 				open={open === 'delete'}
 				onOpenChange={() => {
 					setOpen('delete')
-					setTimeout(() => {
-						setCurrentRow(null)
-					}, 500)
+					setCurrentRow(null)
 				}}
 				currentRow={currentRow}
 			/>

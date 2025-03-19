@@ -1,4 +1,5 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import { useRouter } from '@tanstack/react-router'
 import { Row } from '@tanstack/react-table'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
@@ -21,6 +22,8 @@ interface DataTableRowActionsProps {
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 	const { setOpen, setCurrentRow } = useUsers()
 	const { t } = useTranslation()
+	const router = useRouter()
+
 	return (
 		<>
 			<DropdownMenu modal={false}>
@@ -36,8 +39,9 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 				<DropdownMenuContent align='end' className='w-[160px]'>
 					<DropdownMenuItem
 						onClick={() => {
-							setCurrentRow(row.original)
-							setOpen('edit')
+							router.navigate({
+								to: `/users/${row.original.id_users}`,
+							})
 						}}
 					>
 						{t('Actions.edit')}
@@ -51,7 +55,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 							setCurrentRow(row.original)
 							setOpen('delete')
 						}}
-						className='!text-red-500'
+						className='!text-destructive'
 					>
 						{t('Actions.delete')}
 						<DropdownMenuShortcut>

@@ -14,7 +14,8 @@ import {
 	useReactTable,
 	VisibilityState,
 } from '@tanstack/react-table'
-import { User } from '@/api/services/user/schema.ts'
+import { useTranslation } from 'react-i18next'
+import { userTypes } from '@/api/services/user/const.ts'
 import {
 	Table,
 	TableBody,
@@ -22,9 +23,10 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@/components/ui/table'
-import { DataTablePagination } from '../../../components/table/data-table-pagination.tsx'
-import { DataTableToolbar } from './data-table-toolbar'
+} from '@/components/ui/table.tsx'
+import { DataTableFacetedFilter } from '@/components/table/data-table-faceted-filter.tsx'
+import { DataTablePagination } from '@/components/table/data-table-pagination.tsx'
+import { DataTableToolbar } from './data-table-toolbar.tsx'
 
 declare module '@tanstack/react-table' {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -33,12 +35,14 @@ declare module '@tanstack/react-table' {
 	}
 }
 
-interface DataTableProps {
-	columns: ColumnDef<User, any>[]
-	data: User[]
+interface DataTableProps<T> {
+	columns: ColumnDef<T, any>[]
+	data: T[]
 }
 
-export function UsersTable({ columns, data }: DataTableProps) {
+export function GenericTable<T>({ columns, data }: DataTableProps<T>) {
+	const { t } = useTranslation()
+
 	const [rowSelection, setRowSelection] = useState({})
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -68,7 +72,21 @@ export function UsersTable({ columns, data }: DataTableProps) {
 
 	return (
 		<div className='space-y-4'>
-			<DataTableToolbar table={table} />
+			<DataTableToolbar
+				facetFilters={
+					<>
+						{table.getColumn('admin') && (
+							<DataTableFacetedFilter
+								parseAsNumber
+								column={table.getColumn('admin')}
+								title={t('Table.header.admin')}
+								options={userTypes.map((t) => ({ ...t }))}
+							/>
+						)}
+					</>
+				}
+				table={table}
+			/>
 			<div className='rounded-md border'>
 				<Table>
 					<TableHeader>
@@ -120,7 +138,7 @@ export function UsersTable({ columns, data }: DataTableProps) {
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									{t('Table.noData')}
 								</TableCell>
 							</TableRow>
 						)}

@@ -1,9 +1,19 @@
 import { queryOptions } from '@tanstack/react-query'
-import { getUsers } from '@/api/services/user/users.ts'
+import {
+	getUserById as getUserByIdApi,
+	getUsers,
+} from '@/api/services/user/users.ts'
 
-export const useGetAllUsers = () => {
+export const getAllUsers = () => {
 	return queryOptions({
 		queryKey: ['users'],
 		queryFn: getUsers,
+	})
+}
+
+export const getUserById = (id: number) => {
+	return queryOptions({
+		queryKey: ['user', id],
+		queryFn: () => getUserByIdApi(id),
 	})
 }

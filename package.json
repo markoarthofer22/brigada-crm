@@ -39,6 +39,7 @@
 		"@tanstack/react-table": "^8.20.5",
 		"@tanstack/router-devtools-core": "^1.114.3",
 		"axios": "^1.8.1",
+		"axios-auth-refresh": "^3.3.6",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "1.0.4",

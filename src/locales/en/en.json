@@ -1,9 +1,12 @@
 {
 	"Actions": {
 		"backToHome": "Back to Home",
+		"cancel": "Cancel",
+		"continue": "Continue",
 		"delete": "Delete",
 		"edit": "Edit",
-		"goBack": "Go Back"
+		"goBack": "Go Back",
+		"submit": "Submit"
 	},
 	"Error": {
 		"401": {
@@ -31,11 +34,16 @@
 			"explanation": "We are sorry, but the service is currently unavailable. Please try again later.",
 			"title": "503"
 		},
+		"email": "Please enter a valid email address",
 		"password": {
 			"max": "Password must be at most {{max}} characters long",
 			"min": "Password must be at least {{min}} characters long"
 		},
 		"required": "This field is required"
+	},
+	"Global": {
+		"deleteWarning": "Please be careful, this operation can not be rolled back.",
+		"warning": "Warning"
 	},
 	"Header": {
 		"theme": {
@@ -51,6 +59,10 @@
 	},
 	"Input": {
 		"label": {
+			"admin": "User role",
+			"email": "Email",
+			"firstname": "First name",
+			"lastname": "Last name",
 			"password": "Password",
 			"username": "Username"
 		},
@@ -76,6 +88,8 @@
 		"title": "Login"
 	},
 	"Table": {
+		"deleteDescription": "Are you sure you want to delete <0>{{name}}</0> from the system? This cannot be undone.",
+		"deleteTitle": "Delete entity",
 		"facetedFilter": {
 			"clearFilters": "Clear filters",
 			"noResultsFound": "No results found.",
@@ -93,6 +107,7 @@
 				"hide": "Hide"
 			}
 		},
+		"noData": "No data available",
 		"pagination": {
 			"goToFirstPage": "Go to first page",
 			"goToLastPage": "Go to last page",
@@ -113,9 +128,14 @@
 			"Regular user",
 			"Admin"
 		],
+		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete User",
+		"deletePlaceholder": "Enter email to confirm deletion",
+		"deleteSuccess": "User {{value}} successfully deleted!",
 		"description": "Manage your users and their roles here.",
 		"edit": "Edit User",
-		"title": "Users"
+		"generatePassword": "Random password",
+		"title": "Users",
+		"updateSuccess": "User {{value}} has been updated successfully."
 	}
 }

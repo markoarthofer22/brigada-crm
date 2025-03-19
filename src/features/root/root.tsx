@@ -14,9 +14,13 @@ const Root = () => {
 	const setLanguage = useAuthStore((state) => state.auth.setLang)
 	const setSession = useAuthStore((state) => state.auth.setSessionId)
 	const setUser = useAuthStore((state) => state.auth.setUser)
+	const authToken = useAuthStore((state) => state.auth.accessToken)
 	const { showLoader, hideLoader } = useLoader()
 	const { theme } = useTheme()
-	const globalSettingsQuery = useQuery(useGetGlobalSettings())
+	const globalSettingsQuery = useQuery({
+		...useGetGlobalSettings(),
+		enabled: !!authToken,
+	})
 	const router = useRouter()
 
 	useEffect(() => {

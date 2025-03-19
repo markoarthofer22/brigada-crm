@@ -44,6 +44,7 @@ export function Header({
 		i18n: { changeLanguage, language: activeLang, services },
 	} = useTranslation()
 	const languages = Object.keys(services.resourceStore.data)
+	const brandName = import.meta.env.VITE_BRAND
 
 	const handleLocaleChange = async (newLocale: string) => {
 		await changeLanguage(newLocale)
@@ -93,7 +94,7 @@ export function Header({
 					{!small && (
 						<div className='flex items-center gap-2'>
 							<Link to='/' className='font-bold'>
-								YourBrand
+								{brandName}
 							</Link>
 						</div>
 					)}

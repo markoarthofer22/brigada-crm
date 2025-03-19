@@ -32,14 +32,16 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 	const { handleError } = useHandleGenericError()
 	const queryClient = useQueryClient()
 
-	const setToken = useAuthStore((state) => state.auth.setAccessToken)
+	const setAccessToken = useAuthStore((state) => state.auth.setAccessToken)
+	const setRefreshToken = useAuthStore((state) => state.auth.setRefreshToken)
 	const setSession = useAuthStore((state) => state.auth.setSessionId)
 	const router = useRouter()
 
 	const loginMutation = useMutation({
 		mutationFn: (data: LoginPayload) => login(data),
 		onSuccess: async (res) => {
-			setToken(res.token)
+			setAccessToken(res.access_token)
+			setRefreshToken(res.refresh_token)
 			setSession(res.session_id)
 			await queryClient.invalidateQueries({
 				queryKey: ['globalSettings'],
