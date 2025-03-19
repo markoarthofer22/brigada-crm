@@ -1,50 +1,56 @@
 import {
+	IconDeviceProjector,
+	IconDrone,
 	IconLayoutDashboard,
+	IconMessage2Question,
 	IconSettings,
 	IconTool,
 	IconUsers,
 } from '@tabler/icons-react'
-import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
-	user: {
-		name: 'Admin',
-		email: 'admin@gmail.com',
-		avatar: '/avatars/shadcn.jpg',
-	},
-	teams: [
-		{
-			name: 'Shadcn Admin',
-			logo: Command,
-			plan: 'Vite + ShadcnUI',
-		},
-	],
 	navGroups: [
 		{
-			title: 'Pages',
+			title: 'pages',
 			items: [
 				{
-					title: 'Dashboard',
+					title: 'dashboard',
 					url: '/',
 					icon: IconLayoutDashboard,
 				},
 				{
-					title: 'Users',
+					title: 'users',
 					url: '/users',
 					icon: IconUsers,
+				},
+				{
+					title: 'projects',
+					url: '/projects',
+					icon: IconDeviceProjector,
+				},
+				{
+					title: 'zones',
+					url: '/zones',
+					icon: IconDrone,
+				},
+				{
+					title: 'questions',
+					url: '/questions',
+					disabled: true,
+					icon: IconMessage2Question,
 				},
 			],
 		},
 		{
-			title: 'Other',
+			title: 'other',
 			items: [
 				{
-					title: 'Settings',
+					title: 'settings',
 					icon: IconSettings,
 					items: [
 						{
-							title: 'Account',
+							title: 'account',
 							url: '/settings/account',
 							icon: IconTool,
 						},

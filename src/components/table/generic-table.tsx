@@ -11,11 +11,11 @@ import {
 	getSortedRowModel,
 	RowData,
 	SortingState,
+	type Table as TableType,
 	useReactTable,
 	VisibilityState,
 } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import { userTypes } from '@/api/services/user/const.ts'
 import {
 	Table,
 	TableBody,
@@ -24,7 +24,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table.tsx'
-import { DataTableFacetedFilter } from '@/components/table/data-table-faceted-filter.tsx'
 import { DataTablePagination } from '@/components/table/data-table-pagination.tsx'
 import { DataTableToolbar } from './data-table-toolbar.tsx'
 
@@ -38,9 +37,14 @@ declare module '@tanstack/react-table' {
 interface DataTableProps<T> {
 	columns: ColumnDef<T, any>[]
 	data: T[]
+	facetFilters?: (table: TableType<T>) => React.ReactNode
 }
 
-export function GenericTable<T>({ columns, data }: DataTableProps<T>) {
+export function GenericTable<T>({
+	columns,
+	data,
+	facetFilters,
+}: DataTableProps<T>) {
 	const { t } = useTranslation()
 
 	const [rowSelection, setRowSelection] = useState({})
@@ -73,18 +77,7 @@ export function GenericTable<T>({ columns, data }: DataTableProps<T>) {
 	return (
 		<div className='space-y-4'>
 			<DataTableToolbar
-				facetFilters={
-					<>
-						{table.getColumn('admin') && (
-							<DataTableFacetedFilter
-								parseAsNumber
-								column={table.getColumn('admin')}
-								title={t('Table.header.admin')}
-								options={userTypes.map((t) => ({ ...t }))}
-							/>
-						)}
-					</>
-				}
+				facetFilters={facetFilters ? facetFilters(table) : null}
 				table={table}
 			/>
 			<div className='rounded-md border'>

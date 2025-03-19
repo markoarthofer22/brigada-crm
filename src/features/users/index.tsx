@@ -2,10 +2,12 @@ import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { userTypes } from '@/api/services/user/const.ts'
 import { getAllUsers } from '@/api/services/user/options.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
+import { DataTableFacetedFilter } from '@/components/table/data-table-faceted-filter.tsx'
 import { GenericTable } from '@/components/table/generic-table.tsx'
 import { columns } from './components/users-columns'
 import { UsersDialogs } from './components/users-dialogs'
@@ -50,7 +52,22 @@ export default function Users() {
 					<UsersPrimaryButtons />
 				</div>
 				<div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
-					<GenericTable data={usersQuery.data ?? []} columns={columns} />
+					<GenericTable
+						facetFilters={(table) => (
+							<>
+								{table.getColumn('admin') && (
+									<DataTableFacetedFilter
+										parseAsNumber
+										column={table.getColumn('admin')}
+										title={t('Table.header.admin')}
+										options={userTypes.map((t) => ({ ...t }))}
+									/>
+								)}
+							</>
+						)}
+						data={usersQuery.data ?? []}
+						columns={columns}
+					/>
 				</div>
 			</Main>
 

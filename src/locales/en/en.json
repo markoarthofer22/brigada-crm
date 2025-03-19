@@ -4,6 +4,7 @@
 		"cancel": "Cancel",
 		"continue": "Continue",
 		"delete": "Delete",
+		"details": "Details",
 		"edit": "Edit",
 		"goBack": "Go Back",
 		"submit": "Submit"
@@ -63,6 +64,7 @@
 			"email": "Email",
 			"firstname": "First name",
 			"lastname": "Last name",
+			"name": "Name",
 			"password": "Password",
 			"username": "Username"
 		},
@@ -87,6 +89,30 @@
 		"submit": "Login",
 		"title": "Login"
 	},
+	"Projects": {
+		"add": "Add project",
+		"createSuccess": "Project {{value}} has been created successfully.",
+		"delete": "Delete Project",
+		"deletePlaceholder": "Enter project name to confirm deletion",
+		"deleteSuccess": "Project {{value}} successfully deleted!",
+		"description": "Manage your project here.",
+		"edit": "Edit project",
+		"title": "Projects",
+		"updateSuccess": "Project {{value}} has been updated successfully."
+	},
+	"Sidebar": {
+		"nav": {
+			"account": "Account",
+			"dashboard": "Dashboard",
+			"other": "Other",
+			"pages": "Pages",
+			"projects": "Projects",
+			"questions": "Questions",
+			"settings": "Settings",
+			"users": "Users",
+			"zones": "Zones"
+		}
+	},
 	"Table": {
 		"deleteDescription": "Are you sure you want to delete <0>{{name}}</0> from the system? This cannot be undone.",
 		"deleteTitle": "Delete entity",
@@ -98,9 +124,11 @@
 		"header": {
 			"actions": "Actions",
 			"admin": "Role",
+			"created_at": "Created at",
 			"email": "Email",
 			"firstname": "Firstname",
 			"lastname": "Lastname",
+			"name": "Name",
 			"sort": {
 				"asc": "Asc",
 				"desc": "Desc",
@@ -123,17 +151,17 @@
 		}
 	},
 	"Users": {
-		"add": "Add User",
+		"add": "Add user",
 		"admin": [
 			"Regular user",
 			"Admin"
 		],
 		"createSuccess": "User {{value}} has been created successfully.",
-		"delete": "Delete User",
+		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",
 		"deleteSuccess": "User {{value}} successfully deleted!",
 		"description": "Manage your users and their roles here.",
-		"edit": "Edit User",
+		"edit": "Edit user",
 		"generatePassword": "Random password",
 		"title": "Users",
 		"updateSuccess": "User {{value}} has been updated successfully."

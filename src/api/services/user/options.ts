@@ -13,7 +13,7 @@ export const getAllUsers = () => {
 
 export const getUserById = (id: number) => {
 	return queryOptions({
-		queryKey: ['user', id],
+		queryKey: ['users', id],
 		queryFn: () => getUserByIdApi(id),
 	})
 }

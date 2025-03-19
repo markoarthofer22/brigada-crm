@@ -33,3 +33,37 @@ export const getErrorMessage = (error: unknown) => {
 export const getInitials = (firstName: string, lastName: string) => {
 	return `${firstName.charAt(0)}.${lastName.charAt(0)}.`
 }
+
+export const formatDate = (
+	date: string | Date | null,
+	options?: {
+		locale?: string
+		year?: 'numeric' | '2-digit'
+		month?: 'numeric' | '2-digit' | 'long' | 'short' | 'narrow'
+		day?: 'numeric' | '2-digit'
+		showTime?: boolean
+	}
+) => {
+	if (!date) return ''
+
+	const locale = options?.locale || 'en-US'
+	const year =
+		options?.year === undefined || options?.year === null
+			? undefined
+			: (options.year ?? 'numeric')
+
+	const showTime = options?.showTime
+		? {
+				hour: 'numeric' as const,
+				minute: 'numeric' as const,
+				hour12: false,
+			}
+		: {}
+
+	return new Intl.DateTimeFormat(locale, {
+		year: year,
+		month: options?.month ?? '2-digit',
+		day: options?.day || '2-digit',
+		...showTime,
+	}).format(new Date(date))
+}

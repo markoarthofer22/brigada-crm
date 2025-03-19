@@ -4,6 +4,7 @@
 		"cancel": "Otkaži",
 		"continue": "Nastavi",
 		"delete": "Obriši",
+		"details": "Detalji",
 		"edit": "Uredi",
 		"goBack": "Idi natrag",
 		"submit": "Pošalji"
@@ -63,6 +64,7 @@
 			"email": "E-mail",
 			"firstname": "Ime",
 			"lastname": "Prezime",
+			"name": "Naziv",
 			"password": "Lozinka",
 			"username": "Korisničko ime"
 		},
@@ -87,6 +89,30 @@
 		"submit": "Prijava",
 		"title": "Prijava"
 	},
+	"Projects": {
+		"add": "Dodaj projekt",
+		"createSuccess": "Projekt {{value}} je uspješno kreiran.",
+		"delete": "Izbriši projekt",
+		"deletePlaceholder": "Unesite ime projekta za potvrdu brisanja",
+		"deleteSuccess": "Projekt {{value}} uspješno izbrisan!",
+		"description": "Ovdje upravljajte svojim projektima.",
+		"edit": "Uredi projekt",
+		"title": "Projekti",
+		"updateSuccess": "Projekt {{value}} je uspješno ažuriran."
+	},
+	"Sidebar": {
+		"nav": {
+			"account": "Račun",
+			"dashboard": "Nadzorna ploča",
+			"other": "Ostalo",
+			"pages": "Stranice",
+			"projects": "Projekti",
+			"questions": "Pitanja",
+			"settings": "Postavke",
+			"users": "Korisnici",
+			"zones": "Zone"
+		}
+	},
 	"Table": {
 		"deleteDescription": "Jeste li sigurni da želite izbrisati <0>{{value}}</0> iz sustava. Ovo se ne može poništiti.",
 		"deleteTitle": "Obriši zapis",
@@ -98,9 +124,11 @@
 		"header": {
 			"actions": "Akcije",
 			"admin": "Pristup",
+			"created_at": "Kreirano",
 			"email": "E-mail",
 			"firstname": "Ime",
 			"lastname": "Prezime",
+			"name": "Naziv",
 			"sort": {
 				"asc": "Asc",
 				"desc": "Desc",
