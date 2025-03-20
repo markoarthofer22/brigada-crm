@@ -26,8 +26,8 @@ export async function upsertProject(model: ProjectUpsert) {
 	const { id_projects, name } = parsedData
 
 	const response = id_projects
-		? await axios.put(`/projects/${id_projects}`, { name })
-		: await axios.post('/projects', { name })
+		? await axios.put(`/projects/${id_projects}`, { data: { name } })
+		: await axios.post('/projects', { data: { name } })
 
 	if (!id_projects) {
 		return ProjectResponseSchema.parse(response.data)

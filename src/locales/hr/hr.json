@@ -91,12 +91,14 @@
 	},
 	"Projects": {
 		"add": "Dodaj projekt",
+		"addDescription": "Ovdje kreirajte novi projekt.",
 		"createSuccess": "Projekt {{value}} je uspješno kreiran.",
 		"delete": "Izbriši projekt",
 		"deletePlaceholder": "Unesite ime projekta za potvrdu brisanja",
 		"deleteSuccess": "Projekt {{value}} uspješno izbrisan!",
 		"description": "Ovdje upravljajte svojim projektima.",
 		"edit": "Uredi projekt",
+		"editDescription": "Ažurirajte projekt ovdje.",
 		"title": "Projekti",
 		"updateSuccess": "Projekt {{value}} je uspješno ažuriran."
 	},

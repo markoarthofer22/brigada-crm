@@ -52,7 +52,7 @@ export function ProjectsUpsertDialog({
 		resolver: zodResolver(ProjectUpsertSchema),
 		defaultValues: {
 			otherField: currentRow?.otherField ?? '',
-			name: currentRow?.name,
+			name: currentRow?.name ?? '',
 			id_projects: currentRow?.id_projects ?? undefined,
 		},
 	})
@@ -62,6 +62,7 @@ export function ProjectsUpsertDialog({
 		onSuccess: async (res) => {
 			await queryClient.invalidateQueries({
 				queryKey: ['projects'],
+				exact: false,
 			})
 
 			toast.success(
@@ -93,13 +94,13 @@ export function ProjectsUpsertDialog({
 				<DialogHeader className='text-left'>
 					<DialogTitle>{t(`Projects.${isEdit ? 'edit' : 'add'}`)}</DialogTitle>
 					<DialogDescription>
-						{t(`Projects.${isEdit ? 'edit' : 'add'}Description`)}
+						{t(`Projects.${isEdit ? 'editDescription' : 'addDescription'}`)}
 					</DialogDescription>
 				</DialogHeader>
-				<ScrollArea className='-mr-4 h-[26.25rem] w-full py-1 pr-4'>
+				<ScrollArea className='-mr-4 w-full py-1 pr-4'>
 					<Form {...form}>
 						<form
-							id='user-form'
+							id='projects-form'
 							onSubmit={form.handleSubmit(onSubmit)}
 							className='space-y-4 p-0.5'
 						>
@@ -107,14 +108,17 @@ export function ProjectsUpsertDialog({
 								control={form.control}
 								name='name'
 								render={({ field }) => (
-									<FormItem className='flex flex-col items-center gap-x-4 gap-y-1 space-y-0'>
-										<FormLabel className='col-span-2 text-right'>
-											{t('Input.label.name')}
-										</FormLabel>
+									<FormItem className='flex flex-col items-start'>
+										<FormLabel>{t('Input.label.name')}</FormLabel>
 										<FormControl>
-											<Input autoComplete='off' {...field} />
+											<Input
+												disabled={projectMutation.isPending}
+												autoComplete='off'
+												type='text'
+												{...field}
+											/>
 										</FormControl>
-										<FormMessage />
+										<FormMessage className='!mt-1adsdas' />
 									</FormItem>
 								)}
 							/>
@@ -122,7 +126,11 @@ export function ProjectsUpsertDialog({
 					</Form>
 				</ScrollArea>
 				<DialogFooter>
-					<Button type='submit' form='user-form'>
+					<Button
+						disabled={projectMutation.isPending}
+						type='submit'
+						form='projects-form'
+					>
 						{t('Actions.submit')}
 					</Button>
 				</DialogFooter>

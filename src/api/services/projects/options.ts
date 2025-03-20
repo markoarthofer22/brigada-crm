@@ -6,14 +6,14 @@ import {
 
 export const getAllProjects = () => {
 	return queryOptions({
-		queryKey: ['project'],
+		queryKey: ['projects'],
 		queryFn: getProjects,
 	})
 }
 
 export const getProjectById = (id: number) => {
 	return queryOptions({
-		queryKey: ['project', id],
+		queryKey: ['projects', id],
 		queryFn: () => getProjectByIdApi(id),
 	})
 }

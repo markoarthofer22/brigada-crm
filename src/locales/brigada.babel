@@ -938,6 +938,21 @@
 								</translations>
 							</concept_node>
 							<concept_node>
+								<name>addDescription</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>createSuccess</name>
 								<description/>
 								<comment/>
@@ -1014,6 +1029,21 @@
 							</concept_node>
 							<concept_node>
 								<name>edit</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>editDescription</name>
 								<description/>
 								<comment/>
 								<translations>

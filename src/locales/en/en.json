@@ -91,12 +91,14 @@
 	},
 	"Projects": {
 		"add": "Add project",
+		"addDescription": "Create new project here.",
 		"createSuccess": "Project {{value}} has been created successfully.",
 		"delete": "Delete Project",
 		"deletePlaceholder": "Enter project name to confirm deletion",
 		"deleteSuccess": "Project {{value}} successfully deleted!",
 		"description": "Manage your project here.",
 		"edit": "Edit project",
+		"editDescription": "Update the project here.",
 		"title": "Projects",
 		"updateSuccess": "Project {{value}} has been updated successfully."
 	},
