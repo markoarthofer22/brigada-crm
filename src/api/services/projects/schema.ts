@@ -4,6 +4,7 @@ export const ProjectResponseSchema = z.object({
 	id_projects: z.number(),
 	created_at: z.string(),
 	name: z.string(),
+	otherField: z.string().optional(),
 })
 
 export const AllProjectsResponseSchema = z.object({

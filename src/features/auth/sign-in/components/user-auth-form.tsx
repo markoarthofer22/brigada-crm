@@ -81,6 +81,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 									<FormLabel>{t('Input.label.username')}</FormLabel>
 									<FormControl>
 										<Input
+											autoComplete='email'
 											disabled={loginMutation.isPending}
 											type='text'
 											placeholder={t('Input.placeholder.username')}
@@ -99,7 +100,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 									<div className='flex items-center justify-between'>
 										<FormLabel>{t('Input.label.password')}</FormLabel>
 										<Link
-											disabled={loginMutation.isPending}
+											disabled
 											to='/forgot-password'
 											className='text-sm font-medium text-muted-foreground transition-opacity duration-200 hover:opacity-75'
 										>
@@ -108,6 +109,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 									</div>
 									<FormControl>
 										<PasswordInput
+											autoComplete='current-password'
 											disabled={loginMutation.isPending}
 											placeholder={t('Input.placeholder.password')}
 											{...field}
