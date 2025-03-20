@@ -37,7 +37,7 @@ class Questions
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.questions q
-				ORDER BY q.sort ASC, q.label ASC
+				ORDER BY q.order ASC, q.label ASC
 		";
 
 		$stmt = $this->database->prepare($sql);
@@ -85,9 +85,9 @@ class Questions
 	{
 
 		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.questions 
-					(id_projects,label,id_questions_types,possible_answers,sort) 
+					(id_projects,label,id_questions_types,possible_answers,order) 
 				VALUES 
-					(:ID_PROJECTS,:LABEL,:ID_QUESTIONS_TYPES,:POSSIBLE_ANSWERS,:SORT)
+					(:ID_PROJECTS,:LABEL,:ID_QUESTIONS_TYPES,:POSSIBLE_ANSWERS,:ORDER)
 				RETURNING id_questions
 		";
 
@@ -96,7 +96,7 @@ class Questions
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
 		$stmt->bindParam(':POSSIBLE_ANSWERS', json_encode($params->possible_answers));
-		$stmt->bindParam(':SORT', $params->sort);
+		$stmt->bindParam(':ORDER', $params->order);
 		$stmt->execute();
 
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -119,7 +119,7 @@ class Questions
 					label = :LABEL,
 					id_questions_types = :ID_QUESTIONS_TYPES,
 					possible_answers = :POSSIBLE_ANSWERS,
-					sort = :SORT
+					order = :ORDER
 				WHERE id_questions = :ID
 		";
 
@@ -128,7 +128,7 @@ class Questions
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
 		$stmt->bindParam(':POSSIBLE_ANSWERS', json_encode($params->possible_answers));
-		$stmt->bindParam(':SORT', $params->sort);
+		$stmt->bindParam(':ORDER', $params->order);
 		$stmt->bindParam(':ID', $params->id);
 		$stmt->execute();
 
@@ -182,7 +182,7 @@ class Questions
 	 */
 	public function GetForProject(object $params): array
 	{
-		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.questions q WHERE q.id_projects = :ID ORDER BY q.sort ASC, q.label ASC";
+		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.questions q WHERE q.id_projects = :ID ORDER BY q.order ASC, q.label ASC";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
 

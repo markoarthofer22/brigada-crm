@@ -103,7 +103,7 @@ class QuestionsController extends BaseController
 		];
 
 		$params->possible_answers = $params->possible_answers ?? [];
-		$params->sort = $params->sort ?? 0;
+		$params->order = $params->order ?? 0;
 
 		foreach ($requiredFields as $field) {
 			if (!isset($params->{$field}) || $params->{$field} == "") {
@@ -148,7 +148,7 @@ class QuestionsController extends BaseController
 		];
 
 		$params->possible_answers = $params->possible_answers ?? [];
-		$params->sort = $params->sort ?? 0;
+		$params->order = $params->order ?? 0;
 
 		foreach ($requiredFields as $field) {
 			if (!isset($params->{$field}) || $params->{$field} == "") {
