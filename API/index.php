@@ -150,6 +150,7 @@ $app->group('', function () use ($app) {
 	})->add([new Auth(), 'Auth']);
 
 	$app->group('/questions', function () use ($app) {
+		$app->post('/order', QuestionsController::class . ":Order");
 		$app->get('', QuestionsController::class);
 		$app->get('/{id}', QuestionsController::class . ":Get");
 		$app->post('', QuestionsController::class . ":Add");

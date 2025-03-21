@@ -36,6 +36,10 @@ export default defineConfig({
 					src: 'API',
 					dest: '',
 				},
+				{
+					src: '.htaccess',
+					dest: '',
+				},
 			],
 		}),
 	],

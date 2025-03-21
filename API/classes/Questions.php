@@ -135,6 +135,37 @@ class Questions
 		return true;
 	}
 
+	/**
+	 * Order function
+	 *
+	 * @param object $params
+	 * @return boolean
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Order(object $params): bool
+	{
+
+
+		$params->id_questions =  implode(',', json_decode(json_encode($params->id_questions), true));
+
+		$sql = "WITH custom_order(id_questions, new_order) AS (
+					SELECT id_questions::INTEGER, ord
+					FROM unnest(ARRAY[{$params->id_questions}]) WITH ORDINALITY AS t(id_questions, ord)
+				)
+				UPDATE brigada.questions q
+					SET \"order\" = c.new_order
+				FROM custom_order c
+				WHERE q.id_questions = c.id_questions
+				AND q.id_projects = :ID_PROJECTS;
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->execute();
+
+		return true;
+	}
+
 
 	/**
 	 * Delete function

@@ -168,6 +168,40 @@ class QuestionsController extends BaseController
 		}
 	}
 
+	/**
+	 * Order function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Order(Request $request, Response $response, array $args): Response
+	{
+
+		$Language = new Language($this->db);
+		$Questions = new Questions($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+
+		if (!isset($params->id_questions) || $params->id_questions == "") {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing id_questions array of ids"))), $response);
+		}
+
+		if (!isset($params->id_projects) || $params->id_projects == "" || $params->id_projects < 1) {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing projects id"))), $response);
+		}
+
+		if ($Questions->Order($params)) {
+			return $response->withStatus(204);
+		} else {
+			return Message::WriteMessage(520, array("Message" => $Language->Translate(array("phrase" => "Unknown error"))), $response);
+		}
+	}
+
 
 	/**
 	 * Delete function
