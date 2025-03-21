@@ -67,3 +67,27 @@ export const formatDate = (
 		...showTime,
 	}).format(new Date(date))
 }
+
+export const getFileExtensionHelperText = (
+	availableExtensions: string[],
+	toUpperCase = true
+) => {
+	if (!availableExtensions || availableExtensions.length === 0) return undefined
+
+	return (
+		availableExtensions
+			.slice(0, -1)
+			.map((ext) => (toUpperCase ? ext.toUpperCase() : ext))
+			.join(', ') +
+		' or ' +
+		availableExtensions[availableExtensions.length - 1].toUpperCase()
+	)
+}
+
+export const bytesToMB = (bytes: number, round = true) => {
+	if (round) {
+		return Math.round(bytes / (1024 * 1024)).toString()
+	}
+
+	return (bytes / (1024 * 1024)).toFixed(2)
+}

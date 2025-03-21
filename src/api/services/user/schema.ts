@@ -23,13 +23,13 @@ export type User = z.infer<typeof UserResponseSchema>
 
 export const UserUpsertSchema = z.object({
 	id_users: z.number().optional(),
-	email: z.string().email({ message: 'Error.email' }),
-	firstname: z.string().nonempty({ message: 'Error.required' }),
-	lastname: z.string().nonempty({ message: 'Error.required' }),
+	email: z.string().email({ message: 'Input.validation.email' }),
+	firstname: z.string().nonempty({ message: 'Input.validation.required' }),
+	lastname: z.string().nonempty({ message: 'Input.validation.required' }),
 	password: z
 		.string()
 		.min(MIN_PASSWORD_LENGTH, {
-			message: 'Error.password.min',
+			message: 'Input.validation.password.min',
 		})
 		.optional()
 		.or(z.literal('')),

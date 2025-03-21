@@ -7,7 +7,7 @@ export const LoginSchema = z.object({
 		.string()
 		.nonempty({ message: 'Error.required' })
 		.min(MIN_PASSWORD_LENGTH, {
-			message: 'Error.password.min',
+			message: 'Input.validation.password.min',
 		}),
 })
 
