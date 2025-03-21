@@ -63,12 +63,19 @@
 			"lastname": "Prezime",
 			"name": "Naziv",
 			"password": "Lozinka",
+			"possibleAnswers": "Mogući odgovori",
 			"projectImage": "Nacrt (slika)",
+			"questionTitle": "Pitanje",
+			"questionType": "Tip pitanja",
 			"uploadFile": "Ispustite ili pritisnite za upload!",
 			"username": "Korisničko ime"
 		},
 		"placeholder": {
 			"password": "********",
+			"questionText": "Ovdje upišite svoj odgovor",
+			"questionTitle": "Unesite tekst pitanja",
+			"questionType": "Odaberite vrstu pitanja",
+			"select": "Odaberite opciju",
 			"username": "Unesite svoje korisničko ime"
 		},
 		"validation": {
@@ -110,6 +117,16 @@
 		"image": "Nacrt #{{value}}",
 		"imageDeleted": "Slika je uspješno izbrisana",
 		"imageUploaded": "Slika je uspješno učitana",
+		"questions": {
+			"addOption": "Dodaj opciju",
+			"addQuestion": "Dodaj pitanje",
+			"addQuestionDescription": "Ispunite detalje za izradu novog pitanja.",
+			"editQuestion": "",
+			"editQuestionDescription": "Ažurirajte detalje pitanja u nastavku.",
+			"freeInput": "Ovo je jednostavno tekstualno polje",
+			"freeTextArea": "Ovo je višeredni unos teksta",
+			"noOption": "Još nema dodanih opcija. Kliknite \"{{value}}\" za dodavanje mogućih odgovora."
+		},
 		"selectImage": "Odaberite nacrt (sliku)",
 		"tabs": {
 			"image": "Nacrt (slika)",
