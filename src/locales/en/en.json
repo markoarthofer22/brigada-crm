@@ -34,13 +34,7 @@
 			"description": "Website is under maintenance!",
 			"explanation": "We are sorry, but the service is currently unavailable. Please try again later.",
 			"title": "503"
-		},
-		"email": "Please enter a valid email address",
-		"password": {
-			"max": "Password must be at most {{max}} characters long",
-			"min": "Password must be at least {{min}} characters long"
-		},
-		"required": "This field is required"
+		}
 	},
 	"Global": {
 		"deleteWarning": "Please be careful, this operation can not be rolled back.",
@@ -59,6 +53,9 @@
 		}
 	},
 	"Input": {
+		"description": {
+			"projectImage": "Upload your layout image. Only one image can be active for project at the time."
+		},
 		"label": {
 			"admin": "User role",
 			"email": "Email",
@@ -66,11 +63,29 @@
 			"lastname": "Last name",
 			"name": "Name",
 			"password": "Password",
+			"projectImage": "Layout image",
+			"uploadFile": "Drag 'n' drop or click to upload!",
 			"username": "Username"
 		},
 		"placeholder": {
 			"password": "********",
 			"username": "Enter your username"
+		},
+		"validation": {
+			"email": "Invalid email address.",
+			"fileSize": "Max file size is {value} MB",
+			"maxFiles": "Max allowed files to upload is {value}",
+			"minLength": "Field must be at least {length} chars long.",
+			"password": {
+				"max": "Password must be at most {{max}} characters long",
+				"min": "Password must be at least {{min}} characters long"
+			},
+			"passwordNotMatch": "Password don't match! Please check the fields.",
+			"probablyTooBig": "File is  probably too big. Max upload size is {value} MB!",
+			"required": "This field is required.",
+			"required (2)": "This field is required",
+			"tooLarge": "File is too big. Max upload size is {value} MB!",
+			"wrongExtension": "Invalid extension! Allowed extensions are {value}"
 		}
 	},
 	"Languages": {
@@ -91,6 +106,9 @@
 	},
 	"ProjectDetails": {
 		"description": "Update you project settings. ",
+		"imageDeleted": "Image successfully deleted",
+		"imageUploaded": "Image successfully uploaded",
+		"selectImage": "Select layout image",
 		"tabs": {
 			"image": "Layout image",
 			"questions": "Questions",

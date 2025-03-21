@@ -34,13 +34,7 @@
 			"description": "Web stranica je u izradi!",
 			"explanation": "Žao nam je, ali usluga trenutno nije dostupna. Pokušajte ponovno kasnije.",
 			"title": "503"
-		},
-		"email": "Unesite važeću adresu e-pošte",
-		"password": {
-			"max": "Lozinka mora imati najviše {{max}} znakova",
-			"min": "Lozinka mora imati najmanje {{min}} znakova"
-		},
-		"required": "Ovo polje je obavezno"
+		}
 	},
 	"Global": {
 		"deleteWarning": "Budite oprezni, ova se operacija ne može poništiti!",
@@ -59,6 +53,9 @@
 		}
 	},
 	"Input": {
+		"description": {
+			"projectImage": "Učitajte svoju sliku tlocrta. Samo jedna slika može biti aktivna po projektu."
+		},
 		"label": {
 			"admin": "Prava korisnika",
 			"email": "E-mail",
@@ -66,11 +63,29 @@
 			"lastname": "Prezime",
 			"name": "Naziv",
 			"password": "Lozinka",
+			"projectImage": "Nacrt (slika)",
+			"uploadFile": "Ispustite ili pritisnite za upload!",
 			"username": "Korisničko ime"
 		},
 		"placeholder": {
 			"password": "********",
 			"username": "Unesite svoje korisničko ime"
+		},
+		"validation": {
+			"email": "Neispravna email adresa",
+			"fileSize": "Maksimalna veličina datoteke je {value} MB",
+			"maxFiles": "Možete učitati maksimalno {value} datoteka",
+			"minLength": "Polje mora imati minimalno {length} znakova.",
+			"password": {
+				"max": "Lozinka mora imati najviše {{max}} znakova",
+				"min": "Lozinka mora imati najmanje {{min}} znakova"
+			},
+			"passwordNotMatch": "Lozinke se ne podudaraju! Provjerite sva polja.",
+			"probablyTooBig": "Datoteka je vjerojatno prevelika. Maksimalna veličina datoteke je {value} MB!",
+			"required": "Ovo polje je obavezno.",
+			"required (2)": "Ovo polje je obavezno",
+			"tooLarge": "Datoteka je  prevelika. Maksimalna veličina datoteke je {value} MB!",
+			"wrongExtension": "Neispravna datoteka! Dopušteni tipovi su {value}"
 		}
 	},
 	"Languages": {
@@ -91,6 +106,9 @@
 	},
 	"ProjectDetails": {
 		"description": "Ažurirajte postavke projekta. ",
+		"imageDeleted": "Slika je uspješno izbrisana",
+		"imageUploaded": "Slika je uspješno učitana",
+		"selectImage": "Odaberite nacrt (sliku)",
 		"tabs": {
 			"image": "Nacrt (slika)",
 			"questions": "Pitanja",

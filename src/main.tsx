@@ -1,4 +1,3 @@
-import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { AxiosError } from 'axios'
 import {
@@ -89,18 +88,16 @@ const rootElement = document.getElementById('root')!
 if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement)
 	root.render(
-		<StrictMode>
-			<I18nextProvider i18n={i18n}>
+		<I18nextProvider i18n={i18n}>
+			<LoaderProvider>
 				<QueryClientProvider client={queryClient}>
 					<ThemeProvider defaultTheme='system' storageKey='vite-ui-theme'>
 						<FontProvider>
-							<LoaderProvider>
-								<RouterProvider router={router} />
-							</LoaderProvider>
+							<RouterProvider router={router} />
 						</FontProvider>
 					</ThemeProvider>
 				</QueryClientProvider>
-			</I18nextProvider>
-		</StrictMode>
+			</LoaderProvider>
+		</I18nextProvider>
 	)
 }

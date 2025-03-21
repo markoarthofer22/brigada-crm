@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
@@ -9,6 +9,13 @@ import { useLoader } from '@/context/loader-provider'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select.tsx'
+import {
 	Tabs,
 	TabsContent,
 	TabsList,
@@ -18,6 +25,7 @@ import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import ImageUploader from '@/features/project-details/(components)/image-uploader'
 import QuestionLayout from '@/features/project-details/(components)/question-layout'
+import UserUpsertFormSkeleton from '@/features/user-crud/components/user-upsert-form-skeleton.tsx'
 
 enum TabsEnum {
 	IMAGE = 'image',
@@ -32,6 +40,7 @@ export default function ProjectDetails() {
 	const queryClient = useQueryClient()
 	const { handleError } = useHandleGenericError()
 	const [activeTab, setActiveTab] = useState<TabsEnum>(TabsEnum.IMAGE)
+	const [selectedImage, setSelectedImage] = useState<number | null>(null)
 	const [projectName, setProjectName] = useState<string>('')
 
 	const handleNameChange = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -82,6 +91,14 @@ export default function ProjectDetails() {
 		},
 	})
 
+	const activeImageLayout = useMemo(() => {
+		if (!selectedImage) return undefined
+
+		return projectQuery.data?.images?.find(
+			(img) => img.id_images === selectedImage
+		)
+	}, [projectQuery.data?.images, selectedImage])
+
 	useEffect(() => {
 		if (projectQuery.isLoading) {
 			showLoader()
@@ -95,6 +112,28 @@ export default function ProjectDetails() {
 			setProjectName(projectQuery.data.name)
 		}
 	}, [projectQuery.data?.name])
+
+	useEffect(() => {
+		if (projectQuery.data?.images) {
+			setSelectedImage(projectQuery.data.images[0].id_images)
+		}
+	}, [projectQuery.data?.images])
+
+	if (projectQuery.isLoading)
+		return (
+			<>
+				<Header />
+				<Main>
+					<div className='space-y-2'>
+						<div className='mb-4 space-y-2'>
+							<UserUpsertFormSkeleton />
+						</div>
+					</div>
+				</Main>
+			</>
+		)
+
+	if (!projectQuery.data?.id_projects) return null
 
 	return (
 		<>
@@ -131,7 +170,34 @@ export default function ProjectDetails() {
 							))}
 						</TabsList>
 						<TabsContent value={TabsEnum.IMAGE}>
-							<ImageUploader />
+							<div className='mb-2 mt-6 flex flex-col items-start space-y-2'>
+								<p className='text-sm font-medium'>
+									{t('ProjectDetails.selectImage')}
+								</p>
+								<Select
+									value={selectedImage?.toString() ?? undefined}
+									onValueChange={(value) => setSelectedImage(Number(value))}
+								>
+									<SelectTrigger className='w-80'>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent side='bottom'>
+										{projectQuery.data?.images?.map((image) => (
+											<SelectItem
+												key={image.id_images}
+												value={`${image.id_images}`}
+											>
+												{image.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+							<ImageUploader
+								path={projectQuery.data.path!}
+								id={projectQuery.data?.id_projects}
+								image={activeImageLayout}
+							/>
 						</TabsContent>
 						<TabsContent value={TabsEnum.QUESTIONS}>
 							<QuestionLayout />

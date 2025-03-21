@@ -1,7 +1,7 @@
 import { ZodError } from 'zod'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { isAxiosError } from '@/api/axios.ts'
+import api, { isAxiosError } from '@/api/axios.ts'
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs))
@@ -16,7 +16,11 @@ export const getErrorMessage = (error: unknown) => {
 	}
 
 	if (isAxiosError(error)) {
-		return error?.response?.data?.StatusText?.Message || 'An error occurred'
+		return (
+			error?.response?.data?.StatusText?.Message ??
+			error.message ??
+			'An error occurred'
+		)
 	}
 
 	if (error instanceof Error) {
@@ -90,4 +94,27 @@ export const bytesToMB = (bytes: number, round = true) => {
 	}
 
 	return (bytes / (1024 * 1024)).toFixed(2)
+}
+
+export const convertUrlToFile = async (
+	url?: string | null
+): Promise<File[] | null> => {
+	try {
+		if (!url) {
+			return null
+		}
+
+		const response = await api.get(url, {
+			responseType: 'blob',
+		})
+
+		const blob = response.data
+		const file = new File([blob], 'image', { type: blob.type })
+
+		return [file]
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.error('Error converting URL to file:', error)
+		throw error
+	}
 }

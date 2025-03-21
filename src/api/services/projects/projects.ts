@@ -1,9 +1,13 @@
 import axios from '@/api/axios.ts'
 import {
 	AllProjectsResponseSchema,
+	ProjectDetailsResponseSchema,
 	ProjectResponseSchema,
 	ProjectUpsert,
 	ProjectUpsertSchema,
+	UpsertImageForProject,
+	UpsertImageForProjectResponseSchema,
+	UpsertImageForProjectType,
 } from '@/api/services/projects/schema.ts'
 
 export async function getProjects() {
@@ -17,7 +21,7 @@ export async function getProjects() {
 export async function getProjectById(id: number) {
 	const response = await axios.get(`/projects/${id}`)
 
-	return ProjectResponseSchema.parse(response.data)
+	return ProjectDetailsResponseSchema.parse(response.data)
 }
 
 export async function upsertProject(model: ProjectUpsert) {
@@ -38,4 +42,29 @@ export async function upsertProject(model: ProjectUpsert) {
 
 export async function deleteProject(id: number) {
 	await axios.delete(`/projects/${id}`)
+}
+
+export async function upsertImageForProject(data: UpsertImageForProjectType) {
+	const { id, file } = UpsertImageForProject.parse(data)
+
+	const formData = new FormData()
+
+	file.forEach((file) => {
+		formData.append('file', file)
+	})
+
+	const response = await axios.post(`/projects/${id}/image`, formData, {
+		headers: {
+			'Content-Type': 'multipart/form-data',
+		},
+	})
+
+	return UpsertImageForProjectResponseSchema.parse(response.data)
+}
+
+export async function deleteImageForProject(
+	projectId: number,
+	imageId: number
+) {
+	await axios.delete(`/projects/${projectId}/image/${imageId}`)
 }

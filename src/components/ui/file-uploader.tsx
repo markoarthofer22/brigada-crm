@@ -368,7 +368,7 @@ export const FileInput = forwardRef<HTMLDivElement, FileInputProps>(
 			<div
 				ref={ref}
 				{...props}
-				className={`relative h-full w-full cursor-pointer rounded-lg border-2 border-dashed border-input bg-primary ${
+				className={`relative h-full w-full cursor-pointer rounded-lg border-2 border-dashed border-input bg-background ${
 					isLOF ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
 				} ${
 					dropzoneState.isDragAccept
@@ -388,10 +388,10 @@ export const FileInput = forwardRef<HTMLDivElement, FileInputProps>(
 					{children ?? (
 						<React.Fragment>
 							<IconUpload className='mb-4 size-7 stroke-primary' />
-							<p className='mb-2 !text-sm text-black dark:text-primary-foreground'>
+							<p className='mb-2 !text-sm text-primary'>
 								{t('Input.label.uploadFile')}
 							</p>
-							<p className='text-xs text-black dark:text-primary-foreground'>
+							<p className='text-xs text-primary'>
 								{getFileExtensionHelperText(availableExtensions)}{' '}
 								{maxSize && `(max. ${maxSize}MB)`}
 							</p>
