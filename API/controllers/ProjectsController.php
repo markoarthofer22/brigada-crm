@@ -145,7 +145,7 @@ class ProjectsController extends BaseController
 
 		$params->id = $args->id;
 		if ($Projects->Update($params)) {
-			return $response->withStatus(204);
+			return $response->withJson([], 204);;
 		} else {
 			return Message::WriteMessage(520, array("Message" => $Language->Translate(array("phrase" => "Unknown error"))), $response);
 		}
@@ -173,7 +173,7 @@ class ProjectsController extends BaseController
 
 		$Projects->Delete($args);
 
-		return $response->withStatus(204);
+		return $response->withJson([], 204);;
 	}
 
 	/**
@@ -245,6 +245,6 @@ class ProjectsController extends BaseController
 
 		$image = $Images->Delete($args->id_images);
 		$Projects->DisconnectProjectsImages((object)["id_projects" => $args->id, "id_images" => $args->id_images]);
-		return $response->withStatus(204);
+		return $response->withJson([], 204);;
 	}
 }

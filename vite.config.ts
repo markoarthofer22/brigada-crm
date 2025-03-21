@@ -1,19 +1,40 @@
 import path from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, Plugin } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import fs from 'fs-extra'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
-// https://vite.dev/config/
+function cleanDistExceptFilesFolder(): Plugin {
+	return {
+		name: 'clean-dist-except-files',
+		apply: 'build', // fixed here
+		buildStart() {
+			const distPath = path.resolve(__dirname, 'dist')
+			const keepPath = path.resolve(distPath, 'files')
+
+			if (fs.existsSync(distPath)) {
+				fs.readdirSync(distPath).forEach((file) => {
+					const filePath = path.resolve(distPath, file)
+					if (filePath !== keepPath) {
+						fs.removeSync(filePath)
+					}
+				})
+			}
+		},
+	}
+}
+
 export default defineConfig({
 	plugins: [
 		react(),
 		TanStackRouterVite(),
+		cleanDistExceptFilesFolder(),
 		viteStaticCopy({
 			targets: [
 				{
-					src: 'API', // Source folder
-					dest: '', // Copy to the root of dist
+					src: 'API',
+					dest: '',
 				},
 			],
 		}),
@@ -21,14 +42,12 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './src'),
-
-			// fix loading all icon chunks in dev mode
-			// https://github.com/tabler/tabler-icons/issues/1233
 			'@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs',
 		},
 	},
 	build: {
 		outDir: 'dist',
+		emptyOutDir: false,
 		rollupOptions: {
 			output: {
 				entryFileNames: 'assets/[name]-[hash].js',
@@ -36,17 +55,10 @@ export default defineConfig({
 				assetFileNames: 'assets/[name]-[hash].[ext]',
 				manualChunks(id) {
 					if (id.includes('node_modules')) {
-						return id
-							.toString()
-							.split('node_modules/')[1]
-							.split('/')[0]
-							.toString()
+						return id.split('node_modules/')[1].split('/')[0]
 					}
 				},
 			},
 		},
-		//      terser: isProduction ? { compress: { drop_console: true } } : false, // Remove console logs only in production
-		// terser: isProduction ? { compress: { drop_console: false } } : false,
-		// minify: isProduction, // Enable minification only in production
 	},
 })

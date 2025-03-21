@@ -2,14 +2,3 @@ RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?$1 [QSA,L]
-
-# <IfModule mod_headers.c>
-# 	Header always set Access-Control-Allow-Origin "*"
-# 	Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
-# 	Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization, Bearer"
-
-# 	Header set X-XSS-Protection "1; mode=block"
-# 	Header always append X-Frame-Options SAMEORIGIN
-# 	# Header append X-Frame-Options "ALLOW-FROM https://brigada.nacverto.hr/"
-# 	Header set X-Content-Type-Options nosniff
-# </IfModule>
