@@ -89,6 +89,15 @@
 		"submit": "Login",
 		"title": "Login"
 	},
+	"ProjectDetails": {
+		"description": "Update you project settings. ",
+		"tabs": {
+			"image": "Layout image",
+			"questions": "Questions",
+			"zones": "Zones"
+		},
+		"title": "Project"
+	},
 	"Projects": {
 		"add": "Add project",
 		"addDescription": "Create new project here.",

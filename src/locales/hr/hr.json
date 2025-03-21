@@ -89,6 +89,15 @@
 		"submit": "Prijava",
 		"title": "Prijava"
 	},
+	"ProjectDetails": {
+		"description": "Ažurirajte postavke projekta. ",
+		"tabs": {
+			"image": "Nacrt (slika)",
+			"questions": "Pitanja",
+			"zones": "Zone"
+		},
+		"title": "Projekt"
+	},
 	"Projects": {
 		"add": "Dodaj projekt",
 		"addDescription": "Ovdje kreirajte novi projekt.",
