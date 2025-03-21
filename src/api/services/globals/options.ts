@@ -1,9 +1,9 @@
 import { queryOptions } from '@tanstack/react-query'
-import { getGlobalSettings } from '@/api/services/globals/globals.ts'
+import { getGlobalSettings as getGlobalsSettingsApi } from '@/api/services/globals/globals.ts'
 
-export const useGetGlobalSettings = () => {
+export const getGlobalSettings = () => {
 	return queryOptions({
 		queryKey: ['globalSettings'],
-		queryFn: getGlobalSettings,
+		queryFn: getGlobalsSettingsApi,
 	})
 }

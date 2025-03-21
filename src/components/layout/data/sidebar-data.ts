@@ -1,8 +1,6 @@
 import {
 	IconDeviceProjector,
-	IconDrone,
 	IconLayoutDashboard,
-	IconMessage2Question,
 	IconSettings,
 	IconTool,
 	IconUsers,
@@ -28,17 +26,6 @@ export const sidebarData: SidebarData = {
 					title: 'projects',
 					url: '/projects',
 					icon: IconDeviceProjector,
-				},
-				{
-					title: 'zones',
-					url: '/zones',
-					icon: IconDrone,
-				},
-				{
-					title: 'questions',
-					url: '/questions',
-					disabled: true,
-					icon: IconMessage2Question,
 				},
 			],
 		},

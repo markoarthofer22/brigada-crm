@@ -33,14 +33,8 @@ const authForgotPasswordLazyImport = createFileRoute(
 const AuthenticatedSettingsRouteLazyImport = createFileRoute(
   '/_authenticated/settings',
 )()
-const AuthenticatedZonesIndexLazyImport = createFileRoute(
-  '/_authenticated/zones/',
-)()
 const AuthenticatedUsersIndexLazyImport = createFileRoute(
   '/_authenticated/users/',
-)()
-const AuthenticatedQuestionsIndexLazyImport = createFileRoute(
-  '/_authenticated/questions/',
 )()
 const AuthenticatedProjectsIndexLazyImport = createFileRoute(
   '/_authenticated/projects/',
@@ -56,6 +50,9 @@ const AuthenticatedSettingsAccountLazyImport = createFileRoute(
 )()
 const AuthenticatedUsersIdIndexLazyImport = createFileRoute(
   '/_authenticated/users/$id/',
+)()
+const AuthenticatedProjectsIdIndexLazyImport = createFileRoute(
+  '/_authenticated/projects/$id/',
 )()
 
 // Create/Update Routes
@@ -156,15 +153,6 @@ const auth500Route = auth500Import.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthenticatedZonesIndexLazyRoute =
-  AuthenticatedZonesIndexLazyImport.update({
-    id: '/zones/',
-    path: '/zones/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/zones/index.lazy').then((d) => d.Route),
-  )
-
 const AuthenticatedUsersIndexLazyRoute =
   AuthenticatedUsersIndexLazyImport.update({
     id: '/users/',
@@ -172,15 +160,6 @@ const AuthenticatedUsersIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/users/index.lazy').then((d) => d.Route),
-  )
-
-const AuthenticatedQuestionsIndexLazyRoute =
-  AuthenticatedQuestionsIndexLazyImport.update({
-    id: '/questions/',
-    path: '/questions/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/questions/index.lazy').then((d) => d.Route),
   )
 
 const AuthenticatedProjectsIndexLazyRoute =
@@ -229,6 +208,17 @@ const AuthenticatedUsersIdIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/users/$id/index.lazy').then((d) => d.Route),
+  )
+
+const AuthenticatedProjectsIdIndexLazyRoute =
+  AuthenticatedProjectsIdIndexLazyImport.update({
+    id: '/projects/$id/',
+    path: '/projects/$id/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/projects/$id/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 
 // Populate the FileRoutesByPath interface
@@ -354,13 +344,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/questions/': {
-      id: '/_authenticated/questions/'
-      path: '/questions'
-      fullPath: '/questions'
-      preLoaderRoute: typeof AuthenticatedQuestionsIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
@@ -368,11 +351,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/zones/': {
-      id: '/_authenticated/zones/'
-      path: '/zones'
-      fullPath: '/zones'
-      preLoaderRoute: typeof AuthenticatedZonesIndexLazyImport
+    '/_authenticated/projects/$id/': {
+      id: '/_authenticated/projects/$id/'
+      path: '/projects/$id'
+      fullPath: '/projects/$id'
+      preLoaderRoute: typeof AuthenticatedProjectsIdIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/users/$id/': {
@@ -410,9 +393,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedUsersAddLazyRoute: typeof AuthenticatedUsersAddLazyRoute
   AuthenticatedProjectsIndexLazyRoute: typeof AuthenticatedProjectsIndexLazyRoute
-  AuthenticatedQuestionsIndexLazyRoute: typeof AuthenticatedQuestionsIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
-  AuthenticatedZonesIndexLazyRoute: typeof AuthenticatedZonesIndexLazyRoute
+  AuthenticatedProjectsIdIndexLazyRoute: typeof AuthenticatedProjectsIdIndexLazyRoute
   AuthenticatedUsersIdIndexLazyRoute: typeof AuthenticatedUsersIdIndexLazyRoute
 }
 
@@ -422,9 +404,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedUsersAddLazyRoute: AuthenticatedUsersAddLazyRoute,
   AuthenticatedProjectsIndexLazyRoute: AuthenticatedProjectsIndexLazyRoute,
-  AuthenticatedQuestionsIndexLazyRoute: AuthenticatedQuestionsIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
-  AuthenticatedZonesIndexLazyRoute: AuthenticatedZonesIndexLazyRoute,
+  AuthenticatedProjectsIdIndexLazyRoute: AuthenticatedProjectsIdIndexLazyRoute,
   AuthenticatedUsersIdIndexLazyRoute: AuthenticatedUsersIdIndexLazyRoute,
 }
 
@@ -448,9 +429,8 @@ export interface FileRoutesByFullPath {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/users/add': typeof AuthenticatedUsersAddLazyRoute
   '/projects': typeof AuthenticatedProjectsIndexLazyRoute
-  '/questions': typeof AuthenticatedQuestionsIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
-  '/zones': typeof AuthenticatedZonesIndexLazyRoute
+  '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
   '/users/$id': typeof AuthenticatedUsersIdIndexLazyRoute
 }
 
@@ -470,9 +450,8 @@ export interface FileRoutesByTo {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/users/add': typeof AuthenticatedUsersAddLazyRoute
   '/projects': typeof AuthenticatedProjectsIndexLazyRoute
-  '/questions': typeof AuthenticatedQuestionsIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
-  '/zones': typeof AuthenticatedZonesIndexLazyRoute
+  '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
   '/users/$id': typeof AuthenticatedUsersIdIndexLazyRoute
 }
 
@@ -495,9 +474,8 @@ export interface FileRoutesById {
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/users/add': typeof AuthenticatedUsersAddLazyRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexLazyRoute
-  '/_authenticated/questions/': typeof AuthenticatedQuestionsIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
-  '/_authenticated/zones/': typeof AuthenticatedZonesIndexLazyRoute
+  '/_authenticated/projects/$id/': typeof AuthenticatedProjectsIdIndexLazyRoute
   '/_authenticated/users/$id/': typeof AuthenticatedUsersIdIndexLazyRoute
 }
 
@@ -520,9 +498,8 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/users/add'
     | '/projects'
-    | '/questions'
     | '/users'
-    | '/zones'
+    | '/projects/$id'
     | '/users/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -541,9 +518,8 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/users/add'
     | '/projects'
-    | '/questions'
     | '/users'
-    | '/zones'
+    | '/projects/$id'
     | '/users/$id'
   id:
     | '__root__'
@@ -564,9 +540,8 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/appearance'
     | '/_authenticated/users/add'
     | '/_authenticated/projects/'
-    | '/_authenticated/questions/'
     | '/_authenticated/users/'
-    | '/_authenticated/zones/'
+    | '/_authenticated/projects/$id/'
     | '/_authenticated/users/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -629,9 +604,8 @@ export const routeTree = rootRoute
         "/_authenticated/",
         "/_authenticated/users/add",
         "/_authenticated/projects/",
-        "/_authenticated/questions/",
         "/_authenticated/users/",
-        "/_authenticated/zones/",
+        "/_authenticated/projects/$id/",
         "/_authenticated/users/$id/"
       ]
     },
@@ -693,16 +667,12 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/projects/index.lazy.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/questions/": {
-      "filePath": "_authenticated/questions/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
     "/_authenticated/users/": {
       "filePath": "_authenticated/users/index.lazy.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/zones/": {
-      "filePath": "_authenticated/zones/index.lazy.tsx",
+    "/_authenticated/projects/$id/": {
+      "filePath": "_authenticated/projects/$id/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/users/$id/": {

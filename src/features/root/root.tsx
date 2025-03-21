@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Outlet, useRouter } from '@tanstack/react-router'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { useGetGlobalSettings } from '@/api/services/globals/options.ts'
+import { getGlobalSettings } from '@/api/services/globals/options.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { useTheme } from '@/context/theme-context.tsx'
@@ -14,11 +14,12 @@ const Root = () => {
 	const setLanguage = useAuthStore((state) => state.auth.setLang)
 	const setSession = useAuthStore((state) => state.auth.setSessionId)
 	const setUser = useAuthStore((state) => state.auth.setUser)
+	const setQuestionTypes = useAuthStore((state) => state.auth.setQuestionTypes)
 	const authToken = useAuthStore((state) => state.auth.accessToken)
 	const { showLoader, hideLoader } = useLoader()
 	const { theme } = useTheme()
 	const globalSettingsQuery = useQuery({
-		...useGetGlobalSettings(),
+		...getGlobalSettings(),
 		enabled: !!authToken,
 	})
 	const router = useRouter()
@@ -30,13 +31,17 @@ const Root = () => {
 
 		setLanguage(globalSettingsQuery.data.lang)
 		setSession(globalSettingsQuery.data.session_id)
+
 		if (globalSettingsQuery.data?.user) {
 			setUser(globalSettingsQuery.data.user)
 		}
+
+		setQuestionTypes(globalSettingsQuery.data.questions_types)
 	}, [
 		globalSettingsQuery.data,
 		router,
 		setLanguage,
+		setQuestionTypes,
 		setSession,
 		setUser,
 		user?.id_users,

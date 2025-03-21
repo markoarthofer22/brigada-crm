@@ -18,3 +18,5 @@ export const GlobalSettingsResponse = z.object({
 		.optional()
 		.nullable(),
 })
+
+export type GlobalsSettings = z.infer<typeof GlobalSettingsResponse>
