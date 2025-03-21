@@ -63,12 +63,19 @@
 			"lastname": "Last name",
 			"name": "Name",
 			"password": "Password",
+			"possibleAnswers": "Possible answers",
 			"projectImage": "Layout image",
+			"questionTitle": "Question Label",
+			"questionType": "Question type",
 			"uploadFile": "Drag 'n' drop or click to upload!",
 			"username": "Username"
 		},
 		"placeholder": {
 			"password": "********",
+			"questionText": "Type your answer here",
+			"questionTitle": "Enter question text",
+			"questionType": "Select a question type",
+			"select": "Select an option",
 			"username": "Enter your username"
 		},
 		"validation": {
@@ -110,6 +117,16 @@
 		"image": "Layout #{{value}}",
 		"imageDeleted": "Image successfully deleted",
 		"imageUploaded": "Image successfully uploaded",
+		"questions": {
+			"addOption": "Add option",
+			"addQuestion": "Add Question",
+			"addQuestionDescription": "Fill in the details to create a new question.",
+			"editQuestion": "",
+			"editQuestionDescription": "Update the question details below.",
+			"freeInput": "This is a simple text field",
+			"freeTextArea": "This is a multi-line text input",
+			"noOption": "No options added yet. Click \"{{value}}\" to add possible answers."
+		},
 		"selectImage": "Select layout image",
 		"tabs": {
 			"image": "Layout image",

@@ -1,7 +1,8 @@
 import { ZodError } from 'zod'
+import axios from 'axios'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import api, { isAxiosError } from '@/api/axios.ts'
+import { isAxiosError } from '@/api/axios.ts'
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs))
@@ -104,7 +105,7 @@ export const convertUrlToFile = async (
 			return null
 		}
 
-		const response = await api.get(url, {
+		const response = await axios.get(url, {
 			responseType: 'blob',
 		})
 

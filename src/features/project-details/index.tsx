@@ -115,7 +115,10 @@ export default function ProjectDetails() {
 	}, [projectQuery.data?.name])
 
 	useEffect(() => {
-		if (projectQuery.data?.images) {
+		if (
+			projectQuery.data?.images?.length &&
+			projectQuery.data?.images?.length > 0
+		) {
 			setSelectedImage(projectQuery.data.images[0].id_images)
 		}
 	}, [projectQuery.data?.images])
@@ -177,6 +180,7 @@ export default function ProjectDetails() {
 								</p>
 								<div className='flex flex-row items-center gap-x-2'>
 									<Select
+										disabled={projectQuery.data?.images?.length === 0}
 										value={selectedImage?.toString() ?? undefined}
 										onValueChange={(value) => setSelectedImage(Number(value))}
 									>
@@ -210,12 +214,15 @@ export default function ProjectDetails() {
 							</div>
 							<ImageUploader
 								path={projectQuery.data.path!}
-								id={projectQuery.data?.id_projects}
+								projectId={projectQuery.data?.id_projects}
 								image={activeImageLayout}
 							/>
 						</TabsContent>
 						<TabsContent value={TabsEnum.QUESTIONS}>
-							<QuestionLayout />
+							<QuestionLayout
+								questions={projectQuery.data.questions}
+								projectId={projectQuery.data.id_projects}
+							/>
 						</TabsContent>
 						<TabsContent value={TabsEnum.ZONES}>Coming soon</TabsContent>
 					</Tabs>
