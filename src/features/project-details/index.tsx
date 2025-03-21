@@ -7,6 +7,7 @@ import { getProjectById } from '@/api/services/projects/options.ts'
 import { upsertProject } from '@/api/services/projects/projects.ts'
 import { useLoader } from '@/context/loader-provider'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
+import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import {
 	Select,
@@ -174,24 +175,38 @@ export default function ProjectDetails() {
 								<p className='text-sm font-medium'>
 									{t('ProjectDetails.selectImage')}
 								</p>
-								<Select
-									value={selectedImage?.toString() ?? undefined}
-									onValueChange={(value) => setSelectedImage(Number(value))}
-								>
-									<SelectTrigger className='w-80'>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent side='bottom'>
-										{projectQuery.data?.images?.map((image) => (
-											<SelectItem
-												key={image.id_images}
-												value={`${image.id_images}`}
-											>
-												{image.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+								<div className='flex flex-row items-center gap-x-2'>
+									<Select
+										value={selectedImage?.toString() ?? undefined}
+										onValueChange={(value) => setSelectedImage(Number(value))}
+									>
+										<SelectTrigger className='w-80'>
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent side='bottom'>
+											{projectQuery.data?.images?.map((image, index) => (
+												<SelectItem
+													key={image.id_images}
+													value={`${image.id_images}`}
+												>
+													{/*{image.name} */}
+													{t('ProjectDetails.image', {
+														value: index + 1,
+													})}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+
+									<Button
+										disabled={projectQuery.data.images?.length === 0}
+										onClick={() => {
+											setSelectedImage(null)
+										}}
+									>
+										{t('ProjectDetails.addImage')}
+									</Button>
+								</div>
 							</div>
 							<ImageUploader
 								path={projectQuery.data.path!}

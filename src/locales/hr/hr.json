@@ -105,7 +105,9 @@
 		"title": "Prijava"
 	},
 	"ProjectDetails": {
+		"addImage": "Novi nacrt",
 		"description": "Ažurirajte postavke projekta. ",
+		"image": "Nacrt #{{value}}",
 		"imageDeleted": "Slika je uspješno izbrisana",
 		"imageUploaded": "Slika je uspješno učitana",
 		"selectImage": "Odaberite nacrt (sliku)",

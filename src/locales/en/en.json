@@ -105,7 +105,9 @@
 		"title": "Login"
 	},
 	"ProjectDetails": {
+		"addImage": "New layout",
 		"description": "Update you project settings. ",
+		"image": "Layout #{{value}}",
 		"imageDeleted": "Image successfully deleted",
 		"imageUploaded": "Image successfully uploaded",
 		"selectImage": "Select layout image",
