@@ -84,10 +84,22 @@ class Questions
 	public function Add(object $params): int
 	{
 
-		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.questions 
-					(id_projects,label,id_questions_types,possible_answers,order) 
+		$sql = "INSERT INTO brigada.questions 
+					(
+						id_projects,
+						label,
+						id_questions_types,
+						possible_answers,
+						\"order\"
+					)
 				VALUES 
-					(:ID_PROJECTS,:LABEL,:ID_QUESTIONS_TYPES,:POSSIBLE_ANSWERS,:ORDER)
+					(
+						:ID_PROJECTS,
+						:LABEL,
+						:ID_QUESTIONS_TYPES,
+						:POSSIBLE_ANSWERS,
+						(SELECT COALESCE(MAX(\"order\"), 0) + 1 FROM brigada.questions q WHERE q.id_projects = :ID_PROJECTS)
+					)
 				RETURNING id_questions
 		";
 
@@ -96,7 +108,6 @@ class Questions
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
 		$stmt->bindParam(':POSSIBLE_ANSWERS', json_encode($params->possible_answers));
-		$stmt->bindParam(':ORDER', $params->order);
 		$stmt->execute();
 
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -118,8 +129,7 @@ class Questions
 					id_projects = :ID_PROJECTS,
 					label = :LABEL,
 					id_questions_types = :ID_QUESTIONS_TYPES,
-					possible_answers = :POSSIBLE_ANSWERS,
-					order = :ORDER
+					possible_answers = :POSSIBLE_ANSWERS
 				WHERE id_questions = :ID
 		";
 
@@ -128,7 +138,6 @@ class Questions
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
 		$stmt->bindParam(':POSSIBLE_ANSWERS', json_encode($params->possible_answers));
-		$stmt->bindParam(':ORDER', $params->order);
 		$stmt->bindParam(':ID', $params->id);
 		$stmt->execute();
 
