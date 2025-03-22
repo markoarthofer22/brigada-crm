@@ -121,8 +121,11 @@
 			"addOption": "Add option",
 			"addQuestion": "Add Question",
 			"addQuestionDescription": "Fill in the details to create a new question.",
+			"addSuccess": "Question successfully added.",
+			"deleteSuccess": "Question deleted successfully!",
 			"editQuestion": "",
 			"editQuestionDescription": "Update the question details below.",
+			"editSuccess": "Question successfully updated.",
 			"freeInput": "This is a simple text field",
 			"freeTextArea": "This is a multi-line text input",
 			"noOption": "No options added yet. Click \"{{value}}\" to add possible answers."

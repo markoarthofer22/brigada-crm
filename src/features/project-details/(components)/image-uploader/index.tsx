@@ -98,7 +98,7 @@ const ImageUploader = ({ projectId, image, path }: ImageUploaderProps) => {
 						name='file'
 						render={({ field, fieldState }) =>
 							image?.name && path ? (
-								<div className='rounded-lg border-2 border-dashed border-accent p-2'>
+								<div className='h-[500px] max-w-4xl rounded-lg border-2 border-dashed border-accent p-2'>
 									<img
 										src={`${path}/${image.name}`}
 										alt={image.name}

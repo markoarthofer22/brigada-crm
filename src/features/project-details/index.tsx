@@ -37,6 +37,7 @@ enum TabsEnum {
 export default function ProjectDetails() {
 	const { t } = useTranslation()
 	const { id } = useParams({ strict: false })
+
 	const { showLoader, hideLoader } = useLoader()
 	const queryClient = useQueryClient()
 	const { handleError } = useHandleGenericError()

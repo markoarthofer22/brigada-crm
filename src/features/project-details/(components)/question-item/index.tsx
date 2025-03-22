@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { IconEdit, IconTrash } from '@tabler/icons-react'
+import { IconEdit } from '@tabler/icons-react'
 import { InfoIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ProjectDetails } from '@/api/services/projects/schema.ts'
+import { QuestionUpsertType } from '@/api/services/questions/schema.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,13 +27,15 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { QuestionDialog } from '@/features/project-details/(components)/question-action-dialog'
+import { DeleteConfirmation } from '@/features/project-details/(components)/question-delete-dialog'
 
 interface QuestionItemProps {
 	question: ProjectDetails['questions'][number]
-	onChange?: (questionId: number, value: any) => void
-	onEdit?: (questionId: number, updatedQuestion: any) => void
+	onChange?: (questionId: number, value: unknown) => void
+	onEdit?: (updatedQuestion: QuestionUpsertType) => void
 	onDelete?: (questionId: number) => void
 	disabled?: boolean
+	isLoading?: boolean
 }
 
 export function QuestionItem({
@@ -41,6 +44,7 @@ export function QuestionItem({
 	onEdit,
 	onDelete,
 	disabled = true,
+	isLoading,
 }: QuestionItemProps) {
 	const { t } = useTranslation()
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
@@ -57,6 +61,7 @@ export function QuestionItem({
 		{}
 	)
 	const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false)
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
 
 	const handleDialogOpenChange = (open: boolean) => {
 		setEditDialogOpen(open)
@@ -96,9 +101,9 @@ export function QuestionItem({
 		}
 	}
 
-	const handleEditSubmit = (data: any) => {
+	const handleEditSubmit = (data: QuestionUpsertType) => {
 		if (onEdit) {
-			onEdit(question.id_questions, data)
+			onEdit(data)
 		}
 
 		setEditDialogOpen(false)
@@ -107,6 +112,7 @@ export function QuestionItem({
 	const handleDelete = () => {
 		if (onDelete) {
 			onDelete(question.id_questions)
+			setDeleteDialogOpen(false)
 		}
 	}
 
@@ -222,6 +228,7 @@ export function QuestionItem({
 					<CardFooter className='flex justify-end gap-2'>
 						{onEdit && (
 							<Button
+								disabled={isLoading}
 								variant='outline'
 								size='sm'
 								onClick={() => setEditDialogOpen(true)}
@@ -232,15 +239,12 @@ export function QuestionItem({
 							</Button>
 						)}
 						{onDelete && (
-							<Button
-								variant='outline'
-								size='sm'
-								onClick={handleDelete}
-								className='flex items-center gap-1 text-destructive hover:text-destructive'
-							>
-								<IconTrash className='size-5' />
-								{t('Actions.delete')}
-							</Button>
+							<DeleteConfirmation
+								disabled={isLoading}
+								open={deleteDialogOpen}
+								onOpenChange={setDeleteDialogOpen}
+								handleDelete={handleDelete}
+							/>
 						)}
 					</CardFooter>
 				)}
@@ -249,7 +253,9 @@ export function QuestionItem({
 				open={editDialogOpen}
 				onOpenChange={handleDialogOpenChange}
 				onSubmit={handleEditSubmit}
+				isLoading={isLoading}
 				defaultValues={{
+					id_questions: question.id_questions,
 					id_projects: question.id_projects,
 					label: question.label,
 					id_questions_types: question.id_questions_types,

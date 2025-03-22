@@ -121,8 +121,11 @@
 			"addOption": "Dodaj opciju",
 			"addQuestion": "Dodaj pitanje",
 			"addQuestionDescription": "Ispunite detalje za izradu novog pitanja.",
+			"addSuccess": "Pitanje je uspješno dodano.",
+			"deleteSuccess": "Pitanje izbrisano!",
 			"editQuestion": "",
 			"editQuestionDescription": "Ažurirajte detalje pitanja u nastavku.",
+			"editSuccess": "Pitanje je uspješno ažurirano.",
 			"freeInput": "Ovo je jednostavno tekstualno polje",
 			"freeTextArea": "Ovo je višeredni unos teksta",
 			"noOption": "Još nema dodanih opcija. Kliknite \"{{value}}\" za dodavanje mogućih odgovora."

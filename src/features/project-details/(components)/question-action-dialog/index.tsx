@@ -1,10 +1,11 @@
-'use client'
-
-import * as z from 'zod'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import {
+	QuestionUpsertSchema,
+	QuestionUpsertType,
+} from '@/api/services/questions/schema.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,20 +33,14 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 
-const formSchema = z.object({
-	id_projects: z.number(),
-	label: z.string().min(1, 'Input.validation.required'),
-	id_questions_types: z.number(),
-	possible_answers: z.array(z.string()).optional(),
-})
-
 interface QuestionDialogProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
-	onSubmit: (data: z.infer<typeof formSchema>) => void
-	defaultValues?: z.infer<typeof formSchema>
+	onSubmit: (data: QuestionUpsertType) => void
+	defaultValues?: QuestionUpsertType
 	projectId: number
 	isEditing?: boolean
+	isLoading?: boolean
 }
 
 export function QuestionDialog({
@@ -55,17 +50,22 @@ export function QuestionDialog({
 	defaultValues,
 	projectId,
 	isEditing = false,
+	isLoading,
 }: QuestionDialogProps) {
 	const { t } = useTranslation()
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes) ?? []
-
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
-		defaultValues: defaultValues || {
+	const form = useForm<QuestionUpsertType>({
+		resolver: zodResolver(QuestionUpsertSchema),
+		defaultValues: {
+			id_questions: defaultValues?.id_questions ?? undefined,
 			id_projects: projectId,
-			label: '',
-			id_questions_types: questionTypes?.[0]?.id_questions_types || 1,
-			possible_answers: [],
+			possible_answers: defaultValues?.possible_answers ?? [],
+			label: defaultValues?.label ?? '',
+			order: defaultValues?.order ?? undefined,
+			id_questions_types:
+				defaultValues?.id_questions_types ??
+				questionTypes?.[0].id_questions_types ??
+				0,
 		},
 	})
 
@@ -82,14 +82,15 @@ export function QuestionDialog({
 
 	const requiresPossibleAnswers = currentQuestionType?.free_input === false
 
-	// Handle form submission
-	const handleSubmit = (data: z.infer<typeof formSchema>) => {
+	const handleSubmit = (data: QuestionUpsertType) => {
 		if (!requiresPossibleAnswers) {
 			data.possible_answers = []
 		}
 
-		onSubmit(data)
-		handleDialogOpenChange(false)
+		onSubmit({
+			...data,
+			id_projects: projectId,
+		})
 	}
 
 	const addPossibleAnswer = () => {
@@ -130,6 +131,7 @@ export function QuestionDialog({
 									<FormLabel>{t('Input.label.questionTitle')}</FormLabel>
 									<FormControl>
 										<Input
+											disabled={isLoading}
 											placeholder={t('Input.placeholder.questionTitle')}
 											{...field}
 										/>
@@ -146,6 +148,7 @@ export function QuestionDialog({
 								<FormItem>
 									<FormLabel>{t('Input.label.questionTitle')}</FormLabel>
 									<Select
+										disabled={isLoading}
 										onValueChange={(value) =>
 											field.onChange(Number.parseInt(value))
 										}
@@ -179,6 +182,7 @@ export function QuestionDialog({
 								<div className='flex items-center justify-between'>
 									<FormLabel>{t('Input.label.possibleAnswers')}</FormLabel>
 									<Button
+										disabled={isLoading}
 										type='button'
 										variant='outline'
 										size='sm'
@@ -207,6 +211,7 @@ export function QuestionDialog({
 												<FormItem className='flex-1'>
 													<FormControl>
 														<Input
+															disabled={isLoading}
 															placeholder={`Option ${index + 1}`}
 															{...field}
 														/>
@@ -217,6 +222,7 @@ export function QuestionDialog({
 										/>
 										<Button
 											type='button'
+											disabled={isLoading}
 											variant='ghost'
 											size='icon'
 											onClick={() => remove(index)}
@@ -231,12 +237,15 @@ export function QuestionDialog({
 						<DialogFooter>
 							<Button
 								type='button'
+								disabled={isLoading}
 								variant='outline'
 								onClick={() => handleDialogOpenChange(false)}
 							>
 								{t('Actions.cancel')}
 							</Button>
-							<Button type='submit'>{t('Actions.submit')}</Button>
+							<Button disabled={isLoading} type='submit'>
+								{t('Actions.submit')}
+							</Button>
 						</DialogFooter>
 					</form>
 				</Form>
