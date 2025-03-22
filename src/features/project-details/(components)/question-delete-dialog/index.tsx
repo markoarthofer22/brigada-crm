@@ -42,9 +42,11 @@ export function DeleteConfirmation({
 			</DialogTrigger>
 			<DialogContent className='sm:max-w-[425px]'>
 				<DialogHeader>
-					<DialogTitle>Confirm Deletion</DialogTitle>
+					<DialogTitle>
+						{t('ProjectDetails.questions.confirmDelete')}
+					</DialogTitle>
 					<DialogDescription>
-						Are you sure you want to delete this? This action cannot be undone.
+						{t('ProjectDetails.questions.confirmDeleteDescription')}
 					</DialogDescription>
 				</DialogHeader>
 				<DialogFooter>

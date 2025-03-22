@@ -122,6 +122,8 @@
 			"addQuestion": "Add Question",
 			"addQuestionDescription": "Fill in the details to create a new question.",
 			"addSuccess": "Question successfully added.",
+			"confirmDelete": "Confirm delete",
+			"confirmDeleteDescription": "Are you sure you want to delete this? This action cannot be undone.",
 			"deleteSuccess": "Question deleted successfully!",
 			"editQuestion": "",
 			"editQuestionDescription": "Update the question details below.",

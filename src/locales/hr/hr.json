@@ -122,6 +122,8 @@
 			"addQuestion": "Dodaj pitanje",
 			"addQuestionDescription": "Ispunite detalje za izradu novog pitanja.",
 			"addSuccess": "Pitanje je uspješno dodano.",
+			"confirmDelete": "Potvrdite brisanje",
+			"confirmDeleteDescription": "Jeste li sigurni da želite ovo izbrisati? Ova se radnja ne može poništiti.",
 			"deleteSuccess": "Pitanje izbrisano!",
 			"editQuestion": "",
 			"editQuestionDescription": "Ažurirajte detalje pitanja u nastavku.",
