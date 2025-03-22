@@ -97,17 +97,18 @@ class Questions
 						:ID_PROJECTS,
 						:LABEL,
 						:ID_QUESTIONS_TYPES,
-						:POSSIBLE_ANSWERS,
+						:POSSIBLE_ANSWERS::jsonb,
 						(SELECT COALESCE(MAX(\"order\"), 0) + 1 FROM brigada.questions q WHERE q.id_projects = :ID_PROJECTS)
 					)
 				RETURNING id_questions
 		";
+		$possible_answers = json_encode($params->possible_answers);
 
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
-		$stmt->bindParam(':POSSIBLE_ANSWERS', json_encode($params->possible_answers));
+		$stmt->bindParam(':POSSIBLE_ANSWERS', $possible_answers);
 		$stmt->execute();
 
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -129,15 +130,16 @@ class Questions
 					id_projects = :ID_PROJECTS,
 					label = :LABEL,
 					id_questions_types = :ID_QUESTIONS_TYPES,
-					possible_answers = :POSSIBLE_ANSWERS
+					possible_answers = :POSSIBLE_ANSWERS::jsonb
 				WHERE id_questions = :ID
 		";
+		$possible_answers = json_encode($params->possible_answers);
 
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
-		$stmt->bindParam(':POSSIBLE_ANSWERS', json_encode($params->possible_answers));
+		$stmt->bindParam(':POSSIBLE_ANSWERS', $possible_answers);
 		$stmt->bindParam(':ID', $params->id);
 		$stmt->execute();
 

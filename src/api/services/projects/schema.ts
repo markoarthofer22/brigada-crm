@@ -42,7 +42,7 @@ export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({
 			id_questions_types: z.number(),
 			order: z.number(),
 			label: z.string(),
-			possible_answers: z.array(z.string()).nullable(),
+			possible_answers: z.object({}).nullable(),
 		})
 	),
 })

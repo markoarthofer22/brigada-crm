@@ -6,7 +6,7 @@ export const QuestionUpsertSchema = z.object({
 	id_questions_types: z.number(),
 	id_questions: z.number().optional(),
 	order: z.number().optional(),
-	possible_answers: z.array(z.string()).optional(),
+	possible_answers: z.object({}).optional(),
 })
 
 export const QuestionResponseSchema = QuestionUpsertSchema
