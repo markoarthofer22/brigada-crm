@@ -1,7 +1,7 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { useRouter } from '@tanstack/react-router'
 import { Row } from '@tanstack/react-table'
-import { IconEdit, IconFilterEdit, IconTrash } from '@tabler/icons-react'
+import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { Project } from '@/api/services/projects/schema.ts'
 import { Button } from '@/components/ui/button'
@@ -44,21 +44,9 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 							})
 						}}
 					>
-						{t('Actions.details')}
-						<DropdownMenuShortcut>
-							<IconEdit size={16} />
-						</DropdownMenuShortcut>
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						onClick={() => {
-							setCurrentRow(row.original)
-							setOpen('edit')
-						}}
-					>
 						{t('Actions.edit')}
 						<DropdownMenuShortcut>
-							<IconFilterEdit size={16} />
+							<IconEdit size={16} />
 						</DropdownMenuShortcut>
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />

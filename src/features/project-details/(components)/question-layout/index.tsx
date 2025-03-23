@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { IconCirclePlusFilled } from '@tabler/icons-react'
 import {
@@ -46,8 +46,17 @@ const QuestionLayout = ({ questions = [], projectId }: QuestionLayoutProps) => {
 	const { showLoader, hideLoader } = useLoader()
 	const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false)
 
+	const [draggableQuestions, setQuestions] = useState(
+		questions.map((x) => ({ ...x, id: x.order }))
+	)
+
 	const sensors = useSensors(
-		useSensor(PointerSensor),
+		useSensor(PointerSensor, {
+			activationConstraint: {
+				delay: 100,
+				tolerance: 5,
+			},
+		}),
 		useSensor(TouchSensor),
 		useSensor(KeyboardSensor, {
 			coordinateGetter: sortableKeyboardCoordinates,
@@ -123,10 +132,6 @@ const QuestionLayout = ({ questions = [], projectId }: QuestionLayoutProps) => {
 		deleteQuestionMutation.mutate(id)
 	}
 
-	const [draggableQuestions, setQuestions] = useState(
-		questions.map((x) => ({ ...x, id: x.order }))
-	)
-
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event
 
@@ -152,6 +157,10 @@ const QuestionLayout = ({ questions = [], projectId }: QuestionLayoutProps) => {
 			id_projects: projectId,
 		})
 	}
+
+	useEffect(() => {
+		setQuestions(questions.map((x) => ({ ...x, id: x.order })))
+	}, [questions])
 
 	return (
 		<>
