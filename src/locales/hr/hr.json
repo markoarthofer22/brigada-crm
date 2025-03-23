@@ -130,7 +130,8 @@
 			"editSuccess": "Pitanje je uspješno ažurirano.",
 			"freeInput": "Ovo je jednostavno tekstualno polje",
 			"freeTextArea": "Ovo je višeredni unos teksta",
-			"noOption": "Još nema dodanih opcija. Kliknite \"{{value}}\" za dodavanje mogućih odgovora."
+			"noOption": "Još nema dodanih opcija. Kliknite \"{{value}}\" za dodavanje mogućih odgovora.",
+			"orderUpdated": "Redoslijed pitanja ažuriran!"
 		},
 		"selectImage": "Odaberite nacrt (sliku)",
 		"tabs": {

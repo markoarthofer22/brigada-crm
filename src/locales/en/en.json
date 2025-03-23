@@ -130,7 +130,8 @@
 			"editSuccess": "Question successfully updated.",
 			"freeInput": "This is a simple text field",
 			"freeTextArea": "This is a multi-line text input",
-			"noOption": "No options added yet. Click \"{{value}}\" to add possible answers."
+			"noOption": "No options added yet. Click \"{{value}}\" to add possible answers.",
+			"orderUpdated": "Question order updated!"
 		},
 		"selectImage": "Select layout image",
 		"tabs": {

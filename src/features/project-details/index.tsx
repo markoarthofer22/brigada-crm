@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams } from '@tanstack/react-router'
+import { useQueryState } from 'nuqs'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getProjectById } from '@/api/services/projects/options.ts'
@@ -41,7 +42,9 @@ export default function ProjectDetails() {
 	const { showLoader, hideLoader } = useLoader()
 	const queryClient = useQueryClient()
 	const { handleError } = useHandleGenericError()
-	const [activeTab, setActiveTab] = useState<TabsEnum>(TabsEnum.IMAGE)
+	const [activeTabQuery, setActiveTabQuery] = useQueryState('tab', {
+		defaultValue: TabsEnum.IMAGE,
+	})
 	const [selectedImage, setSelectedImage] = useState<number | null>(null)
 	const [projectName, setProjectName] = useState<string>('')
 
@@ -164,8 +167,8 @@ export default function ProjectDetails() {
 						{t('ProjectDetails.description')}
 					</p>
 					<Tabs
-						defaultValue={activeTab}
-						onValueChange={(value) => setActiveTab(value as TabsEnum)}
+						defaultValue={activeTabQuery}
+						onValueChange={(value) => setActiveTabQuery(value as TabsEnum)}
 					>
 						<TabsList>
 							{Object.values(TabsEnum).map((tab: TabsEnum) => (

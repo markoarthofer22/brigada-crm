@@ -1,4 +1,5 @@
 import axios from '@/api/axios.ts'
+import { UpsertQuestionOrder } from '@/api/services/projects/schema.ts'
 import {
 	QuestionResponseSchema,
 	QuestionUpsertSchema,
@@ -23,4 +24,8 @@ export async function upsertQuestion(model: QuestionUpsertType) {
 
 export async function deleteQuestion(id: number) {
 	await axios.delete(`/questions/${id}`)
+}
+
+export async function upsertQuestionOrder(model: UpsertQuestionOrder) {
+	await axios.post(`/questions/order`, model)
 }

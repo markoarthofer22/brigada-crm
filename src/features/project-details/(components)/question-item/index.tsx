@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { IconEdit } from '@tabler/icons-react'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { InfoIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ProjectDetails } from '@/api/services/projects/schema.ts'
 import { QuestionUpsertType } from '@/api/services/questions/schema.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
+import { cn } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -36,6 +39,7 @@ interface QuestionItemProps {
 	onDelete?: (questionId: number) => void
 	disabled?: boolean
 	isLoading?: boolean
+	orderLabel?: string | number
 }
 
 export function QuestionItem({
@@ -45,9 +49,21 @@ export function QuestionItem({
 	onDelete,
 	disabled,
 	isLoading,
+	orderLabel,
 }: QuestionItemProps) {
 	const { t } = useTranslation()
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transition,
+		transform,
+		isDragging,
+	} = useSortable({
+		id: question.order,
+		transition: null,
+	})
 
 	const questionTypeOptions = questionTypes?.map((questionType) => ({
 		value: questionType.id_questions_types,
@@ -218,11 +234,28 @@ export function QuestionItem({
 		}
 	}
 
+	const style = {
+		transition,
+		transform: CSS.Transform.toString(transform),
+	}
+
 	return (
 		<>
-			<Card className='shadow-sm'>
+			<Card
+				ref={setNodeRef}
+				{...attributes}
+				{...listeners}
+				style={style}
+				className={cn('grab touch-none shadow-sm transition-colors', {
+					'grabbing border-2 border-dashed border-muted-foreground bg-muted shadow-lg':
+						isDragging,
+				})}
+			>
 				<CardHeader>
-					<CardTitle className='text-lg capitalize'>{question.label}</CardTitle>
+					<CardTitle className='flex items-center gap-1.5 text-lg capitalize'>
+						{orderLabel && <span className='text-base'>{orderLabel}.</span>}
+						{question.label}
+					</CardTitle>
 					<CardDescription>{questionType?.label}</CardDescription>
 				</CardHeader>
 				<CardContent>{renderQuestionInput()}</CardContent>

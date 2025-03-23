@@ -83,3 +83,10 @@ export const UpsertImageForProjectResponseSchema = z.object({
 	name: z.string(),
 	id_images: z.number(),
 })
+
+export const UpsertQuestionOrderSchema = z.object({
+	id_questions: z.array(z.number()),
+	id_projects: z.number(),
+})
+
+export type UpsertQuestionOrder = z.infer<typeof UpsertQuestionOrderSchema>

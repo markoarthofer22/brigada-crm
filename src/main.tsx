@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import i18n from '@/i18n'
+import { NuqsAdapter } from 'nuqs/adapters/react'
 import { I18nextProvider } from 'react-i18next'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
@@ -93,7 +94,9 @@ if (!rootElement.innerHTML) {
 				<QueryClientProvider client={queryClient}>
 					<ThemeProvider defaultTheme='system' storageKey='vite-ui-theme'>
 						<FontProvider>
-							<RouterProvider router={router} />
+							<NuqsAdapter>
+								<RouterProvider router={router} />
+							</NuqsAdapter>
 						</FontProvider>
 					</ThemeProvider>
 				</QueryClientProvider>
