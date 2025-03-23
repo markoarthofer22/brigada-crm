@@ -26,15 +26,9 @@ export function DataTablePagination<TData>({
 
 	return (
 		<div
-			className='flex items-center justify-between overflow-clip px-2'
+			className='flex items-center justify-center overflow-clip px-2 md:justify-end'
 			style={{ overflowClipMargin: 1 }}
 		>
-			<div className='hidden flex-1 text-sm text-muted-foreground sm:block'>
-				{t('Table.pagination.selected', {
-					selected: table.getFilteredSelectedRowModel().rows.length,
-					total: table.getFilteredRowModel().rows.length,
-				})}
-			</div>
 			<div className='flex items-center sm:space-x-6 lg:space-x-8'>
 				<div className='flex items-center space-x-2'>
 					<p className='hidden text-sm font-medium sm:block'>

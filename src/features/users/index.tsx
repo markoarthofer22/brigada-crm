@@ -4,6 +4,7 @@ import { useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { userTypes } from '@/api/services/user/const.ts'
 import { getAllUsers } from '@/api/services/user/options.ts'
+import { User } from '@/api/services/user/schema.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
@@ -22,6 +23,12 @@ export default function Users() {
 	const usersQuery = useQuery({
 		...getAllUsers(),
 	})
+
+	const onRowClick = (row: User) => {
+		if (row.id_users) {
+			router.navigate({ to: `/users/${row.id_users}` })
+		}
+	}
 
 	useEffect(() => {
 		if (usersQuery.isLoading) {
@@ -53,6 +60,7 @@ export default function Users() {
 				</div>
 				<div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
 					<GenericTable
+						onRowClick={onRowClick}
 						facetFilters={(table) => (
 							<>
 								{table.getColumn('admin') && (

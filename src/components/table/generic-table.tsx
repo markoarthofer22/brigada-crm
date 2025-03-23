@@ -16,6 +16,7 @@ import {
 	VisibilityState,
 } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/utils.ts'
 import {
 	Table,
 	TableBody,
@@ -38,12 +39,14 @@ interface DataTableProps<T> {
 	columns: ColumnDef<T, any>[]
 	data: T[]
 	facetFilters?: (table: TableType<T>) => React.ReactNode
+	onRowClick?: (row: T) => void
 }
 
 export function GenericTable<T>({
 	columns,
 	data,
 	facetFilters,
+	onRowClick,
 }: DataTableProps<T>) {
 	const { t } = useTranslation()
 
@@ -110,7 +113,14 @@ export function GenericTable<T>({
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && 'selected'}
-									className='group/row'
+									className={cn('group/row', {
+										'cursor-pointer': Boolean(onRowClick),
+									})}
+									onClick={() => {
+										if (onRowClick) {
+											onRowClick(row.original)
+										}
+									}}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell
