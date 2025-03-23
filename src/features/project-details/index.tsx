@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams } from '@tanstack/react-router'
 import { useQueryState } from 'nuqs'
@@ -8,15 +8,7 @@ import { getProjectById } from '@/api/services/projects/options.ts'
 import { upsertProject } from '@/api/services/projects/projects.ts'
 import { useLoader } from '@/context/loader-provider'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
-import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select.tsx'
 import {
 	Tabs,
 	TabsContent,
@@ -45,7 +37,7 @@ export default function ProjectDetails() {
 	const [activeTabQuery, setActiveTabQuery] = useQueryState('tab', {
 		defaultValue: TabsEnum.IMAGE,
 	})
-	const [selectedImage, setSelectedImage] = useState<number | null>(null)
+
 	const [projectName, setProjectName] = useState<string>('')
 
 	const handleNameChange = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -96,14 +88,6 @@ export default function ProjectDetails() {
 		},
 	})
 
-	const activeImageLayout = useMemo(() => {
-		if (!selectedImage) return undefined
-
-		return projectQuery.data?.images?.find(
-			(img) => img.id_images === selectedImage
-		)
-	}, [projectQuery.data?.images, selectedImage])
-
 	useEffect(() => {
 		if (projectQuery.isLoading) {
 			showLoader()
@@ -117,15 +101,6 @@ export default function ProjectDetails() {
 			setProjectName(projectQuery.data.name)
 		}
 	}, [projectQuery.data?.name])
-
-	useEffect(() => {
-		if (
-			projectQuery.data?.images?.length &&
-			projectQuery.data?.images?.length > 0
-		) {
-			setSelectedImage(projectQuery.data.images[0].id_images)
-		}
-	}, [projectQuery.data?.images])
 
 	if (projectQuery.isLoading)
 		return (
@@ -178,48 +153,10 @@ export default function ProjectDetails() {
 							))}
 						</TabsList>
 						<TabsContent value={TabsEnum.IMAGE}>
-							<div className='mb-2 mt-6 flex flex-col items-start space-y-2'>
-								<p className='text-sm font-medium'>
-									{t('ProjectDetails.selectImage')}
-								</p>
-								<div className='flex flex-row items-center gap-x-2'>
-									<Select
-										disabled={projectQuery.data?.images?.length === 0}
-										value={selectedImage?.toString() ?? undefined}
-										onValueChange={(value) => setSelectedImage(Number(value))}
-									>
-										<SelectTrigger className='w-80'>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent side='bottom'>
-											{projectQuery.data?.images?.map((image, index) => (
-												<SelectItem
-													key={image.id_images}
-													value={`${image.id_images}`}
-												>
-													{/*{image.name} */}
-													{t('ProjectDetails.image', {
-														value: index + 1,
-													})}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-
-									<Button
-										disabled={projectQuery.data.images?.length === 0}
-										onClick={() => {
-											setSelectedImage(null)
-										}}
-									>
-										{t('ProjectDetails.addImage')}
-									</Button>
-								</div>
-							</div>
 							<ImageUploader
 								path={projectQuery.data.path!}
 								projectId={projectQuery.data?.id_projects}
-								image={activeImageLayout}
+								allImages={projectQuery.data?.images}
 							/>
 						</TabsContent>
 						<TabsContent value={TabsEnum.QUESTIONS}>
