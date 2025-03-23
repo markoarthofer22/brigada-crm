@@ -130,12 +130,9 @@ const ImageUploader = ({
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent side='bottom'>
-							{allImages?.map((image, index) => (
+							{allImages?.map((image) => (
 								<SelectItem key={image.id_images} value={`${image.id_images}`}>
-									{/*{image.name} */}
-									{t('ProjectDetails.image', {
-										value: index + 1,
-									})}
+									{image.data.file_name}
 								</SelectItem>
 							))}
 						</SelectContent>

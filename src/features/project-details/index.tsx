@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from '@tanstack/react-router'
 import { useQueryState } from 'nuqs'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +8,7 @@ import { getProjectById } from '@/api/services/projects/options.ts'
 import { upsertProject } from '@/api/services/projects/projects.ts'
 import { useLoader } from '@/context/loader-provider'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
+import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import {
 	Tabs,
@@ -32,7 +33,6 @@ export default function ProjectDetails() {
 	const { id } = useParams({ strict: false })
 
 	const { showLoader, hideLoader } = useLoader()
-	const queryClient = useQueryClient()
 	const { handleError } = useHandleGenericError()
 	const [activeTabQuery, setActiveTabQuery] = useQueryState('tab', {
 		defaultValue: TabsEnum.IMAGE,
@@ -40,17 +40,12 @@ export default function ProjectDetails() {
 
 	const [projectName, setProjectName] = useState<string>('')
 
-	const handleNameChange = (e: React.FocusEvent<HTMLInputElement>) => {
-		if (
-			e.target.value === projectName ||
-			!e.target.value ||
-			e.target.value === projectQuery.data?.name
-		)
-			return
+	const handleNameChange = () => {
+		if (projectName === '') return
 
 		showLoader()
-		const name = e.target.value
-		projectNameMutation.mutate(name)
+
+		projectNameMutation.mutate(projectName)
 	}
 
 	const projectQuery = useQuery({
@@ -66,10 +61,6 @@ export default function ProjectDetails() {
 			})
 		},
 		onSuccess: async (res) => {
-			await queryClient.invalidateQueries({
-				queryKey: ['projects', id],
-			})
-
 			toast.success(
 				t('Projects.updateSuccess', {
 					value: res.name,
@@ -131,9 +122,10 @@ export default function ProjectDetails() {
 							</h2>
 							<Input
 								type='text'
-								defaultValue={projectName}
-								onBlur={handleNameChange}
+								onChange={(e) => setProjectName(e.currentTarget.value)}
+								value={projectName}
 							/>
+							<Button onClick={handleNameChange}>{t('Actions.submit')}</Button>
 						</div>
 					</div>
 				</div>
@@ -157,6 +149,7 @@ export default function ProjectDetails() {
 								path={projectQuery.data.path!}
 								projectId={projectQuery.data?.id_projects}
 								allImages={projectQuery.data?.images}
+								selectDisabled={projectQuery.data?.images?.length === 0}
 							/>
 						</TabsContent>
 						<TabsContent value={TabsEnum.QUESTIONS}>

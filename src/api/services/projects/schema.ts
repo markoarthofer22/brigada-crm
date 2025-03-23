@@ -15,6 +15,11 @@ export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({
 			z.object({
 				id_images: z.number(),
 				name: z.string(),
+				data: z.object({
+					height: z.number(),
+					width: z.number(),
+					file_name: z.string(),
+				}),
 			})
 		)
 		.optional(),
