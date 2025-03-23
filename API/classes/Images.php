@@ -53,13 +53,20 @@ class Images
 		$filePath = rtrim($this->folder, '/') . '/' . $fileName;
 		move_uploaded_file($image["temp_file"], $filePath);
 
-		$sql = "INSERT INTO {$_SESSION['SCHEMA']}.images (name) VALUES (:NAME) RETURNING id_images";
+
+		$data = json_encode($image);
+
+		$sql = "INSERT INTO {$_SESSION['SCHEMA']}.images (name, data) VALUES (:NAME, :DATA) RETURNING id_images";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':NAME', $fileName, PDO::PARAM_STR);
+		$stmt->bindParam(':DATA', $data, PDO::PARAM_STR); // JSONB is passed as string
 		$stmt->execute();
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-		return array("name" => $fileName, "id_images" => (int)$result['id_images']);
+		return [
+			"name" => $fileName,
+			"id_images" => (int)$result['id_images']
+		];
 	}
 
 	/**

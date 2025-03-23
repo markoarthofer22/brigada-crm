@@ -204,12 +204,14 @@ class Projects
 				WHERE pi.id_projects = :ID_PROJECTS
 				ORDER BY i.name ASC
 		";
-		// echo $sql;
-		// echo $params->id;
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id);
 		$stmt->execute();
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($results as &$result) {
+			$result["data"] = json_decode($result["data"]);
+		}
 
 		return $results;
 	}

@@ -211,11 +211,24 @@ class ProjectsController extends BaseController
 		$params = array(
 			"type" => $firstFile->getClientMediaType(),
 			"temp_file" => $firstFile->file,
-			"file_name" => $firstFile->getClientFilename()
+			"file_name" => $firstFile->getClientFilename(),
+			"size" => $firstFile->getSize(),
+			"error" => $firstFile->getError(),
+			"is_uploaded" => is_uploaded_file($firstFile->file),
+			"extension" => pathinfo($firstFile->getClientFilename(), PATHINFO_EXTENSION),
+			"original_name" => pathinfo($firstFile->getClientFilename(), PATHINFO_FILENAME),
+			"uploaded_at" => date('c')
 		);
 
 		if (!in_array($params["type"], $this->allowedTypes)) {
 			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Unsupported file type: {$params["type"]}"))), $response);
+		}
+
+		$dimensions = @getimagesize($firstFile->file);
+		if ($dimensions) {
+			$params["width"] = $dimensions[0];
+			$params["height"] = $dimensions[1];
+			$params["mime"] = $dimensions["mime"] ?? null;
 		}
 
 		$image = $Images->Upload($params);
