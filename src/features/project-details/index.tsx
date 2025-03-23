@@ -20,6 +20,7 @@ import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import ImageUploader from '@/features/project-details/(components)/image-uploader'
 import QuestionLayout from '@/features/project-details/(components)/question-layout'
+import ZoneLayout from '@/features/project-details/(components)/zones-layout'
 import UserUpsertFormSkeleton from '@/features/user-crud/components/user-upsert-form-skeleton.tsx'
 
 enum TabsEnum {
@@ -158,7 +159,15 @@ export default function ProjectDetails() {
 								projectId={projectQuery.data.id_projects}
 							/>
 						</TabsContent>
-						<TabsContent value={TabsEnum.ZONES}>Coming soon</TabsContent>
+						<TabsContent value={TabsEnum.ZONES}>
+							<ZoneLayout
+								hasNoActiveLayout={projectQuery.data?.images?.length === 0}
+								zones={projectQuery.data.zones}
+								projectId={projectQuery.data?.id_projects}
+								allImages={projectQuery.data?.images}
+								path={projectQuery.data.path!}
+							/>
+						</TabsContent>
 					</Tabs>
 				</div>
 			</Main>

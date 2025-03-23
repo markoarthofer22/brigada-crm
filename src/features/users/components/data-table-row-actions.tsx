@@ -29,6 +29,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 			<DropdownMenu modal={false}>
 				<DropdownMenuTrigger asChild>
 					<Button
+						onClick={(e) => e.stopPropagation()}
 						variant='ghost'
 						className='flex h-8 w-8 p-0 data-[state=open]:bg-muted'
 					>
@@ -38,7 +39,8 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align='end' className='w-[160px]'>
 					<DropdownMenuItem
-						onClick={() => {
+						onClick={(e) => {
+							e.stopPropagation()
 							router.navigate({
 								to: `/users/${row.original.id_users}`,
 							})
@@ -51,7 +53,8 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
-						onClick={() => {
+						onClick={(e) => {
+							e.stopPropagation()
 							setCurrentRow(row.original)
 							setOpen('delete')
 						}}
