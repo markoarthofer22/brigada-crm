@@ -1,5 +1,6 @@
 {
 	"Actions": {
+		"actions": "Akcije",
 		"backToHome": "Nazad na početnu",
 		"cancel": "Otkaži",
 		"continue": "Nastavi",
@@ -58,17 +59,23 @@
 		},
 		"label": {
 			"admin": "Prava korisnika",
+			"color": "Boja",
+			"coordName": "Naziv koordinate",
+			"data": "Dodatni podaci (JSON)",
 			"email": "E-mail",
 			"firstname": "Ime",
 			"lastname": "Prezime",
 			"name": "Naziv",
 			"password": "Lozinka",
+			"points": "Točke",
 			"possibleAnswers": "Mogući odgovori",
 			"projectImage": "Nacrt (slika)",
 			"questionTitle": "Pitanje",
 			"questionType": "Tip pitanja",
+			"radius": "Radius",
 			"uploadFile": "Ispustite ili pritisnite za upload!",
-			"username": "Korisničko ime"
+			"username": "Korisničko ime",
+			"zoneName": "Naziv zone"
 		},
 		"placeholder": {
 			"password": "********",
@@ -81,6 +88,7 @@
 		"validation": {
 			"email": "Neispravna email adresa",
 			"fileSize": "Maksimalna veličina datoteke je {value} MB",
+			"json": "Neispravan JSON format",
 			"maxFiles": "Možete učitati maksimalno {value} datoteka",
 			"minLength": "Polje mora imati minimalno {length} znakova.",
 			"password": {
@@ -90,7 +98,6 @@
 			"passwordNotMatch": "Lozinke se ne podudaraju! Provjerite sva polja.",
 			"probablyTooBig": "Datoteka je vjerojatno prevelika. Maksimalna veličina datoteke je {value} MB!",
 			"required": "Ovo polje je obavezno.",
-			"required (2)": "Ovo polje je obavezno",
 			"tooLarge": "Datoteka je  prevelika. Maksimalna veličina datoteke je {value} MB!",
 			"wrongExtension": "Neispravna datoteka! Dopušteni tipovi su {value}"
 		}
@@ -134,12 +141,24 @@
 			"orderUpdated": "Redoslijed pitanja ažuriran!"
 		},
 		"selectImage": "Odaberite nacrt (sliku)",
+		"selectImageFirst": "Prije dodavanja koordinata odaberite tlocrt!",
 		"tabs": {
 			"image": "Nacrt (slika)",
 			"questions": "Pitanja",
 			"zones": "Zone"
 		},
-		"title": "Projekt"
+		"title": "Projekt",
+		"zones": {
+			"add": "Dodaj zonu",
+			"addDescription": "Stvorite novu zonu s odabranim koordinatama",
+			"createLayout": "Dodaj tlocrt",
+			"edit": "Uredi zonu",
+			"editDescription": "Ažurirajte detalje za ovu zonu",
+			"noLayouts": "Prije dodavanja zona dodajte barem jedan tlocrt.",
+			"table": {
+				"empty": "Nema pronađenih zona. Kliknite željeno mjesto na tlocrtu kako bi ste dodali novu zonu"
+			}
+		}
 	},
 	"Projects": {
 		"add": "Dodaj projekt",

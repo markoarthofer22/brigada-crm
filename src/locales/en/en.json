@@ -1,5 +1,6 @@
 {
 	"Actions": {
+		"actions": "Actions",
 		"backToHome": "Back to Home",
 		"cancel": "Cancel",
 		"continue": "Continue",
@@ -58,17 +59,23 @@
 		},
 		"label": {
 			"admin": "User role",
+			"color": "Color",
+			"coordName": "Coordinate Name",
+			"data": "Additional Data (JSON)",
 			"email": "Email",
 			"firstname": "First name",
 			"lastname": "Last name",
 			"name": "Name",
 			"password": "Password",
+			"points": "Points",
 			"possibleAnswers": "Possible answers",
 			"projectImage": "Layout image",
 			"questionTitle": "Question Label",
 			"questionType": "Question type",
+			"radius": "Radius",
 			"uploadFile": "Drag 'n' drop or click to upload!",
-			"username": "Username"
+			"username": "Username",
+			"zoneName": "Zone name"
 		},
 		"placeholder": {
 			"password": "********",
@@ -81,6 +88,7 @@
 		"validation": {
 			"email": "Invalid email address.",
 			"fileSize": "Max file size is {value} MB",
+			"json": "Invalid JSON format",
 			"maxFiles": "Max allowed files to upload is {value}",
 			"minLength": "Field must be at least {length} chars long.",
 			"password": {
@@ -90,7 +98,6 @@
 			"passwordNotMatch": "Password don't match! Please check the fields.",
 			"probablyTooBig": "File is  probably too big. Max upload size is {value} MB!",
 			"required": "This field is required.",
-			"required (2)": "This field is required",
 			"tooLarge": "File is too big. Max upload size is {value} MB!",
 			"wrongExtension": "Invalid extension! Allowed extensions are {value}"
 		}
@@ -134,12 +141,24 @@
 			"orderUpdated": "Question order updated!"
 		},
 		"selectImage": "Select layout image",
+		"selectImageFirst": "Before adding coordinate, please select a layout!",
 		"tabs": {
 			"image": "Layout image",
 			"questions": "Questions",
 			"zones": "Zones"
 		},
-		"title": "Project"
+		"title": "Project",
+		"zones": {
+			"add": "Add zone",
+			"addDescription": "Create a new zone with the selected coordinates",
+			"createLayout": "Add layout",
+			"edit": "Edit zone",
+			"editDescription": "Update the details for this zone",
+			"noLayouts": "Before adding zones please add at least one layout.",
+			"table": {
+				"empty": "No zones found. Click on desired place on layout to create one"
+			}
+		}
 	},
 	"Projects": {
 		"add": "Add project",

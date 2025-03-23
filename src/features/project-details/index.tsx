@@ -23,7 +23,7 @@ import QuestionLayout from '@/features/project-details/(components)/question-lay
 import ZoneLayout from '@/features/project-details/(components)/zones-layout'
 import UserUpsertFormSkeleton from '@/features/user-crud/components/user-upsert-form-skeleton.tsx'
 
-enum TabsEnum {
+export enum TabsEnum {
 	IMAGE = 'image',
 	QUESTIONS = 'questions',
 	ZONES = 'zones',
@@ -47,6 +47,10 @@ export default function ProjectDetails() {
 		showLoader()
 
 		projectNameMutation.mutate(projectName)
+	}
+
+	const handleHasNoActiveLayoutCallback = () => {
+		void setActiveTabQuery(TabsEnum.IMAGE)
 	}
 
 	const projectQuery = useQuery({
@@ -135,7 +139,7 @@ export default function ProjectDetails() {
 						{t('ProjectDetails.description')}
 					</p>
 					<Tabs
-						defaultValue={activeTabQuery}
+						value={activeTabQuery}
 						onValueChange={(value) => setActiveTabQuery(value as TabsEnum)}
 					>
 						<TabsList>
@@ -161,6 +165,7 @@ export default function ProjectDetails() {
 						</TabsContent>
 						<TabsContent value={TabsEnum.ZONES}>
 							<ZoneLayout
+								hasNoActiveLayoutCallback={handleHasNoActiveLayoutCallback}
 								hasNoActiveLayout={projectQuery.data?.images?.length === 0}
 								zones={projectQuery.data.zones}
 								projectId={projectQuery.data?.id_projects}
