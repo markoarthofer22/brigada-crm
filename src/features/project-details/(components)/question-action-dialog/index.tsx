@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle, Trash2 } from 'lucide-react'
@@ -101,6 +102,12 @@ export function QuestionDialog({
 		onOpenChange(open)
 		form.reset()
 	}
+
+	useEffect(() => {
+		if (!open) {
+			form.reset()
+		}
+	}, [form, open])
 
 	return (
 		<Dialog open={open} onOpenChange={handleDialogOpenChange}>

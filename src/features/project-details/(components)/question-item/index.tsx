@@ -43,7 +43,7 @@ export function QuestionItem({
 	onChange,
 	onEdit,
 	onDelete,
-	disabled = true,
+	disabled,
 	isLoading,
 }: QuestionItemProps) {
 	const { t } = useTranslation()
@@ -155,7 +155,7 @@ export function QuestionItem({
 			case 'radio':
 				return (
 					<RadioGroup value={value || ''} onValueChange={handleValueChange}>
-						{question.possible_answers?.map((answer, index) => (
+						{Object.values(question.possible_answers)?.map((answer, index) => (
 							<div key={index} className='flex items-center space-x-2'>
 								<RadioGroupItem
 									disabled={disabled}
@@ -173,7 +173,7 @@ export function QuestionItem({
 			case 'checkbox':
 				return (
 					<div className='space-y-2'>
-						{question.possible_answers?.map((answer, index) => (
+						{Object.values(question.possible_answers)?.map((answer, index) => (
 							<div key={index} className='flex items-center space-x-2'>
 								<Checkbox
 									disabled={disabled}
@@ -202,11 +202,13 @@ export function QuestionItem({
 							<SelectValue placeholder={t('Input.placeholder.select')} />
 						</SelectTrigger>
 						<SelectContent>
-							{question.possible_answers?.map((answer, index) => (
-								<SelectItem key={index} value={answer}>
-									{answer}
-								</SelectItem>
-							))}
+							{Object.values(question.possible_answers)?.map(
+								(answer, index) => (
+									<SelectItem key={index} value={answer}>
+										{answer}
+									</SelectItem>
+								)
+							)}
 						</SelectContent>
 					</Select>
 				)
@@ -259,7 +261,8 @@ export function QuestionItem({
 					id_projects: question.id_projects,
 					label: question.label,
 					id_questions_types: question.id_questions_types,
-					possible_answers: question.possible_answers || [],
+					possible_answers:
+						Object.values(question.possible_answers).map((x) => x) || [],
 				}}
 				projectId={question.id_projects}
 				isEditing={true}

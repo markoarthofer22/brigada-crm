@@ -95,7 +95,6 @@ const QuestionLayout = ({ questions = [], projectId }: QuestionLayoutProps) => {
 			<div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
 				{questions?.map((question) => (
 					<QuestionItem
-						disabled
 						question={question}
 						key={question.id_questions}
 						isLoading={
