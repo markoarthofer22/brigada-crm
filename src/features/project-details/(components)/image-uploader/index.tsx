@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -9,6 +10,7 @@ import {
 	upsertImageForProject,
 } from '@/api/services/projects/projects.ts'
 import {
+	ProjectDetails,
 	UpsertImageForProject,
 	UpsertImageForProjectType,
 } from '@/api/services/projects/schema.ts'
@@ -29,20 +31,38 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select.tsx'
 
 interface ImageUploaderProps {
 	projectId: number
-	image?: {
-		id_images: number
-		name: string
-	}
+	allImages: ProjectDetails['images']
 	path: string
+	selectDisabled?: boolean
 }
 
-const ImageUploader = ({ projectId, image, path }: ImageUploaderProps) => {
+const ImageUploader = ({
+	projectId,
+	selectDisabled,
+	allImages,
+	path,
+}: ImageUploaderProps) => {
 	const queryClient = useQueryClient()
 	const { handleError } = useHandleGenericError()
 	const { t } = useTranslation()
+
+	const [selectedImage, setSelectedImage] = useState<number | null>(null)
+
+	const activeImageLayout = useMemo(() => {
+		if (!selectedImage) return undefined
+
+		return allImages?.find((img) => img.id_images === selectedImage)
+	}, [allImages, selectedImage])
 
 	const upsertImageMutation = useMutation({
 		mutationFn: (data: UpsertImageForProjectType) => {
@@ -61,7 +81,8 @@ const ImageUploader = ({ projectId, image, path }: ImageUploaderProps) => {
 	})
 
 	const deleteImageMutation = useMutation({
-		mutationFn: () => deleteImageForProject(projectId, image!.id_images!),
+		mutationFn: () =>
+			deleteImageForProject(projectId, activeImageLayout!.id_images!),
 		onSuccess: async () => {
 			form.setValue('file', [])
 			await queryClient.invalidateQueries({
@@ -86,8 +107,67 @@ const ImageUploader = ({ projectId, image, path }: ImageUploaderProps) => {
 		await upsertImageMutation.mutateAsync(data)
 	}
 
+	useEffect(() => {
+		if (allImages?.length) {
+			setSelectedImage(allImages[allImages.length - 1].id_images)
+		}
+	}, [allImages])
 	return (
 		<div>
+			<div className='mb-4 mt-6 flex flex-col items-start space-y-2'>
+				<p className='text-sm font-medium'>{t('ProjectDetails.selectImage')}</p>
+				<div className='flex flex-row items-center gap-x-2'>
+					<Select
+						disabled={
+							selectDisabled ||
+							upsertImageMutation.isPending ||
+							deleteImageMutation.isPending
+						}
+						value={selectedImage?.toString() ?? undefined}
+						onValueChange={(value) => setSelectedImage(Number(value))}
+					>
+						<SelectTrigger className='w-80'>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent side='bottom'>
+							{allImages?.map((image, index) => (
+								<SelectItem key={image.id_images} value={`${image.id_images}`}>
+									{/*{image.name} */}
+									{t('ProjectDetails.image', {
+										value: index + 1,
+									})}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+
+					<Button
+						disabled={
+							allImages?.length === 0 ||
+							upsertImageMutation.isPending ||
+							deleteImageMutation.isPending
+						}
+						onClick={() => {
+							setSelectedImage(null)
+						}}
+					>
+						{t('ProjectDetails.addImage')}
+					</Button>
+
+					<Button
+						onClick={() => deleteImageMutation.mutate()}
+						variant='destructive'
+						disabled={
+							upsertImageMutation.isPending ||
+							deleteImageMutation.isPending ||
+							!activeImageLayout?.id_images
+						}
+					>
+						{t('Actions.delete')}
+					</Button>
+				</div>
+			</div>
+
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
@@ -97,11 +177,11 @@ const ImageUploader = ({ projectId, image, path }: ImageUploaderProps) => {
 						control={form.control}
 						name='file'
 						render={({ field, fieldState }) =>
-							image?.name && path ? (
+							activeImageLayout?.name && path ? (
 								<div className='h-[500px] max-w-4xl rounded-lg border-2 border-dashed border-accent p-2'>
 									<img
-										src={`${path}/${image.name}`}
-										alt={image.name}
+										src={`${path}/${activeImageLayout.name}`}
+										alt={activeImageLayout.name}
 										className='h-full w-full rounded-lg object-contain object-center'
 									/>
 								</div>
@@ -113,6 +193,7 @@ const ImageUploader = ({ projectId, image, path }: ImageUploaderProps) => {
 										value={field.value}
 										onValueChange={async (value) => {
 											field.onChange(value)
+											upsertImageMutation.mutate(form.getValues())
 										}}
 										disabled={
 											upsertImageMutation.isPending ||
@@ -128,6 +209,7 @@ const ImageUploader = ({ projectId, image, path }: ImageUploaderProps) => {
 											<FileUploaderContent className='h-full w-full rounded-lg border-2 border-dashed border-accent bg-background/80'>
 												{field.value.map((file, i) => (
 													<FileUploaderItem
+														allowRemove={false}
 														key={i}
 														index={i}
 														aria-roledescription={`file ${i + 1} containing ${
@@ -160,29 +242,6 @@ const ImageUploader = ({ projectId, image, path }: ImageUploaderProps) => {
 							)
 						}
 					/>
-
-					<div className='flex flex-row gap-x-2.5'>
-						<Button
-							type='submit'
-							disabled={
-								upsertImageMutation.isPending || deleteImageMutation.isPending
-							}
-						>
-							{t('Actions.submit')}
-						</Button>
-
-						<Button
-							onClick={() => deleteImageMutation.mutate()}
-							variant='destructive'
-							disabled={
-								upsertImageMutation.isPending ||
-								deleteImageMutation.isPending ||
-								!image?.id_images
-							}
-						>
-							{t('Actions.delete')}
-						</Button>
-					</div>
 				</form>
 			</Form>
 		</div>

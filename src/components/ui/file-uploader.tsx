@@ -311,8 +311,11 @@ FileUploaderContent.displayName = 'FileUploaderContent'
 
 export const FileUploaderItem = forwardRef<
 	HTMLDivElement,
-	{ index: number } & React.HTMLAttributes<HTMLDivElement>
->(({ className, index, children, ...props }, ref) => {
+	{
+		index: number
+		allowRemove?: boolean
+	} & React.HTMLAttributes<HTMLDivElement>
+>(({ className, index, children, allowRemove = true, ...props }, ref) => {
 	const { removeFileFromSet, activeIndex, direction } = useFileUpload()
 	const isSelected = index === activeIndex
 	return (
@@ -326,18 +329,20 @@ export const FileUploaderItem = forwardRef<
 			{...props}
 		>
 			{children}
-			<Button
-				variant='outline'
-				className={cn(
-					'absolute !size-8 p-0',
-					className,
-					direction === 'rtl' ? 'left-2 top-2' : 'right-2 top-2'
-				)}
-				onClick={() => removeFileFromSet(index)}
-			>
-				<span className='sr-only'>remove item {index}</span>
-				<IconX className='size-5 duration-200 ease-in-out' />
-			</Button>
+			{allowRemove && (
+				<Button
+					variant='outline'
+					className={cn(
+						'absolute !size-8 p-0',
+						className,
+						direction === 'rtl' ? 'left-2 top-2' : 'right-2 top-2'
+					)}
+					onClick={() => removeFileFromSet(index)}
+				>
+					<span className='sr-only'>remove item {index}</span>
+					<IconX className='size-5 duration-200 ease-in-out' />
+				</Button>
+			)}
 		</div>
 	)
 })
