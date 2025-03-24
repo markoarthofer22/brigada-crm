@@ -153,6 +153,7 @@
 			"add": "Dodaj zonu",
 			"addDescription": "Stvorite novu zonu s odabranim koordinatama",
 			"addSuccess": "Zona je uspješno dodana!",
+			"addTooltip": "Prije spremanja zone, dodajte barem jednu koordinatu u tlocrt. To možete učiniti klikom na željeno mjesto u tlocrtu.",
 			"createLayout": "Dodaj tlocrt",
 			"dataEmpty1": "Nema dodanih polja. Pritisnite",
 			"dataEmpty2": "za dodavanje novih podataka",

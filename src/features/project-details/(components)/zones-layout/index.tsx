@@ -8,6 +8,7 @@ import {
 	deleteZoneForProject,
 	updateZoneForProject,
 } from '@/api/services/zones/zones.ts'
+import { cn } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select.tsx'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@/components/ui/tooltip.tsx'
 import { ZoneDialog } from '@/features/project-details/(components)/zones-action-dialog'
 import { ZoneList } from '@/features/project-details/(components)/zones-list'
 
@@ -275,11 +282,35 @@ const ZoneLayout = ({
 						</Select>
 
 						<div className='flex flex-row items-center gap-x-2 pr-2'>
-							<Button onClick={() => setZoneDialogOpen(true)}>
-								{t('ProjectDetails.zones.add')}
-							</Button>
+							<TooltipProvider>
+								<Tooltip delayDuration={0}>
+									<TooltipTrigger asChild>
+										<Button
+											disabled={!localZone}
+											className={cn({
+												'!pointer-events-auto cursor-context-menu hover:!bg-primary hover:!opacity-50':
+													!localZone,
+											})}
+											onClick={() => setZoneDialogOpen(true)}
+										>
+											{t('ProjectDetails.zones.add')}
+										</Button>
+									</TooltipTrigger>
+									<TooltipContent
+										side='left'
+										sideOffset={10}
+										className='max-w-60 text-sm leading-5'
+									>
+										<p>{t('ProjectDetails.zones.addTooltip')}</p>
+									</TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
 
-							<Button variant='outline' onClick={handleResetCanvas}>
+							<Button
+								disabled={!localZone}
+								variant='outline'
+								onClick={handleResetCanvas}
+							>
 								{t('Actions.reset')}
 							</Button>
 						</div>

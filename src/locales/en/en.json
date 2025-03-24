@@ -153,6 +153,7 @@
 			"add": "Add zone",
 			"addDescription": "Create a new zone with the selected coordinates",
 			"addSuccess": "Zone successfully added!",
+			"addTooltip": "Before saving the zone, please add at least one coordinate to the layout. You can do that by clicking on the desired place in the layout.",
 			"createLayout": "Add layout",
 			"dataEmpty1": "No data fields. Click",
 			"dataEmpty2": "to add key-value pairs.",
