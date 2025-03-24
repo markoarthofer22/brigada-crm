@@ -213,7 +213,7 @@ export function ZoneDialog({
 									<FormControl>
 										<Input
 											type='number'
-											disabled={isLoading}
+											disabled
 											min={DEFAULT_RADIUS}
 											step={1}
 											{...field}
