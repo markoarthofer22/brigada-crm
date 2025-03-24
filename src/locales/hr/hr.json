@@ -9,7 +9,8 @@
 		"edit": "Uredi",
 		"goBack": "Idi natrag",
 		"reset": "Resetiraj",
-		"submit": "Spremi"
+		"submit": "Spremi",
+		"updatePref": "Ažurirajte postavke"
 	},
 	"Error": {
 		"401": {
@@ -43,8 +44,13 @@
 		"warning": "Upozorenje"
 	},
 	"Header": {
+		"font": {
+			"description": "Postavite font koji želite koristiti na nadzornoj ploči.",
+			"title": "Fontovi"
+		},
 		"theme": {
 			"dark": "Tamna",
+			"description": "Odaberite temu za nadzornu ploču.",
 			"light": "Svjetla",
 			"system": "Boja sustava",
 			"title": "Tema"
@@ -179,6 +185,16 @@
 		"editDescription": "Ažurirajte projekt ovdje.",
 		"title": "Projekti",
 		"updateSuccess": "Projekt {{value}} je uspješno ažuriran."
+	},
+	"Settings": {
+		"account": {
+			"description": "Ažurirajte postavke računa.",
+			"title": "Moj profil"
+		},
+		"appearance": {
+			"description": "Prilagodite izgled aplikacije. Automatsko prebacivanje između dnevnih i noćnih tema.",
+			"title": "Postavite font koji želite koristiti na nadzornoj ploči."
+		}
 	},
 	"Sidebar": {
 		"nav": {

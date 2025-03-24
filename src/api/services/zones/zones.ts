@@ -1,4 +1,5 @@
 import axios from '@/api/axios.ts'
+import { TOLERANCE } from '@/api/services/zones/const.ts'
 import {
 	UpsertZone,
 	UpsertZoneResponseSchema,
@@ -12,7 +13,27 @@ export async function deleteZoneForProject(zoneId: number) {
 export async function updateZoneForProject(model: UpsertZone) {
 	const parsedData = UpsertZoneSchema.parse(model)
 
-	const { id_zones, ...rest } = parsedData
+	const mergedPoints: { x: number; y: number }[] = []
+	for (const point of parsedData.coordinates.points) {
+		const exists = mergedPoints.some(
+			(p) =>
+				Math.abs(p.x - point.x) <= TOLERANCE &&
+				Math.abs(p.y - point.y) <= TOLERANCE
+		)
+		if (!exists) {
+			mergedPoints.push(point)
+		}
+	}
+
+	const newData: UpsertZone = {
+		...parsedData,
+		coordinates: {
+			...parsedData.coordinates,
+			points: mergedPoints,
+		},
+	}
+
+	const { id_zones, ...rest } = newData
 
 	const response = id_zones
 		? await axios.put(`/zones/${id_zones}`, rest)
@@ -21,6 +42,6 @@ export async function updateZoneForProject(model: UpsertZone) {
 	if (!id_zones) {
 		return UpsertZoneResponseSchema.parse(response.data)
 	} else {
-		return parsedData
+		return newData
 	}
 }

@@ -34,9 +34,13 @@ import { PasswordInput } from '@/components/password-input.tsx'
 
 interface UserUpsertFormProps {
 	initialValues?: User
+	allowUserActions?: boolean
 }
 
-function UserUpsertForm({ initialValues }: UserUpsertFormProps) {
+function UserUpsertForm({
+	initialValues,
+	allowUserActions = true,
+}: UserUpsertFormProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
 	const queryClient = useQueryClient()
@@ -187,35 +191,37 @@ function UserUpsertForm({ initialValues }: UserUpsertFormProps) {
 							)}
 						/>
 
-						<FormField
-							control={form.control}
-							name='admin'
-							render={({ field }) => (
-								<FormItem className='space-y-1'>
-									<FormLabel>{t('Input.label.admin')}</FormLabel>
-									<Select
-										disabled={createUserMutation.isPending}
-										onValueChange={(value) => field.onChange(Number(value))}
-										defaultValue={field.value?.toString()}
-									>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value={UserType.REGULAR.toString()}>
-												{t('Users.admin.' + UserType.REGULAR)}
-											</SelectItem>
-											<SelectItem value={UserType.ADMIN.toString()}>
-												{t('Users.admin.' + UserType.ADMIN)}
-											</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						{allowUserActions && (
+							<FormField
+								control={form.control}
+								name='admin'
+								render={({ field }) => (
+									<FormItem className='space-y-1'>
+										<FormLabel>{t('Input.label.admin')}</FormLabel>
+										<Select
+											disabled={createUserMutation.isPending}
+											onValueChange={(value) => field.onChange(Number(value))}
+											defaultValue={field.value?.toString()}
+										>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value={UserType.REGULAR.toString()}>
+													{t('Users.admin.' + UserType.REGULAR)}
+												</SelectItem>
+												<SelectItem value={UserType.ADMIN.toString()}>
+													{t('Users.admin.' + UserType.ADMIN)}
+												</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 
 						<Button
 							disabled={createUserMutation.isPending}

@@ -172,6 +172,21 @@
 									</translation>
 								</translations>
 							</concept_node>
+							<concept_node>
+								<name>updatePref</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
 						</children>
 					</folder_node>
 					<folder_node>
@@ -468,10 +483,60 @@
 						<name>Header</name>
 						<children>
 							<folder_node>
+								<name>font</name>
+								<children>
+									<concept_node>
+										<name>description</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>title</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+								</children>
+							</folder_node>
+							<folder_node>
 								<name>theme</name>
 								<children>
 									<concept_node>
 										<name>dark</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>description</name>
 										<description/>
 										<comment/>
 										<translations>
@@ -2082,6 +2147,81 @@
 									</translation>
 								</translations>
 							</concept_node>
+						</children>
+					</folder_node>
+					<folder_node>
+						<name>Settings</name>
+						<children>
+							<folder_node>
+								<name>account</name>
+								<children>
+									<concept_node>
+										<name>description</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>title</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+								</children>
+							</folder_node>
+							<folder_node>
+								<name>appearance</name>
+								<children>
+									<concept_node>
+										<name>description</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>title</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+								</children>
+							</folder_node>
 						</children>
 					</folder_node>
 					<folder_node>

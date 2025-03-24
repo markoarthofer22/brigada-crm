@@ -9,7 +9,8 @@
 		"edit": "Edit",
 		"goBack": "Go Back",
 		"reset": "Reset",
-		"submit": "Save"
+		"submit": "Save",
+		"updatePref": "Update preferences"
 	},
 	"Error": {
 		"401": {
@@ -43,8 +44,13 @@
 		"warning": "Warning"
 	},
 	"Header": {
+		"font": {
+			"description": "Set the font you want to use in the dashboard.",
+			"title": "Font"
+		},
 		"theme": {
 			"dark": "Dark",
+			"description": "Select the theme for the dashboard.",
 			"light": "Light",
 			"system": "System",
 			"title": "Theme"
@@ -179,6 +185,16 @@
 		"editDescription": "Update the project here.",
 		"title": "Projects",
 		"updateSuccess": "Project {{value}} has been updated successfully."
+	},
+	"Settings": {
+		"account": {
+			"description": "Update your account settings.",
+			"title": "My profile"
+		},
+		"appearance": {
+			"description": "Customize the appearance of the app. Automatically switch between day and night themes.",
+			"title": "Set the font you want to use in the dashboard."
+		}
 	},
 	"Sidebar": {
 		"nav": {

@@ -118,6 +118,9 @@ const ZoneLayout = ({
 					for (let i = 1; i < points.length; i++) {
 						context.lineTo(points[i].x, points[i].y)
 					}
+					if (zone) {
+						context.lineTo(points[0].x, points[0].y)
+					}
 					context.strokeStyle = zones.coordinates.color ?? DEFAULT_COLOR
 					context.lineWidth = 2
 					context.stroke()
@@ -194,7 +197,7 @@ const ZoneLayout = ({
 	const upsertZoneMutation = useMutation({
 		mutationFn: (model: UpsertZone) => {
 			showLoader()
-			return updateZoneForProject(model).finally(() => hideLoader())
+			return updateZoneForProject(model)
 		},
 		onSuccess: async (req) => {
 			toast.success(
@@ -245,7 +248,7 @@ const ZoneLayout = ({
 		return (
 			<Card className='mt-6 w-fit'>
 				<CardContent className='flex items-center justify-center gap-x-2 p-6 text-muted-foreground'>
-					{t('ProjectDetails.zones.noLayouts')}
+					w{t('ProjectDetails.zones.noLayouts')}
 					<Button onClick={hasNoActiveLayoutCallback}>
 						{t('ProjectDetails.zones.createLayout')}
 					</Button>
@@ -261,7 +264,12 @@ const ZoneLayout = ({
 					<p className='text-sm font-medium'>
 						{t('ProjectDetails.selectImage')}
 					</p>
-					<div className='flex w-full flex-row items-center justify-between gap-x-2'>
+					<div
+						className='flex w-full flex-row items-center justify-between gap-x-2'
+						style={{
+							maxWidth: activeImage?.data?.width ?? '100%',
+						}}
+					>
 						<Select
 							value={selectedImage?.toString() ?? undefined}
 							onValueChange={(value) => setSelectedImage(Number(value))}
@@ -324,7 +332,7 @@ const ZoneLayout = ({
 				>
 					<canvas
 						onClick={handleCanvasClick}
-						className='cursor-pointer'
+						className='cursor-pointer rounded-lg'
 						ref={canvasRef}
 					/>
 				</div>
