@@ -8,7 +8,7 @@ import {
 	deleteZoneForProject,
 	updateZoneForProject,
 } from '@/api/services/zones/zones.ts'
-import { cn } from '@/lib/utils.ts'
+import { cn, hexToRgba } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
@@ -120,6 +120,12 @@ const ZoneLayout = ({
 					}
 					if (zone) {
 						context.lineTo(points[0].x, points[0].y)
+						context.closePath()
+						context.fillStyle = hexToRgba(
+							zones.coordinates.color ?? DEFAULT_COLOR,
+							0.4
+						)
+						context.fill()
 					}
 					context.strokeStyle = zones.coordinates.color ?? DEFAULT_COLOR
 					context.lineWidth = 2
