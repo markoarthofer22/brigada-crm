@@ -1,9 +1,9 @@
 import axios from '@/api/axios.ts'
-import { UpsertQuestionOrder } from '@/api/services/projects/schema.ts'
 import {
 	QuestionResponseSchema,
 	QuestionUpsertSchema,
 	QuestionUpsertType,
+	UpsertQuestionOrder,
 } from '@/api/services/questions/schema.ts'
 
 export async function upsertQuestion(model: QuestionUpsertType) {

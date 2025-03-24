@@ -1,6 +1,7 @@
 import axios from '@/api/axios.ts'
 import {
 	AllProjectsResponseSchema,
+	ProjectDetails,
 	ProjectDetailsResponseSchema,
 	ProjectResponseSchema,
 	ProjectUpsert,
@@ -21,7 +22,21 @@ export async function getProjects() {
 export async function getProjectById(id: number) {
 	const response = await axios.get(`/projects/${id}`)
 
-	return ProjectDetailsResponseSchema.parse(response.data)
+	const data = {
+		...response.data,
+		zones: response.data.zones.map((zone: ProjectDetails['zones'][number]) => ({
+			...zone,
+			coordinates: {
+				...zone.coordinates,
+				points:
+					typeof zone.coordinates.points === 'object'
+						? Object.values(zone.coordinates.points)
+						: zone.coordinates.points,
+			},
+		})),
+	}
+
+	return ProjectDetailsResponseSchema.parse(data)
 }
 
 export async function upsertProject(model: ProjectUpsert) {

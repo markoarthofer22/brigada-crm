@@ -151,9 +151,14 @@
 		"zones": {
 			"add": "Add zone",
 			"addDescription": "Create a new zone with the selected coordinates",
+			"addSuccess": "Zone successfully added!",
 			"createLayout": "Add layout",
+			"dataEmpty1": "No data fields. Click",
+			"dataEmpty2": "to add key-value pairs.",
+			"deleteSuccess": "Zone successfully deleted",
 			"edit": "Edit zone",
 			"editDescription": "Update the details for this zone",
+			"editSuccess": "Zone was successfully updated!",
 			"noLayouts": "Before adding zones please add at least one layout.",
 			"table": {
 				"empty": "No zones found. Click on desired place on layout to create one"

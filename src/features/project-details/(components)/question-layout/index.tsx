@@ -18,16 +18,16 @@ import {
 } from '@dnd-kit/sortable'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import {
-	ProjectDetails,
-	UpsertQuestionOrder,
-} from '@/api/services/projects/schema.ts'
+import { ProjectDetails } from '@/api/services/projects/schema.ts'
 import {
 	deleteQuestion,
 	upsertQuestion,
 	upsertQuestionOrder,
 } from '@/api/services/questions/questions.ts'
-import { QuestionUpsertType } from '@/api/services/questions/schema.ts'
+import {
+	QuestionUpsertType,
+	UpsertQuestionOrder,
+} from '@/api/services/questions/schema.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'

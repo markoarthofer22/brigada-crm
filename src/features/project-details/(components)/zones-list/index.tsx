@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
-import { UpsertZone } from '@/api/services/projects/schema.ts'
+import { UpsertZone } from '@/api/services/zones/schema'
 import { cn } from '@/lib/utils.ts'
 import {
 	AlertDialog,
@@ -12,9 +12,9 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+} from '@/components/ui/alert-dialog.tsx'
+import { Button } from '@/components/ui/button.tsx'
+import { Card, CardContent } from '@/components/ui/card.tsx'
 import {
 	Table,
 	TableBody,
@@ -22,7 +22,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table.tsx'
 import { ZoneDialog } from '@/features/project-details/(components)/zones-action-dialog'
 
 interface ZoneListProps {
@@ -32,6 +32,7 @@ interface ZoneListProps {
 	id_projects?: number
 	id_images?: number
 	className?: string
+	isLoading?: boolean
 }
 
 export function ZoneList({
@@ -41,6 +42,7 @@ export function ZoneList({
 	id_projects,
 	id_images,
 	className,
+	isLoading,
 }: ZoneListProps) {
 	const { t } = useTranslation()
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -121,16 +123,18 @@ export function ZoneList({
 											<Button
 												variant='ghost'
 												size='icon'
+												disabled={isLoading}
 												onClick={() => handleEditClick(zone)}
 											>
-												<IconEdit className='size-5' />
+												<IconEdit className='!size-5' />
 											</Button>
 											<Button
 												variant='ghost'
 												size='icon'
+												disabled={isLoading}
 												onClick={() => handleDeleteClick(zone.id_zones)}
 											>
-												<IconTrash className='size-5 text-destructive' />
+												<IconTrash className='!size-5 text-destructive' />
 											</Button>
 										</div>
 									</TableCell>
@@ -152,6 +156,7 @@ export function ZoneList({
 					<AlertDialogFooter>
 						<AlertDialogCancel>{t('Actions.cancel')}</AlertDialogCancel>
 						<AlertDialogAction
+							disabled={isLoading}
 							onClick={handleDeleteConfirm}
 							className='bg-destructive text-destructive-foreground'
 						>
@@ -163,6 +168,7 @@ export function ZoneList({
 
 			{zoneToEdit && (
 				<ZoneDialog
+					isLoading={isLoading}
 					open={editDialogOpen}
 					onOpenChange={setEditDialogOpen}
 					onSubmit={handleEditSubmit}

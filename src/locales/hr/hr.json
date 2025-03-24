@@ -151,9 +151,14 @@
 		"zones": {
 			"add": "Dodaj zonu",
 			"addDescription": "Stvorite novu zonu s odabranim koordinatama",
+			"addSuccess": "Zona je uspješno dodana!",
 			"createLayout": "Dodaj tlocrt",
+			"dataEmpty1": "Nema dodanih polja. Pritisnite",
+			"dataEmpty2": "za dodavanje novih podataka",
+			"deleteSuccess": "Zona je uspješno izbrisana",
 			"edit": "Uredi zonu",
 			"editDescription": "Ažurirajte detalje za ovu zonu",
+			"editSuccess": "Zona je uspješno ažurirana!",
 			"noLayouts": "Prije dodavanja zona dodajte barem jedan tlocrt.",
 			"table": {
 				"empty": "Nema pronađenih zona. Kliknite željeno mjesto na tlocrtu kako bi ste dodali novu zonu"

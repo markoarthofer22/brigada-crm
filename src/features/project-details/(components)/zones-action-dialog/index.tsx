@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { IconPlus, IconTrash } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
-import { UpsertZone, UpsertZoneSchema } from '@/api/services/projects/schema.ts'
+import { UpsertZone, UpsertZoneSchema } from '@/api/services/zones/schema'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,7 +23,6 @@ import {
 	FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 
 const DEFAULT_RADIUS = 4
 const DEFAULT_COLOR = '#FF5733'
@@ -81,6 +81,7 @@ export function ZoneDialog({
 				points,
 			},
 		})
+		form.reset()
 	}
 
 	const handleDialogOpenChange = (open: boolean) => {
@@ -90,6 +91,16 @@ export function ZoneDialog({
 		}
 	}
 
+	const validateJsonData = (value: string) => {
+		try {
+			if (!value?.trim()) return true
+			JSON.parse(value)
+			return true
+		} catch (error: unknown) {
+			handleError(error)
+			return false
+		}
+	}
 	useEffect(() => {
 		if (!id_projects || !id_images) return
 
@@ -101,16 +112,22 @@ export function ZoneDialog({
 		}
 	}, [form, id_images, id_projects, open])
 
-	const validateJsonData = (value: string) => {
-		try {
-			if (!value.trim()) return true
-			JSON.parse(value)
-			return true
-		} catch (error: unknown) {
-			handleError(error)
-			return false
+	useEffect(() => {
+		if (defaultValues) {
+			form.reset({
+				id_projects,
+				id_images,
+				name: defaultValues?.name || '',
+				coordinates: {
+					color: defaultValues?.coordinates?.color || DEFAULT_COLOR,
+					name: defaultValues?.coordinates?.name || '',
+					points: points,
+					radius: defaultValues?.coordinates?.radius || DEFAULT_RADIUS,
+				},
+				data: defaultValues?.data || {},
+			})
 		}
-	}
+	}, [defaultValues, form])
 
 	return (
 		<Dialog open={open} onOpenChange={handleDialogOpenChange}>
@@ -212,22 +229,107 @@ export function ZoneDialog({
 							control={form.control}
 							name='data'
 							render={({ field }) => (
-								<FormItem>
-									<FormLabel>{t('Input.label.data')}</FormLabel>
-									<FormControl>
-										<Textarea
-											disabled={isLoading}
-											placeholder='{"key": "value"}'
-											className='h-32 font-mono'
-											{...field}
-											value={
-												field.value ? JSON.stringify(field.value, null, 2) : ''
-											}
-											onChange={(e) => {
-												const value = e.target.value
-												validateJsonData(value)
+								<FormItem className='space-y-4'>
+									<div className='flex items-center justify-between'>
+										<FormLabel>{t('Input.label.data')}</FormLabel>
+										<Button
+											type='button'
+											variant='outline'
+											size='icon'
+											onClick={() => {
+												const currentData = field.value || {}
+												const newData = { ...currentData, '': '' }
+												field.onChange(newData)
 											}}
-										/>
+										>
+											<IconPlus className='!size-5' />
+										</Button>
+									</div>
+									<FormControl>
+										<div className='space-y-2 rounded-md border p-4'>
+											{Object.keys(field.value || {}).length === 0 ? (
+												<div className='flex items-center justify-center gap-x-2 py-2 text-center text-sm text-muted-foreground'>
+													{t('ProjectDetails.zones.dataEmpty1')}
+													<Button
+														type='button'
+														variant='outline'
+														size='icon'
+														className='size-6'
+													>
+														<IconPlus className='!size-4' />
+													</Button>
+													{t('ProjectDetails.zones.dataEmpty2')}
+												</div>
+											) : (
+												Object.entries(field.value || {}).map(
+													([key, value], index) => (
+														<div key={index} className='flex items-start gap-2'>
+															<Input
+																className='flex-1'
+																placeholder='Key'
+																value={key}
+																onChange={(e) => {
+																	const newKey = e.target.value
+																	const currentData = { ...field.value }
+																	const currentValue = currentData[key]
+																	delete currentData[key]
+																	currentData[newKey] = currentValue
+																	field.onChange(currentData)
+																}}
+															/>
+															<Input
+																className='flex-1'
+																placeholder='Value'
+																value={
+																	typeof value === 'object'
+																		? JSON.stringify(value)
+																		: String(value)
+																}
+																onChange={(e) => {
+																	const newValue = e.target.value
+																	const currentData = { ...field.value }
+
+																	try {
+																		if (
+																			(newValue.startsWith('{') &&
+																				newValue.endsWith('}')) ||
+																			(newValue.startsWith('[') &&
+																				newValue.endsWith(']'))
+																		) {
+																			currentData[key] = JSON.parse(newValue)
+																		} else if (newValue === 'true') {
+																			currentData[key] = true
+																		} else if (newValue === 'false') {
+																			currentData[key] = false
+																		} else if (!isNaN(Number(newValue))) {
+																			currentData[key] = Number(newValue)
+																		} else {
+																			currentData[key] = newValue
+																		}
+																	} catch (e) {
+																		currentData[key] = newValue
+																	}
+
+																	field.onChange(currentData)
+																}}
+															/>
+															<Button
+																type='button'
+																variant='ghost'
+																size='icon'
+																onClick={() => {
+																	const currentData = { ...field.value }
+																	delete currentData[key]
+																	field.onChange(currentData)
+																}}
+															>
+																<IconTrash className='!size-5 text-destructive' />
+															</Button>
+														</div>
+													)
+												)
+											)}
+										</div>
 									</FormControl>
 									<FormMessage>
 										{!validateJsonData(JSON.stringify(field.value)) &&

@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { ProjectDetails, UpsertZone } from '@/api/services/projects/schema.ts'
+import { ProjectDetails } from '@/api/services/projects/schema.ts'
+import { UpsertZone } from '@/api/services/zones/schema.ts'
+import {
+	deleteZoneForProject,
+	updateZoneForProject,
+} from '@/api/services/zones/zones.ts'
+import { useLoader } from '@/context/loader-provider.tsx'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -12,7 +20,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx'
 import { ZoneDialog } from '@/features/project-details/(components)/zones-action-dialog'
-import { ZoneList } from '@/features/project-details/(components)/zones-layout/zones-list'
+import { ZoneList } from '@/features/project-details/(components)/zones-list'
 
 const DEFAULT_COLOR = '#FF5733'
 
@@ -34,29 +42,16 @@ const ZoneLayout = ({
 	hasNoActiveLayoutCallback,
 }: ZoneLayoutProps) => {
 	const { t } = useTranslation()
+	const { showLoader, hideLoader } = useLoader()
+	const { handleError } = useHandleGenericError()
+	const queryClient = useQueryClient()
 	const [selectedImage, setSelectedImage] = useState<number | null>(null)
 	const [zoneDialogOpen, setZoneDialogOpen] = useState<boolean>(false)
 	const [localZone, setLocalZone] = useState<UpsertZone | null>(null)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 
 	const onSubmit = (data: UpsertZone) => {
-		console.log('data', data)
-
-		setZoneDialogOpen(false)
-		setLocalZone(null)
-
-		const canvas = canvasRef?.current?.getContext('2d')
-		if (!canvas) return
-		canvas.beginPath()
-		canvas.arc(
-			data.coordinates.points[0].x,
-			data.coordinates.points[0].y,
-			data.coordinates.radius ?? 5,
-			0,
-			2 * Math.PI
-		)
-		canvas.fillStyle = localZone?.coordinates?.color ?? DEFAULT_COLOR
-		canvas.fill()
+		upsertZoneMutation.mutate(data)
 	}
 
 	const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -87,13 +82,45 @@ const ZoneLayout = ({
 		return allImages?.find((image) => image.id_images === selectedImage)
 	}, [allImages, selectedImage])
 
-	const handleDelete = (zoneId: number) => {
-		console.log('delete', zoneId)
-	}
+	const deleteZoneMutation = useMutation({
+		mutationFn: (zoneId: number) => {
+			showLoader()
+			return deleteZoneForProject(zoneId).finally(() => hideLoader())
+		},
+		onSuccess: async () => {
+			toast.success(t('ProjectDetails.zones.deleteSuccess'))
+			await queryClient.invalidateQueries({
+				queryKey: ['projects', projectId],
+			})
+			hideLoader()
+		},
+		onError: (error) => {
+			hideLoader()
+			handleError(error)
+		},
+	})
 
-	const handleEdit = (zone: UpsertZone) => {
-		console.log('edit', zone)
-	}
+	const upsertZoneMutation = useMutation({
+		mutationFn: (model: UpsertZone) => {
+			showLoader()
+			return updateZoneForProject(model).finally(() => hideLoader())
+		},
+		onSuccess: async (req) => {
+			toast.success(
+				t(`ProjectDetails.zones.${req.id_zones ? 'editSuccess' : 'addSuccess'}`)
+			)
+			await queryClient.invalidateQueries({
+				queryKey: ['projects', projectId],
+			})
+			setZoneDialogOpen(false)
+			setLocalZone(null)
+			hideLoader()
+		},
+		onError: (error) => {
+			hideLoader()
+			handleError(error)
+		},
+	})
 
 	useEffect(() => {
 		if (allImages && allImages.length !== 0) {
@@ -175,7 +202,7 @@ const ZoneLayout = ({
 							value={selectedImage?.toString() ?? undefined}
 							onValueChange={(value) => setSelectedImage(Number(value))}
 						>
-							<SelectTrigger className='w-80'>
+							<SelectTrigger className='max-w-screen-sm'>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent side='bottom'>
@@ -207,8 +234,9 @@ const ZoneLayout = ({
 			</div>
 
 			<ZoneList
-				onDelete={handleDelete}
-				onEdit={handleEdit}
+				isLoading={deleteZoneMutation.isPending || upsertZoneMutation.isPending}
+				onDelete={(id) => deleteZoneMutation.mutate(id)}
+				onEdit={(data) => upsertZoneMutation.mutateAsync(data)}
 				zones={zones.filter((x) => x.id_images === selectedImage) ?? []}
 				id_projects={projectId}
 				id_images={selectedImage ?? undefined}

@@ -16,3 +16,10 @@ export const QuestionResponseSchema = QuestionUpsertSchema.omit({
 })
 
 export type QuestionUpsertType = z.infer<typeof QuestionUpsertSchema>
+
+export const UpsertQuestionOrderSchema = z.object({
+	id_questions: z.array(z.number()),
+	id_projects: z.number(),
+})
+
+export type UpsertQuestionOrder = z.infer<typeof UpsertQuestionOrderSchema>
