@@ -12,7 +12,7 @@ export const UserResponseSchema = z.object({
 	email: z.string().email(),
 	firstname: z.string(),
 	lastname: z.string(),
-	created_at: z.string().optional(),
+	created_at: z.string(),
 })
 
 export const AllUsersResponseSchema = z.object({

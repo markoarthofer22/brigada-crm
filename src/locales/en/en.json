@@ -12,6 +12,17 @@
 		"submit": "Save",
 		"updatePref": "Update preferences"
 	},
+	"Dashboard": {
+		"analytics": "Analytics",
+		"lastAdded": "Last added - {{value}}",
+		"lastMonth": "+ {{value}} in last month",
+		"overview": "Overview",
+		"questions": "Questions",
+		"title": "Dashboard",
+		"totalProjects": "Total projects",
+		"users": "Active users",
+		"zones": "Zones"
+	},
 	"Error": {
 		"401": {
 			"description": "Unauthorized",

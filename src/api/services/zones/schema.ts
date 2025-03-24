@@ -23,7 +23,7 @@ export type UpsertZone = z.infer<typeof UpsertZoneSchema>
 
 export const UpsertZoneResponseSchema = z.object({
 	id_zones: z.number().optional(),
-	data: z.record(z.any()).optional(),
+	data: z.record(z.any()).optional().nullable(),
 	id_images: z.number(),
 	id_projects: z.number(),
 	name: z.string(),

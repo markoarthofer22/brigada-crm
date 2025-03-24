@@ -29,3 +29,8 @@ export async function deleteQuestion(id: number) {
 export async function upsertQuestionOrder(model: UpsertQuestionOrder) {
 	await axios.post(`/questions/order`, model)
 }
+
+export async function getAllQuestions() {
+	const response = await axios.get('/questions')
+	return QuestionResponseSchema.array().parse(response.data.results)
+}

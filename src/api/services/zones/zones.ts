@@ -10,6 +10,11 @@ export async function deleteZoneForProject(zoneId: number) {
 	await axios.delete(`/zones/${zoneId}`)
 }
 
+export async function getAllZones() {
+	const response = await axios.get('/zones')
+	return UpsertZoneResponseSchema.array().parse(response.data.results)
+}
+
 export async function updateZoneForProject(model: UpsertZone) {
 	const parsedData = UpsertZoneSchema.parse(model)
 

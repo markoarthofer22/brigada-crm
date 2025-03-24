@@ -12,6 +12,17 @@
 		"submit": "Spremi",
 		"updatePref": "Ažurirajte postavke"
 	},
+	"Dashboard": {
+		"analytics": "Analitika",
+		"lastAdded": "Zadnje dodano - {{value}}",
+		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
+		"overview": "Pregled",
+		"questions": "Ukupno pitanja",
+		"title": "Nadzorna ploča",
+		"totalProjects": "Ukupno projekata",
+		"users": "Aktivni korisnici",
+		"zones": "Zone"
+	},
 	"Error": {
 		"401": {
 			"description": "Neovlašten pristup",
