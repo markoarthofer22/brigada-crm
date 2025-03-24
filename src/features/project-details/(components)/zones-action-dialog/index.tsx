@@ -25,7 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 
 const DEFAULT_RADIUS = 4
-const DEFAULT_COLOR = '#FF5733'
+const DEFAULT_COLOR = '#ff0000'
 
 interface ZoneDialogProps {
 	open: boolean

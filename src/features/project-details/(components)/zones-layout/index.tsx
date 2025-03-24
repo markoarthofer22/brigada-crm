@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -22,7 +22,7 @@ import {
 import { ZoneDialog } from '@/features/project-details/(components)/zones-action-dialog'
 import { ZoneList } from '@/features/project-details/(components)/zones-list'
 
-const DEFAULT_COLOR = '#FF5733'
+const DEFAULT_COLOR = '#ff0000'
 
 interface ZoneLayoutProps {
 	zones: ProjectDetails['zones']
@@ -64,23 +64,107 @@ const ZoneLayout = ({
 		const rect = canvasRef.current.getBoundingClientRect()
 		const x = event.clientX - rect.left
 		const y = event.clientY - rect.top
-		setLocalZone((prev) => ({
-			name: prev?.name ?? '',
+
+		const currentData = {
+			name: localZone?.name ?? '',
 			id_projects: projectId,
 			id_images: selectedImage,
 			coordinates: {
-				name: prev?.coordinates.name ?? '',
-				color: prev?.coordinates.color ?? '',
-				points: [{ x, y }],
+				name: localZone?.coordinates.name ?? '',
+				color: localZone?.coordinates.color ?? '',
+				points: [...(localZone?.coordinates.points ?? []), { x, y }],
 			},
-		}))
+		}
 
-		setZoneDialogOpen(true)
+		const canvas = canvasRef.current
+		const context = canvas.getContext('2d')
+		if (!context) return
+
+		currentData?.coordinates.points.forEach((point) => {
+			context.beginPath()
+			context.arc(point.x, point.y, 5, 0, 2 * Math.PI)
+			context.fillStyle = currentData?.coordinates.color ?? DEFAULT_COLOR
+			context.fill()
+		})
+
+		setLocalZone(currentData)
 	}
 
 	const activeImage = useMemo(() => {
 		return allImages?.find((image) => image.id_images === selectedImage)
 	}, [allImages, selectedImage])
+
+	const handleCanvasLineDraw = useCallback(
+		(zone?: ProjectDetails['zones'][number]) => {
+			const zones = zone ?? localZone
+
+			if (zones?.coordinates.points && zones?.coordinates?.points.length > 1) {
+				const canvas = canvasRef.current
+				const context = canvas?.getContext('2d')
+				if (!context) return
+
+				const points = zones.coordinates.points
+
+				if (points.length > 1) {
+					context.beginPath()
+					context.moveTo(points[0].x, points[0].y)
+					for (let i = 1; i < points.length; i++) {
+						context.lineTo(points[i].x, points[i].y)
+					}
+					context.strokeStyle = zones.coordinates.color ?? DEFAULT_COLOR
+					context.lineWidth = 2
+					context.stroke()
+				}
+
+				context.strokeStyle = DEFAULT_COLOR
+			}
+		},
+		[localZone]
+	)
+
+	const handleResetCanvas = () => {
+		setLocalZone(null)
+
+		handleCanvasRender()
+	}
+
+	const handleCanvasRender = useCallback(() => {
+		if (!activeImage || !canvasRef.current) return
+
+		const canvas = canvasRef.current
+		const context = canvas.getContext('2d')
+		if (!context) return
+
+		canvas.width = activeImage.data.width
+		canvas.height = activeImage.data.height
+
+		const img = new Image()
+		img.src = `${path}/${activeImage.name}`
+		img.onload = () => {
+			context.clearRect(0, 0, canvas.width, canvas.height)
+			context.drawImage(
+				img,
+				0,
+				0,
+				activeImage.data.width,
+				activeImage.data.height
+			)
+
+			zones.forEach((zone) => {
+				if (zone.id_images !== selectedImage) return
+
+				zone.coordinates.points.forEach((point) => {
+					context.beginPath()
+					context.arc(point.x, point.y, 5, 0, 2 * Math.PI)
+					context.fillStyle = zone.coordinates?.color ?? DEFAULT_COLOR
+					context.fill()
+				})
+
+				context.fillStyle = DEFAULT_COLOR
+				handleCanvasLineDraw(zone)
+			})
+		}
+	}, [activeImage, path, selectedImage, zones])
 
 	const deleteZoneMutation = useMutation({
 		mutationFn: (zoneId: number) => {
@@ -143,39 +227,12 @@ const ZoneLayout = ({
 	}, [selectedImage])
 
 	useEffect(() => {
-		if (activeImage && canvasRef.current) {
-			const canvas = canvasRef.current
-			const context = canvas.getContext('2d')
-			if (!context) return
+		handleCanvasRender()
+	}, [handleCanvasRender])
 
-			canvas.width = activeImage.data.width
-			canvas.height = activeImage.data.height
-
-			const img = new Image()
-			img.src = `${path}/${activeImage.name}`
-			img.onload = () => {
-				context.clearRect(0, 0, canvas.width, canvas.height)
-				context.drawImage(
-					img,
-					0,
-					0,
-					activeImage.data.width,
-					activeImage.data.height
-				)
-
-				zones.forEach((zone) => {
-					if (zone.id_images !== selectedImage) return
-
-					zone.coordinates.points.forEach((point) => {
-						context.beginPath()
-						context.arc(point.x, point.y, 5, 0, 2 * Math.PI)
-						context.fillStyle = zone.coordinates?.color ?? DEFAULT_COLOR
-						context.fill()
-					})
-				})
-			}
-		}
-	}, [activeImage, path, selectedImage, zones])
+	useEffect(() => {
+		handleCanvasLineDraw()
+	}, [handleCanvasLineDraw])
 
 	if (hasNoActiveLayout) {
 		return (
@@ -197,12 +254,12 @@ const ZoneLayout = ({
 					<p className='text-sm font-medium'>
 						{t('ProjectDetails.selectImage')}
 					</p>
-					<div className='flex flex-row items-center gap-x-2'>
+					<div className='flex w-full flex-row items-center justify-between gap-x-2'>
 						<Select
 							value={selectedImage?.toString() ?? undefined}
 							onValueChange={(value) => setSelectedImage(Number(value))}
 						>
-							<SelectTrigger className='max-w-screen-sm'>
+							<SelectTrigger className='w-[350px]'>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent side='bottom'>
@@ -216,11 +273,20 @@ const ZoneLayout = ({
 								))}
 							</SelectContent>
 						</Select>
+
+						<div className='flex flex-row items-center gap-x-2 pr-2'>
+							<Button onClick={() => setZoneDialogOpen(true)}>
+								{t('ProjectDetails.zones.add')}
+							</Button>
+
+							<Button variant='outline' onClick={handleResetCanvas}>
+								{t('Actions.reset')}
+							</Button>
+						</div>
 					</div>
 				</div>
-				{/* Canvas container with overflow settings */}
 				<div
-					className='h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary p-1.5'
+					className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary p-1.5'
 					style={{
 						maxWidth: activeImage?.data?.width ?? '100%',
 					}}
