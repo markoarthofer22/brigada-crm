@@ -1,6 +1,11 @@
 import { CheckSquare, Layers, Map, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card.tsx'
 
 interface StatCardsProps {
 	totalProjects?: number

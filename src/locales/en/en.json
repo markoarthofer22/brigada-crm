@@ -10,7 +10,8 @@
 		"goBack": "Go Back",
 		"reset": "Reset",
 		"submit": "Save",
-		"updatePref": "Update preferences"
+		"updatePref": "Update preferences",
+		"viewAll": "View all"
 	},
 	"Dashboard": {
 		"analytics": "Analytics",
@@ -18,9 +19,12 @@
 		"lastMonth": "+ {{value}} in last month",
 		"overview": "Overview",
 		"questions": "Questions",
+		"recentUsers": "Recent users",
 		"title": "Dashboard",
 		"totalProjects": "Total projects",
+		"userDescription": "See users by their roles.",
 		"users": "Active users",
+		"userTitle": "User Distribution",
 		"zones": "Zones"
 	},
 	"Error": {
@@ -236,11 +240,14 @@
 			"firstname": "Firstname",
 			"lastname": "Lastname",
 			"name": "Name",
+			"questions": "Quesitons",
 			"sort": {
 				"asc": "Asc",
 				"desc": "Desc",
 				"hide": "Hide"
-			}
+			},
+			"status": "Status",
+			"zones": "Zones"
 		},
 		"noData": "No data available",
 		"pagination": {

@@ -8,7 +8,10 @@ import { formatDate } from '@/lib/utils.ts'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
-import { StatCards } from '@/features/dashboard/components/stat-cards.tsx'
+import { RecentProjects } from '@/features/dashboard/(components)/recent-projects'
+import { RecentUsers } from '@/features/dashboard/(components)/recent-users'
+import { StatCards } from '@/features/dashboard/(components)/stat-cards'
+import { UserDistribution } from '@/features/dashboard/(components)/user-chart'
 import UserUpsertFormSkeleton from '@/features/user-crud/components/user-upsert-form-skeleton.tsx'
 
 export default function Dashboard() {
@@ -97,6 +100,12 @@ export default function Dashboard() {
 							activeZones={zonesQuery.data?.length}
 							usersInLastMonth={usersInLastMonth}
 						/>
+						<RecentProjects projects={projectsQuery.data ?? []} />
+
+						<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+							<UserDistribution users={usersQuery.data ?? []} />
+							<RecentUsers users={usersQuery.data ?? []} />
+						</div>
 					</TabsContent>
 				</Tabs>
 			</Main>

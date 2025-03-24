@@ -10,7 +10,8 @@
 		"goBack": "Idi natrag",
 		"reset": "Resetiraj",
 		"submit": "Spremi",
-		"updatePref": "Ažurirajte postavke"
+		"updatePref": "Ažurirajte postavke",
+		"viewAll": "Pregled"
 	},
 	"Dashboard": {
 		"analytics": "Analitika",
@@ -18,9 +19,12 @@
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
 		"overview": "Pregled",
 		"questions": "Ukupno pitanja",
+		"recentUsers": "Zadnje dodani korisnici",
 		"title": "Nadzorna ploča",
 		"totalProjects": "Ukupno projekata",
+		"userDescription": "Pogledajte korisnike prema njihovim ulogama.",
 		"users": "Aktivni korisnici",
+		"userTitle": "Korisnici po ulogama",
 		"zones": "Zone"
 	},
 	"Error": {
@@ -236,11 +240,14 @@
 			"firstname": "Ime",
 			"lastname": "Prezime",
 			"name": "Naziv",
+			"questions": "Broj pitanja",
 			"sort": {
 				"asc": "Asc",
 				"desc": "Desc",
 				"hide": "Sakrij"
-			}
+			},
+			"status": "Status",
+			"zones": "Zone"
 		},
 		"noData": "Nema unesenih podataka",
 		"pagination": {
