@@ -256,7 +256,7 @@ class Questions
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.questions q 
-				WHERE q.id_zones = :ID AND q.id_projects IS NULL
+				WHERE q.id_zones = :ID
 				ORDER BY q.order ASC, q.label ASC";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
