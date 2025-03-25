@@ -58,6 +58,7 @@ export function ZoneDialog({
 		defaultValues: {
 			id_projects,
 			id_images,
+			id_zones: defaultValues?.id_zones ?? undefined,
 			name: defaultValues?.name || '',
 			coordinates: {
 				color: defaultValues?.coordinates?.color || DEFAULT_COLOR,
@@ -118,6 +119,7 @@ export function ZoneDialog({
 				id_projects,
 				id_images,
 				name: defaultValues?.name || '',
+				id_zones: defaultValues?.id_zones ?? undefined,
 				coordinates: {
 					color: defaultValues?.coordinates?.color || DEFAULT_COLOR,
 					name: defaultValues?.coordinates?.name || '',
