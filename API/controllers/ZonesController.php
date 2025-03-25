@@ -45,11 +45,15 @@ class ZonesController extends BaseController
 	{
 		$Zones = new Zones($this->db);
 		$Helper = new Helper($this->db);
+		$Questions = new Questions($this->db);
 
 		$vars = $request->getParsedBody();
 		$params = $Helper->ArrayToObject($vars);
 
 		$results = $Zones->GetAll();
+		foreach ($results as &$result) {
+			$result["questions"] = $Questions->GetForZone((object) array("id" => $result["id_zones"]));
+		}
 
 		return $response->withJson(array("results" => $results), 200);
 	}
@@ -67,12 +71,14 @@ class ZonesController extends BaseController
 	{
 		$Zones = new Zones($this->db);
 		$Helper = new Helper($this->db);
+		$Questions = new Questions($this->db);
 
 		$vars = $request->getParsedBody();
 		$params = $Helper->ArrayToObject($vars);
 		$args = $Helper->ArrayToObject($args);
 
 		$results = $Zones->Get($args);
+		$result["questions"] = $Questions->GetForZone($args);
 
 		return $response->withJson($results, 200);
 	}
