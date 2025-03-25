@@ -24,7 +24,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-const DEFAULT_RADIUS = 4
 const DEFAULT_COLOR = '#ff0000'
 
 interface ZoneDialogProps {
@@ -64,7 +63,6 @@ export function ZoneDialog({
 				color: defaultValues?.coordinates?.color || DEFAULT_COLOR,
 				name: defaultValues?.coordinates?.name || '',
 				points: points,
-				radius: defaultValues?.coordinates?.radius || DEFAULT_RADIUS,
 			},
 			data: defaultValues?.data || {},
 		},
@@ -124,7 +122,6 @@ export function ZoneDialog({
 					color: defaultValues?.coordinates?.color || DEFAULT_COLOR,
 					name: defaultValues?.coordinates?.name || '',
 					points: points,
-					radius: defaultValues?.coordinates?.radius || DEFAULT_RADIUS,
 				},
 				data: defaultValues?.data || {},
 			})
@@ -201,27 +198,6 @@ export function ZoneDialog({
 											className='flex-1'
 										/>
 									</div>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
-							name='coordinates.radius'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>{t('Input.label.radius')}</FormLabel>
-									<FormControl>
-										<Input
-											type='number'
-											disabled
-											min={DEFAULT_RADIUS}
-											step={1}
-											{...field}
-											onChange={(e) => field.onChange(Number(e.target.value))}
-										/>
-									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -308,7 +284,7 @@ export function ZoneDialog({
 																		} else {
 																			currentData[key] = newValue
 																		}
-																	} catch (e) {
+																	} catch (_e) {
 																		currentData[key] = newValue
 																	}
 

@@ -8,7 +8,6 @@ export const UpsertZoneSchema = z.object({
 	coordinates: z.object({
 		color: z.string().nonempty({ message: 'Input.validation.required' }),
 		name: z.string().nonempty({ message: 'Input.validation.required' }),
-		radius: z.number().optional(),
 		points: z.array(
 			z.object({
 				x: z.number(),

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { IconArrowBack, IconPlus, IconTrashX } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ProjectDetails } from '@/api/services/projects/schema.ts'
@@ -144,28 +145,18 @@ const ZoneLayout = ({
 		handleCanvasRender()
 	}
 
-	const handleCanvasRender = useCallback(() => {
-		if (!activeImage || !canvasRef.current) return
+	const handleCanvasRender = useCallback(
+		(additionalZone?: UpsertZone) => {
+			if (!activeImage || !canvasRef.current) return
 
-		const canvas = canvasRef.current
-		const context = canvas.getContext('2d')
-		if (!context) return
+			const canvas = canvasRef.current
+			const context = canvas.getContext('2d')
+			if (!context) return
 
-		canvas.width = activeImage.data.width
-		canvas.height = activeImage.data.height
+			canvas.width = activeImage.data.width
+			canvas.height = activeImage.data.height
 
-		const img = new Image()
-		img.src = `${path}/${activeImage.name}`
-		img.onload = () => {
 			context.clearRect(0, 0, canvas.width, canvas.height)
-			context.drawImage(
-				img,
-				0,
-				0,
-				activeImage.data.width,
-				activeImage.data.height
-			)
-
 			zones.forEach((zone) => {
 				if (zone.id_images !== selectedImage) return
 
@@ -179,8 +170,35 @@ const ZoneLayout = ({
 				context.fillStyle = DEFAULT_COLOR
 				handleCanvasLineDraw(zone)
 			})
+
+			if (additionalZone) {
+				additionalZone.coordinates.points.forEach((point) => {
+					context.beginPath()
+					context.arc(point.x, point.y, 5, 0, 2 * Math.PI)
+					context.fillStyle = additionalZone.coordinates?.color ?? DEFAULT_COLOR
+					context.fill()
+				})
+
+				context.fillStyle = DEFAULT_COLOR
+				handleCanvasLineDraw()
+			}
+		},
+		[activeImage, path, selectedImage, zones]
+	)
+
+	const undoLastPoint = () => {
+		if (!localZone || localZone.coordinates.points.length === 0) return
+		const newPoints = localZone.coordinates.points.slice(0, -1)
+		const updatedZone: UpsertZone = {
+			...localZone,
+			coordinates: {
+				...localZone.coordinates,
+				points: newPoints,
+			},
 		}
-	}, [activeImage, path, selectedImage, zones])
+		setLocalZone(updatedZone)
+		handleCanvasRender(updatedZone)
+	}
 
 	const deleteZoneMutation = useMutation({
 		mutationFn: (zoneId: number) => {
@@ -307,6 +325,7 @@ const ZoneLayout = ({
 											})}
 											onClick={() => setZoneDialogOpen(true)}
 										>
+											<IconPlus className='!size-5' />
 											{t('ProjectDetails.zones.add')}
 										</Button>
 									</TooltipTrigger>
@@ -321,10 +340,20 @@ const ZoneLayout = ({
 							</TooltipProvider>
 
 							<Button
-								disabled={!localZone}
 								variant='outline'
+								disabled={!localZone}
+								onClick={undoLastPoint}
+							>
+								<IconArrowBack className='!size-5' />
+								{t('Actions.undo')}
+							</Button>
+
+							<Button
+								disabled={!localZone}
+								variant='destructive'
 								onClick={handleResetCanvas}
 							>
+								<IconTrashX className='!size-5' />
 								{t('Actions.reset')}
 							</Button>
 						</div>
@@ -333,9 +362,18 @@ const ZoneLayout = ({
 				<div
 					className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary p-1.5'
 					style={{
-						maxWidth: activeImage?.data?.width ?? '100%',
+						maxWidth: activeImage?.data?.width
+							? activeImage.data.width + 25
+							: '100%',
 					}}
 				>
+					<img
+						alt={activeImage?.name}
+						src={`${path}/${activeImage?.name}`}
+						width={activeImage?.data?.width}
+						height={activeImage?.data?.height}
+						className='absolute left-0 top-0 z-[-1]'
+					/>
 					<canvas
 						onClick={handleCanvasClick}
 						className='cursor-pointer rounded-lg'
