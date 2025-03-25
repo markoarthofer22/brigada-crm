@@ -33,7 +33,7 @@ import {
 import { PasswordInput } from '@/components/password-input.tsx'
 
 interface UserUpsertFormProps {
-	initialValues?: User
+	initialValues?: Omit<User, 'created_at'>
 	allowUserActions?: boolean
 }
 
