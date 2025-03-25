@@ -224,7 +224,40 @@ class Questions
 	 */
 	public function GetForProject(object $params): array
 	{
-		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.questions q WHERE q.id_projects = :ID ORDER BY q.order ASC, q.label ASC";
+		$sql = "SELECT 
+					* 
+				FROM {$_SESSION["SCHEMA"]}.questions q 
+				WHERE q.id_projects = :ID AND q.id_zones IS NULL
+				ORDER BY q.order ASC, q.label ASC";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
+
+		$stmt->execute();
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($results as &$result) {
+			if ($result) {
+				$result["possible_answers"] = json_decode($result["possible_answers"]);
+			}
+		}
+
+		return $results ?: [];
+	}
+
+	/**
+	 * GetForZone function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetForZone(object $params): array
+	{
+		$sql = "SELECT 
+					* 
+				FROM {$_SESSION["SCHEMA"]}.questions q 
+				WHERE q.id_zones = :ID AND q.id_projects IS NULL
+				ORDER BY q.order ASC, q.label ASC";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
 

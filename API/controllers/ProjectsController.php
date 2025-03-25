@@ -83,6 +83,9 @@ class ProjectsController extends BaseController
 		$result = $Projects->Get($args);
 		$result["questions"] = $Questions->GetForProject($args);
 		$result["zones"] = $Zones->GetForProject($args);
+		foreach ($result["zones"] as &$zone) {
+			$zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
+		}
 		$result["images"] = $Projects->GetImages($args);
 		$result["path"] = $_ENV["DOMAIN"] . $this->folder;
 
