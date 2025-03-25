@@ -133,3 +133,7 @@ export const hexToRgba = (hex: string, alpha: number): string => {
 	const b = parseInt(cleaned.substring(4, 6), 16)
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
+
+export const getRandomHexColor = (): string => {
+	return `#${Math.floor(Math.random() * 16777215).toString(16)}`
+}

@@ -116,7 +116,6 @@ export function ZoneList({
 									</TableCell>
 									<TableCell className='font-medium'>{zone.name}</TableCell>
 									<TableCell>{zone.coordinates.name}</TableCell>
-									<TableCell>{zone.coordinates.radius || '-'}</TableCell>
 									<TableCell>{zone.coordinates.points.length}</TableCell>
 									<TableCell className='text-center'>
 										<div className='flex justify-center gap-2'>
