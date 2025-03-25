@@ -116,6 +116,8 @@ class ProjectsController extends BaseController
 			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing name"))), $response);
 		}
 
+		$params->data->active = $params->data->active ?: 0;
+
 		$id = $Projects->Add($params);
 		$result = $Projects->Get((object) array("id" => $id));
 
@@ -146,7 +148,9 @@ class ProjectsController extends BaseController
 			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing name"))), $response);
 		}
 
+		$params->data->active = $params->data->active ?: 0;
 		$params->id = $args->id;
+
 		if ($Projects->Update($params)) {
 			return $response->withJson([], 204);;
 		} else {

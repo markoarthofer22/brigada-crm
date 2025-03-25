@@ -90,8 +90,8 @@ class Projects
 	public function Add(object $params): int
 	{
 
-		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.projects 
-					(data) 
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.projects
+					(data)
 				VALUES 
 					(:DATA)
 				RETURNING id_projects
