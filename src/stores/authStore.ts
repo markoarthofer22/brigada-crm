@@ -86,9 +86,18 @@ export const useAuthStore = create<AuthState>()((set) => {
 			reset: () =>
 				set((state) => {
 					Cookies.remove(ACCESS_TOKEN)
+					Cookies.remove(REFRESH_TOKEN)
 					return {
 						...state,
-						auth: { ...state.auth, user: null, accessToken: '' },
+						auth: {
+							...state.auth,
+							questionTypes: null,
+							user: null,
+							accessToken: null,
+							refreshToken: null,
+							sessionId: null,
+							lang: null,
+						},
 					}
 				}),
 			setQuestionTypes: (questionTypes) => {
@@ -99,5 +108,3 @@ export const useAuthStore = create<AuthState>()((set) => {
 		},
 	}
 })
-
-// export const useAuth = () => useAuthStore((state) => state.auth)

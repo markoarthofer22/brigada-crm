@@ -8,7 +8,7 @@ export function UsersPrimaryButtons() {
 	return (
 		<div className='flex gap-2'>
 			<Button className='space-x-1' asChild>
-				<Link to='/users/add'>
+				<Link to='/admin/users/add'>
 					{t('Users.add')} <IconUserPlus size={18} />
 				</Link>
 			</Button>

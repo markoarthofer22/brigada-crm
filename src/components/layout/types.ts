@@ -21,11 +21,13 @@ type NavItem = NavCollapsible | NavLink
 
 interface NavGroup {
 	title: string
+	allowAll?: boolean
 	items: NavItem[]
 }
 
 interface SidebarData {
 	navGroups: NavGroup[]
+	mutualGroups: NavGroup[]
 }
 
 export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink }

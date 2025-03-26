@@ -26,7 +26,7 @@ export default function Users() {
 
 	const onRowClick = (row: User) => {
 		if (row.id_users) {
-			router.navigate({ to: `/users/${row.id_users}` })
+			router.navigate({ to: `/admin/users/${row.id_users}` })
 		}
 	}
 

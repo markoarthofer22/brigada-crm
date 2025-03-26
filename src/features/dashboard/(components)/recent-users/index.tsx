@@ -33,7 +33,7 @@ export function RecentUsers({ users }: RecentUsersProps) {
 			<CardContent>
 				<div className='flex flex-col gap-y-4'>
 					{users.map((user) => (
-						<Link to={'/users/' + user.id_users} key={user.id_users}>
+						<Link to={'/admin/users/' + user.id_users} key={user.id_users}>
 							<div className='flex items-center gap-4'>
 								<Avatar>
 									<AvatarFallback className='text-sm font-semibold uppercase'>
@@ -63,7 +63,7 @@ export function RecentUsers({ users }: RecentUsersProps) {
 			</CardContent>
 			<CardFooter>
 				<Button variant='outline' className='w-full' asChild>
-					<Link to='/users'>{t('Actions.viewAll')}</Link>
+					<Link to='/admin/users'>{t('Actions.viewAll')}</Link>
 				</Button>
 			</CardFooter>
 		</Card>

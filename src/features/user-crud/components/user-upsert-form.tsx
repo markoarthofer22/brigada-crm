@@ -63,7 +63,7 @@ function UserUpsertForm({
 			)
 
 			router.navigate({
-				to: '/users',
+				to: '/admin/users',
 				replace: true,
 			})
 		},

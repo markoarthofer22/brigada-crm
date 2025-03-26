@@ -25,7 +25,7 @@ const Root = () => {
 	const router = useRouter()
 
 	useEffect(() => {
-		if (user?.id_users) return
+		if (user?.id_users || !authToken) return
 
 		if (!globalSettingsQuery.data) return
 

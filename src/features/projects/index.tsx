@@ -24,7 +24,7 @@ const Projects = () => {
 
 	const onRowClick = (row: Project) => {
 		if (row.id_projects) {
-			router.navigate({ to: `/projects/${row.id_projects}` })
+			router.navigate({ to: `/admin/projects/${row.id_projects}` })
 		}
 	}
 

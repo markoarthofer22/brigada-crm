@@ -1,9 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import createAuthRefreshInterceptor from 'axios-auth-refresh'
-import {
-	getUserRefreshToken,
-	logout,
-} from '@/api/services/authorization/authorization.ts'
+import { getUserRefreshToken } from '@/api/services/authorization/authorization.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -89,19 +86,30 @@ async function refreshAuthLogic(failedRequest: AxiosError) {
 				return Promise.reject(failedRequest)
 			}
 
-			setRefreshToken(refreshToken)
-			setAccessToken(refreshToken)
+			setRefreshToken(newToken.refresh_token)
+			setAccessToken(newToken.access_token)
 
 			if (failedRequest.config?.headers) {
-				failedRequest.config.headers['Authorization'] = `Bearer ${newToken}`
+				failedRequest.config.headers['Authorization'] =
+					`Bearer ${newToken.access_token}`
 			}
 
 			return Promise.resolve()
 		} catch (error) {
+			useAuthStore.getState().auth.reset()
 			await logout()
 			return Promise.reject(error)
 		}
 	}
+}
+
+export async function logout() {
+	const response = await axios.post(
+		import.meta.env.VITE_DOMAIN_PATH + '/user/logout',
+		{}
+	)
+
+	return response.data
 }
 
 export default api

@@ -30,7 +30,7 @@ export function RecentProjects({ projects }: RecentProjectsProps) {
 				<div className='flex items-center justify-between'>
 					<CardTitle>{t('Dashboard.recentProjects')}</CardTitle>
 					<Button variant='outline' size='sm' asChild>
-						<Link to='/projects'>
+						<Link to='/admin/projects'>
 							{t('Actions.viewAll')}
 							<IconLink className='!size-5' />
 						</Link>
@@ -52,7 +52,9 @@ export function RecentProjects({ projects }: RecentProjectsProps) {
 								key={project.id_projects}
 								className='cursor-pointer hover:bg-gray-100'
 								onClick={() =>
-									router.navigate({ to: '/projects/' + project.id_projects })
+									router.navigate({
+										to: '/admin/projects/' + project.id_projects,
+									})
 								}
 							>
 								<TableCell>{project.name}</TableCell>
