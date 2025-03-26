@@ -51,11 +51,23 @@ class ProjectsController extends BaseController
 	{
 		$Projects = new Projects($this->db);
 		$Helper = new Helper($this->db);
+		$Questions = new Questions($this->db);
+		$Zones = new Zones($this->db);
 
 		$vars = $request->getParsedBody();
 		$params = $Helper->ArrayToObject($vars);
 
 		$results = $Projects->GetAll();
+
+		foreach ($results as &$result) {
+			$result["questions"] = $Questions->GetForProject((object) array("id" => $result["id_projects"]));
+			$result["zones"] = $Zones->GetForProject((object) array("id" => $result["id_projects"]));
+			foreach ($result["zones"] as &$zone) {
+				$zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
+			}
+			$result["images"] = $Projects->GetImages((object) array("id" => $result["id_projects"]));
+			$result["path"] = $_ENV["DOMAIN"] . $this->folder;
+		}
 
 		return $response->withJson(array("results" => $results), 200);
 	}
