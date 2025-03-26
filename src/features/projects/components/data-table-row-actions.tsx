@@ -42,7 +42,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 						onClick={(e) => {
 							e.stopPropagation()
 							router.navigate({
-								to: `/projects/${row.original.id_projects}`,
+								to: `/admin/projects/${row.original.id_projects}`,
 							})
 						}}
 					>

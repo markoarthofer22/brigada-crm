@@ -222,6 +222,41 @@
 					<folder_node>
 						<name>Dashboard</name>
 						<children>
+							<folder_node>
+								<name>active</name>
+								<children>
+									<concept_node>
+										<name>0</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>1</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+								</children>
+							</folder_node>
 							<concept_node>
 								<name>analytics</name>
 								<description/>
@@ -268,6 +303,21 @@
 								</translations>
 							</concept_node>
 							<concept_node>
+								<name>layouts</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>overview</name>
 								<description/>
 								<comment/>
@@ -284,6 +334,21 @@
 							</concept_node>
 							<concept_node>
 								<name>questions</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>recentProjects</name>
 								<description/>
 								<comment/>
 								<translations>
@@ -677,8 +742,118 @@
 									</translation>
 								</translations>
 							</concept_node>
+							<folder_node>
+								<name>time</name>
+								<children>
+									<concept_node>
+										<name>day</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>day_few</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>day_many</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>day_one</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>day_plural</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+								</children>
+							</folder_node>
+							<concept_node>
+								<name>today</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
 							<concept_node>
 								<name>warning</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>yesterday</name>
 								<description/>
 								<comment/>
 								<translations>
@@ -856,6 +1031,21 @@
 								<name>description</name>
 								<children>
 									<concept_node>
+										<name>active</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
 										<name>projectImage</name>
 										<description/>
 										<comment/>
@@ -875,6 +1065,21 @@
 							<folder_node>
 								<name>label</name>
 								<children>
+									<concept_node>
+										<name>active</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
 									<concept_node>
 										<name>admin</name>
 										<description/>
@@ -2228,6 +2433,21 @@
 								</translations>
 							</concept_node>
 							<concept_node>
+								<name>created</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>createSuccess</name>
 								<description/>
 								<comment/>
@@ -2319,6 +2539,36 @@
 							</concept_node>
 							<concept_node>
 								<name>editDescription</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>noProjects</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>regularUserDescription</name>
 								<description/>
 								<comment/>
 								<translations>

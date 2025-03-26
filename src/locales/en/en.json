@@ -15,11 +15,17 @@
 		"viewAll": "View all"
 	},
 	"Dashboard": {
+		"active": [
+			"Inactive",
+			"Active"
+		],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
+		"layouts": "Layouts",
 		"overview": "Overview",
 		"questions": "Questions",
+		"recentProjects": "Recent projects",
 		"recentUsers": "Recent users",
 		"title": "Dashboard",
 		"totalProjects": "Total projects",
@@ -57,7 +63,16 @@
 	},
 	"Global": {
 		"deleteWarning": "Please be careful, this operation can not be rolled back.",
-		"warning": "Warning"
+		"time": {
+			"day": "{{value}} days ago",
+			"day_few": "",
+			"day_many": "",
+			"day_one": "Yesterday",
+			"day_plural": "{{value}} days ago"
+		},
+		"today": "Today",
+		"warning": "Warning",
+		"yesterday": "Yesterday"
 	},
 	"Header": {
 		"font": {
@@ -78,9 +93,11 @@
 	},
 	"Input": {
 		"description": {
+			"active": "Toggle this to enable users to see this project",
 			"projectImage": "Upload your layout image. Only one image can be active for project at the time."
 		},
 		"label": {
+			"active": "Active",
 			"admin": "User role",
 			"color": "Color",
 			"coordName": "Coordinate Name",
@@ -192,6 +209,7 @@
 	"Projects": {
 		"add": "Add project",
 		"addDescription": "Create new project here.",
+		"created": "Created {{value}}",
 		"createSuccess": "Project {{value}} has been created successfully.",
 		"delete": "Delete Project",
 		"deletePlaceholder": "Enter project name to confirm deletion",
@@ -199,6 +217,8 @@
 		"description": "Manage your project here.",
 		"edit": "Edit project",
 		"editDescription": "Update the project here.",
+		"noProjects": "No active projects found. Please try again later!",
+		"regularUserDescription": "Select the project you want to start tracking for.",
 		"title": "Projects",
 		"updateSuccess": "Project {{value}} has been updated successfully."
 	},

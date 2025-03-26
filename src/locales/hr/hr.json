@@ -15,11 +15,17 @@
 		"viewAll": "Pregled"
 	},
 	"Dashboard": {
+		"active": [
+			"Neaktivan",
+			"Aktivan"
+		],
 		"analytics": "Analitika",
 		"lastAdded": "Zadnje dodano - {{value}}",
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
+		"layouts": "Tlocrti",
 		"overview": "Pregled",
 		"questions": "Ukupno pitanja",
+		"recentProjects": "Zadnje dodani projekti",
 		"recentUsers": "Zadnje dodani korisnici",
 		"title": "Nadzorna ploča",
 		"totalProjects": "Ukupno projekata",
@@ -57,7 +63,16 @@
 	},
 	"Global": {
 		"deleteWarning": "Budite oprezni, ova se operacija ne može poništiti!",
-		"warning": "Upozorenje"
+		"time": {
+			"day": " Prije{{value}} dan",
+			"day_few": "Prije {{count}} dana",
+			"day_many": "Prije {{count}} dana",
+			"day_one": "Jučer",
+			"day_plural": " Prije {{value}} dana"
+		},
+		"today": "Danas",
+		"warning": "Upozorenje",
+		"yesterday": "Jučer"
 	},
 	"Header": {
 		"font": {
@@ -78,9 +93,11 @@
 	},
 	"Input": {
 		"description": {
+			"active": "Uključite ovo kako biste omogućili korisnicima da vide ovaj projekt",
 			"projectImage": "Učitajte svoju sliku tlocrta. Samo jedna slika može biti aktivna po projektu."
 		},
 		"label": {
+			"active": "Aktivno",
 			"admin": "Prava korisnika",
 			"color": "Boja",
 			"coordName": "Naziv koordinate",
@@ -192,6 +209,7 @@
 	"Projects": {
 		"add": "Dodaj projekt",
 		"addDescription": "Ovdje kreirajte novi projekt.",
+		"created": "Izrađeno {{value}}",
 		"createSuccess": "Projekt {{value}} je uspješno kreiran.",
 		"delete": "Izbriši projekt",
 		"deletePlaceholder": "Unesite ime projekta za potvrdu brisanja",
@@ -199,6 +217,8 @@
 		"description": "Ovdje upravljajte svojim projektima.",
 		"edit": "Uredi projekt",
 		"editDescription": "Ažurirajte projekt ovdje.",
+		"noProjects": "Nema pronađenih aktivnih projekata. Pokušajte ponovno kasnije!",
+		"regularUserDescription": "Odaberite projekt za koji želite započeti praćenje.",
 		"title": "Projekti",
 		"updateSuccess": "Projekt {{value}} je uspješno ažuriran."
 	},

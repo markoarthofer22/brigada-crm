@@ -2,6 +2,8 @@ import { ReactNode } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { UserType } from '@/api/services/user/schema.ts'
+import { useAuthStore } from '@/stores/authStore.ts'
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -29,15 +31,28 @@ import {
 } from '../ui/dropdown-menu'
 import { NavCollapsible, type NavGroup, NavItem, NavLink } from './types'
 
-export function NavGroup({ title, items }: NavGroup) {
+export function NavGroup({ title, items, allowAll }: NavGroup) {
 	const { t } = useTranslation()
 	const { state } = useSidebar()
 	const href = useLocation({ select: (location) => location.href })
+	const isAdmin =
+		useAuthStore((state) => state.auth.user)?.admin === UserType.ADMIN
+
+	const filteredItems = items.filter((item) => {
+		if (allowAll) return true
+
+		if (isAdmin) {
+			return item?.url?.includes('admin')
+		} else {
+			return !item?.url?.includes('admin')
+		}
+	})
+
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>{t(`Sidebar.nav.${title}`)}</SidebarGroupLabel>
 			<SidebarMenu>
-				{items.map((item) => {
+				{filteredItems.map((item) => {
 					const key = `${item.title}-${item.url}`
 
 					if (!item.items)

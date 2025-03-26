@@ -1,10 +1,22 @@
 import { z } from 'zod'
 import { MAX_FILE_UPLOAD_SIZE, MAX_FILES } from '@/consts/dropzone-defaults'
 
+export enum ActiveStatus {
+	ACTIVE = 1,
+	INACTIVE = 0,
+}
+
+export enum TabsEnum {
+	IMAGE = 'image',
+	QUESTIONS = 'questions',
+	ZONES = 'zones',
+}
+
 export const ProjectResponseSchema = z.object({
 	id_projects: z.number(),
 	created_at: z.string(),
 	name: z.string(),
+	active: z.nativeEnum(ActiveStatus).default(ActiveStatus.ACTIVE),
 	otherField: z.string().optional(),
 })
 
@@ -64,6 +76,7 @@ export type ProjectDetails = z.infer<typeof ProjectDetailsResponseSchema>
 export const ProjectUpsertSchema = z.object({
 	id_projects: z.number().optional(),
 	name: z.string(),
+	active: z.nativeEnum(ActiveStatus).default(ActiveStatus.ACTIVE),
 	otherField: z.string().optional(),
 })
 

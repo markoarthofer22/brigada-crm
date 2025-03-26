@@ -18,6 +18,7 @@ import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
+import { Route as AuthenticatedAdminIndexImport } from './routes/_authenticated/admin/index'
 
 // Create Virtual Routes
 
@@ -33,14 +34,8 @@ const authForgotPasswordLazyImport = createFileRoute(
 const AuthenticatedSettingsRouteLazyImport = createFileRoute(
   '/_authenticated/settings',
 )()
-const AuthenticatedUsersIndexLazyImport = createFileRoute(
-  '/_authenticated/users/',
-)()
 const AuthenticatedProjectsIndexLazyImport = createFileRoute(
   '/_authenticated/projects/',
-)()
-const AuthenticatedUsersAddLazyImport = createFileRoute(
-  '/_authenticated/users/add',
 )()
 const AuthenticatedSettingsAppearanceLazyImport = createFileRoute(
   '/_authenticated/settings/appearance',
@@ -48,11 +43,20 @@ const AuthenticatedSettingsAppearanceLazyImport = createFileRoute(
 const AuthenticatedSettingsAccountLazyImport = createFileRoute(
   '/_authenticated/settings/account',
 )()
-const AuthenticatedUsersIdIndexLazyImport = createFileRoute(
-  '/_authenticated/users/$id/',
+const AuthenticatedAdminUsersIndexLazyImport = createFileRoute(
+  '/_authenticated/admin/users/',
 )()
-const AuthenticatedProjectsIdIndexLazyImport = createFileRoute(
-  '/_authenticated/projects/$id/',
+const AuthenticatedAdminProjectsIndexLazyImport = createFileRoute(
+  '/_authenticated/admin/projects/',
+)()
+const AuthenticatedAdminUsersAddLazyImport = createFileRoute(
+  '/_authenticated/admin/users/add',
+)()
+const AuthenticatedAdminUsersIdIndexLazyImport = createFileRoute(
+  '/_authenticated/admin/users/$id/',
+)()
+const AuthenticatedAdminProjectsIdIndexLazyImport = createFileRoute(
+  '/_authenticated/admin/projects/$id/',
 )()
 
 // Create/Update Routes
@@ -153,15 +157,6 @@ const auth500Route = auth500Import.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthenticatedUsersIndexLazyRoute =
-  AuthenticatedUsersIndexLazyImport.update({
-    id: '/users/',
-    path: '/users/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import('./routes/_authenticated/users/index.lazy').then((d) => d.Route),
-  )
-
 const AuthenticatedProjectsIndexLazyRoute =
   AuthenticatedProjectsIndexLazyImport.update({
     id: '/projects/',
@@ -171,13 +166,11 @@ const AuthenticatedProjectsIndexLazyRoute =
     import('./routes/_authenticated/projects/index.lazy').then((d) => d.Route),
   )
 
-const AuthenticatedUsersAddLazyRoute = AuthenticatedUsersAddLazyImport.update({
-  id: '/users/add',
-  path: '/users/add',
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexImport.update({
+  id: '/admin/',
+  path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
-} as any).lazy(() =>
-  import('./routes/_authenticated/users/add.lazy').then((d) => d.Route),
-)
+} as any)
 
 const AuthenticatedSettingsAppearanceLazyRoute =
   AuthenticatedSettingsAppearanceLazyImport.update({
@@ -201,22 +194,55 @@ const AuthenticatedSettingsAccountLazyRoute =
     ),
   )
 
-const AuthenticatedUsersIdIndexLazyRoute =
-  AuthenticatedUsersIdIndexLazyImport.update({
-    id: '/users/$id/',
-    path: '/users/$id/',
+const AuthenticatedAdminUsersIndexLazyRoute =
+  AuthenticatedAdminUsersIndexLazyImport.update({
+    id: '/admin/users/',
+    path: '/admin/users/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import('./routes/_authenticated/users/$id/index.lazy').then((d) => d.Route),
+    import('./routes/_authenticated/admin/users/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 
-const AuthenticatedProjectsIdIndexLazyRoute =
-  AuthenticatedProjectsIdIndexLazyImport.update({
-    id: '/projects/$id/',
-    path: '/projects/$id/',
+const AuthenticatedAdminProjectsIndexLazyRoute =
+  AuthenticatedAdminProjectsIndexLazyImport.update({
+    id: '/admin/projects/',
+    path: '/admin/projects/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import('./routes/_authenticated/projects/$id/index.lazy').then(
+    import('./routes/_authenticated/admin/projects/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const AuthenticatedAdminUsersAddLazyRoute =
+  AuthenticatedAdminUsersAddLazyImport.update({
+    id: '/admin/users/add',
+    path: '/admin/users/add',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/admin/users/add.lazy').then((d) => d.Route),
+  )
+
+const AuthenticatedAdminUsersIdIndexLazyRoute =
+  AuthenticatedAdminUsersIdIndexLazyImport.update({
+    id: '/admin/users/$id/',
+    path: '/admin/users/$id/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/admin/users/$id/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const AuthenticatedAdminProjectsIdIndexLazyRoute =
+  AuthenticatedAdminProjectsIdIndexLazyImport.update({
+    id: '/admin/projects/$id/',
+    path: '/admin/projects/$id/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/admin/projects/$id/index.lazy').then(
       (d) => d.Route,
     ),
   )
@@ -330,11 +356,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAppearanceLazyImport
       parentRoute: typeof AuthenticatedSettingsRouteLazyImport
     }
-    '/_authenticated/users/add': {
-      id: '/_authenticated/users/add'
-      path: '/users/add'
-      fullPath: '/users/add'
-      preLoaderRoute: typeof AuthenticatedUsersAddLazyImport
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminIndexImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/projects/': {
@@ -344,25 +370,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/users/': {
-      id: '/_authenticated/users/'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport
+    '/_authenticated/admin/users/add': {
+      id: '/_authenticated/admin/users/add'
+      path: '/admin/users/add'
+      fullPath: '/admin/users/add'
+      preLoaderRoute: typeof AuthenticatedAdminUsersAddLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/projects/$id/': {
-      id: '/_authenticated/projects/$id/'
-      path: '/projects/$id'
-      fullPath: '/projects/$id'
-      preLoaderRoute: typeof AuthenticatedProjectsIdIndexLazyImport
+    '/_authenticated/admin/projects/': {
+      id: '/_authenticated/admin/projects/'
+      path: '/admin/projects'
+      fullPath: '/admin/projects'
+      preLoaderRoute: typeof AuthenticatedAdminProjectsIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/users/$id/': {
-      id: '/_authenticated/users/$id/'
-      path: '/users/$id'
-      fullPath: '/users/$id'
-      preLoaderRoute: typeof AuthenticatedUsersIdIndexLazyImport
+    '/_authenticated/admin/users/': {
+      id: '/_authenticated/admin/users/'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/admin/projects/$id/': {
+      id: '/_authenticated/admin/projects/$id/'
+      path: '/admin/projects/$id'
+      fullPath: '/admin/projects/$id'
+      preLoaderRoute: typeof AuthenticatedAdminProjectsIdIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/admin/users/$id/': {
+      id: '/_authenticated/admin/users/$id/'
+      path: '/admin/users/$id'
+      fullPath: '/admin/users/$id'
+      preLoaderRoute: typeof AuthenticatedAdminUsersIdIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
   }
@@ -391,22 +431,29 @@ const AuthenticatedSettingsRouteLazyRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteLazyRoute: typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedUsersAddLazyRoute: typeof AuthenticatedUsersAddLazyRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedProjectsIndexLazyRoute: typeof AuthenticatedProjectsIndexLazyRoute
-  AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
-  AuthenticatedProjectsIdIndexLazyRoute: typeof AuthenticatedProjectsIdIndexLazyRoute
-  AuthenticatedUsersIdIndexLazyRoute: typeof AuthenticatedUsersIdIndexLazyRoute
+  AuthenticatedAdminUsersAddLazyRoute: typeof AuthenticatedAdminUsersAddLazyRoute
+  AuthenticatedAdminProjectsIndexLazyRoute: typeof AuthenticatedAdminProjectsIndexLazyRoute
+  AuthenticatedAdminUsersIndexLazyRoute: typeof AuthenticatedAdminUsersIndexLazyRoute
+  AuthenticatedAdminProjectsIdIndexLazyRoute: typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  AuthenticatedAdminUsersIdIndexLazyRoute: typeof AuthenticatedAdminUsersIdIndexLazyRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteLazyRoute:
     AuthenticatedSettingsRouteLazyRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedUsersAddLazyRoute: AuthenticatedUsersAddLazyRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedProjectsIndexLazyRoute: AuthenticatedProjectsIndexLazyRoute,
-  AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
-  AuthenticatedProjectsIdIndexLazyRoute: AuthenticatedProjectsIdIndexLazyRoute,
-  AuthenticatedUsersIdIndexLazyRoute: AuthenticatedUsersIdIndexLazyRoute,
+  AuthenticatedAdminUsersAddLazyRoute: AuthenticatedAdminUsersAddLazyRoute,
+  AuthenticatedAdminProjectsIndexLazyRoute:
+    AuthenticatedAdminProjectsIndexLazyRoute,
+  AuthenticatedAdminUsersIndexLazyRoute: AuthenticatedAdminUsersIndexLazyRoute,
+  AuthenticatedAdminProjectsIdIndexLazyRoute:
+    AuthenticatedAdminProjectsIdIndexLazyRoute,
+  AuthenticatedAdminUsersIdIndexLazyRoute:
+    AuthenticatedAdminUsersIdIndexLazyRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -427,11 +474,13 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
-  '/users/add': typeof AuthenticatedUsersAddLazyRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexLazyRoute
-  '/users': typeof AuthenticatedUsersIndexLazyRoute
-  '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
-  '/users/$id': typeof AuthenticatedUsersIdIndexLazyRoute
+  '/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
+  '/admin/projects': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexLazyRoute
+  '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/admin/users/$id': typeof AuthenticatedAdminUsersIdIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -448,11 +497,13 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
-  '/users/add': typeof AuthenticatedUsersAddLazyRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexLazyRoute
-  '/users': typeof AuthenticatedUsersIndexLazyRoute
-  '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
-  '/users/$id': typeof AuthenticatedUsersIdIndexLazyRoute
+  '/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
+  '/admin/projects': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexLazyRoute
+  '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/admin/users/$id': typeof AuthenticatedAdminUsersIdIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -472,11 +523,13 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
-  '/_authenticated/users/add': typeof AuthenticatedUsersAddLazyRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexLazyRoute
-  '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
-  '/_authenticated/projects/$id/': typeof AuthenticatedProjectsIdIndexLazyRoute
-  '/_authenticated/users/$id/': typeof AuthenticatedUsersIdIndexLazyRoute
+  '/_authenticated/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
+  '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexLazyRoute
+  '/_authenticated/admin/projects/$id/': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/_authenticated/admin/users/$id/': typeof AuthenticatedAdminUsersIdIndexLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -496,11 +549,13 @@ export interface FileRouteTypes {
     | '/'
     | '/settings/account'
     | '/settings/appearance'
-    | '/users/add'
+    | '/admin'
     | '/projects'
-    | '/users'
-    | '/projects/$id'
-    | '/users/$id'
+    | '/admin/users/add'
+    | '/admin/projects'
+    | '/admin/users'
+    | '/admin/projects/$id'
+    | '/admin/users/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/500'
@@ -516,11 +571,13 @@ export interface FileRouteTypes {
     | '/'
     | '/settings/account'
     | '/settings/appearance'
-    | '/users/add'
+    | '/admin'
     | '/projects'
-    | '/users'
-    | '/projects/$id'
-    | '/users/$id'
+    | '/admin/users/add'
+    | '/admin/projects'
+    | '/admin/users'
+    | '/admin/projects/$id'
+    | '/admin/users/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -538,11 +595,13 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
-    | '/_authenticated/users/add'
+    | '/_authenticated/admin/'
     | '/_authenticated/projects/'
-    | '/_authenticated/users/'
-    | '/_authenticated/projects/$id/'
-    | '/_authenticated/users/$id/'
+    | '/_authenticated/admin/users/add'
+    | '/_authenticated/admin/projects/'
+    | '/_authenticated/admin/users/'
+    | '/_authenticated/admin/projects/$id/'
+    | '/_authenticated/admin/users/$id/'
   fileRoutesById: FileRoutesById
 }
 
@@ -602,11 +661,13 @@ export const routeTree = rootRoute
       "children": [
         "/_authenticated/settings",
         "/_authenticated/",
-        "/_authenticated/users/add",
+        "/_authenticated/admin/",
         "/_authenticated/projects/",
-        "/_authenticated/users/",
-        "/_authenticated/projects/$id/",
-        "/_authenticated/users/$id/"
+        "/_authenticated/admin/users/add",
+        "/_authenticated/admin/projects/",
+        "/_authenticated/admin/users/",
+        "/_authenticated/admin/projects/$id/",
+        "/_authenticated/admin/users/$id/"
       ]
     },
     "/(auth)/500": {
@@ -659,24 +720,32 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/settings/appearance.lazy.tsx",
       "parent": "/_authenticated/settings"
     },
-    "/_authenticated/users/add": {
-      "filePath": "_authenticated/users/add.lazy.tsx",
+    "/_authenticated/admin/": {
+      "filePath": "_authenticated/admin/index.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/projects/": {
       "filePath": "_authenticated/projects/index.lazy.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/users/": {
-      "filePath": "_authenticated/users/index.lazy.tsx",
+    "/_authenticated/admin/users/add": {
+      "filePath": "_authenticated/admin/users/add.lazy.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/projects/$id/": {
-      "filePath": "_authenticated/projects/$id/index.lazy.tsx",
+    "/_authenticated/admin/projects/": {
+      "filePath": "_authenticated/admin/projects/index.lazy.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/users/$id/": {
-      "filePath": "_authenticated/users/$id/index.lazy.tsx",
+    "/_authenticated/admin/users/": {
+      "filePath": "_authenticated/admin/users/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/admin/projects/$id/": {
+      "filePath": "_authenticated/admin/projects/$id/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/admin/users/$id/": {
+      "filePath": "_authenticated/admin/users/$id/index.lazy.tsx",
       "parent": "/_authenticated"
     }
   }

@@ -20,6 +20,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				{sidebarData.navGroups.map((props) => (
 					<NavGroup key={props.title} {...props} />
 				))}
+
+				{sidebarData.mutualGroups.map((props) => (
+					<NavGroup allowAll key={props.title} {...props} />
+				))}
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />
