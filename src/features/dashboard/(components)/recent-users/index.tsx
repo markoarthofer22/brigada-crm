@@ -22,7 +22,12 @@ export function RecentUsers({ users }: RecentUsersProps) {
 
 	const getDaysAgo = (date: string) => {
 		const daysAgo = differenceInDays(new Date(), date)
-		return `${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`
+
+		if (daysAgo === 0) return t('Global.today')
+
+		if (daysAgo === 1) return t('Global.yesterday')
+
+		return t('Global.time.day', { value: daysAgo })
 	}
 
 	return (
