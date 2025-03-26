@@ -1,8 +1,8 @@
-import { Link } from '@tanstack/react-router'
-import { ChevronsUpDown } from 'lucide-react'
+import { Link, useRouter } from '@tanstack/react-router'
+import { IconLink } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
-import { Project } from '@/api/services/projects/schema.ts'
-import { formatDate } from '@/lib/utils.ts'
+import { ActiveStatus, Project } from '@/api/services/projects/schema.ts'
+import { cn, formatDate } from '@/lib/utils.ts'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -22,15 +22,17 @@ interface RecentProjectsProps {
 export function RecentProjects({ projects }: RecentProjectsProps) {
 	const { t } = useTranslation()
 
+	const router = useRouter()
+
 	return (
 		<Card className='col-span-2'>
 			<CardHeader>
 				<div className='flex items-center justify-between'>
-					<CardTitle>Recent Projects</CardTitle>
+					<CardTitle>{t('Dashboard.recentProjects')}</CardTitle>
 					<Button variant='outline' size='sm' asChild>
 						<Link to='/projects'>
 							{t('Actions.viewAll')}
-							<ChevronsUpDown className='!size-5' />
+							<IconLink className='!size-5' />
 						</Link>
 					</Button>
 				</div>
@@ -38,7 +40,7 @@ export function RecentProjects({ projects }: RecentProjectsProps) {
 			<CardContent>
 				<Table>
 					<TableHeader>
-						<TableRow>
+						<TableRow className='hover:bg-transparent'>
 							<TableHead>{t('Table.header.name')}</TableHead>
 							<TableHead>{t('Table.header.status')}</TableHead>
 							<TableHead>{t('Table.header.created_at')}</TableHead>
@@ -46,10 +48,29 @@ export function RecentProjects({ projects }: RecentProjectsProps) {
 					</TableHeader>
 					<TableBody>
 						{projects.map((project) => (
-							<TableRow key={project.id_projects}>
+							<TableRow
+								key={project.id_projects}
+								className='cursor-pointer hover:bg-gray-100'
+								onClick={() =>
+									router.navigate({ to: '/projects/' + project.id_projects })
+								}
+							>
 								<TableCell>{project.name}</TableCell>
 								<TableCell>
-									<Badge>Active</Badge>
+									<Badge
+										variant='outline'
+										className={cn(
+											'min-w-20 items-center justify-center rounded-lg py-1',
+											{
+												'bg-chart-2 text-white':
+													project.active === ActiveStatus.ACTIVE,
+												'bg-chart-5 text-white':
+													project.active === ActiveStatus.INACTIVE,
+											}
+										)}
+									>
+										{t(`Dashboard.active.${project.active}`)}
+									</Badge>
 								</TableCell>
 								<TableCell>
 									{formatDate(project.created_at, {

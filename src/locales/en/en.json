@@ -15,11 +15,16 @@
 		"viewAll": "View all"
 	},
 	"Dashboard": {
+		"active": [
+			"Inactive",
+			"Active"
+		],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
 		"overview": "Overview",
 		"questions": "Questions",
+		"recentProjects": "Recent projects",
 		"recentUsers": "Recent users",
 		"title": "Dashboard",
 		"totalProjects": "Total projects",
@@ -78,9 +83,11 @@
 	},
 	"Input": {
 		"description": {
+			"active": "Toggle this to enable users to see this project",
 			"projectImage": "Upload your layout image. Only one image can be active for project at the time."
 		},
 		"label": {
+			"active": "Active",
 			"admin": "User role",
 			"color": "Color",
 			"coordName": "Coordinate Name",

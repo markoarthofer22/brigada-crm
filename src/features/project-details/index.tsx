@@ -6,10 +6,13 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getProjectById } from '@/api/services/projects/options.ts'
 import { upsertProject } from '@/api/services/projects/projects.ts'
+import { ActiveStatus, TabsEnum } from '@/api/services/projects/schema'
 import { useLoader } from '@/context/loader-provider'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button.tsx'
+import { Checkbox } from '@/components/ui/checkbox.tsx'
 import { Input } from '@/components/ui/input.tsx'
+import { Label } from '@/components/ui/label.tsx'
 import {
 	Tabs,
 	TabsContent,
@@ -23,12 +26,6 @@ import QuestionLayout from '@/features/project-details/(components)/question-lay
 import ZoneLayout from '@/features/project-details/(components)/zones-layout'
 import UserUpsertFormSkeleton from '@/features/user-crud/components/user-upsert-form-skeleton.tsx'
 
-export enum TabsEnum {
-	IMAGE = 'image',
-	QUESTIONS = 'questions',
-	ZONES = 'zones',
-}
-
 export default function ProjectDetails() {
 	const { t } = useTranslation()
 	const { id } = useParams({ strict: false })
@@ -40,13 +37,24 @@ export default function ProjectDetails() {
 	})
 
 	const [projectName, setProjectName] = useState<string>('')
+	const [isProjectActive, setIsProjectActive] = useState<ActiveStatus | null>(
+		null
+	)
 
 	const handleNameChange = () => {
 		if (projectName === '') return
 
 		showLoader()
 
-		projectNameMutation.mutate(projectName)
+		projectNameMutation.mutate({ name: projectName, active: isProjectActive! })
+	}
+
+	const handleActiveChange = (status: ActiveStatus) => {
+		if (status === projectQuery.data?.active) return
+		setIsProjectActive(status)
+		showLoader()
+
+		projectNameMutation.mutate({ name: projectName, active: status })
 	}
 
 	const handleHasNoActiveLayoutCallback = () => {
@@ -59,9 +67,10 @@ export default function ProjectDetails() {
 	})
 
 	const projectNameMutation = useMutation({
-		mutationFn: (name: string) => {
+		mutationFn: ({ name, active }: { name: string; active: ActiveStatus }) => {
 			return upsertProject({
 				id_projects: Number(id),
+				active,
 				name,
 			})
 		},
@@ -96,7 +105,11 @@ export default function ProjectDetails() {
 		if (projectQuery.data?.name) {
 			setProjectName(projectQuery.data.name)
 		}
-	}, [projectQuery.data?.name])
+
+		if (projectQuery.data?.active) {
+			setIsProjectActive(projectQuery.data.active)
+		}
+	}, [projectQuery.data])
 
 	if (projectQuery.isLoading)
 		return (
@@ -120,7 +133,7 @@ export default function ProjectDetails() {
 
 			<Main>
 				<div className='flex flex-wrap items-center justify-between space-y-2'>
-					<div className='mb-4 space-y-2'>
+					<div className='mb-4 space-y-4'>
 						<div className='flex flex-row gap-x-3'>
 							<h2 className='w-fit text-2xl font-bold'>
 								{t('ProjectDetails.title')}
@@ -131,6 +144,23 @@ export default function ProjectDetails() {
 								value={projectName}
 							/>
 							<Button onClick={handleNameChange}>{t('Actions.submit')}</Button>
+						</div>
+						<div className='flex flex-row items-center gap-x-4 p-2'>
+							<Checkbox
+								className='size-5'
+								checked={isProjectActive === ActiveStatus.ACTIVE}
+								onCheckedChange={(checked) => {
+									handleActiveChange(
+										checked ? ActiveStatus.ACTIVE : ActiveStatus.INACTIVE
+									)
+								}}
+							/>
+							<Label>
+								<div className='cursor-pointer space-y-2 leading-4'>
+									{t('Input.label.active')}
+									<p>{t('Input.description.active')}</p>
+								</div>
+							</Label>
 						</div>
 					</div>
 				</div>

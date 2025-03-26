@@ -42,11 +42,11 @@ export async function getProjectById(id: number) {
 export async function upsertProject(model: ProjectUpsert) {
 	const parsedData = ProjectUpsertSchema.parse(model)
 
-	const { id_projects, name } = parsedData
+	const { id_projects, name, active } = parsedData
 
 	const response = id_projects
-		? await axios.put(`/projects/${id_projects}`, { data: { name } })
-		: await axios.post('/projects', { data: { name } })
+		? await axios.put(`/projects/${id_projects}`, { data: { name, active } })
+		: await axios.post('/projects', { data: { name, active } })
 
 	if (!id_projects) {
 		return ProjectResponseSchema.parse(response.data)

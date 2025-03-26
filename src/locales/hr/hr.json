@@ -15,11 +15,16 @@
 		"viewAll": "Pregled"
 	},
 	"Dashboard": {
+		"active": [
+			"Neaktivan",
+			"Aktivan"
+		],
 		"analytics": "Analitika",
 		"lastAdded": "Zadnje dodano - {{value}}",
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
 		"overview": "Pregled",
 		"questions": "Ukupno pitanja",
+		"recentProjects": "Zadnje dodani projekti",
 		"recentUsers": "Zadnje dodani korisnici",
 		"title": "Nadzorna ploča",
 		"totalProjects": "Ukupno projekata",
@@ -78,9 +83,11 @@
 	},
 	"Input": {
 		"description": {
+			"active": "Uključite ovo kako biste omogućili korisnicima da vide ovaj projekt",
 			"projectImage": "Učitajte svoju sliku tlocrta. Samo jedna slika može biti aktivna po projektu."
 		},
 		"label": {
+			"active": "Aktivno",
 			"admin": "Prava korisnika",
 			"color": "Boja",
 			"coordName": "Naziv koordinate",

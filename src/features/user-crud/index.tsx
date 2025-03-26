@@ -35,7 +35,8 @@ export default function UsersCrud() {
 				<div className='mb-2 flex flex-wrap items-center justify-between space-y-2'>
 					<div>
 						<h2 className='text-2xl font-bold tracking-tight'>
-							{t('Users.title')} {id}
+							{t('Users.title')} - {userQuery.data?.firstname}{' '}
+							{userQuery.data?.lastname}
 						</h2>
 						<p className='text-muted-foreground'>{t('Users.description')}</p>
 					</div>

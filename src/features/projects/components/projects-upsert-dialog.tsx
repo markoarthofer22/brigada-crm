@@ -7,12 +7,14 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { upsertProject } from '@/api/services/projects/projects'
 import {
+	ActiveStatus,
 	Project,
 	ProjectUpsert,
 	ProjectUpsertSchema,
 } from '@/api/services/projects/schema.ts'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
 	Dialog,
 	DialogContent,
@@ -24,6 +26,7 @@ import {
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -53,6 +56,7 @@ export function ProjectsUpsertDialog({
 		defaultValues: {
 			otherField: currentRow?.otherField ?? '',
 			name: currentRow?.name ?? '',
+			active: currentRow?.active ?? ActiveStatus.ACTIVE,
 			id_projects: currentRow?.id_projects ?? undefined,
 		},
 	})
@@ -119,6 +123,36 @@ export function ProjectsUpsertDialog({
 											/>
 										</FormControl>
 										<FormMessage className='!mt-1adsdas' />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name='active'
+								render={({ field }) => (
+									<FormItem className='flex flex-row items-center gap-x-4 space-y-0 rounded-md border border-primary/20 p-4 transition-all duration-300 hover:border-primary hover:shadow-xl'>
+										<FormControl>
+											<Checkbox
+												className='size-5'
+												checked={field.value === ActiveStatus.ACTIVE}
+												onCheckedChange={(checked) => {
+													field.onChange(
+														checked
+															? ActiveStatus.ACTIVE
+															: ActiveStatus.INACTIVE
+													)
+												}}
+											/>
+										</FormControl>
+										<FormLabel>
+											<div className='cursor-pointer space-y-2 leading-4'>
+												{t('Input.label.active')}
+												<FormDescription>
+													{t('Input.description.active')}
+												</FormDescription>
+											</div>
+										</FormLabel>
 									</FormItem>
 								)}
 							/>
