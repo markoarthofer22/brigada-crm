@@ -4,6 +4,7 @@ namespace PP\Controller;
 
 use PP\Classes\Helper;
 use PP\Classes\Language;
+use PP\Classes\Logs;
 use PP\Classes\Message;
 use PP\Classes\Questions;
 use PP\Classes\Settings;
@@ -48,12 +49,14 @@ class SettingsController extends BaseController
 	public function __invoke(Request $request, Response $response, array $args): Response
 	{
 		$Questions = new Questions($this->db);
+		$Logs = new Logs($this->db);
 
 		$settings = new stdClass;
 		$settings->user = $_SESSION["user"];
 		// $settings->session_id =  $_SESSION["session_id"];
 		$settings->lang = $_SESSION["lang"];
 		$settings->questions_types = $Questions->GetTypes();
+		$settings->last10Users = $Logs->getLast10Users();
 
 		// print_r($_SESSION);
 

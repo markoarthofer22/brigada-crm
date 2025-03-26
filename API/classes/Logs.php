@@ -88,4 +88,40 @@ class Logs
 
 		return true;
 	}
+
+	public function getLast10Users()
+	{
+
+		$sql = "WITH ranked_logs AS (
+					SELECT id_users, created_at,
+						ROW_NUMBER() OVER (PARTITION BY id_users ORDER BY created_at DESC) AS rn
+					FROM brigada.logs
+					WHERE id_users IS NOT NULL
+				)
+				SELECT 
+					rl.id_users, 
+					rl.created_at, 
+					bu.firstname, 
+					bu.lastname,
+					CASE 
+						WHEN CURRENT_DATE - DATE(rl.created_at) > 0 THEN 
+						CONCAT(CURRENT_DATE - DATE(rl.created_at), ' days ago')
+						WHEN EXTRACT(EPOCH FROM (NOW() - rl.created_at)) / 3600 >= 1 THEN 
+						CONCAT(FLOOR(EXTRACT(EPOCH FROM (NOW() - rl.created_at)) / 3600), ' hours ago')
+						ELSE 
+						CONCAT(FLOOR(EXTRACT(EPOCH FROM (NOW() - rl.created_at)) / 60), ' minutes ago')
+					END AS time_since_last_log
+				FROM ranked_logs rl
+				LEFT JOIN brigada.users bu ON bu.id_users = rl.id_users
+				WHERE rl.rn = 1
+				ORDER BY rl.created_at DESC
+				LIMIT 10
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->execute();
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		return $results;
+	}
 }
