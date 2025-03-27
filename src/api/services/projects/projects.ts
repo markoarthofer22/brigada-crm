@@ -14,7 +14,21 @@ import {
 export async function getProjects() {
 	const response = await axios.get('/projects')
 
-	const parsedData = AllProjectsResponseSchema.parse(response.data)
+	const data = response.data.results.map((project: ProjectDetails) => ({
+		...project,
+		zones: project.zones.map((zone) => ({
+			...zone,
+			coordinates: {
+				...zone.coordinates,
+				points:
+					typeof zone.coordinates.points === 'object'
+						? Object.values(zone.coordinates.points)
+						: zone.coordinates.points,
+			},
+		})),
+	}))
+
+	const parsedData = AllProjectsResponseSchema.parse({ results: data })
 
 	return parsedData.results
 }

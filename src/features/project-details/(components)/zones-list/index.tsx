@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { IconEdit, IconTrash } from '@tabler/icons-react'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
+import { IconEdit, IconProgressHelp, IconTrash } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { UpsertZone } from '@/api/services/zones/schema'
 import { cn } from '@/lib/utils.ts'
@@ -23,6 +24,11 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table.tsx'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip.tsx'
 import { ZoneDialog } from '@/features/project-details/(components)/zones-action-dialog'
 
 interface ZoneListProps {
@@ -95,10 +101,11 @@ export function ZoneList({
 								<TableHead>{t('Input.label.zoneName')}</TableHead>
 								<TableHead>{t('Input.label.coordName')}</TableHead>
 								<TableHead className='w-[100px]'>
-									{t('Input.label.radius')}
-								</TableHead>
-								<TableHead className='w-[100px]'>
 									{t('Input.label.points')}
+								</TableHead>
+
+								<TableHead className='w-[100px]'>
+									{t('Input.label.questions')}
 								</TableHead>
 								<TableHead className='w-[120px] text-center'>
 									{t('Actions.actions')}
@@ -117,6 +124,31 @@ export function ZoneList({
 									<TableCell className='font-medium'>{zone.name}</TableCell>
 									<TableCell>{zone.coordinates.name}</TableCell>
 									<TableCell>{zone.coordinates.points.length}</TableCell>
+									<TableCell>
+										<div className='flex items-center justify-center gap-x-1'>
+											<span className='font-medium'>
+												{zone.questions.length}
+											</span>
+											<TooltipProvider>
+												<Tooltip delayDuration={0}>
+													<TooltipTrigger asChild>
+														<Button
+															variant='ghost'
+															size='icon'
+															className='!size-6'
+															disabled={isLoading}
+															onClick={() => handleEditClick(zone)}
+														>
+															<IconProgressHelp className='!size-5' />
+														</Button>
+													</TooltipTrigger>
+													<TooltipContent side='left'>
+														{t('ProjectDetails.zones.table.editTooltip')}
+													</TooltipContent>
+												</Tooltip>
+											</TooltipProvider>
+										</div>
+									</TableCell>
 									<TableCell className='text-center'>
 										<div className='flex justify-center gap-2'>
 											<Button

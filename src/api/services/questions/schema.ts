@@ -1,11 +1,12 @@
 import { z } from 'zod'
 
 export const QuestionUpsertSchema = z.object({
-	id_projects: z.number(),
-	label: z.string(),
-	id_questions_types: z.number(),
 	id_questions: z.number().optional(),
+	id_projects: z.number(),
+	id_questions_types: z.number(),
 	order: z.number().optional(),
+	id_zones: z.number().optional(),
+	label: z.string(),
 	possible_answers: z.array(z.string()).optional(),
 })
 

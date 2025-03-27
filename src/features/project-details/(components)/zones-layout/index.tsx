@@ -9,7 +9,7 @@ import {
 	deleteZoneForProject,
 	updateZoneForProject,
 } from '@/api/services/zones/zones.ts'
-import { cn, hexToRgba } from '@/lib/utils.ts'
+import { cn, getContrastColor, hexToRgba } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
@@ -57,6 +57,7 @@ const ZoneLayout = ({
 	const [zoneDialogOpen, setZoneDialogOpen] = useState<boolean>(false)
 	const [localZone, setLocalZone] = useState<UpsertZone | null>(null)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
+	const imageCanvasRef = useRef<HTMLCanvasElement>(null)
 
 	const onSubmit = (data: UpsertZone) => {
 		upsertZoneMutation.mutate(data)
@@ -75,6 +76,7 @@ const ZoneLayout = ({
 
 		const currentData = {
 			name: localZone?.name ?? '',
+			questions: localZone?.questions ?? [],
 			id_projects: projectId,
 			id_images: selectedImage,
 			coordinates: {
@@ -158,7 +160,7 @@ const ZoneLayout = ({
 
 			context.clearRect(0, 0, canvas.width, canvas.height)
 			zones.forEach((zone) => {
-				if (zone.id_images !== selectedImage) return
+				if (zone.id_images !== activeImage.id_images) return
 
 				zone.coordinates.points.forEach((point) => {
 					context.beginPath()
@@ -169,6 +171,27 @@ const ZoneLayout = ({
 
 				context.fillStyle = DEFAULT_COLOR
 				handleCanvasLineDraw(zone)
+
+				const points = zone.coordinates.points
+				if (points.length > 0) {
+					const center = points.reduce(
+						(acc, point) => ({
+							x: acc.x + point.x,
+							y: acc.y + point.y,
+						}),
+						{ x: 0, y: 0 }
+					)
+					center.x /= points.length
+					center.y /= points.length
+
+					context.font = '16px sans-serif'
+					context.fillStyle = getContrastColor(
+						zone.coordinates?.color ?? DEFAULT_COLOR
+					)
+					context.textAlign = 'center'
+					context.textBaseline = 'middle'
+					context.fillText(zone.name, center.x, center.y)
+				}
 			})
 
 			if (additionalZone) {
@@ -183,8 +206,34 @@ const ZoneLayout = ({
 				handleCanvasLineDraw()
 			}
 		},
-		[activeImage, path, selectedImage, zones]
+		[activeImage, zones]
 	)
+
+	const handleImageCanvasRender = useCallback(() => {
+		if (!activeImage || !imageCanvasRef.current) return
+
+		const canvas = imageCanvasRef.current
+		const context = canvas.getContext('2d')
+		if (!context) return
+
+		canvas.width = activeImage.data.width
+		canvas.height = activeImage.data.height
+
+		context.clearRect(0, 0, canvas.width, canvas.height)
+
+		const img = new Image()
+		img.src = `${path}/${activeImage.name}`
+		img.onload = () => {
+			context.clearRect(0, 0, canvas.width, canvas.height)
+			context.drawImage(
+				img,
+				0,
+				0,
+				activeImage.data.width,
+				activeImage.data.height
+			)
+		}
+	}, [activeImage, path])
 
 	const undoLastPoint = () => {
 		if (!localZone || localZone.coordinates.points.length === 0) return
@@ -247,6 +296,18 @@ const ZoneLayout = ({
 	}, [allImages])
 
 	useEffect(() => {
+		if (imageCanvasRef.current) {
+			const context = imageCanvasRef.current.getContext('2d')
+			if (context) {
+				context.clearRect(
+					0,
+					0,
+					imageCanvasRef.current.width,
+					imageCanvasRef.current.height
+				)
+			}
+		}
+
 		if (canvasRef.current) {
 			const context = canvasRef.current.getContext('2d')
 			if (context) {
@@ -263,6 +324,10 @@ const ZoneLayout = ({
 	useEffect(() => {
 		handleCanvasRender()
 	}, [handleCanvasRender])
+
+	useEffect(() => {
+		handleImageCanvasRender()
+	}, [handleImageCanvasRender])
 
 	useEffect(() => {
 		handleCanvasLineDraw()
@@ -360,19 +425,16 @@ const ZoneLayout = ({
 					</div>
 				</div>
 				<div
-					className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary p-1.5'
+					className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary'
 					style={{
 						maxWidth: activeImage?.data?.width
-							? activeImage.data.width + 25
+							? activeImage.data.width + 13
 							: '100%',
 					}}
 				>
-					<img
-						alt={activeImage?.name}
-						src={`${path}/${activeImage?.name}`}
-						width={activeImage?.data?.width}
-						height={activeImage?.data?.height}
-						className='absolute left-0 top-0 z-[-1]'
+					<canvas
+						ref={imageCanvasRef}
+						className='absolute bottom-0 left-0 right-0 top-0 z-[-1]'
 					/>
 					<canvas
 						onClick={handleCanvasClick}

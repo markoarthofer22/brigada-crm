@@ -66,7 +66,7 @@ export default function Dashboard() {
 	return (
 		<>
 			<Header className='border-b-0' />
-			<Main fixed className='max-w-screen-lg pl-4'>
+			<Main fixed className='max-w-screen-lg pb-6 pl-4'>
 				<div className='mb-2 flex items-center justify-between space-y-2'>
 					<h1 className='text-2xl font-bold tracking-tight'>
 						{t('Dashboard.title')}
@@ -104,7 +104,7 @@ export default function Dashboard() {
 
 						<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
 							<UserDistribution users={usersQuery.data ?? []} />
-							<RecentUsers users={usersQuery.data ?? []} />
+							<RecentUsers />
 						</div>
 					</TabsContent>
 				</Tabs>

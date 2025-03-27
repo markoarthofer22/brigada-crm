@@ -110,6 +110,7 @@
 			"points": "Points",
 			"possibleAnswers": "Possible answers",
 			"projectImage": "Layout image",
+			"questions": "Questions",
 			"questionTitle": "Question Label",
 			"questionType": "Question type",
 			"radius": "Radius",
@@ -202,6 +203,7 @@
 			"editSuccess": "Zone was successfully updated!",
 			"noLayouts": "Before adding zones please add at least one layout.",
 			"table": {
+				"editTooltip": "Additional question for the zone",
 				"empty": "No zones found. Click on desired place on layout to create one"
 			}
 		}

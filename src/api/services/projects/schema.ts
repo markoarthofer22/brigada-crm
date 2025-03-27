@@ -20,6 +20,15 @@ export const ProjectResponseSchema = z.object({
 	otherField: z.string().optional(),
 })
 
+export const QuestionItemResponseSchema = z.object({
+	id_questions: z.number(),
+	id_projects: z.number(),
+	id_questions_types: z.number(),
+	order: z.number(),
+	label: z.string(),
+	possible_answers: z.record(z.string()),
+})
+
 export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({
 	path: z.string().optional(),
 	images: z
@@ -51,22 +60,14 @@ export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({
 			}),
 			id_images: z.number(),
 			id_projects: z.number(),
+			questions: z.array(QuestionItemResponseSchema),
 		})
 	),
-	questions: z.array(
-		z.object({
-			id_questions: z.number(),
-			id_projects: z.number(),
-			id_questions_types: z.number(),
-			order: z.number(),
-			label: z.string(),
-			possible_answers: z.record(z.string()),
-		})
-	),
+	questions: z.array(QuestionItemResponseSchema),
 })
 
 export const AllProjectsResponseSchema = z.object({
-	results: z.array(ProjectResponseSchema),
+	results: z.array(ProjectDetailsResponseSchema),
 })
 
 export type Project = z.infer<typeof ProjectResponseSchema>
