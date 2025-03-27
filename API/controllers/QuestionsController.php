@@ -96,13 +96,21 @@ class QuestionsController extends BaseController
 		$params = $Helper->ArrayToObject($vars);
 		$args = $Helper->ArrayToObject($args);
 
+		if (
+			(!isset($params->id_projects) || $params->id_projects == "" || $params->id_projects < 1) &&
+			(!isset($params->id_zones) || $params->id_zones == "" || $params->id_zones < 1)
+		) {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing project or zone id"))), $response);
+		}
+
 		$requiredFields = [
-			'id_projects',
 			'label',
 			'id_questions_types'
 		];
 
 		$params->possible_answers = $params->possible_answers ?? [];
+		$params->id_projects = $params->id_projects ?: null;
+		$params->id_zones = $params->id_zones ?: null;
 
 		foreach ($requiredFields as $field) {
 			if (!isset($params->{$field}) || $params->{$field} == "") {
@@ -140,13 +148,21 @@ class QuestionsController extends BaseController
 		$params = $Helper->ArrayToObject($vars);
 		$args = $Helper->ArrayToObject($args);
 
+		if (
+			(!isset($params->id_projects) || $params->id_projects == "" || $params->id_projects < 1) &&
+			(!isset($params->id_zones) || $params->id_zones == "" || $params->id_zones < 1)
+		) {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing project or zone id"))), $response);
+		}
+
 		$requiredFields = [
-			'id_projects',
 			'label',
 			'id_questions_types'
 		];
 
 		$params->possible_answers = $params->possible_answers ?? [];
+		$params->id_projects = $params->id_projects ?: null;
+		$params->id_zones = $params->id_zones ?: null;
 
 		foreach ($requiredFields as $field) {
 			if (!isset($params->{$field}) || $params->{$field} == "") {
@@ -189,9 +205,9 @@ class QuestionsController extends BaseController
 			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing id_questions array of ids"))), $response);
 		}
 
-		if (!isset($params->id_projects) || $params->id_projects == "" || $params->id_projects < 1) {
-			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing projects id"))), $response);
-		}
+		// if (!isset($params->id_projects) || $params->id_projects == "" || $params->id_projects < 1) {
+		// 	return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing projects id"))), $response);
+		// }
 
 		if ($Questions->Order($params)) {
 			return $response->withStatus(204);

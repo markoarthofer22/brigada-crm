@@ -87,6 +87,7 @@ class Questions
 		$sql = "INSERT INTO brigada.questions 
 					(
 						id_projects,
+						id_zones,
 						label,
 						id_questions_types,
 						possible_answers,
@@ -95,6 +96,7 @@ class Questions
 				VALUES 
 					(
 						:ID_PROJECTS,
+						:ID_ZONES,
 						:LABEL,
 						:ID_QUESTIONS_TYPES,
 						:POSSIBLE_ANSWERS::jsonb,
@@ -106,6 +108,7 @@ class Questions
 
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':ID_ZONES', $params->id_zones);
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
 		$stmt->bindParam(':POSSIBLE_ANSWERS', $possible_answers);
@@ -128,6 +131,7 @@ class Questions
 		$sql = "UPDATE {$_SESSION["SCHEMA"]}.questions 
 				SET 
 					id_projects = :ID_PROJECTS,
+					id_zones = :ID_ZONES,
 					label = :LABEL,
 					id_questions_types = :ID_QUESTIONS_TYPES,
 					possible_answers = :POSSIBLE_ANSWERS::jsonb
@@ -137,6 +141,7 @@ class Questions
 
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':ID_ZONES', $params->id_zones);
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
 		$stmt->bindParam(':POSSIBLE_ANSWERS', $possible_answers);
@@ -167,11 +172,10 @@ class Questions
 					SET \"order\" = c.new_order
 				FROM custom_order c
 				WHERE q.id_questions = c.id_questions
-				AND q.id_projects = :ID_PROJECTS;
 		";
 
 		$stmt = $this->database->prepare($sql);
-		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		// $stmt->bindParam(':ID_PROJECTS', $params->id_projects);
 		$stmt->execute();
 
 		return true;

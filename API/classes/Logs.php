@@ -105,11 +105,20 @@ class Logs
 					bu.lastname,
 					CASE 
 						WHEN CURRENT_DATE - DATE(rl.created_at) > 0 THEN 
-						CONCAT(CURRENT_DATE - DATE(rl.created_at), ' days ago')
+							json_build_object(
+								'period', (CURRENT_DATE - DATE(rl.created_at))::INT,
+								'span', 'days'
+							)
 						WHEN EXTRACT(EPOCH FROM (NOW() - rl.created_at)) / 3600 >= 1 THEN 
-						CONCAT(FLOOR(EXTRACT(EPOCH FROM (NOW() - rl.created_at)) / 3600), ' hours ago')
+							json_build_object(
+								'period', FLOOR(EXTRACT(EPOCH FROM (NOW() - rl.created_at)) / 3600)::INT,
+								'span', 'hours'
+							)
 						ELSE 
-						CONCAT(FLOOR(EXTRACT(EPOCH FROM (NOW() - rl.created_at)) / 60), ' minutes ago')
+							json_build_object(
+								'period', FLOOR(EXTRACT(EPOCH FROM (NOW() - rl.created_at)) / 60)::INT,
+								'span', 'minutes'
+							)
 					END AS time_since_last_log
 				FROM ranked_logs rl
 				LEFT JOIN brigada.users bu ON bu.id_users = rl.id_users
@@ -121,6 +130,10 @@ class Logs
 		$stmt = $this->database->prepare($sql);
 		$stmt->execute();
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($results as &$result) {
+			$result["time_since_last_log"] = json_decode($result["time_since_last_log"]);
+		}
 
 		return $results;
 	}

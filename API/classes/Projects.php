@@ -42,7 +42,7 @@ class Projects
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.projects p
-				ORDER BY p.name ASC
+				ORDER BY p.created_at DESC
 		";
 
 		$stmt = $this->database->prepare($sql);
