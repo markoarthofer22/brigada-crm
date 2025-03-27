@@ -1,7 +1,7 @@
 import { Link, useRouter } from '@tanstack/react-router'
 import { IconLink } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
-import { ActiveStatus, Project } from '@/api/services/projects/schema.ts'
+import { ActiveStatus, ProjectDetails } from '@/api/services/projects/schema.ts'
 import { cn, formatDate } from '@/lib/utils.ts'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/table'
 
 interface RecentProjectsProps {
-	projects: Project[]
+	projects: ProjectDetails[]
 }
 
 export function RecentProjects({ projects }: RecentProjectsProps) {
@@ -43,6 +43,8 @@ export function RecentProjects({ projects }: RecentProjectsProps) {
 						<TableRow className='hover:bg-transparent'>
 							<TableHead>{t('Table.header.name')}</TableHead>
 							<TableHead>{t('Table.header.status')}</TableHead>
+							<TableHead>{t('Table.header.questions')}</TableHead>
+							<TableHead>{t('Table.header.zones')}</TableHead>
 							<TableHead>{t('Table.header.created_at')}</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -74,6 +76,8 @@ export function RecentProjects({ projects }: RecentProjectsProps) {
 										{t(`Dashboard.active.${project.active}`)}
 									</Badge>
 								</TableCell>
+								<TableCell>{project.questions.length}</TableCell>
+								<TableCell>{project.zones.length}</TableCell>
 								<TableCell>
 									{formatDate(project.created_at, {
 										year: 'numeric',

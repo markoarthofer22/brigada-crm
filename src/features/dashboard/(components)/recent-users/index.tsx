@@ -1,7 +1,9 @@
 import { differenceInDays } from 'date-fns'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { User } from '@/api/services/user/schema'
+import { getGlobalSettings } from '@/api/services/globals/options.ts'
+import { useAuthStore } from '@/stores/authStore.ts'
 import { getInitials } from '@/lib/utils.ts'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -12,13 +14,18 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
+import { Loader } from '@/components/loader.tsx'
 
-interface RecentUsersProps {
-	users: User[]
-}
-
-export function RecentUsers({ users }: RecentUsersProps) {
+export function RecentUsers() {
 	const { t } = useTranslation()
+	const authToken = useAuthStore((state) => state.auth.accessToken)
+
+	const { data, isLoading } = useQuery({
+		...getGlobalSettings(),
+		enabled: !!authToken,
+	})
+
+	const { last10Users: users } = data || {}
 
 	const getDaysAgo = (date: string) => {
 		const daysAgo = differenceInDays(new Date(), date)
@@ -30,36 +37,30 @@ export function RecentUsers({ users }: RecentUsersProps) {
 		return t('Global.time.day', { value: daysAgo })
 	}
 
+	if (isLoading) return <Loader overlay size='md' />
+
 	return (
-		<Card>
+		<Card className='h-fit'>
 			<CardHeader>
 				<CardTitle>{t('Dashboard.recentUsers')}</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<div className='flex flex-col gap-y-4'>
-					{users.map((user) => (
+					{users?.map((user) => (
 						<Link to={'/admin/users/' + user.id_users} key={user.id_users}>
 							<div className='flex items-center gap-4'>
 								<Avatar>
 									<AvatarFallback className='text-sm font-semibold uppercase'>
-										{getInitials(user.firstname, user.lastname)}
+										{getInitials(user?.firstname ?? 'N', user?.lastname ?? 'N')}
 									</AvatarFallback>
 								</Avatar>
 								<div className='flex-1 space-y-0.5'>
 									<p className='text-sm font-medium'>
 										{user.firstname} {user.lastname}
 									</p>
-									<span className='flex flex-col'>
-										<p className='text-xs text-muted-foreground'>
-											{user.email}
-										</p>
-										<p className='text-xs text-muted-foreground'>
-											{t(`Users.admin.${user.admin}`)}
-										</p>
-									</span>
 								</div>
 								<div className='text-xs text-muted-foreground'>
-									{getDaysAgo(user.created_at)}
+									{user.time_since_last_log ?? getDaysAgo(user.created_at)}
 								</div>
 							</div>
 						</Link>

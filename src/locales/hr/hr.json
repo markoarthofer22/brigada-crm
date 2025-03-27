@@ -110,6 +110,7 @@
 			"points": "Točke",
 			"possibleAnswers": "Mogući odgovori",
 			"projectImage": "Nacrt (slika)",
+			"questions": "Pitanja",
 			"questionTitle": "Pitanje",
 			"questionType": "Tip pitanja",
 			"radius": "Radius",
@@ -202,6 +203,7 @@
 			"editSuccess": "Zona je uspješno ažurirana!",
 			"noLayouts": "Prije dodavanja zona dodajte barem jedan tlocrt.",
 			"table": {
+				"editTooltip": "Dodatno pitanje za zonu",
 				"empty": "Nema pronađenih zona. Kliknite željeno mjesto na tlocrtu kako bi ste dodali novu zonu"
 			}
 		}

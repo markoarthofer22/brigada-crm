@@ -3,13 +3,13 @@ import { Link } from '@tanstack/react-router'
 import { IconDrone, IconLayout } from '@tabler/icons-react'
 import { BarChart3, Calendar, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Project } from '@/api/services/projects/schema.ts'
+import { ProjectDetails } from '@/api/services/projects/schema.ts'
 import { formatDate } from '@/lib/utils.ts'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 
 interface ProjectListProps {
-	projects?: Project[]
+	projects?: ProjectDetails[]
 }
 
 export function ProjectList({ projects = [] }: ProjectListProps) {
@@ -54,7 +54,9 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
 								<div className='grid grid-cols-3 gap-2 pt-2'>
 									<div className='flex flex-col items-center rounded-md bg-muted/50 p-2'>
 										<IconLayout className='mb-1 h-4 w-4 text-primary' />
-										<span className='text-xs font-medium'>4</span>
+										<span className='text-xs font-medium'>
+											{project.images?.length}
+										</span>
 										<span className='text-[10px] text-muted-foreground'>
 											{t('Dashboard.layouts')}
 										</span>
@@ -62,7 +64,9 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
 
 									<div className='flex flex-col items-center rounded-md bg-muted/50 p-2'>
 										<BarChart3 className='mb-1 h-4 w-4 text-primary' />
-										<span className='text-xs font-medium'>5</span>
+										<span className='text-xs font-medium'>
+											{project.questions.length}
+										</span>
 										<span className='text-[10px] text-muted-foreground'>
 											{t('Dashboard.questions')}
 										</span>
@@ -70,7 +74,9 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
 
 									<div className='flex flex-col items-center rounded-md bg-muted/50 p-2'>
 										<IconDrone className='mb-1 h-4 w-4 text-primary' />
-										<span className='text-xs font-medium'>5</span>
+										<span className='text-xs font-medium'>
+											{project.zones.length}
+										</span>
 										<span className='text-[10px] text-muted-foreground'>
 											{t('Dashboard.zones')}
 										</span>

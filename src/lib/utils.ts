@@ -137,3 +137,18 @@ export const hexToRgba = (hex: string, alpha: number): string => {
 export const getRandomHexColor = (): string => {
 	return `#${Math.floor(Math.random() * 16777215).toString(16)}`
 }
+
+export const getContrastColor = (hex: string): string => {
+	const color = hex.replace('#', '')
+
+	if (color.length !== 6) {
+		throw new Error('Invalid hex color format. Expected a 6-digit hex.')
+	}
+
+	const r = parseInt(color.substring(0, 2), 16)
+	const g = parseInt(color.substring(2, 4), 16)
+	const b = parseInt(color.substring(4, 6), 16)
+
+	const brightness = (r * 299 + g * 587 + b * 114) / 1000
+	return brightness > 128 ? '#000000' : '#FFFFFF'
+}
