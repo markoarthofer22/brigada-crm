@@ -228,6 +228,11 @@
 		"title": "Projekti",
 		"updateSuccess": "Projekt {{value}} je uspješno ažuriran."
 	},
+	"Pwa": {
+		"description": "Preuzmite aplikaciju Brigada za bolje iskustvo s izvanmrežnim pristupom i bržim učitavanjem.",
+		"install": "Preuzmi",
+		"title": "Preuzmite aplikaciju Brigada"
+	},
 	"Settings": {
 		"account": {
 			"description": "Ažurirajte postavke računa.",

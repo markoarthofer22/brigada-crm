@@ -228,6 +228,11 @@
 		"title": "Projects",
 		"updateSuccess": "Project {{value}} has been updated successfully."
 	},
+	"Pwa": {
+		"description": "Download Brigada app for a better experience with offline access and faster loading times.",
+		"install": "Download",
+		"title": "Download Brigada App"
+	},
 	"Settings": {
 		"account": {
 			"description": "Update your account settings.",

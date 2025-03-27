@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import { handleServerError } from '@/utils/handle-server-error'
 import { LoaderProvider } from '@/context/loader-provider.tsx'
+import InstallButton from '@/components/pwa/install-button.tsx'
 import { FontProvider } from './context/font-context'
 import { ThemeProvider } from './context/theme-context'
 import './index.css'
@@ -96,6 +97,7 @@ if (!rootElement.innerHTML) {
 						<FontProvider>
 							<NuqsAdapter>
 								<RouterProvider router={router} />
+								<InstallButton />
 							</NuqsAdapter>
 						</FontProvider>
 					</ThemeProvider>

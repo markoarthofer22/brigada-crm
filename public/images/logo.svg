@@ -1,0 +1,35 @@
+<svg
+        width="200"
+        height="200"
+        viewBox="0 0 200 200"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+>
+    <!-- Background -->
+    <rect width="200" height="200" fill="#121212" />
+
+    <!-- Radar circle indicating a tracking area -->
+    <circle cx="100" cy="100" r="40" stroke="#4A90E2" stroke-width="2" fill="none" />
+
+    <!-- Subtle directional radar lines -->
+    <line x1="100" y1="60" x2="100" y2="40" stroke="#4A90E2" stroke-width="2" />
+    <line x1="100" y1="140" x2="100" y2="160" stroke="#4A90E2" stroke-width="2" />
+    <line x1="60" y1="100" x2="40" y2="100" stroke="#4A90E2" stroke-width="2" />
+    <line x1="140" y1="100" x2="160" y2="100" stroke="#4A90E2" stroke-width="2" />
+
+    <!-- Central location marker -->
+    <circle cx="100" cy="100" r="8" fill="#4A90E2" />
+
+    <!-- Logo text -->
+    <text
+            x="100"
+            y="180"
+            text-anchor="middle"
+            fill="#ffffff"
+            font-family="Helvetica, Arial, sans-serif"
+            font-size="20"
+            font-weight="600"
+    >
+        Brigada
+    </text>
+</svg>
