@@ -37,7 +37,7 @@ class Zones
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.zones z
-				ORDER BY z.name ASC
+				ORDER BY z.created_at DESC
 		";
 
 		$stmt = $this->database->prepare($sql);
