@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { IconEdit, IconProgressHelp, IconTrash } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +17,13 @@ import {
 import { Button } from '@/components/ui/button.tsx'
 import { Card, CardContent } from '@/components/ui/card.tsx'
 import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog.tsx'
+import {
 	Table,
 	TableBody,
 	TableCell,
@@ -29,6 +36,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip.tsx'
+import QuestionLayout from '@/features/project-details/(components)/question-layout'
 import { ZoneDialog } from '@/features/project-details/(components)/zones-action-dialog'
 
 interface ZoneListProps {
@@ -51,11 +59,13 @@ export function ZoneList({
 	isLoading,
 }: ZoneListProps) {
 	const { t } = useTranslation()
-	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
 	const [zoneToDelete, setZoneToDelete] = useState<number | undefined>(
 		undefined
 	)
-	const [editDialogOpen, setEditDialogOpen] = useState(false)
+	const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false)
+	const [additionalQuestionsDialogOpen, setAdditionalQuestionsDialogOpen] =
+		useState<boolean>(false)
 	const [zoneToEdit, setZoneToEdit] = useState<UpsertZone | null>(null)
 
 	const handleDeleteClick = (zoneId?: number) => {
@@ -81,6 +91,21 @@ export function ZoneList({
 		setEditDialogOpen(false)
 		setZoneToEdit(null)
 	}
+
+	const handleDialogOpenChange = (zone: UpsertZone) => {
+		setZoneToEdit(zone)
+		setAdditionalQuestionsDialogOpen(true)
+	}
+
+	useEffect(() => {
+		if (zones && zones.length > 0 && zoneToEdit?.id_zones) {
+			const updatedZone = zones.find((i) => i.id_zones === zoneToEdit.id_zones)
+
+			if (updatedZone) {
+				setZoneToEdit(updatedZone)
+			}
+		}
+	}, [zones, zoneToEdit])
 
 	return (
 		<div className={cn('space-y-4', className)}>
@@ -127,7 +152,7 @@ export function ZoneList({
 									<TableCell>
 										<div className='flex items-center justify-center gap-x-1'>
 											<span className='font-medium'>
-												{zone.questions.length}
+												{zone?.questions?.length ?? 0}
 											</span>
 											<TooltipProvider>
 												<Tooltip delayDuration={0}>
@@ -137,7 +162,7 @@ export function ZoneList({
 															size='icon'
 															className='!size-6'
 															disabled={isLoading}
-															onClick={() => handleEditClick(zone)}
+															onClick={() => handleDialogOpenChange(zone)}
 														>
 															<IconProgressHelp className='!size-5' />
 														</Button>
@@ -198,17 +223,45 @@ export function ZoneList({
 			</AlertDialog>
 
 			{zoneToEdit && (
-				<ZoneDialog
-					isLoading={isLoading}
-					open={editDialogOpen}
-					onOpenChange={setEditDialogOpen}
-					onSubmit={handleEditSubmit}
-					defaultValues={zoneToEdit}
-					points={zoneToEdit.coordinates.points}
-					id_projects={id_projects}
-					id_images={id_images}
-					isEditing={true}
-				/>
+				<>
+					<ZoneDialog
+						isLoading={isLoading}
+						open={editDialogOpen}
+						onOpenChange={setEditDialogOpen}
+						onSubmit={handleEditSubmit}
+						defaultValues={zoneToEdit}
+						points={zoneToEdit.coordinates.points}
+						id_projects={id_projects}
+						id_images={id_images}
+						isEditing={true}
+					/>
+
+					<Dialog
+						open={additionalQuestionsDialogOpen}
+						onOpenChange={setAdditionalQuestionsDialogOpen}
+					>
+						<DialogContent className='sm:max-w-2xl'>
+							<DialogHeader>
+								<DialogTitle>
+									{t('ProjectDetails.zones.table.questionTitle', {
+										value: zoneToEdit?.name,
+									})}
+								</DialogTitle>
+								<DialogDescription>
+									{t('ProjectDetails.zones.table.questionDescription', {
+										value: zoneToEdit?.name,
+									})}
+								</DialogDescription>
+							</DialogHeader>
+
+							<QuestionLayout
+								questions={zoneToEdit?.questions ?? []}
+								projectId={id_projects!}
+								zoneId={zoneToEdit?.id_zones}
+							/>
+						</DialogContent>
+					</Dialog>
+				</>
 			)}
 		</div>
 	)

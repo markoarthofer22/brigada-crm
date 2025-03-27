@@ -23,6 +23,7 @@ export const ProjectResponseSchema = z.object({
 export const QuestionItemResponseSchema = z.object({
 	id_questions: z.number(),
 	id_projects: z.number(),
+	id_zones: z.number().optional().nullable(),
 	id_questions_types: z.number(),
 	order: z.number(),
 	label: z.string(),

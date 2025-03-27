@@ -28,18 +28,25 @@ import {
 	QuestionUpsertType,
 	UpsertQuestionOrder,
 } from '@/api/services/questions/schema.ts'
+import { cn } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card.tsx'
 import { QuestionDialog } from '@/features/project-details/(components)/question-action-dialog'
 import { QuestionItem } from '@/features/project-details/(components)/question-item'
 
 interface QuestionLayoutProps {
 	questions?: ProjectDetails['questions']
 	projectId: number
+	zoneId?: number
 }
 
-const QuestionLayout = ({ questions = [], projectId }: QuestionLayoutProps) => {
+const QuestionLayout = ({
+	questions = [],
+	projectId,
+	zoneId,
+}: QuestionLayoutProps) => {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
 	const queryClient = useQueryClient()
@@ -164,38 +171,62 @@ const QuestionLayout = ({ questions = [], projectId }: QuestionLayoutProps) => {
 
 	return (
 		<>
-			<div className='mb-4 mt-6 flex justify-end'>
+			<div
+				className={cn('mb-4 mt-6 flex justify-end', {
+					'my-2 justify-start': zoneId,
+				})}
+			>
 				<Button
 					onClick={() => setAddDialogOpen(true)}
-					className='flex items-center gap-1'
+					className={cn('flex items-center gap-1', {
+						'w-full': zoneId,
+					})}
 				>
 					<IconCirclePlusFilled className='h-4 w-4' />
 					{t('ProjectDetails.questions.addQuestion')}
 				</Button>
 			</div>
-			<DndContext
-				sensors={sensors}
-				collisionDetection={closestCorners}
-				onDragEnd={handleDragEnd}
-			>
-				<div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-					<SortableContext items={draggableQuestions}>
-						{draggableQuestions?.map((question, index) => (
-							<QuestionItem
-								question={question}
-								orderLabel={index + 1}
-								key={question.id_questions}
-								isLoading={
-									upsertQuestionMutation.isPending ||
-									deleteQuestionMutation.isPending
-								}
-								onEdit={handleUpsert}
-								onDelete={handleDelete}
-							/>
-						))}
-					</SortableContext>
-				</div>
-			</DndContext>
+			{questions.length === 0 && (
+				<Card>
+					<CardContent className='p-6 text-center text-muted-foreground'>
+						{t('ProjectDetails.zones.table.emptyQuestion', {
+							value: t('ProjectDetails.questions.addQuestion'),
+						})}
+					</CardContent>
+				</Card>
+			)}
+			{questions.length > 0 && (
+				<DndContext
+					sensors={sensors}
+					collisionDetection={closestCorners}
+					onDragEnd={handleDragEnd}
+				>
+					<div
+						className={cn(
+							'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3',
+							{
+								'lg:grid-cols-2': zoneId,
+							}
+						)}
+					>
+						<SortableContext items={draggableQuestions}>
+							{draggableQuestions?.map((question, index) => (
+								<QuestionItem
+									question={question}
+									orderLabel={index + 1}
+									key={question.id_questions}
+									isLoading={
+										upsertQuestionMutation.isPending ||
+										deleteQuestionMutation.isPending
+									}
+									onEdit={handleUpsert}
+									onDelete={handleDelete}
+								/>
+							))}
+						</SortableContext>
+					</div>
+				</DndContext>
+			)}
 
 			<QuestionDialog
 				open={addDialogOpen}
@@ -205,6 +236,7 @@ const QuestionLayout = ({ questions = [], projectId }: QuestionLayoutProps) => {
 				onOpenChange={setAddDialogOpen}
 				onSubmit={handleUpsert}
 				projectId={projectId}
+				zoneId={zoneId}
 				isEditing={false}
 			/>
 		</>

@@ -5,7 +5,7 @@ export const QuestionUpsertSchema = z.object({
 	id_projects: z.number(),
 	id_questions_types: z.number(),
 	order: z.number().optional(),
-	id_zones: z.number().optional(),
+	id_zones: z.number().nullable(),
 	label: z.string(),
 	possible_answers: z.array(z.string()).optional(),
 })

@@ -68,7 +68,8 @@
 			"day_few": "Prije {{count}} dana",
 			"day_many": "Prije {{count}} dana",
 			"day_one": "Jučer",
-			"day_plural": " Prije {{value}} dana"
+			"day_plural": " Prije {{value}} dana",
+			"minutes": " prije{{value}} minuta"
 		},
 		"today": "Danas",
 		"warning": "Upozorenje",
@@ -204,7 +205,10 @@
 			"noLayouts": "Prije dodavanja zona dodajte barem jedan tlocrt.",
 			"table": {
 				"editTooltip": "Dodatno pitanje za zonu",
-				"empty": "Nema pronađenih zona. Kliknite željeno mjesto na tlocrtu kako bi ste dodali novu zonu"
+				"empty": "Nema pronađenih zona. Kliknite željeno mjesto na tlocrtu kako bi ste dodali novu zonu",
+				"emptyQuestion": "Ova zona nema dodatnih pitanja Pritisnite {{value}} za dodavanje novog pitanja.",
+				"questionDescription": "Pitanja specifična za zonu {{value}}. Ova pitanja se neće prikazati ni u jednoj drugoj zoni.",
+				"questionTitle": "Pitanja za zonu {{value}}"
 			}
 		}
 	},

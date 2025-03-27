@@ -6,10 +6,10 @@ export const UpsertZoneSchema = z.object({
 	id_projects: z.number(),
 	id_images: z.number(),
 	name: z.string().nonempty({ message: 'Input.validation.required' }),
-	questions: z.array(QuestionItemResponseSchema),
+	questions: z.array(QuestionItemResponseSchema).optional(),
 	coordinates: z.object({
 		color: z.string().nonempty({ message: 'Input.validation.required' }),
-		name: z.string().nonempty({ message: 'Input.validation.required' }),
+		name: z.string().optional(),
 		points: z.array(
 			z.object({
 				x: z.number(),

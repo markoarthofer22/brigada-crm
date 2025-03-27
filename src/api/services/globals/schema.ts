@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { UserResponseSchema } from '@/api/services/user/schema.ts'
 import { Languages } from '@/stores/authStore.ts'
 
-const LastUsersSchema = UserResponseSchema.omit({
+export const LastUsersSchema = UserResponseSchema.omit({
 	admin: true,
 	email: true,
 	firstname: true,
@@ -10,8 +10,13 @@ const LastUsersSchema = UserResponseSchema.omit({
 }).extend({
 	firstname: z.string().nullable(),
 	lastname: z.string().nullable(),
-	time_since_last_log: z.string().nullable(),
+	time_since_last_log: z.object({
+		period: z.number(),
+		span: z.string(),
+	}),
 })
+
+export type LastUsers = z.infer<typeof LastUsersSchema>
 
 export const GlobalSettingsResponse = z.object({
 	user: UserResponseSchema.nullable(),

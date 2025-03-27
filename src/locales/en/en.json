@@ -68,7 +68,8 @@
 			"day_few": "",
 			"day_many": "",
 			"day_one": "Yesterday",
-			"day_plural": "{{value}} days ago"
+			"day_plural": "{{value}} days ago",
+			"minutes": "{{value}} minutes ago"
 		},
 		"today": "Today",
 		"warning": "Warning",
@@ -204,7 +205,10 @@
 			"noLayouts": "Before adding zones please add at least one layout.",
 			"table": {
 				"editTooltip": "Additional question for the zone",
-				"empty": "No zones found. Click on desired place on layout to create one"
+				"empty": "No zones found. Click on desired place on layout to create one",
+				"emptyQuestion": "This zone has no additional questions Press on {{value}} button to add new question.",
+				"questionDescription": "Questions specific for zone {{value}}. These question will not show on any other zone.",
+				"questionTitle": "Zone {{value}} question"
 			}
 		}
 	},

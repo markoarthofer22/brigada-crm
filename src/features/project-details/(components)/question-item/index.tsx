@@ -290,6 +290,7 @@ export function QuestionItem({
 				onSubmit={handleEditSubmit}
 				isLoading={isLoading}
 				defaultValues={{
+					id_zones: question?.id_zones ?? null,
 					id_questions: question.id_questions,
 					id_projects: question.id_projects,
 					label: question.label,

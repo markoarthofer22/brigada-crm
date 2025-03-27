@@ -42,6 +42,7 @@ interface QuestionDialogProps {
 	projectId: number
 	isEditing?: boolean
 	isLoading?: boolean
+	zoneId?: number
 }
 
 export function QuestionDialog({
@@ -52,6 +53,7 @@ export function QuestionDialog({
 	projectId,
 	isEditing = false,
 	isLoading,
+	zoneId,
 }: QuestionDialogProps) {
 	const { t } = useTranslation()
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes) ?? []
@@ -60,6 +62,7 @@ export function QuestionDialog({
 		defaultValues: {
 			id_questions: defaultValues?.id_questions ?? undefined,
 			id_projects: projectId,
+			id_zones: zoneId ?? null,
 			possible_answers: defaultValues?.possible_answers ?? [],
 			label: defaultValues?.label ?? '',
 			order: defaultValues?.order ?? undefined,
@@ -91,6 +94,7 @@ export function QuestionDialog({
 		onSubmit({
 			...data,
 			id_projects: projectId,
+			id_zones: zoneId ?? null,
 		})
 	}
 

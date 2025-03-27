@@ -1,8 +1,8 @@
-import { differenceInDays } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { getGlobalSettings } from '@/api/services/globals/options.ts'
+import { LastUsers } from '@/api/services/globals/schema.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { getInitials } from '@/lib/utils.ts'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -27,8 +27,12 @@ export function RecentUsers() {
 
 	const { last10Users: users } = data || {}
 
-	const getDaysAgo = (date: string) => {
-		const daysAgo = differenceInDays(new Date(), date)
+	const getDaysAgo = (timeObj: LastUsers['time_since_last_log']) => {
+		const daysAgo = timeObj.period
+
+		if (timeObj.span === 'minutes') {
+			return t('Global.time.minutes', { value: daysAgo })
+		}
 
 		if (daysAgo === 0) return t('Global.today')
 
@@ -60,7 +64,7 @@ export function RecentUsers() {
 									</p>
 								</div>
 								<div className='text-xs text-muted-foreground'>
-									{user.time_since_last_log ?? getDaysAgo(user.created_at)}
+									{getDaysAgo(user.time_since_last_log)}
 								</div>
 							</div>
 						</Link>

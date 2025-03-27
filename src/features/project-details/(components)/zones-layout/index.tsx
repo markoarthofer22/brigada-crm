@@ -337,7 +337,7 @@ const ZoneLayout = ({
 		return (
 			<Card className='mt-6 w-fit'>
 				<CardContent className='flex items-center justify-center gap-x-2 p-6 text-muted-foreground'>
-					w{t('ProjectDetails.zones.noLayouts')}
+					{t('ProjectDetails.zones.noLayouts')}
 					<Button onClick={hasNoActiveLayoutCallback}>
 						{t('ProjectDetails.zones.createLayout')}
 					</Button>

@@ -145,7 +145,7 @@ export function ZoneDialog({
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(handleSubmit)}
-						className='space-y-6'
+						className='space-y-2'
 					>
 						<FormField
 							control={form.control}
