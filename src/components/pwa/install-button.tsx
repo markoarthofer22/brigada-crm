@@ -2,6 +2,7 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useMiscellaneousStore } from '@/stores/miscStore.ts'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -24,8 +25,10 @@ declare global {
 
 const InstallButton: React.FC = () => {
 	const { t } = useTranslation()
+	const miscStore = useMiscellaneousStore((state) => state)
+
 	const [deferredPrompt, setDeferredPrompt] =
-		useState<BeforeInstallPromptEvent | null>(null)
+		useState<BeforeInstallPromptEvent | null>()
 	const [isInstalled, setIsInstalled] = useState<boolean>(false)
 
 	useEffect(() => {
@@ -41,6 +44,7 @@ const InstallButton: React.FC = () => {
 		const handleAppInstalled = () => {
 			setIsInstalled(true)
 			setDeferredPrompt(null)
+			miscStore.setIsDeferredDiscarded(true)
 			// eslint-disable-next-line no-console
 			console.log('PWA was installed')
 		}
@@ -61,13 +65,15 @@ const InstallButton: React.FC = () => {
 		// eslint-disable-next-line no-console
 		console.log(`User response to the install prompt: ${outcome}`)
 		setDeferredPrompt(null)
+		miscStore.setIsDeferredDiscarded(true)
 	}
 
 	const handleDismiss = () => {
 		setDeferredPrompt(null)
+		miscStore.setIsDeferredDiscarded(true)
 	}
 
-	if (isInstalled || !deferredPrompt) {
+	if (isInstalled || !deferredPrompt || miscStore.isDeferredDiscarded) {
 		return null
 	}
 

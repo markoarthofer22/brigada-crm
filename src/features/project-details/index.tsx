@@ -94,14 +94,6 @@ export default function ProjectDetails() {
 	})
 
 	useEffect(() => {
-		if (projectQuery.isLoading) {
-			showLoader()
-		} else {
-			hideLoader()
-		}
-	}, [projectQuery.isLoading])
-
-	useEffect(() => {
 		if (projectQuery.data?.name) {
 			setProjectName(projectQuery.data.name)
 		}
