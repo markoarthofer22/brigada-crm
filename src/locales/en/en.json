@@ -212,6 +212,9 @@
 			}
 		}
 	},
+	"ProjectDetailsRegularUser": {
+		"addTracking": "Start tracking"
+	},
 	"Projects": {
 		"add": "Add project",
 		"addDescription": "Create new project here.",

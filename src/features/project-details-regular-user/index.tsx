@@ -6,6 +6,7 @@ import { getProjectById } from '@/api/services/projects/options.ts'
 import { useLoader } from '@/context/loader-provider'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
+import ZonesLayoutRegularUser from '@/features/project-details-regular-user/(components)/zones-layout'
 
 export default function ProjectDetailsForRegularUser() {
 	const { t } = useTranslation()
@@ -40,7 +41,14 @@ export default function ProjectDetailsForRegularUser() {
 						</h2>
 					</div>
 				</div>
-				<div className='mt-4'>Pero</div>
+				<div className='mt-4'>
+					<ZonesLayoutRegularUser
+						path={projectQuery.data!.path!}
+						projectId={projectQuery.data.id_projects}
+						zones={projectQuery.data.zones}
+						allImages={projectQuery.data.images}
+					/>
+				</div>
 			</Main>
 		</>
 	)
