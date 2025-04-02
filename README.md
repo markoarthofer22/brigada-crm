@@ -33,7 +33,7 @@ Admin Dashboard UI crafted with Shadcn and Vite.
 Clone the project
 
 ```bash
-  git clone https://github.com/markoarthofer22/react-shadcn-admin
+https://github.com/markoarthofer22/brigada-crm
 ```
 
 Go to the project directory
