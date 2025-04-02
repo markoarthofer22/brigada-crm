@@ -52,6 +52,7 @@ export default defineConfig(({ mode }) => {
 					enabled: isDevelopment,
 				},
 				workbox: {
+					maximumFileSizeToCacheInBytes: 12 * 1024 * 1024 * 10, // 120 MB
 					globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
 					sourcemap: true,
 				},
