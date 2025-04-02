@@ -36,7 +36,11 @@ function RouteComponent() {
 	}, [router, authToken, user])
 
 	useEffect(() => {
-		if (user?.admin === UserType.ADMIN && !pathname.includes('/admin')) {
+		if (
+			user?.admin === UserType.ADMIN &&
+			!pathname.includes('/admin') &&
+			!pathname.includes('/settings')
+		) {
 			router.navigate({ to: '/admin' })
 		}
 	}, [router, user?.admin, pathname])

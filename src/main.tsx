@@ -10,7 +10,6 @@ import i18n from '@/i18n'
 import { NuqsAdapter } from 'nuqs/adapters/react'
 import { I18nextProvider } from 'react-i18next'
 import { toast } from 'sonner'
-import { useAuthStore } from '@/stores/authStore'
 import { handleServerError } from '@/utils/handle-server-error'
 import { LoaderProvider } from '@/context/loader-provider.tsx'
 import InstallButton from '@/components/pwa/install-button.tsx'
@@ -53,8 +52,6 @@ const queryClient = new QueryClient({
 		onError: (error) => {
 			if (error instanceof AxiosError) {
 				if (error.response?.status === 401) {
-					toast.error('Content not modified!')
-					useAuthStore.getState().auth.reset()
 					const redirect = `${router.history.location.href}`
 					router.navigate({ to: '/sign-in', search: { redirect } })
 				}

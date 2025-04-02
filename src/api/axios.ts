@@ -1,11 +1,7 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import axios, { AxiosError } from 'axios'
 import createAuthRefreshInterceptor from 'axios-auth-refresh'
 import { getUserRefreshToken } from '@/api/services/authorization/authorization.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
-
-interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
-	_retry?: boolean
-}
 
 const api = axios.create({
 	baseURL: import.meta.env.VITE_DOMAIN_PATH,
@@ -21,42 +17,6 @@ api.interceptors.request.use((config) => {
 	}
 	return config
 })
-
-api.interceptors.response.use(
-	(response) => response,
-	async (error) => {
-		const originalRequest: CustomAxiosRequestConfig | undefined = error.config
-
-		if (
-			error.response?.status === 401 &&
-			originalRequest &&
-			!originalRequest._retry
-		) {
-			originalRequest._retry = true
-			try {
-				return axios.request(error.config)
-			} catch (error) {
-				if (error instanceof AxiosError && error.response?.status === 403) {
-					await logout()
-					return
-				}
-			}
-		} else {
-			if (error instanceof AxiosError) {
-				throw error
-			}
-			throw new AxiosError(
-				error.message,
-				error.code,
-				error.config,
-				error.request,
-				error.response
-			)
-		}
-
-		return Promise.reject(error)
-	}
-)
 
 createAuthRefreshInterceptor(api, refreshAuthLogic)
 
