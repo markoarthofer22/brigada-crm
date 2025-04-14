@@ -1,7 +1,9 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
+import { ActiveStatus } from '@/api/services/projects/schema.ts'
 import { userTypes } from '@/api/services/user/const.ts'
 import { User } from '@/api/services/user/schema.ts'
+import { Checkbox } from '@/components/ui/checkbox.tsx'
 import LongText from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/table/data-table-column-header.tsx'
 import { DataTableRowActions } from './data-table-row-actions'
@@ -33,6 +35,22 @@ export const columns = [
 		cell: ({ getValue }) => (
 			<div className='w-fit text-nowrap'>{getValue()}</div>
 		),
+	}),
+
+	columnHelper.accessor('active', {
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title='Table.header.active' />
+		),
+		cell: ({ getValue }) => (
+			<div className='ml-3 flex items-center'>
+				<Checkbox
+					className='size-5'
+					disabled
+					checked={getValue() === ActiveStatus.ACTIVE}
+				/>
+			</div>
+		),
+		filterFn: (row, id, value) => value.includes(row.getValue(id)),
 	}),
 
 	columnHelper.accessor('admin', {

@@ -5,6 +5,7 @@ import { useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { MIN_PASSWORD_LENGTH } from '@/api/services/authorization/const'
+import { ActiveStatus } from '@/api/services/projects/schema.ts'
 import {
 	User,
 	UserType,
@@ -14,9 +15,11 @@ import {
 import { upsertUser } from '@/api/services/user/users.ts'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error'
 import { Button } from '@/components/ui/button.tsx'
+import { Checkbox } from '@/components/ui/checkbox.tsx'
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -81,6 +84,7 @@ function UserUpsertForm({
 			lastname: initialValues?.lastname ?? '',
 			password: '',
 			admin: initialValues?.admin ?? UserType.ADMIN,
+			active: initialValues?.active ?? ActiveStatus.INACTIVE,
 		},
 	})
 
@@ -192,35 +196,67 @@ function UserUpsertForm({
 						/>
 
 						{allowUserActions && (
-							<FormField
-								control={form.control}
-								name='admin'
-								render={({ field }) => (
-									<FormItem className='space-y-1'>
-										<FormLabel>{t('Input.label.admin')}</FormLabel>
-										<Select
-											disabled={createUserMutation.isPending}
-											onValueChange={(value) => field.onChange(Number(value))}
-											defaultValue={field.value?.toString()}
-										>
+							<>
+								<FormField
+									control={form.control}
+									name='admin'
+									render={({ field }) => (
+										<FormItem className='space-y-1'>
+											<FormLabel>{t('Input.label.admin')}</FormLabel>
+											<Select
+												disabled={createUserMutation.isPending}
+												onValueChange={(value) => field.onChange(Number(value))}
+												defaultValue={field.value?.toString()}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value={UserType.REGULAR.toString()}>
+														{t('Users.admin.' + UserType.REGULAR)}
+													</SelectItem>
+													<SelectItem value={UserType.ADMIN.toString()}>
+														{t('Users.admin.' + UserType.ADMIN)}
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name='active'
+									render={({ field }) => (
+										<FormItem className='flex flex-row items-center gap-x-4 space-y-0 rounded-md border border-primary/20 p-4 transition-all duration-300 hover:border-primary hover:shadow-xl'>
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue />
-												</SelectTrigger>
+												<Checkbox
+													id={field.name}
+													className='size-5'
+													checked={field.value === ActiveStatus.ACTIVE}
+													onCheckedChange={(checked) => {
+														field.onChange(
+															checked
+																? ActiveStatus.ACTIVE
+																: ActiveStatus.INACTIVE
+														)
+													}}
+												/>
 											</FormControl>
-											<SelectContent>
-												<SelectItem value={UserType.REGULAR.toString()}>
-													{t('Users.admin.' + UserType.REGULAR)}
-												</SelectItem>
-												<SelectItem value={UserType.ADMIN.toString()}>
-													{t('Users.admin.' + UserType.ADMIN)}
-												</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormLabel htmlFor={field.name}>
+												<div className='cursor-pointer space-y-2 leading-4'>
+													{t('Input.label.active')}
+													<FormDescription>
+														{t('Input.description.userActive')}
+													</FormDescription>
+												</div>
+											</FormLabel>
+										</FormItem>
+									)}
+								/>
+							</>
 						)}
 
 						<Button

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { MIN_PASSWORD_LENGTH } from '@/api/services/authorization/const.ts'
+import { ActiveStatus } from '@/api/services/projects/schema.ts'
 
 export enum UserType {
 	REGULAR,
@@ -13,6 +14,7 @@ export const UserResponseSchema = z.object({
 	firstname: z.string(),
 	lastname: z.string(),
 	created_at: z.string(),
+	active: z.nativeEnum(ActiveStatus),
 })
 
 export const AllUsersResponseSchema = z.object({
@@ -34,6 +36,7 @@ export const UserUpsertSchema = z.object({
 		.optional()
 		.or(z.literal('')),
 	admin: z.nativeEnum(UserType).default(UserType.ADMIN),
+	active: z.nativeEnum(ActiveStatus).default(ActiveStatus.INACTIVE).optional(),
 })
 
 export type UserUpsert = z.infer<typeof UserUpsertSchema>

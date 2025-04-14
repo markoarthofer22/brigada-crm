@@ -1,4 +1,10 @@
-import { IconUsersGroup, IconUserShield } from '@tabler/icons-react'
+import {
+	IconBell,
+	IconBellX,
+	IconUsersGroup,
+	IconUserShield,
+} from '@tabler/icons-react'
+import { ActiveStatus } from '@/api/services/projects/schema.ts'
 import { UserType } from '@/api/services/user/schema.ts'
 
 export const userTypes = [
@@ -13,3 +19,16 @@ export const userTypes = [
 		icon: IconUsersGroup,
 	},
 ] as const
+
+export const entityActive = [
+	{
+		label: 'Active',
+		value: ActiveStatus.ACTIVE.toString(),
+		icon: IconBell,
+	},
+	{
+		label: 'Inactive',
+		value: ActiveStatus.INACTIVE.toString(),
+		icon: IconBellX,
+	},
+]

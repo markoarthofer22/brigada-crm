@@ -2,8 +2,8 @@ import { z } from 'zod'
 import { MAX_FILE_UPLOAD_SIZE, MAX_FILES } from '@/consts/dropzone-defaults'
 
 export enum ActiveStatus {
-	ACTIVE = 1,
-	INACTIVE = 0,
+	INACTIVE,
+	ACTIVE,
 }
 
 export enum TabsEnum {

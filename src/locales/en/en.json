@@ -95,7 +95,8 @@
 	"Input": {
 		"description": {
 			"active": "Toggle this to enable users to see this project",
-			"projectImage": "Upload your layout image. Only one image can be active for project at the time."
+			"projectImage": "Upload your layout image. Only one image can be active for project at the time.",
+			"userActive": "Toggle this to enable user"
 		},
 		"label": {
 			"active": "Active",
@@ -163,6 +164,7 @@
 	"ProjectDetails": {
 		"addImage": "New layout",
 		"description": "Update you project settings. ",
+		"error": "An error occurred. This tracking session cannot get started. Please contact your administrator for help!",
 		"image": "Layout #{{value}}",
 		"imageDeleted": "Image successfully deleted",
 		"imageUploaded": "Image successfully uploaded",
@@ -269,6 +271,7 @@
 		},
 		"header": {
 			"actions": "Actions",
+			"active": "Active",
 			"admin": "Role",
 			"created_at": "Created at",
 			"email": "Email",

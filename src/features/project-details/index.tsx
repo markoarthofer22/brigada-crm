@@ -50,7 +50,6 @@ export default function ProjectDetails() {
 	}
 
 	const handleActiveChange = (status: ActiveStatus) => {
-		if (status === projectQuery.data?.active) return
 		setIsProjectActive(status)
 		showLoader()
 
@@ -139,6 +138,7 @@ export default function ProjectDetails() {
 						</div>
 						<div className='flex flex-row items-center gap-x-4 p-2'>
 							<Checkbox
+								id='active'
 								className='size-5'
 								checked={isProjectActive === ActiveStatus.ACTIVE}
 								onCheckedChange={(checked) => {
@@ -147,7 +147,7 @@ export default function ProjectDetails() {
 									)
 								}}
 							/>
-							<Label>
+							<Label htmlFor='active'>
 								<div className='cursor-pointer space-y-2 leading-4'>
 									{t('Input.label.active')}
 									<p>{t('Input.description.active')}</p>
