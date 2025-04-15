@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { getProjectById } from '@/api/services/projects/options.ts'
+import { getAllTrackings } from '@/api/services/trackings/options.ts'
 import { useLoader } from '@/context/loader-provider'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
@@ -19,15 +20,42 @@ export default function ProjectDetailsForRegularUser() {
 		enabled: !!id,
 	})
 
+	const trackingQuery = useQuery({
+		...getAllTrackings(Number(id)),
+		enabled: !!id,
+	})
+
 	useEffect(() => {
-		if (projectQuery.isLoading) {
-			showLoader()
-		} else {
+		showLoader()
+	}, [])
+
+	useEffect(() => {
+		if (projectQuery.isFetched && trackingQuery.isFetched) {
 			hideLoader()
 		}
-	}, [projectQuery.isLoading])
+	}, [hideLoader, projectQuery.isFetched, trackingQuery.isFetched])
 
-	if (!projectQuery.data?.id_projects) return null
+	if (!projectQuery.isSuccess || !trackingQuery.isFetched) return null
+
+	if (trackingQuery.error)
+		return (
+			<>
+				<Header />
+
+				<Main fixed className='items-center justify-center'>
+					<div className='flex h-full w-full flex-col items-center justify-between gap-x-2 space-y-2'>
+						<h2 className='w-fit text-2xl font-bold'>
+							{t('ProjectDetails.title')} {projectQuery.data.name}
+						</h2>
+						<div className='max-w-lg text-center font-semibold text-red-500'>
+							{t('ProjectDetails.error')}
+						</div>
+					</div>
+				</Main>
+			</>
+		)
+
+	console.log('trackingQuery', trackingQuery.data)
 
 	return (
 		<>

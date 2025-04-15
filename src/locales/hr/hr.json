@@ -95,7 +95,8 @@
 	"Input": {
 		"description": {
 			"active": "Uključite ovo kako biste omogućili korisnicima da vide ovaj projekt",
-			"projectImage": "Učitajte svoju sliku tlocrta. Samo jedna slika može biti aktivna po projektu."
+			"projectImage": "Učitajte svoju sliku tlocrta. Samo jedna slika može biti aktivna po projektu.",
+			"userActive": "Uključite ovo kako biste omogućili korisniku pristup aplikaciji"
 		},
 		"label": {
 			"active": "Aktivno",
@@ -163,6 +164,7 @@
 	"ProjectDetails": {
 		"addImage": "Novi nacrt",
 		"description": "Ažurirajte postavke projekta. ",
+		"error": "Došlo je do pogreške. Ova sesija praćenja se ne može započeti. Obratite se svom administratoru za pomoć!",
 		"image": "Nacrt #{{value}}",
 		"imageDeleted": "Slika je uspješno izbrisana",
 		"imageUploaded": "Slika je uspješno učitana",
@@ -269,6 +271,7 @@
 		},
 		"header": {
 			"actions": "Akcije",
+			"active": "Aktivan",
 			"admin": "Pristup",
 			"created_at": "Kreirano",
 			"email": "E-mail",

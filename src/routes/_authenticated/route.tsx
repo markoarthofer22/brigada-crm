@@ -36,6 +36,17 @@ function RouteComponent() {
 	}, [router, authToken, user])
 
 	useEffect(() => {
+		const isTablet =
+			window.innerWidth >= 768 &&
+			window.innerWidth <= 1024 &&
+			navigator.userAgent.toLowerCase().includes('mobile')
+
+		if (isTablet) {
+			Cookies.set('sidebar:state', 'false')
+		}
+	}, [])
+
+	useEffect(() => {
 		if (
 			user?.admin === UserType.ADMIN &&
 			!pathname.includes('/admin') &&

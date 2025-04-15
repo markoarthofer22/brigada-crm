@@ -28,7 +28,10 @@ createAuthRefreshInterceptor(api, refreshAuthLogic)
  * @returns A promise that resolves after retrying the request or rejects if the token refresh fails.
  */
 async function refreshAuthLogic(failedRequest: AxiosError) {
-	if (failedRequest?.response?.status === 401) {
+	if (
+		failedRequest?.response?.status === 401 &&
+		failedRequest?.config?.url !== '/user/login'
+	) {
 		try {
 			const refreshToken = useAuthStore.getState().auth.refreshToken
 			const setAccessToken = useAuthStore.getState().auth.setAccessToken

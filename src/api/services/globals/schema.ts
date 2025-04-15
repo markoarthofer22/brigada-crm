@@ -7,6 +7,7 @@ export const LastUsersSchema = UserResponseSchema.omit({
 	email: true,
 	firstname: true,
 	lastname: true,
+	active: true,
 }).extend({
 	firstname: z.string().nullable(),
 	lastname: z.string().nullable(),

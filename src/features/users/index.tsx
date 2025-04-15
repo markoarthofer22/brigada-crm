@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { userTypes } from '@/api/services/user/const.ts'
+import { entityActive, userTypes } from '@/api/services/user/const.ts'
 import { getAllUsers } from '@/api/services/user/options.ts'
 import { User } from '@/api/services/user/schema.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
@@ -69,6 +69,14 @@ export default function Users() {
 										column={table.getColumn('admin')}
 										title={t('Table.header.admin')}
 										options={userTypes.map((t) => ({ ...t }))}
+									/>
+								)}
+								{table.getColumn('active') && (
+									<DataTableFacetedFilter
+										parseAsNumber
+										column={table.getColumn('active')}
+										title={t('Table.header.active')}
+										options={entityActive.map((t) => ({ ...t }))}
 									/>
 								)}
 							</>
