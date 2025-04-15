@@ -13,6 +13,7 @@ use PP\Controller\ProjectsController;
 use PP\Controller\QuestionsController;
 use PP\Controller\SettingsController;
 use PP\Controller\TestController;
+use PP\Controller\TrackingController;
 use PP\Controller\UsersController;
 use PP\Controller\ZonesController;
 use PP\Middleware\Auth;
@@ -164,6 +165,27 @@ $app->group('', function () use ($app) {
 		$app->post('', ZonesController::class . ":Add");
 		$app->put('/{id}', ZonesController::class . ":Update");
 		$app->delete('/{id}', ZonesController::class . ":Delete");
+	})->add([new Auth(), 'Auth']);
+
+	$app->group('/tracking', function () use ($app) {
+		$app->group('/answers', function () use ($app) {
+			$app->get('', TrackingController::class . ":GetAnswers");
+			$app->get('/{id}', TrackingController::class . ":GetAnswer");
+			$app->post('', TrackingController::class . ":AddAnswer");
+			$app->put('/{id}', TrackingController::class . ":UpdateAnswer");
+		});
+
+		$app->group('/zones', function () use ($app) {
+			$app->post('/end/{id}', TrackingController::class . ":EndZone");
+			$app->post('', TrackingController::class . ":StartZone");
+			$app->get('', TrackingController::class . ":GetZones");
+			$app->get('/{id}', TrackingController::class . ":GetZone");
+		});
+
+		$app->post('/end/{id}', TrackingController::class . ":EndTracking");
+		$app->get('', TrackingController::class);
+		$app->get('/{id}', TrackingController::class . ":Get");
+		$app->post('', TrackingController::class . ":StartTracking");
 	})->add([new Auth(), 'Auth']);
 
 	// $app->group('/test', function () use ($app) {

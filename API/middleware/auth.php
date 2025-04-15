@@ -61,11 +61,11 @@ class Auth
 		} catch (ExpiredException $e) {
 			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Token expired. Unauthorized"))), $response);
 		} catch (Exception $e) {
-			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => $e->getMessage()))), $response);
+			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized. Token probably not provided or malformed. " . $e->getMessage()))), $response);
 		}
 
 		if (!$User->isUserLogedIn()) {
-			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized"))), $response);
+			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Unathorized."))), $response);
 		}
 
 		$response = $next($request, $response);
