@@ -204,12 +204,18 @@ class TrackingController extends BaseController
 	{
 		$Tracking = new Tracking($this->db);
 		$Helper = new Helper($this->db);
+		$Language = new Language($this->db);
 
 		$vars = $request->getParsedBody();
 		$params = $Helper->ArrayToObject($vars);
 		$args = $Helper->ArrayToObject($args);
 
 		$result = $Tracking->GetAnswer($args);
+
+		$is_ended = $Tracking->Get((object) array("id" => $result["id_tracking"]));
+		if ($is_ended["ended_at"] != null) {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Tracking already ended"))), $response);
+		}
 
 		return $response->withJson($result, 200);
 	}
@@ -257,6 +263,11 @@ class TrackingController extends BaseController
 					$response
 				);
 			}
+		}
+
+		$is_ended = $Tracking->Get((object) array("id" => $params->id_tracking));
+		if ($is_ended["ended_at"] != null) {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Tracking already ended"))), $response);
 		}
 
 		$id = $Tracking->AddAnswer($params);
@@ -314,6 +325,11 @@ class TrackingController extends BaseController
 			}
 		}
 
+		$is_ended = $Tracking->Get((object) array("id" => $params->id_tracking));
+		if ($is_ended["ended_at"] != null) {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Tracking already ended"))), $response);
+		}
+
 		$params->id = $args->id;
 		if ($Tracking->UpdateAnswer($params)) {
 			return $response->withStatus(204);
@@ -353,9 +369,17 @@ class TrackingController extends BaseController
 		if (!$queryparams["id_tracking"]) {
 			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing id_tracking"))), $response);
 		}
-
 		$params->id_tracking = $queryparams["id_tracking"];
+
+		$is_ended = $Tracking->Get((object) array("id" => $params->id_tracking));
+		if ($is_ended["ended_at"] != null) {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Tracking already ended"))), $response);
+		}
+
 		$results = $Tracking->GetZones($params);
+		foreach ($results as &$result) {
+			$result["answers"] = $Tracking->GetAnswers((object) array("id_tracking" => $params->id_tracking, "id_zones" => $result["id_zones"]));
+		}
 
 		return $response->withJson(array("results" => $results), 200);
 	}
@@ -373,12 +397,20 @@ class TrackingController extends BaseController
 	{
 		$Tracking = new Tracking($this->db);
 		$Helper = new Helper($this->db);
+		$Language = new Language($this->db);
 
 		$vars = $request->getParsedBody();
 		$params = $Helper->ArrayToObject($vars);
 		$args = $Helper->ArrayToObject($args);
 
 		$result = $Tracking->GetZone($args);
+
+		$is_ended = $Tracking->Get((object) array("id" => $result["id_tracking"]));
+		if ($is_ended["ended_at"] != null) {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Tracking already ended"))), $response);
+		}
+
+		$result["answers"] = $Tracking->GetAnswers((object) array("id_tracking" => $result["id_tracking"], "id_zones" => $result["id_zones"]));
 
 		return $response->withJson($result, 200);
 	}
@@ -430,8 +462,8 @@ class TrackingController extends BaseController
 			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Zone already started"))), $response);
 		}
 
-		$id = $Tracking->StartZone($params);
 		$Tracking->EndOpenZones($params);
+		$id = $Tracking->StartZone($params);
 		$result = $Tracking->GetZone((object) array("id" => $id));
 
 		return $response->withJson($result, 201);
