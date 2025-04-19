@@ -32,7 +32,14 @@ class Database
 		$dbport = $_ENV["DB_PORT"] ?? 5432;
 
 		try {
-			$dbh = new PDO("pgsql:host=$dbhost;dbname=$dbname;port=$dbport", $dbuser, $dbpass);
+			$dbh = new PDO(
+				"pgsql:host=$dbhost;dbname=$dbname;port=$dbport;sslmode=disable",
+				$dbuser,
+				$dbpass,
+				[
+					PDO::ATTR_PERSISTENT => true // <-- ADD THIS
+				]
+			);
 		} catch (\PDOException $e) {
 			throw new \PDOException($e->getMessage(), (int)$e->getCode());
 		}
