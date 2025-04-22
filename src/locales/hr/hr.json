@@ -215,7 +215,15 @@
 		}
 	},
 	"ProjectDetailsRegularUser": {
-		"addTracking": "Započnite praćenje"
+		"addTracking": "Započnite praćenje",
+		"Exam": {
+			"fullscreen": "",
+			"minimize": "",
+			"questionNotFound": "",
+			"questionSaved": "Odgovor dodan",
+			"questionUpdated": "Odgovor promijenjen"
+		},
+		"startTrackingSuccess": "Praćenje je započeto!"
 	},
 	"Projects": {
 		"add": "Dodaj projekt",

@@ -1,6 +1,8 @@
 import axios from '@/api/axios.ts'
 import {
 	GetTrackingsResponseSchema,
+	TrackingAnswerUpsertSchema,
+	TrackingsAnswerUpsert,
 	TrackingsSchema,
 } from '@/api/services/trackings/schema.ts'
 
@@ -14,6 +16,42 @@ export async function getTrackings(projectId: number) {
 
 export async function getTrackingById(id: number) {
 	const response = await axios.get(`/tracking/${id}`)
+
+	return TrackingsSchema.parse(response.data)
+}
+
+export async function addTrackingAnswer(data: TrackingsAnswerUpsert) {
+	const parsedData = TrackingAnswerUpsertSchema.parse(data)
+
+	const { id_tracking_answers, ...rest } = parsedData
+
+	const response = id_tracking_answers
+		? await axios.put(`/tracking/answers/${id_tracking_answers}`, rest)
+		: await axios.post('/tracking/answers', rest)
+
+	if (!id_tracking_answers) {
+		return TrackingAnswerUpsertSchema.parse(response.data)
+	} else {
+		return parsedData
+	}
+}
+
+export async function geAnswersForSpecificTracking(trackingId: number) {
+	const response = await axios.get(
+		`/tracking/answers?id_tracking=${trackingId}`
+	)
+
+	return TrackingAnswerUpsertSchema.array().parse(response.data.results)
+}
+
+export async function startNewTackingEvent(
+	projectId: number,
+	data?: Record<string, any>
+) {
+	const response = await axios.post(`/tracking`, {
+		id_projects: projectId,
+		data,
+	})
 
 	return TrackingsSchema.parse(response.data)
 }

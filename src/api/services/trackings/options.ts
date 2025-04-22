@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
+	geAnswersForSpecificTracking,
 	getTrackingById,
 	getTrackings,
 } from '@/api/services/trackings/trackings.ts'
@@ -15,5 +16,12 @@ export const getProjectById = (id: number) => {
 	return queryOptions({
 		queryKey: ['trackings', 'single-tracking', id],
 		queryFn: () => getTrackingById(id),
+	})
+}
+
+export const getAnswerForSpecificTracking = (trackingId: number) => {
+	return queryOptions({
+		queryKey: ['trackings', 'answers', trackingId],
+		queryFn: () => geAnswersForSpecificTracking(trackingId),
 	})
 }

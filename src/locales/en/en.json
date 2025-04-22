@@ -215,7 +215,15 @@
 		}
 	},
 	"ProjectDetailsRegularUser": {
-		"addTracking": "Start tracking"
+		"addTracking": "Start tracking",
+		"Exam": {
+			"fullscreen": "Fullscreen",
+			"minimize": "Minimize",
+			"questionNotFound": "Question not found. If you think this is an error in the app please contact the admin!",
+			"questionSaved": "Question saved",
+			"questionUpdated": "Question updated"
+		},
+		"startTrackingSuccess": "Tracking started!"
 	},
 	"Projects": {
 		"add": "Add project",

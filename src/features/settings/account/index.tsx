@@ -27,6 +27,7 @@ export default function SettingsAccount() {
 					lastname: user?.lastname ?? '',
 					email: user?.email ?? '',
 					admin: user?.admin,
+					active: user?.active ?? false,
 				}}
 			/>
 		</ContentSection>

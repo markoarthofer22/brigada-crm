@@ -1,17 +1,27 @@
-import { useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { getProjectById } from '@/api/services/projects/options.ts'
 import { getAllTrackings } from '@/api/services/trackings/options.ts'
+import { startNewTackingEvent } from '@/api/services/trackings/trackings'
 import { useLoader } from '@/context/loader-provider'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error'
+import { Button } from '@/components/ui/button'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
+import SplitPanel from '@/components/split-panel'
+import { TrackingExam } from '@/features/project-details-regular-user/(components)/tracking-exam'
 import ZonesLayoutRegularUser from '@/features/project-details-regular-user/(components)/zones-layout'
+
+const INITIAL_SPLIT = 50
 
 export default function ProjectDetailsForRegularUser() {
 	const { t } = useTranslation()
 	const { id } = useParams({ strict: false })
+	const { handleError } = useHandleGenericError()
+	const [activeTrackingId, setActiveTrackingId] = useState<number | null>(null)
 
 	const { showLoader, hideLoader } = useLoader()
 
@@ -25,6 +35,21 @@ export default function ProjectDetailsForRegularUser() {
 		enabled: !!id,
 	})
 
+	const startNewTrackingMutation = useMutation({
+		mutationFn: () => {
+			return startNewTackingEvent(Number(id))
+		},
+		onSuccess: (data) => {
+			if (data) {
+				toast.success(t('ProjectDetailsRegularUser.startTrackingSuccess'))
+				trackingQuery.refetch()
+			}
+		},
+		onError: (error: unknown) => {
+			handleError(error)
+		},
+	})
+
 	useEffect(() => {
 		showLoader()
 	}, [])
@@ -34,6 +59,17 @@ export default function ProjectDetailsForRegularUser() {
 			hideLoader()
 		}
 	}, [hideLoader, projectQuery.isFetched, trackingQuery.isFetched])
+
+	useEffect(() => {
+		if (trackingQuery.data && trackingQuery.data.length > 0) {
+			const activeTracking = trackingQuery.data.find(
+				(tracking) => tracking.ended_at === null
+			)
+			if (activeTracking) {
+				setActiveTrackingId(activeTracking.id_tracking)
+			}
+		}
+	}, [trackingQuery.data])
 
 	if (!projectQuery.isSuccess || !trackingQuery.isFetched) return null
 
@@ -55,29 +91,55 @@ export default function ProjectDetailsForRegularUser() {
 			</>
 		)
 
-	console.log('trackingQuery', trackingQuery.data)
+	if (trackingQuery.data?.length === 0 || !activeTrackingId) {
+		return (
+			<>
+				<Header />
 
-	return (
-		<>
-			<Header />
-
-			<Main>
-				<div className='flex flex-wrap items-center justify-between space-y-2'>
-					<div className='mb-4 space-y-4'>
+				<Main fixed className='items-center justify-center'>
+					<div className='flex h-full w-full flex-col items-center justify-center space-y-6'>
 						<h2 className='w-fit text-2xl font-bold'>
 							{t('ProjectDetails.title')} {projectQuery.data.name}
 						</h2>
+						<Button
+							size='lg'
+							className='mb-4'
+							onClick={() => startNewTrackingMutation.mutate()}
+						>
+							{t('ProjectDetailsRegularUser.addTracking')}
+						</Button>
 					</div>
+				</Main>
+			</>
+		)
+	}
+
+	return (
+		<div className='flex h-screen flex-col'>
+			<Header />
+
+			<Main className='flex flex-1 flex-col overflow-hidden'>
+				<div className='flex flex-wrap items-center justify-between space-y-2'>
+					<div className='mb-4 space-y-4'></div>
 				</div>
-				<div className='mt-4'>
-					<ZonesLayoutRegularUser
-						path={projectQuery.data!.path!}
-						projectId={projectQuery.data.id_projects}
-						zones={projectQuery.data.zones}
-						allImages={projectQuery.data.images}
-					/>
+				<div className='min-h-0 flex-1 overflow-hidden'>
+					<SplitPanel className='px-2' initialSplit={INITIAL_SPLIT}>
+						<TrackingExam
+							trackingId={activeTrackingId}
+							projectId={projectQuery.data.id_projects}
+							questions={projectQuery.data.questions}
+							examName={`${t('ProjectDetails.title')} ${projectQuery.data.name}`}
+						/>
+						{/*i ovdje ce ici tracking id?*/}
+						<ZonesLayoutRegularUser
+							path={projectQuery.data!.path!}
+							projectId={projectQuery.data.id_projects}
+							zones={projectQuery.data.zones}
+							allImages={projectQuery.data.images}
+						/>
+					</SplitPanel>
 				</div>
 			</Main>
-		</>
+		</div>
 	)
 }

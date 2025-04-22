@@ -18,6 +18,8 @@ interface ZoneLayoutProps {
 	allImages: ProjectDetails['images']
 	projectId: number
 	path: string
+	hideDropdown?: boolean
+	className?: string
 }
 
 const ZonesLayoutRegularUser = ({
@@ -25,6 +27,8 @@ const ZonesLayoutRegularUser = ({
 	allImages,
 	path,
 	projectId,
+	hideDropdown = true,
+	className,
 }: ZoneLayoutProps) => {
 	const { t } = useTranslation()
 	// const { handleError } = useHandleGenericError()
@@ -220,9 +224,15 @@ const ZonesLayoutRegularUser = ({
 	}, [handleCanvasLineDraw])
 
 	return (
-		<>
-			<div>
-				<div className='my-6 flex flex-col items-start space-y-6'>
+		<div className={className}>
+			<div className='my-6 flex flex-col items-start space-y-6'>
+				{hideDropdown && (
+					<Button onClick={handleTrackingClick}>
+						{t('ProjectDetailsRegularUser.addTracking')}
+					</Button>
+				)}
+
+				{!hideDropdown && (
 					<div
 						className='flex w-full flex-row items-center justify-between gap-x-2'
 						style={{
@@ -252,76 +262,76 @@ const ZonesLayoutRegularUser = ({
 							{t('ProjectDetailsRegularUser.addTracking')}
 						</Button>
 					</div>
-				</div>
-				<div
-					className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary'
-					style={{
-						maxWidth: activeImage?.data?.width
-							? activeImage.data.width + 13
-							: '100%',
-					}}
-				>
-					<canvas
-						ref={imageCanvasRef}
-						className='absolute bottom-0 left-0 right-0 top-0 z-[-1]'
-					/>
-					<canvas
-						onClick={handleCanvasClick}
-						className='cursor-pointer rounded-lg'
-						onMouseEnter={() => setHideCards(true)}
-						onMouseLeave={() => setHideCards(false)}
-						ref={canvasRef}
-					/>
-
-					{trackingCards.length > 0 && (
-						<div
-							className={cn(
-								'no-scrollbar absolute right-2 top-2 flex h-full flex-col gap-2.5 overflow-y-auto',
-								{
-									'pointer-events-none': hideCards,
-								}
-							)}
-							style={{
-								height: activeImage?.data?.height
-									? activeImage.data.height - 20
-									: '100%',
-							}}
-						>
-							{trackingCards.map((card, index) => (
-								<Card
-									key={index}
-									className={cn(
-										'flex h-auto w-60 items-start justify-start rounded-lg border border-primary-foreground bg-background p-4 shadow-2xl shadow-muted transition-all duration-200 hover:shadow-lg',
-										{
-											'pointer-events-none opacity-20': hideCards,
-										}
-									)}
-								>
-									<CardContent className='p-0'>
-										<div className='flex flex-col'>
-											<p className='text-sm font-semibold text-primary'>
-												{card.name}
-											</p>
-											<p>{card.id_images}</p>
-										</div>
-										<Button
-											className='mt-2'
-											onClick={() => {
-												setTrackingCards((prev) =>
-													prev.filter((_, i) => i !== index)
-												)
-											}}
-										>
-											{t('Actions.delete')}
-										</Button>
-									</CardContent>
-								</Card>
-							))}
-						</div>
-					)}
-				</div>
+				)}
 			</div>
-		</>
+			<div
+				className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary'
+				style={{
+					maxWidth: activeImage?.data?.width
+						? activeImage.data.width + 13
+						: '100%',
+				}}
+			>
+				<canvas
+					ref={imageCanvasRef}
+					className='absolute bottom-0 left-0 right-0 top-0 z-[-1]'
+				/>
+				<canvas
+					onClick={handleCanvasClick}
+					className='cursor-pointer rounded-lg'
+					onMouseEnter={() => setHideCards(true)}
+					onMouseLeave={() => setHideCards(false)}
+					ref={canvasRef}
+				/>
+
+				{trackingCards.length > 0 && (
+					<div
+						className={cn(
+							'no-scrollbar absolute right-2 top-2 flex h-full flex-col gap-2.5 overflow-y-auto',
+							{
+								'pointer-events-none': hideCards,
+							}
+						)}
+						style={{
+							height: activeImage?.data?.height
+								? activeImage.data.height - 20
+								: '100%',
+						}}
+					>
+						{trackingCards.map((card, index) => (
+							<Card
+								key={index}
+								className={cn(
+									'flex h-auto w-60 items-start justify-start rounded-lg border border-primary-foreground bg-background p-4 shadow-2xl shadow-muted transition-all duration-200 hover:shadow-lg',
+									{
+										'pointer-events-none opacity-20': hideCards,
+									}
+								)}
+							>
+								<CardContent className='p-0'>
+									<div className='flex flex-col'>
+										<p className='text-sm font-semibold text-primary'>
+											{card.name}
+										</p>
+										<p>{card.id_images}</p>
+									</div>
+									<Button
+										className='mt-2'
+										onClick={() => {
+											setTrackingCards((prev) =>
+												prev.filter((_, i) => i !== index)
+											)
+										}}
+									>
+										{t('Actions.delete')}
+									</Button>
+								</CardContent>
+							</Card>
+						))}
+					</div>
+				)}
+			</div>
+		</div>
 	)
 }
 
