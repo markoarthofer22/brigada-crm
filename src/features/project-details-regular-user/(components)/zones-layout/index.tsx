@@ -57,9 +57,12 @@ const ZonesLayoutRegularUser = ({
 	const { handleError } = useHandleGenericError()
 	const queryClient = useQueryClient()
 
-	const { data } = useQuery(getZonesForTracking(trackingId))
-	const allTrackingZones = data?.results ?? []
-	const activeZone = allTrackingZones.find((z) => z.ended_at === null)
+	const allTrackingZonesQuery = useQuery(getZonesForTracking(trackingId))
+
+	const activeZone = useMemo(() => {
+		const allTrackingZones = allTrackingZonesQuery.data?.results ?? []
+		return allTrackingZones.find((z) => z.ended_at === null)
+	}, [allTrackingZonesQuery.data?.results])
 
 	const stopZoneTrackingMutation = useMutation({
 		mutationFn: ({ zoneId }: { zoneId: number }) => closeZoneTracking(zoneId),
