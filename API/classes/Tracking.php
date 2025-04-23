@@ -328,7 +328,7 @@ class Tracking
 			$_where .= " AND tz.id_tracking = {$params->id_tracking} ";
 		}
 
-		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.tracking_zones tz {$_where} ORDER BY tz.started_at ASC";
+		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.tracking_zones tz {$_where} AND ended_at IS NULL ORDER BY tz.started_at ASC";
 		$stmt = $this->database->prepare($sql);
 
 		$stmt->execute();
@@ -451,9 +451,9 @@ class Tracking
 	{
 
 		$where = " 1=1 ";
-		if ($params->id_zones) {
-			$where .= " AND tz.id_zones = {$params->id_zones} ";
-		}
+		// if ($params->id_zones) {
+		// 	$where .= " AND tz.id_zones = {$params->id_zones} ";
+		// }
 		if ($params->id_projects) {
 			$where .= " AND tz.id_projects = {$params->id_projects} ";
 		}

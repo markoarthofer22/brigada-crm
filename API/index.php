@@ -26,16 +26,15 @@ ini_set("display_errors", 1);
 ini_set("memory_limit", '4096M');
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 
-// moved to htaccess
-// // CORS Headers
-// header("Access-Control-Allow-Origin: *");
-// header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-// header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
+// CORS Headers
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
-// // Security Headers
-// header("X-XSS-Protection: 1; mode=block");
-// header("X-Frame-Options: SAMEORIGIN");
-// header("X-Content-Type-Options: nosniff");
+// Security Headers
+header("X-XSS-Protection: 1; mode=block");
+header("X-Frame-Options: SAMEORIGIN");
+header("X-Content-Type-Options: nosniff");
 
 // Handle preflight (OPTIONS) request for CORS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

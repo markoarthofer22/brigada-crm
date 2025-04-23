@@ -46,6 +46,7 @@ class Questions
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($results as &$result) {
 			$result["possible_answers"] = json_decode($result["possible_answers"]);
+			$result["data"] = json_decode($result["data"]);
 		}
 		return $results;
 	}
@@ -68,6 +69,7 @@ class Questions
 
 		if ($result) {
 			$result["possible_answers"] = json_decode($result["possible_answers"]);
+			$result["data"] = json_decode($result["data"]);
 		}
 
 		return $result ?: [];
@@ -91,7 +93,8 @@ class Questions
 						label,
 						id_questions_types,
 						possible_answers,
-						\"order\"
+						\"order\",
+						data
 					)
 				VALUES 
 					(
@@ -100,7 +103,8 @@ class Questions
 						:LABEL,
 						:ID_QUESTIONS_TYPES,
 						:POSSIBLE_ANSWERS::jsonb,
-						(SELECT COALESCE(MAX(\"order\"), 0) + 1 FROM brigada.questions q WHERE q.id_projects = :ID_PROJECTS)
+						(SELECT COALESCE(MAX(\"order\"), 0) + 1 FROM brigada.questions q WHERE q.id_projects = :ID_PROJECTS),
+						:DATA
 					)
 				RETURNING id_questions
 		";
@@ -112,6 +116,7 @@ class Questions
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
 		$stmt->bindParam(':POSSIBLE_ANSWERS', $possible_answers);
+		$stmt->bindParam(':DATA', json_encode($params->data));
 		$stmt->execute();
 
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -134,7 +139,8 @@ class Questions
 					id_zones = :ID_ZONES,
 					label = :LABEL,
 					id_questions_types = :ID_QUESTIONS_TYPES,
-					possible_answers = :POSSIBLE_ANSWERS::jsonb
+					possible_answers = :POSSIBLE_ANSWERS::jsonb,
+					data = :DATA::jsonb
 				WHERE id_questions = :ID
 		";
 		$possible_answers = json_encode($params->possible_answers);
@@ -145,6 +151,7 @@ class Questions
 		$stmt->bindParam(':LABEL', $params->label);
 		$stmt->bindParam(':ID_QUESTIONS_TYPES', $params->id_questions_types);
 		$stmt->bindParam(':POSSIBLE_ANSWERS', $possible_answers);
+		$stmt->bindParam(':DATA', json_encode($params->data));
 		$stmt->bindParam(':ID', $params->id);
 		$stmt->execute();
 
