@@ -92,7 +92,7 @@ export function TrackingExam({
 		const shape: Record<string, z.ZodTypeAny> = {}
 
 		for (const q of questions) {
-			const name = `q_${q.id_questions}`
+			const name = `q_${trackingId}_${q.id_questions}`
 			const qType = getQuestionType(q.id_questions_types)
 
 			if (qType?.type === 'checkbox') {
@@ -159,7 +159,7 @@ export function TrackingExam({
 	}
 
 	const renderField = (question: ProjectDetails['questions'][number]) => {
-		const name = `q_${question.id_questions}`
+		const name = `q_${trackingId}_${question.id_questions}`
 		const qType = getQuestionType(question.id_questions_types)
 		const possibleAnswers = Object.values(question.possible_answers || {})
 
@@ -321,11 +321,26 @@ export function TrackingExam({
 	}
 
 	useEffect(() => {
-		if (trackingAnswersQuery.data?.length) {
+		if (!trackingAnswersQuery.data) return
+		if (trackingAnswersQuery.data.length === 0) {
+			const values: Record<string, string | string[]> = {}
+
+			for (const entry of questions) {
+				const name = `q_${trackingId}_${entry.id_questions}}`
+				const qType = getQuestionType(entry.id_questions_types)
+
+				values[name] = qType?.type === 'checkbox' ? [] : ''
+			}
+
+			form.reset(values)
+			return
+		}
+
+		if (trackingAnswersQuery.data.length) {
 			const values: Record<string, string | string[]> = {}
 
 			for (const entry of trackingAnswersQuery.data) {
-				const name = `q_${entry.id_questions}`
+				const name = `q_${trackingId}_${entry.id_questions}`
 				const raw = entry.answer?.answer ?? ''
 				const qType = getQuestionType(entry.question?.id_questions_types)
 

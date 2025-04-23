@@ -3,6 +3,7 @@
 		"actions": "Akcije",
 		"backToHome": "Nazad na početnu",
 		"cancel": "Otkaži",
+		"close": "Zatvori",
 		"continue": "Nastavi",
 		"delete": "Obriši",
 		"details": "Detalji",
@@ -215,11 +216,13 @@
 		}
 	},
 	"ProjectDetailsRegularUser": {
+		"addNewTracking": "Započni novo praćenje",
 		"addTracking": "Započnite praćenje",
+		"endTrackingSuccess": "Praćenje zatvoreno!",
 		"Exam": {
-			"fullscreen": "",
-			"minimize": "",
-			"questionNotFound": "",
+			"fullscreen": "Cijeli zaslon",
+			"minimize": "Minimiziranje",
+			"questionNotFound": "Pitanje nije pronađeno. Ako mislite da je ovo pogreška u aplikaciji, obratite se administratoru!",
 			"questionSaved": "Odgovor dodan",
 			"questionUpdated": "Odgovor promijenjen"
 		},
@@ -309,6 +312,11 @@
 			"toggleColumns": "Uključi/isključi stupce",
 			"view": "Pregled"
 		}
+	},
+	"TrackingCard": {
+		"finishTrackingDescription": "Jeste li sigurni da želite zatvoriti ovo praćenje? Ako to učinite, sve zone koje trenutno pratite također će biti zatvorene. Ova se akcija ne može poništiti!",
+		"finishTrackingTitle": "Završi s praćenjem",
+		"tracking": "Praćenje"
 	},
 	"Users": {
 		"add": "Dodaj korisnika",

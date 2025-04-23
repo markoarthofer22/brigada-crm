@@ -55,3 +55,9 @@ export async function startNewTackingEvent(
 
 	return TrackingsSchema.parse(response.data)
 }
+
+export async function closeTrackingEvent(trackingId: number) {
+	const response = await axios.post('/tracking/end/' + trackingId)
+
+	return response.data
+}

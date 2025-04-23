@@ -18,7 +18,7 @@ const loaderVariants = cva(
 	}
 )
 
-const spinnerVariants = cva('animate-spin text-white', {
+const spinnerVariants = cva('animate-spin text-black', {
 	variants: {
 		size: {
 			sm: 'h-6 w-6',

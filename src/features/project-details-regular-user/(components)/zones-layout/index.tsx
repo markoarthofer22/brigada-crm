@@ -2,9 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ProjectDetails } from '@/api/services/projects/schema.ts'
-import { cn, getContrastColor, hexToRgba } from '@/lib/utils.ts'
-import { Button } from '@/components/ui/button.tsx'
-import { Card, CardContent } from '@/components/ui/card.tsx'
+import { getContrastColor, hexToRgba } from '@/lib/utils.ts'
 import {
 	Select,
 	SelectContent,
@@ -20,6 +18,7 @@ interface ZoneLayoutProps {
 	path: string
 	hideDropdown?: boolean
 	className?: string
+	trackingId: number
 }
 
 const ZonesLayoutRegularUser = ({
@@ -29,19 +28,12 @@ const ZonesLayoutRegularUser = ({
 	projectId,
 	hideDropdown = true,
 	className,
+	trackingId,
 }: ZoneLayoutProps) => {
 	const { t } = useTranslation()
-	// const { handleError } = useHandleGenericError()
-	// const queryClient = useQueryClient()
 	const [selectedImage, setSelectedImage] = useState<number | null>(null)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const imageCanvasRef = useRef<HTMLCanvasElement>(null)
-
-	// test
-	const [trackingCards, setTrackingCards] = useState<
-		{ name: string; id_images: number }[]
-	>([])
-	const [hideCards, setHideCards] = useState<boolean>(false)
 
 	const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
 		if (!selectedImage || !projectId) {
@@ -55,21 +47,7 @@ const ZonesLayoutRegularUser = ({
 		const y = event.clientY - rect.top
 
 		// eslint-disable-next-line
-		console.log('x,y', x, y)
-	}
-
-	const handleTrackingClick = () => {
-		if (!selectedImage || !projectId) {
-			toast.error(t('ProjectDetails.selectImageFirst'))
-			return
-		}
-
-		const newTrackingObj = {
-			name: `Tracking #${trackingCards.length + 1}`,
-			id_images: selectedImage,
-		}
-
-		setTrackingCards((prev) => [...prev, newTrackingObj])
+		console.log('x,y', x, y, trackingId)
 	}
 
 	const activeImage = useMemo(() => {
@@ -225,13 +203,7 @@ const ZonesLayoutRegularUser = ({
 
 	return (
 		<div className={className}>
-			<div className='my-6 flex flex-col items-start space-y-6'>
-				{hideDropdown && (
-					<Button onClick={handleTrackingClick}>
-						{t('ProjectDetailsRegularUser.addTracking')}
-					</Button>
-				)}
-
+			<div className='flex flex-col items-start space-y-6'>
 				{!hideDropdown && (
 					<div
 						className='flex w-full flex-row items-center justify-between gap-x-2'
@@ -257,10 +229,6 @@ const ZonesLayoutRegularUser = ({
 								))}
 							</SelectContent>
 						</Select>
-
-						<Button onClick={handleTrackingClick}>
-							{t('ProjectDetailsRegularUser.addTracking')}
-						</Button>
 					</div>
 				)}
 			</div>
@@ -279,57 +247,8 @@ const ZonesLayoutRegularUser = ({
 				<canvas
 					onClick={handleCanvasClick}
 					className='cursor-pointer rounded-lg'
-					onMouseEnter={() => setHideCards(true)}
-					onMouseLeave={() => setHideCards(false)}
 					ref={canvasRef}
 				/>
-
-				{trackingCards.length > 0 && (
-					<div
-						className={cn(
-							'no-scrollbar absolute right-2 top-2 flex h-full flex-col gap-2.5 overflow-y-auto',
-							{
-								'pointer-events-none': hideCards,
-							}
-						)}
-						style={{
-							height: activeImage?.data?.height
-								? activeImage.data.height - 20
-								: '100%',
-						}}
-					>
-						{trackingCards.map((card, index) => (
-							<Card
-								key={index}
-								className={cn(
-									'flex h-auto w-60 items-start justify-start rounded-lg border border-primary-foreground bg-background p-4 shadow-2xl shadow-muted transition-all duration-200 hover:shadow-lg',
-									{
-										'pointer-events-none opacity-20': hideCards,
-									}
-								)}
-							>
-								<CardContent className='p-0'>
-									<div className='flex flex-col'>
-										<p className='text-sm font-semibold text-primary'>
-											{card.name}
-										</p>
-										<p>{card.id_images}</p>
-									</div>
-									<Button
-										className='mt-2'
-										onClick={() => {
-											setTrackingCards((prev) =>
-												prev.filter((_, i) => i !== index)
-											)
-										}}
-									>
-										{t('Actions.delete')}
-									</Button>
-								</CardContent>
-							</Card>
-						))}
-					</div>
-				)}
 			</div>
 		</div>
 	)

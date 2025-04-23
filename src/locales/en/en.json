@@ -3,6 +3,7 @@
 		"actions": "Actions",
 		"backToHome": "Back to Home",
 		"cancel": "Cancel",
+		"close": "Close",
 		"continue": "Continue",
 		"delete": "Delete",
 		"details": "Details",
@@ -215,7 +216,9 @@
 		}
 	},
 	"ProjectDetailsRegularUser": {
+		"addNewTracking": "Add new tracking",
 		"addTracking": "Start tracking",
+		"endTrackingSuccess": "Tracking ended successfully!",
 		"Exam": {
 			"fullscreen": "Fullscreen",
 			"minimize": "Minimize",
@@ -309,6 +312,11 @@
 			"toggleColumns": "Toggle columns",
 			"view": "View"
 		}
+	},
+	"TrackingCard": {
+		"finishTrackingDescription": "Are you sure that you want to close this tracking? If you do, any zones that you are currently tracking will also be closed. This action can't be undone!",
+		"finishTrackingTitle": "Close tracking",
+		"tracking": "Tracking"
 	},
 	"Users": {
 		"add": "Add user",

@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getProjectById } from '@/api/services/projects/options.ts'
 import { getAllTrackings } from '@/api/services/trackings/options.ts'
-import { startNewTackingEvent } from '@/api/services/trackings/trackings'
+import {
+	closeTrackingEvent,
+	startNewTackingEvent,
+} from '@/api/services/trackings/trackings'
 import { useLoader } from '@/context/loader-provider'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error'
 import { Button } from '@/components/ui/button'
@@ -13,9 +16,10 @@ import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import SplitPanel from '@/components/split-panel'
 import { TrackingExam } from '@/features/project-details-regular-user/(components)/tracking-exam'
+import TrackingButtonList from '@/features/project-details-regular-user/(components)/trackings'
 import ZonesLayoutRegularUser from '@/features/project-details-regular-user/(components)/zones-layout'
 
-const INITIAL_SPLIT = 50
+const INITIAL_SPLIT = 40
 
 export default function ProjectDetailsForRegularUser() {
 	const { t } = useTranslation()
@@ -50,6 +54,19 @@ export default function ProjectDetailsForRegularUser() {
 		},
 	})
 
+	const endTrackingMutation = useMutation({
+		mutationFn: (trackingId: number) => {
+			return closeTrackingEvent(trackingId)
+		},
+		onSuccess: () => {
+			toast.success(t('ProjectDetailsRegularUser.endTrackingSuccess'))
+			trackingQuery.refetch()
+		},
+		onError: (error: unknown) => {
+			handleError(error)
+		},
+	})
+
 	useEffect(() => {
 		showLoader()
 	}, [])
@@ -62,11 +79,14 @@ export default function ProjectDetailsForRegularUser() {
 
 	useEffect(() => {
 		if (trackingQuery.data && trackingQuery.data.length > 0) {
-			const activeTracking = trackingQuery.data.find(
+			const activeTrackings = trackingQuery.data.filter(
 				(tracking) => tracking.ended_at === null
 			)
-			if (activeTracking) {
-				setActiveTrackingId(activeTracking.id_tracking)
+
+			const lastActive = activeTrackings[activeTrackings.length - 1]
+
+			if (lastActive) {
+				setActiveTrackingId(lastActive.id_tracking)
 			}
 		}
 	}, [trackingQuery.data])
@@ -130,13 +150,27 @@ export default function ProjectDetailsForRegularUser() {
 							questions={projectQuery.data.questions}
 							examName={`${t('ProjectDetails.title')} ${projectQuery.data.name}`}
 						/>
-						{/*i ovdje ce ici tracking id?*/}
-						<ZonesLayoutRegularUser
-							path={projectQuery.data!.path!}
-							projectId={projectQuery.data.id_projects}
-							zones={projectQuery.data.zones}
-							allImages={projectQuery.data.images}
-						/>
+						<div className='mt-3 flex flex-col gap-y-3'>
+							{/*i ovdje ce ici tracking id?*/}
+							<TrackingButtonList
+								onCloseTracking={(trackingId) => {
+									endTrackingMutation.mutate(trackingId)
+								}}
+								addNewTrackingCallback={() => startNewTrackingMutation.mutate()}
+								trackings={trackingQuery.data ?? []}
+								activeTracking={activeTrackingId}
+								onSelect={(id) => {
+									setActiveTrackingId(id)
+								}}
+							/>
+							<ZonesLayoutRegularUser
+								trackingId={activeTrackingId}
+								path={projectQuery.data!.path!}
+								projectId={projectQuery.data.id_projects}
+								zones={projectQuery.data.zones}
+								allImages={projectQuery.data.images}
+							/>
+						</div>
 					</SplitPanel>
 				</div>
 			</Main>

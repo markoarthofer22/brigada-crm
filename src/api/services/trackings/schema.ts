@@ -8,6 +8,8 @@ export const TrackingsSchema = z.object({
 	started_at: z.string(),
 	ended_at: z.string().nullable(),
 	id_users: z.number().optional(),
+	// test
+	zones: z.array(z.any()).optional(),
 })
 
 export type Trackings = z.infer<typeof TrackingsSchema>
