@@ -218,6 +218,9 @@
 	"ProjectDetailsRegularUser": {
 		"addNewTracking": "Add new tracking",
 		"addTracking": "Start tracking",
+		"closeTrackingSuccess": "Zone closed successfully",
+		"confirmCloseZone": "Another zone is active. Starting a new one will close it. Continue?",
+		"confirmCloseZoneTitle": "Closing active zone",
 		"endTrackingSuccess": "Tracking ended successfully!",
 		"Exam": {
 			"fullscreen": "Fullscreen",
@@ -226,7 +229,8 @@
 			"questionSaved": "Question saved",
 			"questionUpdated": "Question updated"
 		},
-		"startTrackingSuccess": "Tracking started!"
+		"startTrackingSuccess": "Tracking started!",
+		"startZoneSuccess": "Zone tracking started"
 	},
 	"Projects": {
 		"add": "Add project",
@@ -314,6 +318,7 @@
 		}
 	},
 	"TrackingCard": {
+		"closeZone": "Close zone",
 		"finishTrackingDescription": "Are you sure that you want to close this tracking? If you do, any zones that you are currently tracking will also be closed. This action can't be undone!",
 		"finishTrackingTitle": "Close tracking",
 		"tracking": "Tracking"

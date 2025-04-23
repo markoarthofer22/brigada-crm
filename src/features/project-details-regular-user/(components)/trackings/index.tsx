@@ -14,7 +14,6 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Stopwatch from '@/components/stopwatch.tsx'
 
@@ -63,20 +62,6 @@ export default function TrackingButtonList({
 							/>
 						</div>
 
-						{tracking.zones && tracking.zones.length > 0 && (
-							<div className='mt-1 flex flex-wrap justify-center gap-1'>
-								{tracking.zones.map((zone) => (
-									<Badge
-										key={zone.id_tracking}
-										variant='secondary'
-										className='px-2 py-0.5 text-xs'
-									>
-										{zone.name}
-									</Badge>
-								))}
-							</div>
-						)}
-
 						{isActive && (
 							<AlertDialog
 								open={showModalFor === tracking.id_tracking}
@@ -85,7 +70,7 @@ export default function TrackingButtonList({
 								}
 							>
 								<AlertDialogTrigger asChild>
-									<Button variant='destructive' className='mt-2 w-full text-xs'>
+									<Button variant='destructive' className='mt-1 w-full text-xs'>
 										{t('TrackingCard.finishTrackingTitle')}
 									</Button>
 								</AlertDialogTrigger>

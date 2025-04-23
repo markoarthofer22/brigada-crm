@@ -151,7 +151,6 @@ export default function ProjectDetailsForRegularUser() {
 							examName={`${t('ProjectDetails.title')} ${projectQuery.data.name}`}
 						/>
 						<div className='mt-3 flex flex-col gap-y-3'>
-							{/*i ovdje ce ici tracking id?*/}
 							<TrackingButtonList
 								onCloseTracking={(trackingId) => {
 									endTrackingMutation.mutate(trackingId)

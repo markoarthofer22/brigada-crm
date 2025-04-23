@@ -218,6 +218,9 @@
 	"ProjectDetailsRegularUser": {
 		"addNewTracking": "Započni novo praćenje",
 		"addTracking": "Započnite praćenje",
+		"closeTrackingSuccess": "Praćenje za zonu završeno",
+		"confirmCloseZone": "Aktivna je još jedna zona. Pokretanjem nove zatvorit ćete postojeću. Želite li nastaviti?",
+		"confirmCloseZoneTitle": "Zatvaranje praćenja aktivne zone",
 		"endTrackingSuccess": "Praćenje zatvoreno!",
 		"Exam": {
 			"fullscreen": "Cijeli zaslon",
@@ -226,7 +229,8 @@
 			"questionSaved": "Odgovor dodan",
 			"questionUpdated": "Odgovor promijenjen"
 		},
-		"startTrackingSuccess": "Praćenje je započeto!"
+		"startTrackingSuccess": "Praćenje je započeto!",
+		"startZoneSuccess": "Započeto praćenje za zonu"
 	},
 	"Projects": {
 		"add": "Dodaj projekt",
@@ -314,6 +318,7 @@
 		}
 	},
 	"TrackingCard": {
+		"closeZone": "Zatvori zonu",
 		"finishTrackingDescription": "Jeste li sigurni da želite zatvoriti ovo praćenje? Ako to učinite, sve zone koje trenutno pratite također će biti zatvorene. Ova se akcija ne može poništiti!",
 		"finishTrackingTitle": "Završi s praćenjem",
 		"tracking": "Praćenje"

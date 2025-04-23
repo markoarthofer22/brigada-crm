@@ -31,3 +31,23 @@ export const TrackingAnswerUpsertSchema = z.object({
 })
 
 export type TrackingsAnswerUpsert = z.infer<typeof TrackingAnswerUpsertSchema>
+
+export const TrackingZonesForTrackingSchema = z.object({
+	id_tracking_zones: z.number(),
+	id_zones: z.number(),
+	id_tracking: z.number(),
+	id_projects: z.number(),
+	started_at: z.string(),
+	ended_at: z.string().nullable(),
+	name: z.string().optional(),
+})
+
+export type StartZonePayload = {
+	id_tracking: number
+	id_projects: number
+	id_zones: number
+}
+
+export const GetTrackingZonesForTrackingResponseSchema = z.object({
+	results: z.array(TrackingZonesForTrackingSchema),
+})

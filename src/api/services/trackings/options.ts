@@ -3,6 +3,7 @@ import {
 	geAnswersForSpecificTracking,
 	getTrackingById,
 	getTrackings,
+	getZonesForActiveTracking,
 } from '@/api/services/trackings/trackings.ts'
 
 export const getAllTrackings = (projectId: number) => {
@@ -23,5 +24,13 @@ export const getAnswerForSpecificTracking = (trackingId: number) => {
 	return queryOptions({
 		queryKey: ['trackings', 'answers', trackingId],
 		queryFn: () => geAnswersForSpecificTracking(trackingId),
+	})
+}
+
+export const getZonesForTracking = (trackingId: number) => {
+	return queryOptions({
+		queryKey: ['trackings', 'zones', trackingId],
+		queryFn: () => getZonesForActiveTracking(trackingId),
+		enabled: !!trackingId,
 	})
 }
