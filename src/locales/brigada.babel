@@ -2737,6 +2737,21 @@
 									</translation>
 								</translations>
 							</concept_node>
+							<concept_node>
+								<name>zoneQuestions</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
 						</children>
 					</folder_node>
 					<folder_node>

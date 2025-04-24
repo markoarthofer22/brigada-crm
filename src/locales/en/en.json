@@ -230,7 +230,8 @@
 			"questionUpdated": "Question updated"
 		},
 		"startTrackingSuccess": "Tracking started!",
-		"startZoneSuccess": "Zone tracking started"
+		"startZoneSuccess": "Zone tracking started",
+		"zoneQuestions": "Zone {{value}} questions "
 	},
 	"Projects": {
 		"add": "Add project",

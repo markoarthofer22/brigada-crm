@@ -365,18 +365,22 @@ export function TrackingExam({
 		>
 			<div className='mx-auto max-w-4xl space-y-6'>
 				<div className='flex items-center justify-between'>
-					<h2 className='w-fit text-2xl font-bold'>
-						{t('ProjectDetails.title')} {examName}
-					</h2>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => setIsFullscreen((v) => !v)}
-					>
-						{isFullscreen
-							? t('ProjectDetailsRegularUser.Exam.minimize')
-							: t('ProjectDetailsRegularUser.Exam.fullscreen')}
-					</Button>
+					{examName && (
+						<>
+							<h2 className='w-fit text-2xl font-bold'>
+								{t('ProjectDetails.title')} {examName}
+							</h2>
+							<Button
+								variant='outline'
+								size='sm'
+								onClick={() => setIsFullscreen((v) => !v)}
+							>
+								{isFullscreen
+									? t('ProjectDetailsRegularUser.Exam.minimize')
+									: t('ProjectDetailsRegularUser.Exam.fullscreen')}
+							</Button>
+						</>
+					)}
 				</div>
 
 				<Form {...form}>

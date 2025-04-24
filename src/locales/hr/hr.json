@@ -230,7 +230,8 @@
 			"questionUpdated": "Odgovor promijenjen"
 		},
 		"startTrackingSuccess": "Praćenje je započeto!",
-		"startZoneSuccess": "Započeto praćenje za zonu"
+		"startZoneSuccess": "Započeto praćenje za zonu",
+		"zoneQuestions": "Pitanja za zonu {{value}}"
 	},
 	"Projects": {
 		"add": "Dodaj projekt",

@@ -22,6 +22,13 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button.tsx'
 import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog.tsx'
+import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -29,6 +36,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx'
 import Stopwatch from '@/components/stopwatch.tsx'
+import { TrackingExam } from '@/features/project-details-regular-user/(components)/tracking-exam'
 
 interface ZoneLayoutProps {
 	zones: ProjectDetails['zones']
@@ -52,6 +60,9 @@ const ZonesLayoutRegularUser = ({
 	const { t } = useTranslation()
 	const [selectedImage, setSelectedImage] = useState<number | null>(null)
 	const [confirmZoneId, setConfirmZoneId] = useState<number | null>(null)
+	const [activeZoneQuestions, setActiveZoneQuestions] = useState<
+		ProjectDetails['questions']
+	>([])
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const imageCanvasRef = useRef<HTMLCanvasElement>(null)
 	const { handleError } = useHandleGenericError()
@@ -265,118 +276,177 @@ const ZonesLayoutRegularUser = ({
 		handleImageCanvasRender()
 	}, [handleImageCanvasRender])
 
+	useEffect(() => {
+		if (activeZone && zones.length > 0) {
+			const zone = zones.find((z) => z.id_zones === activeZone.id_zones)
+			setActiveZoneQuestions(zone?.questions ?? [])
+		}
+	}, [activeZone, zones])
+
 	return (
-		<div className={className}>
-			{!hideDropdown && (
-				<div className='mb-4 flex w-full max-w-[500px] items-center gap-x-2'>
-					<Select
-						value={selectedImage?.toString()}
-						onValueChange={(val) => setSelectedImage(Number(val))}
-					>
-						<SelectTrigger>
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{allImages?.map((image) => (
-								<SelectItem key={image.id_images} value={`${image.id_images}`}>
-									{image.data.file_name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-			)}
-
-			<div
-				className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary'
-				style={{
-					maxWidth: activeImage?.data?.width
-						? activeImage.data.width + 13
-						: '100%',
-				}}
-			>
-				<canvas
-					ref={imageCanvasRef}
-					className='absolute inset-0 z-[-1] grayscale'
-				/>
-				<canvas
-					ref={canvasRef}
-					onClick={handleCanvasClick}
-					className='cursor-pointer rounded-lg'
-				/>
-
-				{zones.map((zone) => {
-					if (zone.id_images !== activeImage?.id_images) return null
-					const center = getZoneCenter(zone.coordinates.points)
-					const isActive = activeZone?.id_zones === zone.id_zones
-
-					if (!isActive) return null
-
-					return (
-						<div
-							key={zone.id_zones}
-							className='absolute z-10 flex flex-col items-center justify-center gap-2 rounded-md bg-muted p-2 shadow transition-all'
-							style={{
-								left: center.x,
-								top: center.y,
-								transform: 'translate(-50%, -50%)',
-							}}
+		<>
+			<div className={className}>
+				{!hideDropdown && (
+					<div className='mb-4 flex w-full max-w-[500px] items-center gap-x-2'>
+						<Select
+							value={selectedImage?.toString()}
+							onValueChange={(val) => setSelectedImage(Number(val))}
 						>
-							<div className='text-sm font-semibold'>{zone.name}</div>
-							<Stopwatch
-								startDate={activeZone?.started_at}
-								className='font-mono text-xs'
-							/>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{allImages?.map((image) => (
+									<SelectItem
+										key={image.id_images}
+										value={`${image.id_images}`}
+									>
+										{image.data.file_name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+				)}
+
+				<div
+					className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary'
+					style={{
+						maxWidth: activeImage?.data?.width
+							? activeImage.data.width + 13
+							: '100%',
+					}}
+				>
+					<canvas
+						ref={imageCanvasRef}
+						className='absolute inset-0 z-[-1] grayscale'
+					/>
+					<canvas
+						ref={canvasRef}
+						onClick={handleCanvasClick}
+						className='cursor-pointer rounded-lg'
+					/>
+
+					{zones.map((zone) => {
+						if (zone.id_images !== activeImage?.id_images) return null
+						const center = getZoneCenter(zone.coordinates.points)
+						const isActive = activeZone?.id_zones === zone.id_zones
+
+						if (!isActive) return null
+
+						return (
+							<div
+								key={zone.id_zones}
+								className='absolute z-10 flex flex-col items-center justify-center gap-2 rounded-md bg-muted p-2 shadow transition-all'
+								style={{
+									left: center.x,
+									top: center.y,
+									transform: 'translate(-50%, -50%)',
+								}}
+							>
+								<div className='text-sm font-semibold'>{zone.name}</div>
+								<Stopwatch
+									startDate={activeZone?.started_at}
+									className='font-mono text-xs'
+								/>
+								<Button
+									variant='destructive'
+									size='sm'
+									onClick={() =>
+										stopZoneTrackingMutation.mutate({
+											zoneId: activeZone?.id_tracking_zones,
+										})
+									}
+								>
+									{t('Actions.close')}
+								</Button>
+							</div>
+						)
+					})}
+				</div>
+
+				<AlertDialog
+					open={!!confirmZoneId}
+					onOpenChange={(open) => !open && setConfirmZoneId(null)}
+				>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>
+								{t('ProjectDetailsRegularUser.confirmCloseZoneTitle')}
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								{t('ProjectDetailsRegularUser.confirmCloseZone') ??
+									'Another zone is active. Starting a new one will close it. Continue?'}
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel>{t('Actions.cancel')}</AlertDialogCancel>
+							<AlertDialogAction
+								onClick={() => {
+									if (confirmZoneId) {
+										startNewZoneTrackingMutation.mutate({
+											id_projects: projectId,
+											id_tracking: trackingId,
+											id_zones: confirmZoneId,
+										})
+									}
+									setConfirmZoneId(null)
+								}}
+							>
+								{t('Actions.continue')}
+							</AlertDialogAction>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+			</div>
+
+			{activeZoneQuestions.length > 0 && (
+				<Dialog
+					open={activeZoneQuestions.length > 0}
+					onOpenChange={(open) => !open && setActiveZoneQuestions([])}
+				>
+					<DialogContent
+						hideCloseButton={true}
+						onInteractOutside={(e) => {
+							// 	if mandatory disable close
+							e.preventDefault()
+						}}
+						onEscapeKeyDown={(e) => {
+							// 	if mandatory disable close
+							e.preventDefault()
+						}}
+						className='sm:max-w-[500px]'
+					>
+						<DialogHeader>
+							<DialogTitle>
+								{t('ProjectDetailsRegularUser.zoneQuestions', {
+									value: zones.find(
+										(zone) => zone.id_zones === activeZone?.id_zones
+									)?.name,
+								})}
+							</DialogTitle>
+						</DialogHeader>
+
+						{/*get out isFormValid for disable*/}
+						<TrackingExam
+							trackingId={trackingId}
+							projectId={projectId}
+							questions={activeZoneQuestions}
+						/>
+
+						<DialogFooter>
 							<Button
-								variant='destructive'
-								size='sm'
-								onClick={() =>
-									stopZoneTrackingMutation.mutate({
-										zoneId: activeZone?.id_tracking_zones,
-									})
-								}
+								type='button'
+								variant='outline'
+								onClick={() => setActiveZoneQuestions([])}
 							>
 								{t('Actions.close')}
 							</Button>
-						</div>
-					)
-				})}
-			</div>
-
-			<AlertDialog
-				open={!!confirmZoneId}
-				onOpenChange={(open) => !open && setConfirmZoneId(null)}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							{t('ProjectDetailsRegularUser.confirmCloseZoneTitle')}
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							{t('ProjectDetailsRegularUser.confirmCloseZone') ??
-								'Another zone is active. Starting a new one will close it. Continue?'}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t('Actions.cancel')}</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={() => {
-								if (confirmZoneId) {
-									startNewZoneTrackingMutation.mutate({
-										id_projects: projectId,
-										id_tracking: trackingId,
-										id_zones: confirmZoneId,
-									})
-								}
-								setConfirmZoneId(null)
-							}}
-						>
-							{t('Actions.continue')}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
-		</div>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			)}
+		</>
 	)
 }
 
