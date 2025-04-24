@@ -25,6 +25,7 @@ export default function ProjectDetailsForRegularUser() {
 	const { t } = useTranslation()
 	const { id } = useParams({ strict: false })
 	const { handleError } = useHandleGenericError()
+	const [isTrackingValid, setIsTrackingValid] = useState<boolean>(true)
 	const [activeTrackingId, setActiveTrackingId] = useState<number | null>(null)
 
 	const { showLoader, hideLoader } = useLoader()
@@ -149,10 +150,20 @@ export default function ProjectDetailsForRegularUser() {
 							projectId={projectQuery.data.id_projects}
 							questions={projectQuery.data.questions}
 							examName={`${t('ProjectDetails.title')} ${projectQuery.data.name}`}
+							onValidityChange={(isValid) => {
+								setIsTrackingValid(isValid)
+							}}
 						/>
 						<div className='mt-3 flex flex-col gap-y-3'>
 							<TrackingButtonList
 								onCloseTracking={(trackingId) => {
+									if (!isTrackingValid) {
+										toast.error(
+											t('ProjectDetailsRegularUser.trackingQuestionsNotValid')
+										)
+										return
+									}
+
 									endTrackingMutation.mutate(trackingId)
 								}}
 								addNewTrackingCallback={() => startNewTrackingMutation.mutate()}

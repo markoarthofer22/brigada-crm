@@ -60,6 +60,7 @@ const ZonesLayoutRegularUser = ({
 	const { t } = useTranslation()
 	const [selectedImage, setSelectedImage] = useState<number | null>(null)
 	const [confirmZoneId, setConfirmZoneId] = useState<number | null>(null)
+	const [isZoneValid, setIsZoneValid] = useState<boolean>(true)
 	const [activeZoneQuestions, setActiveZoneQuestions] = useState<
 		ProjectDetails['questions']
 	>([])
@@ -141,6 +142,12 @@ const ZonesLayoutRegularUser = ({
 			ctx.closePath()
 
 			if (ctx.isPointInPath(x, y)) {
+				if (!isZoneValid) {
+					toast.info(t('ProjectDetailsRegularUser.zoneQuestionsNotValid'))
+					mapZoneQuestions()
+					return
+				}
+
 				if (activeZone && activeZone.id_zones !== zone.id_zones) {
 					setConfirmZoneId(zone.id_zones)
 				} else {
@@ -248,6 +255,27 @@ const ZonesLayoutRegularUser = ({
 		}
 	}, [activeImage, path])
 
+	const mapZoneQuestions = useCallback(() => {
+		if (activeZone && zones.length > 0) {
+			const zone = zones.find((z) => z.id_zones === activeZone.id_zones)
+			setActiveZoneQuestions(zone?.questions ?? [])
+		}
+	}, [activeZone, zones])
+
+	const stopTrackingZoneHandler = () => {
+		if (!activeZone) return
+
+		if (!isZoneValid) {
+			toast.info(t('ProjectDetailsRegularUser.zoneQuestionsNotValid'))
+			mapZoneQuestions()
+			return
+		}
+
+		stopZoneTrackingMutation.mutate({
+			zoneId: activeZone.id_tracking_zones,
+		})
+	}
+
 	useEffect(() => {
 		if (allImages?.length) {
 			setSelectedImage(allImages[0].id_images)
@@ -277,11 +305,8 @@ const ZonesLayoutRegularUser = ({
 	}, [handleImageCanvasRender])
 
 	useEffect(() => {
-		if (activeZone && zones.length > 0) {
-			const zone = zones.find((z) => z.id_zones === activeZone.id_zones)
-			setActiveZoneQuestions(zone?.questions ?? [])
-		}
-	}, [activeZone, zones])
+		mapZoneQuestions()
+	}, [mapZoneQuestions])
 
 	return (
 		<>
@@ -352,11 +377,7 @@ const ZonesLayoutRegularUser = ({
 								<Button
 									variant='destructive'
 									size='sm'
-									onClick={() =>
-										stopZoneTrackingMutation.mutate({
-											zoneId: activeZone?.id_tracking_zones,
-										})
-									}
+									onClick={stopTrackingZoneHandler}
 								>
 									{t('Actions.close')}
 								</Button>
@@ -406,16 +427,12 @@ const ZonesLayoutRegularUser = ({
 					onOpenChange={(open) => !open && setActiveZoneQuestions([])}
 				>
 					<DialogContent
-						hideCloseButton={true}
 						onInteractOutside={(e) => {
-							// 	if mandatory disable close
 							e.preventDefault()
 						}}
 						onEscapeKeyDown={(e) => {
-							// 	if mandatory disable close
 							e.preventDefault()
 						}}
-						className='sm:max-w-[500px]'
 					>
 						<DialogHeader>
 							<DialogTitle>
@@ -427,11 +444,13 @@ const ZonesLayoutRegularUser = ({
 							</DialogTitle>
 						</DialogHeader>
 
-						{/*get out isFormValid for disable*/}
 						<TrackingExam
 							trackingId={trackingId}
 							projectId={projectId}
 							questions={activeZoneQuestions}
+							onValidityChange={(isValid) => {
+								setIsZoneValid(isValid)
+							}}
 						/>
 
 						<DialogFooter>

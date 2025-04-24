@@ -45,6 +45,7 @@ interface TrackingExamProps {
 	projectId: number
 	trackingId: number
 	examName?: string
+	onValidityChange?: (isValid: boolean) => void
 }
 
 export function TrackingExam({
@@ -52,6 +53,7 @@ export function TrackingExam({
 	examName,
 	trackingId,
 	projectId,
+	onValidityChange,
 }: TrackingExamProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
@@ -351,6 +353,13 @@ export function TrackingExam({
 		}
 	}, [trackingAnswersQuery.data, questionTypes])
 
+	useEffect(() => {
+		if (onValidityChange) {
+			const formIsValid = form.formState.isValid
+			onValidityChange(formIsValid)
+		}
+	}, [form.formState.isValid, onValidityChange])
+
 	if (trackingAnswersQuery.isLoading) {
 		return <GlobalLoader />
 	}
@@ -392,6 +401,7 @@ export function TrackingExam({
 						{questions.map((q) => (
 							<Card key={q.id_questions}>
 								<CardHeader className='px-4 pb-1.5 pt-4'>
+									{/*add required*/}
 									<CardTitle className='capitalize'>{q.label}</CardTitle>
 								</CardHeader>
 								<CardContent className='px-4 py-3'>

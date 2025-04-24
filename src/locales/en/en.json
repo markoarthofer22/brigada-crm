@@ -231,7 +231,9 @@
 		},
 		"startTrackingSuccess": "Tracking started!",
 		"startZoneSuccess": "Zone tracking started",
-		"zoneQuestions": "Zone {{value}} questions "
+		"trackingQuestionsNotValid": "Before closing this tracking, you need to answer on all required questions!",
+		"zoneQuestions": "Zone {{value}} questions ",
+		"zoneQuestionsNotValid": "Before closing this zone, you have to answer on all mandatory question!"
 	},
 	"Projects": {
 		"add": "Add project",

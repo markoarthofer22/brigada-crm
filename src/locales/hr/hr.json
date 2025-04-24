@@ -231,7 +231,9 @@
 		},
 		"startTrackingSuccess": "Praćenje je započeto!",
 		"startZoneSuccess": "Započeto praćenje za zonu",
-		"zoneQuestions": "Pitanja za zonu {{value}}"
+		"trackingQuestionsNotValid": "Prije zatvaranja ovog praćenja morate odgovoriti na sva potrebna pitanja!",
+		"zoneQuestions": "Pitanja za zonu {{value}}",
+		"zoneQuestionsNotValid": "Prije zatvaranja ove zone morate odgovoriti na sva obavezna pitanja!"
 	},
 	"Projects": {
 		"add": "Dodaj projekt",
