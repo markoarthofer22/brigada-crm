@@ -8,6 +8,11 @@ export const QuestionUpsertSchema = z.object({
 	id_zones: z.number().optional().nullable(),
 	label: z.string(),
 	possible_answers: z.array(z.string()).optional(),
+	required: z.boolean().optional(),
+	data: z
+		.record(z.union([z.string(), z.number(), z.boolean()]))
+		.optional()
+		.nullable(),
 })
 
 export const QuestionResponseSchema = QuestionUpsertSchema.omit({

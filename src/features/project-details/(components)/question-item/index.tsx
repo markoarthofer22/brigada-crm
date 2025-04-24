@@ -255,6 +255,7 @@ export function QuestionItem({
 					<CardTitle className='flex items-center gap-1.5 text-lg capitalize'>
 						{orderLabel && <span className='text-base'>{orderLabel}.</span>}
 						{question.label}
+						{question.required && <sup className='text-destructive'>*</sup>}
 					</CardTitle>
 					<CardDescription>{questionType?.label}</CardDescription>
 				</CardHeader>
@@ -294,6 +295,7 @@ export function QuestionItem({
 					id_questions: question.id_questions,
 					id_projects: question.id_projects,
 					label: question.label,
+					required: question.required,
 					id_questions_types: question.id_questions_types,
 					possible_answers:
 						Object.values(question.possible_answers).map((x) => x) || [],

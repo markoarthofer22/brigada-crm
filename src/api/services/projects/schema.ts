@@ -28,6 +28,8 @@ export const QuestionItemResponseSchema = z.object({
 	order: z.number(),
 	label: z.string(),
 	possible_answers: z.record(z.string()),
+	required: z.boolean().optional(),
+	data: z.string().optional().nullable(),
 })
 
 export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({

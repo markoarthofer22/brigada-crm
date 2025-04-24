@@ -33,6 +33,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch.tsx'
 
 interface QuestionDialogProps {
 	open: boolean
@@ -64,6 +65,7 @@ export function QuestionDialog({
 			id_projects: projectId,
 			id_zones: zoneId ?? null,
 			possible_answers: defaultValues?.possible_answers ?? [],
+			required: defaultValues?.required ?? false,
 			label: defaultValues?.label ?? '',
 			order: defaultValues?.order ?? undefined,
 			id_questions_types:
@@ -93,6 +95,9 @@ export function QuestionDialog({
 
 		onSubmit({
 			...data,
+			data: {
+				required: data.required ?? false,
+			},
 			id_projects: projectId,
 			id_zones: zoneId ?? null,
 		})
@@ -112,6 +117,24 @@ export function QuestionDialog({
 			form.reset()
 		}
 	}, [form, open])
+
+	useEffect(() => {
+		if (defaultValues) {
+			form.reset({
+				id_questions: defaultValues.id_questions,
+				id_projects: projectId,
+				id_zones: zoneId ?? null,
+				possible_answers: defaultValues.possible_answers ?? [],
+				required: defaultValues.required ?? false,
+				label: defaultValues.label ?? '',
+				order: defaultValues.order ?? undefined,
+				id_questions_types:
+					defaultValues.id_questions_types ??
+					questionTypes?.[0].id_questions_types ??
+					0,
+			})
+		}
+	}, [defaultValues])
 
 	return (
 		<Dialog open={open} onOpenChange={handleDialogOpenChange}>
@@ -157,7 +180,7 @@ export function QuestionDialog({
 							name='id_questions_types'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t('Input.label.questionTitle')}</FormLabel>
+									<FormLabel>{t('Input.label.questionType')}</FormLabel>
 									<Select
 										disabled={isLoading}
 										onValueChange={(value) =>
@@ -168,7 +191,7 @@ export function QuestionDialog({
 										<FormControl>
 											<SelectTrigger>
 												<SelectValue
-													placeholder={t('Input.placeholder.questionTitle')}
+													placeholder={t('Input.placeholder.questionType')}
 												/>
 											</SelectTrigger>
 										</FormControl>
@@ -184,6 +207,23 @@ export function QuestionDialog({
 										</SelectContent>
 									</Select>
 									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name='required'
+							render={({ field }) => (
+								<FormItem className='flex h-9 flex-row items-center justify-between rounded-lg border px-3 shadow-sm'>
+									<FormLabel>{t('Input.label.required')}</FormLabel>
+									<FormControl>
+										<Switch
+											className='!mt-0'
+											checked={field.value}
+											onCheckedChange={field.onChange}
+										/>
+									</FormControl>
 								</FormItem>
 							)}
 						/>

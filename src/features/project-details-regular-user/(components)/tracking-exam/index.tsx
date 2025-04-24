@@ -151,6 +151,7 @@ export function TrackingExam({
 				id_projects: projectId,
 				order: activeQuestion?.order,
 				id_tracking_answers: answerMap.get(id), // <-- this is important
+				// @ts-expect-error gonna ignore data for now
 				question: activeQuestion,
 				answer: {
 					answer: Array.isArray(value) ? value.join(',') : value,

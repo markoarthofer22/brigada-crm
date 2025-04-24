@@ -117,6 +117,7 @@
 			"questionTitle": "Question Label",
 			"questionType": "Question type",
 			"radius": "Radius",
+			"required": "Required",
 			"uploadFile": "Drag 'n' drop or click to upload!",
 			"username": "Username",
 			"zoneName": "Zone name"

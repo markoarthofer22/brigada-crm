@@ -117,6 +117,7 @@
 			"questionTitle": "Pitanje",
 			"questionType": "Tip pitanja",
 			"radius": "Radius",
+			"required": "Unos obavezan",
 			"uploadFile": "Ispustite ili pritisnite za upload!",
 			"username": "Korisničko ime",
 			"zoneName": "Naziv zone"

@@ -38,6 +38,12 @@ export async function getProjectById(id: number) {
 
 	const data = {
 		...response.data,
+		questions: response.data.questions.map(
+			(question: ProjectDetails['questions'][number]) => ({
+				...question,
+				required: JSON.parse(question?.data ?? '{}')?.required ?? false,
+			})
+		),
 		zones: response.data.zones.map((zone: ProjectDetails['zones'][number]) => ({
 			...zone,
 			coordinates: {
