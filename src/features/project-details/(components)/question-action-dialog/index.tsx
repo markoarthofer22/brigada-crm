@@ -119,7 +119,7 @@ export function QuestionDialog({
 	}, [form, open])
 
 	useEffect(() => {
-		if (defaultValues) {
+		if (defaultValues && zoneId && projectId) {
 			form.reset({
 				id_questions: defaultValues.id_questions,
 				id_projects: projectId,
@@ -134,7 +134,7 @@ export function QuestionDialog({
 					0,
 			})
 		}
-	}, [defaultValues])
+	}, [defaultValues, zoneId, projectId])
 
 	return (
 		<Dialog open={open} onOpenChange={handleDialogOpenChange}>
