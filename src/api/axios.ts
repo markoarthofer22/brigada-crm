@@ -46,6 +46,7 @@ async function refreshAuthLogic(failedRequest: AxiosError) {
 
 			if (!newToken.refresh_token && !newToken.access_token) {
 				useAuthStore.getState().auth.reset()
+				await logout()
 				return Promise.reject(failedRequest)
 			}
 
