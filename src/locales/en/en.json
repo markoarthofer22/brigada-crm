@@ -219,6 +219,7 @@
 	"ProjectDetailsRegularUser": {
 		"addNewTracking": "Add new tracking",
 		"addTracking": "Start tracking",
+		"backToList": "Go back to projects",
 		"closeTrackingSuccess": "Zone closed successfully",
 		"confirmCloseZone": "Another zone is active. Starting a new one will close it. Continue?",
 		"confirmCloseZoneTitle": "Closing active zone",
@@ -239,7 +240,7 @@
 	"Projects": {
 		"add": "Add project",
 		"addDescription": "Create new project here.",
-		"created": "Created {{value}}",
+		"created": "Created",
 		"createSuccess": "Project {{value}} has been created successfully.",
 		"delete": "Delete Project",
 		"deletePlaceholder": "Enter project name to confirm deletion",

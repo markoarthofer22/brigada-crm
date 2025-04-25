@@ -65,12 +65,12 @@
 	"Global": {
 		"deleteWarning": "Budite oprezni, ova se operacija ne može poništiti!",
 		"time": {
-			"day": " Prije{{value}} dan",
+			"day": " Prije {{value}} dan",
 			"day_few": "Prije {{count}} dana",
 			"day_many": "Prije {{count}} dana",
 			"day_one": "Jučer",
 			"day_plural": " Prije {{value}} dana",
-			"minutes": " prije{{value}} minuta"
+			"minutes": " prije {{value}} minuta"
 		},
 		"today": "Danas",
 		"warning": "Upozorenje",
@@ -219,6 +219,7 @@
 	"ProjectDetailsRegularUser": {
 		"addNewTracking": "Započni novo praćenje",
 		"addTracking": "Započnite praćenje",
+		"backToList": "Povratak na popis projekata",
 		"closeTrackingSuccess": "Praćenje za zonu završeno",
 		"confirmCloseZone": "Aktivna je još jedna zona. Pokretanjem nove zatvorit ćete postojeću. Želite li nastaviti?",
 		"confirmCloseZoneTitle": "Zatvaranje praćenja aktivne zone",
@@ -239,7 +240,7 @@
 	"Projects": {
 		"add": "Dodaj projekt",
 		"addDescription": "Ovdje kreirajte novi projekt.",
-		"created": "Izrađeno {{value}}",
+		"created": "Izrađeno",
 		"createSuccess": "Projekt {{value}} je uspješno kreiran.",
 		"delete": "Izbriši projekt",
 		"deletePlaceholder": "Unesite ime projekta za potvrdu brisanja",

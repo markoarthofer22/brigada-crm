@@ -95,9 +95,7 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
 								</div>
 								<div className='flex items-center'>
 									<Clock className='mr-1.5 h-3.5 w-3.5' />
-									{t('Projects.created', {
-										value: getDaysAgo(project.created_at),
-									})}
+									{t('Projects.created')} {getDaysAgo(project.created_at)}
 								</div>
 							</CardFooter>
 						</Card>

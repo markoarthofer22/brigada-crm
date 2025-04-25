@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useParams } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getProjectById } from '@/api/services/projects/options.ts'
@@ -19,7 +19,7 @@ import { TrackingExam } from '@/features/project-details-regular-user/(component
 import TrackingButtonList from '@/features/project-details-regular-user/(components)/trackings'
 import ZonesLayoutRegularUser from '@/features/project-details-regular-user/(components)/zones-layout'
 
-const INITIAL_SPLIT = 40
+const INITIAL_SPLIT = 66
 
 export default function ProjectDetailsForRegularUser() {
 	const { t } = useTranslation()
@@ -118,16 +118,17 @@ export default function ProjectDetailsForRegularUser() {
 				<Header />
 
 				<Main fixed className='items-center justify-center'>
-					<div className='flex h-full w-full flex-col items-center justify-center space-y-6'>
+					<div className='flex h-full w-full flex-col items-center justify-center space-y-4'>
 						<h2 className='w-fit text-2xl font-bold'>
 							{t('ProjectDetails.title')} {projectQuery.data.name}
 						</h2>
-						<Button
-							size='lg'
-							className='mb-4'
-							onClick={() => startNewTrackingMutation.mutate()}
-						>
+						<Button size='lg' onClick={() => startNewTrackingMutation.mutate()}>
 							{t('ProjectDetailsRegularUser.addTracking')}
+						</Button>
+						<Button variant='outline' size='lg' asChild>
+							<Link to='/projects'>
+								{t('ProjectDetailsRegularUser.backToList')}
+							</Link>
 						</Button>
 					</div>
 				</Main>

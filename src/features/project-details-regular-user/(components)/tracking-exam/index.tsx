@@ -112,6 +112,10 @@ export function TrackingExam({
 					})
 					.min(1, { message: t('Input.validation.required') })
 			}
+
+			if (!q.required) {
+				shape[name] = shape[name].optional()
+			}
 		}
 
 		return z.object(shape)
@@ -136,6 +140,17 @@ export function TrackingExam({
 
 	const handleBlurSubmit = async (name: string, id: number) => {
 		const isValid = await trigger(name)
+		// probably a better way to do this, but it works
+		// don't submit if the value is empty
+		const value = getValues(name) as string | string[]
+		if (
+			!value ||
+			(typeof value === 'string' && value === '') ||
+			(Array.isArray(value) && value.length === 0)
+		) {
+			return
+		}
+
 		if (isValid) {
 			const value = getValues(name) as string | string[]
 			const activeQuestion = questions.find((q) => q.id_questions === id)
@@ -150,9 +165,11 @@ export function TrackingExam({
 				id_tracking: trackingId,
 				id_projects: projectId,
 				order: activeQuestion?.order,
-				id_tracking_answers: answerMap.get(id), // <-- this is important
-				// @ts-expect-error gonna ignore data for now
-				question: activeQuestion,
+				id_tracking_answers: answerMap.get(id),
+				question: {
+					...activeQuestion,
+					data: JSON.parse(activeQuestion?.data ?? '{}'),
+				},
 				answer: {
 					answer: Array.isArray(value) ? value.join(',') : value,
 				},
@@ -402,8 +419,10 @@ export function TrackingExam({
 						{questions.map((q) => (
 							<Card key={q.id_questions}>
 								<CardHeader className='px-4 pb-1.5 pt-4'>
-									{/*add required*/}
-									<CardTitle className='capitalize'>{q.label}</CardTitle>
+									<CardTitle className='capitalize'>
+										{q.label}{' '}
+										{q.required && <sup className='text-destructive'>*</sup>}
+									</CardTitle>
 								</CardHeader>
 								<CardContent className='px-4 py-3'>
 									{renderField(q)}
