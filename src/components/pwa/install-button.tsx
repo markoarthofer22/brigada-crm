@@ -28,8 +28,28 @@ const InstallButton: React.FC = () => {
 	const miscStore = useMiscellaneousStore((state) => state)
 
 	const [deferredPrompt, setDeferredPrompt] =
-		useState<BeforeInstallPromptEvent | null>()
+		useState<BeforeInstallPromptEvent | null>(null)
 	const [isInstalled, setIsInstalled] = useState<boolean>(false)
+
+	// Client-side media query state
+	const [isClient, setIsClient] = useState(false)
+	const [isMobileOrTablet, setIsMobileOrTablet] = useState(false)
+
+	useEffect(() => {
+		// Only run on client
+		setIsClient(true)
+		const mql = window.matchMedia('(max-width: 1023px)')
+		const updateMatch = (e: MediaQueryListEvent) => {
+			setIsMobileOrTablet(e.matches)
+		}
+		// Set initial
+		setIsMobileOrTablet(mql.matches)
+		mql.addEventListener('change', updateMatch)
+
+		return () => {
+			mql.removeEventListener('change', updateMatch)
+		}
+	}, [])
 
 	useEffect(() => {
 		const handleBeforeInstall = (e: Event) => {
@@ -56,7 +76,7 @@ const InstallButton: React.FC = () => {
 			window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
 			window.removeEventListener('appinstalled', handleAppInstalled)
 		}
-	}, [])
+	}, [miscStore])
 
 	const handleInstallClick = async () => {
 		if (!deferredPrompt) return
@@ -73,7 +93,14 @@ const InstallButton: React.FC = () => {
 		miscStore.setIsDeferredDiscarded(true)
 	}
 
-	if (isInstalled || !deferredPrompt || miscStore.isDeferredDiscarded) {
+	// Don't render at all if not on mobile/tablet or not client, or other conditions
+	if (
+		!isClient ||
+		!isMobileOrTablet ||
+		isInstalled ||
+		!deferredPrompt ||
+		miscStore.isDeferredDiscarded
+	) {
 		return null
 	}
 

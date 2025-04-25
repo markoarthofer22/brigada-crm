@@ -38,14 +38,14 @@ async function refreshAuthLogic(failedRequest: AxiosError) {
 			const setRefreshToken = useAuthStore.getState().auth.setRefreshToken
 
 			if (!refreshToken) {
-				await logout()
+				useAuthStore.getState().auth.reset()
 				return Promise.reject(failedRequest)
 			}
 
 			const newToken = await getUserRefreshToken(refreshToken)
 
 			if (!newToken.refresh_token && !newToken.access_token) {
-				await logout()
+				useAuthStore.getState().auth.reset()
 				return Promise.reject(failedRequest)
 			}
 
@@ -60,7 +60,6 @@ async function refreshAuthLogic(failedRequest: AxiosError) {
 			return Promise.resolve()
 		} catch (error) {
 			useAuthStore.getState().auth.reset()
-			await logout()
 			return Promise.reject(error)
 		}
 	}

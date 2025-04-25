@@ -69,14 +69,15 @@ export default function ProjectDetailsForRegularUser() {
 	})
 
 	useEffect(() => {
-		showLoader()
-	}, [])
+		if (projectQuery.isLoading || trackingQuery.isLoading) {
+			showLoader()
+			return
+		}
 
-	useEffect(() => {
 		if (projectQuery.isFetched && trackingQuery.isFetched) {
 			hideLoader()
 		}
-	}, [hideLoader, projectQuery.isFetched, trackingQuery.isFetched])
+	}, [projectQuery.isFetched, trackingQuery.isFetched])
 
 	useEffect(() => {
 		if (trackingQuery.data && trackingQuery.data.length > 0) {

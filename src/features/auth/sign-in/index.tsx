@@ -3,13 +3,14 @@ import { useRouter } from '@tanstack/react-router'
 import { Trans, useTranslation } from 'react-i18next'
 import LoginBg from '@/assets/loginBg.svg'
 import { useAuthStore } from '@/stores/authStore.ts'
+import { useLoader } from '@/context/loader-provider.tsx'
 import { Header } from '@/components/header.tsx'
 import { UserAuthForm } from './components/user-auth-form'
 
 export default function SignIn() {
 	const { t } = useTranslation()
-
 	const authToken = useAuthStore((state) => state.auth.accessToken)
+	const { hideLoader } = useLoader()
 	const router = useRouter()
 
 	useEffect(() => {
@@ -20,6 +21,10 @@ export default function SignIn() {
 			})
 		}
 	}, [router, authToken])
+
+	useEffect(() => {
+		hideLoader()
+	}, [])
 
 	return (
 		<div className='container relative grid h-svh flex-col justify-center lg:max-w-none lg:grid-cols-2 lg:px-0'>
