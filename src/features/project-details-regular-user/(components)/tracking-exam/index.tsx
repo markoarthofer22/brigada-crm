@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -83,12 +83,15 @@ export function TrackingExam({
 		},
 	})
 
-	const getQuestionType = (typeId: number) => {
-		return (
-			questionTypes?.find((type) => type.id_questions_types === typeId) ??
-			questionTypes?.[0]
-		)
-	}
+	const getQuestionType = useCallback(
+		(typeId: number) => {
+			return (
+				questionTypes?.find((type) => type.id_questions_types === typeId) ??
+				questionTypes?.[0]
+			)
+		},
+		[questionTypes]
+	)
 
 	const schema = useMemo(() => {
 		const shape: Record<string, z.ZodTypeAny> = {}
@@ -113,13 +116,13 @@ export function TrackingExam({
 					.min(1, { message: t('Input.validation.required') })
 			}
 
-			if (!q.required) {
+			if (!q.required || qType?.type === 'input' || qType?.type === 'text') {
 				shape[name] = shape[name].optional()
 			}
 		}
 
 		return z.object(shape)
-	}, [questions, questionTypes, t])
+	}, [questions, trackingId, getQuestionType, t])
 
 	const answerMap = useMemo(() => {
 		const map = new Map<number, number>()
@@ -136,7 +139,13 @@ export function TrackingExam({
 		mode: 'onBlur',
 	})
 
-	const { setValue, watch, trigger, getValues } = form
+	const {
+		setValue,
+		watch,
+		trigger,
+		getValues,
+		formState: { isValid },
+	} = form
 
 	const handleBlurSubmit = async (name: string, id: number) => {
 		const isValid = await trigger(name)
@@ -346,17 +355,16 @@ export function TrackingExam({
 			const values: Record<string, string | string[]> = {}
 
 			for (const entry of questions) {
-				const name = `q_${trackingId}_${entry.id_questions}}`
+				const name = `q_${trackingId}_${entry.id_questions}`
 				const qType = getQuestionType(entry.id_questions_types)
 
 				values[name] = qType?.type === 'checkbox' ? [] : ''
 			}
-
 			form.reset(values)
 			return
 		}
 
-		if (trackingAnswersQuery.data.length) {
+		if (trackingAnswersQuery.data.length > 0) {
 			const values: Record<string, string | string[]> = {}
 
 			for (const entry of trackingAnswersQuery.data) {
@@ -373,10 +381,9 @@ export function TrackingExam({
 
 	useEffect(() => {
 		if (onValidityChange) {
-			const formIsValid = form.formState.isValid
-			onValidityChange(formIsValid)
+			onValidityChange(isValid)
 		}
-	}, [form.formState.isValid, onValidityChange])
+	}, [isValid, onValidityChange])
 
 	if (trackingAnswersQuery.isLoading) {
 		return <GlobalLoader />

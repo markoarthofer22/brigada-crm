@@ -90,6 +90,8 @@
 		},
 		"user": {
 			"logout": "Logout",
+			"openPWA": "Download the app",
+			"openPWAIos": "Download the app (iOS)",
 			"profile": "Profile"
 		}
 	},
@@ -146,6 +148,13 @@
 			"tooLarge": "File is too big. Max upload size is {value} MB!",
 			"wrongExtension": "Invalid extension! Allowed extensions are {value}"
 		}
+	},
+	"Ios": {
+		"checked": "Got it",
+		"description": "To install this app on your iPhone or iPad:",
+		"save": "Select <strong>Add to Home Screen</strong>",
+		"share": "Tap the <strong>Share</strong> icon",
+		"title": "Install App"
 	},
 	"Languages": {
 		"en": "English",

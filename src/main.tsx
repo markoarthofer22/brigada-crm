@@ -12,6 +12,7 @@ import { I18nextProvider } from 'react-i18next'
 import { toast } from 'sonner'
 import { handleServerError } from '@/utils/handle-server-error'
 import { LoaderProvider } from '@/context/loader-provider.tsx'
+import { IosInstallPrompt } from '@/components/pwa/IosInstallPrompt.tsx'
 import InstallButton from '@/components/pwa/install-button.tsx'
 import { FontProvider } from './context/font-context'
 import { ThemeProvider } from './context/theme-context'
@@ -96,6 +97,7 @@ if (!rootElement.innerHTML) {
 							<NuqsAdapter>
 								<RouterProvider router={router} />
 								<InstallButton />
+								<IosInstallPrompt />
 							</NuqsAdapter>
 						</FontProvider>
 					</ThemeProvider>

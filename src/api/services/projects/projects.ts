@@ -41,7 +41,10 @@ export async function getProjectById(id: number) {
 		questions: response.data.questions.map(
 			(question: ProjectDetails['questions'][number]) => ({
 				...question,
-				required: JSON.parse(question?.data ?? '{}')?.required ?? false,
+				required:
+					question.id_questions_types === 1 || question.id_questions_types === 2
+						? false
+						: (JSON.parse(question?.data ?? '{}')?.required ?? false),
 			})
 		),
 		zones: response.data.zones.map((zone: ProjectDetails['zones'][number]) => ({
@@ -49,7 +52,11 @@ export async function getProjectById(id: number) {
 			questions: zone.questions.map(
 				(question: ProjectDetails['questions'][number]) => ({
 					...question,
-					required: JSON.parse(question?.data ?? '{}')?.required ?? false,
+					required:
+						question.id_questions_types === 1 ||
+						question.id_questions_types === 2
+							? false
+							: (JSON.parse(question?.data ?? '{}')?.required ?? false),
 				})
 			),
 			coordinates: {

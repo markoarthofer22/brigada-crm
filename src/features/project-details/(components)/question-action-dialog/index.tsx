@@ -96,7 +96,10 @@ export function QuestionDialog({
 		onSubmit({
 			...data,
 			data: {
-				required: data.required ?? false,
+				required:
+					data.id_questions_types === 1 || data.id_questions_types === 2
+						? false
+						: (data.required ?? false),
 			},
 			id_projects: projectId,
 			id_zones: zoneId ?? null,
@@ -211,22 +214,24 @@ export function QuestionDialog({
 							)}
 						/>
 
-						<FormField
-							control={form.control}
-							name='required'
-							render={({ field }) => (
-								<FormItem className='flex h-9 flex-row items-center justify-between rounded-lg border px-3 shadow-sm'>
-									<FormLabel>{t('Input.label.required')}</FormLabel>
-									<FormControl>
-										<Switch
-											className='!mt-0'
-											checked={field.value}
-											onCheckedChange={field.onChange}
-										/>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
+						{watchQuestionType !== 1 && watchQuestionType !== 2 && (
+							<FormField
+								control={form.control}
+								name='required'
+								render={({ field }) => (
+									<FormItem className='flex h-9 flex-row items-center justify-between rounded-lg border px-3 shadow-sm'>
+										<FormLabel>{t('Input.label.required')}</FormLabel>
+										<FormControl>
+											<Switch
+												className='!mt-0'
+												checked={field.value}
+												onCheckedChange={field.onChange}
+											/>
+										</FormControl>
+									</FormItem>
+								)}
+							/>
+						)}
 
 						{requiresPossibleAnswers && (
 							<div className='space-y-4'>

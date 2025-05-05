@@ -148,14 +148,19 @@ const ZonesLayoutRegularUser = ({
 					return
 				}
 
-				if (activeZone && activeZone.id_zones !== zone.id_zones) {
-					setConfirmZoneId(zone.id_zones)
-				} else {
+				if (!activeZone) {
 					startNewZoneTrackingMutation.mutate({
 						id_projects: projectId,
 						id_tracking: trackingId,
 						id_zones: zone.id_zones,
 					})
+					return
+				}
+
+				if (activeZone && activeZone.id_zones !== zone.id_zones) {
+					setConfirmZoneId(zone.id_zones)
+				} else {
+					mapZoneQuestions()
 				}
 				break
 			}
@@ -304,10 +309,6 @@ const ZonesLayoutRegularUser = ({
 		handleImageCanvasRender()
 	}, [handleImageCanvasRender])
 
-	useEffect(() => {
-		mapZoneQuestions()
-	}, [mapZoneQuestions])
-
 	return (
 		<>
 			<div className={className}>
@@ -362,6 +363,14 @@ const ZonesLayoutRegularUser = ({
 						return (
 							<div
 								key={zone.id_zones}
+								onClick={(e) => {
+									e.preventDefault()
+									e.stopPropagation()
+									if (isActive) {
+										mapZoneQuestions()
+										return
+									}
+								}}
 								className='absolute z-10 flex flex-col items-center justify-center gap-2 rounded-md bg-muted p-2 shadow transition-all'
 								style={{
 									left: center.x,
@@ -377,7 +386,10 @@ const ZonesLayoutRegularUser = ({
 								<Button
 									variant='destructive'
 									size='sm'
-									onClick={stopTrackingZoneHandler}
+									onClick={(e) => {
+										e.stopPropagation()
+										stopTrackingZoneHandler()
+									}}
 								>
 									{t('Actions.close')}
 								</Button>

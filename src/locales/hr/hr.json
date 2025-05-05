@@ -90,6 +90,8 @@
 		},
 		"user": {
 			"logout": "Odjava",
+			"openPWA": "Preuzmi aplikaciju",
+			"openPWAIos": "Preuzmi aplikaciju (iOS)",
 			"profile": "Profil"
 		}
 	},
@@ -146,6 +148,13 @@
 			"tooLarge": "Datoteka je  prevelika. Maksimalna veličina datoteke je {value} MB!",
 			"wrongExtension": "Neispravna datoteka! Dopušteni tipovi su {value}"
 		}
+	},
+	"Ios": {
+		"checked": "Razumijem",
+		"description": "Da biste instalirali ovu aplikaciju na iPhone ili iPad:",
+		"save": "Odaberite <strong>Add to Home Screen</strong>",
+		"share": "Pritisnite ikonu <strong>Share</strong> ",
+		"title": "Instaliraj aplikaciju"
 	},
 	"Languages": {
 		"en": "Engleski",

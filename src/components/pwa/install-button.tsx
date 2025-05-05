@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useMiscellaneousStore } from '@/stores/miscStore.ts'
+import { isIOS } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -99,7 +100,8 @@ const InstallButton: React.FC = () => {
 		!isMobileOrTablet ||
 		isInstalled ||
 		!deferredPrompt ||
-		miscStore.isDeferredDiscarded
+		miscStore.isDeferredDiscarded ||
+		isIOS()
 	) {
 		return null
 	}
@@ -109,7 +111,7 @@ const InstallButton: React.FC = () => {
 			<Button
 				variant='ghost'
 				size='icon'
-				className='absolute right-2 top-1 h-8 w-8'
+				className='absolute right-2 top-1 z-10 h-8 w-8'
 				onClick={handleDismiss}
 			>
 				<X className='h-4 w-4' />

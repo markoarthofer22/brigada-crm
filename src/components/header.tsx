@@ -1,10 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
+import { IconShare2 } from '@tabler/icons-react'
 import { Globe, Laptop, LogOut, Moon, Sun, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { logout } from '@/api/services/authorization/authorization.ts'
 import { Languages, useAuthStore } from '@/stores/authStore.ts'
-import { cn, getInitials } from '@/lib/utils.ts'
+import { useMiscellaneousStore } from '@/stores/miscStore.ts'
+import { cn, getInitials, isIOS } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { useTheme } from '@/context/theme-context.tsx'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
@@ -13,7 +15,6 @@ import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
@@ -33,6 +34,7 @@ export function Header({
 	showSidebarToggle = true,
 }: HeaderProps) {
 	const { setTheme, theme } = useTheme()
+	const miscStore = useMiscellaneousStore((state) => state)
 	const setLanguage = useAuthStore((state) => state.auth.setLang)
 	const user = useAuthStore((state) => state.auth.user)
 	const resetState = useAuthStore((state) => state.auth.reset)
@@ -179,15 +181,29 @@ export function Header({
 									</div>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
-								<DropdownMenuGroup>
-									<DropdownMenuItem asChild>
-										<Link to={'/settings/account'}>
-											<User className='mr-2 h-4 w-4' />
-											{t('Header.user.profile')}
-										</Link>
-									</DropdownMenuItem>
-								</DropdownMenuGroup>
+								<DropdownMenuItem asChild>
+									<Link to={'/settings/account'}>
+										<User className='mr-2 h-4 w-4' />
+										{t('Header.user.profile')}
+									</Link>
+								</DropdownMenuItem>
 								<DropdownMenuSeparator />
+
+								{miscStore.isDeferredDiscarded && (
+									<>
+										<DropdownMenuItem
+											className='lg:hidden'
+											onClick={() =>
+												miscStore.setIsDeferredDiscarded(false, 'center')
+											}
+										>
+											<IconShare2 className='mr-2 h-4 w-4' />
+											{t(`Header.user.${!isIOS() ? 'openPWA' : 'openPWAIos'}`)}
+										</DropdownMenuItem>
+										<DropdownMenuSeparator className='lg:hidden' />
+									</>
+								)}
+
 								<DropdownMenuItem
 									onClick={() => logoutMutation.mutate()}
 									disabled={logoutMutation.isPending}

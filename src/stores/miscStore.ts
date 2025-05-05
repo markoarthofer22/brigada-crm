@@ -3,7 +3,11 @@ import { create } from 'zustand'
 
 interface DefaultState {
 	isDeferredDiscarded: boolean
-	setIsDeferredDiscarded: (isDeferredDiscarded: boolean) => void
+	setIsDeferredDiscarded: (
+		isDeferredDiscarded: boolean,
+		position?: 'bottom' | 'center'
+	) => void
+	iosPromptPosition: 'bottom' | 'center'
 }
 
 const MISC_TOKEN = import.meta.env.VITE_COOKIE_MISC_TOKEN
@@ -15,11 +19,12 @@ export const useMiscellaneousStore = create<DefaultState>()((set) => {
 
 	return {
 		isDeferredDiscarded: !!initToken,
-		setIsDeferredDiscarded: (isDeferredDiscarded) => {
+		iosPromptPosition: 'bottom',
+		setIsDeferredDiscarded: (isDeferredDiscarded, position = 'bottom') => {
 			Cookies.set(MISC_TOKEN, JSON.stringify(isDeferredDiscarded), {
 				expires: PERSIST_7_DAYS,
 			})
-			set({ isDeferredDiscarded })
+			set({ isDeferredDiscarded, iosPromptPosition: position })
 		},
 	}
 })

@@ -5,6 +5,7 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import fs from 'fs-extra'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import svgr from 'vite-plugin-svgr'
 
 function cleanDistExceptFilesFolder(): Plugin {
 	return {
@@ -32,6 +33,7 @@ export default defineConfig(({ mode }) => {
 	return {
 		plugins: [
 			react(),
+			svgr(),
 			TanStackRouterVite(),
 			cleanDistExceptFilesFolder(),
 			viteStaticCopy({
@@ -47,7 +49,7 @@ export default defineConfig(({ mode }) => {
 				],
 			}),
 			VitePWA({
-				registerType: 'autoUpdate',
+				registerType: 'prompt',
 				devOptions: {
 					enabled: isDevelopment,
 				},
@@ -58,6 +60,7 @@ export default defineConfig(({ mode }) => {
 				},
 				manifest: {
 					name: 'Brigada',
+					start_url: '/',
 					short_name: 'Brigada',
 					description: 'Tracking customers application',
 					theme_color: '#ffffff',
@@ -74,26 +77,43 @@ export default defineConfig(({ mode }) => {
 							type: 'image/png',
 						},
 					],
+					screenshots: [
+						{
+							src: '/images/screenshot-mobile.png',
+							sizes: '411x899',
+							type: 'image/png',
+							form_factor: 'narrow', // for mobile
+						},
+						{
+							src: '/images/screenshot-desktop.png',
+							sizes: '1716x1291',
+							type: 'image/png',
+							form_factor: 'wide', // for desktop
+						},
+					],
 				},
 			}),
 			// basicSsl(),
 		],
+		server: isDevelopment
+			? undefined
+			: {
+					host: true,
+					https: {
+						key: fs.readFileSync(
+							path.resolve(__dirname, '192.168.100.163-key.pem')
+						),
+						cert: fs.readFileSync(
+							path.resolve(__dirname, '192.168.100.163.pem')
+						),
+					},
+				},
 		resolve: {
 			alias: {
 				'@': path.resolve(__dirname, './src'),
 				'@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs',
 			},
 		},
-		// disable if you dont want to use https on dev
-		server: isDevelopment
-			? {
-					host: true,
-					https: {
-						key: fs.readFileSync(path.resolve(__dirname, 'localhost-key.pem')),
-						cert: fs.readFileSync(path.resolve(__dirname, 'localhost.pem')),
-					},
-				}
-			: {},
 		build: {
 			outDir: 'dist',
 			emptyOutDir: false,

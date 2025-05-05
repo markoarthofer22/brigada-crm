@@ -152,3 +152,12 @@ export const getContrastColor = (hex: string): string => {
 	const brightness = (r * 299 + g * 587 + b * 114) / 1000
 	return brightness > 128 ? '#000000' : '#FFFFFF'
 }
+
+export const isIOS = () => {
+	const ua = window.navigator.userAgent.toLowerCase()
+	return /iphone|ipad|ipod/.test(ua)
+}
+
+export const isInStandaloneMode = () =>
+	'standalone' in window.navigator &&
+	(window.navigator as any).standalone === true
