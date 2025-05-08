@@ -37,7 +37,7 @@ export const IosInstallPrompt = () => {
 				<div className='fixed inset-0 z-50 bg-black/80' />
 			)}
 			<Card
-				className={cn('z-50 shadow-lg', {
+				className={cn('z-50 shadow-lg lg:hidden', {
 					'fixed bottom-4 right-4 max-w-sm animate-in slide-in-from-bottom-10':
 						miscStore.iosPromptPosition === 'bottom',
 					'absolute left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2':

@@ -49,7 +49,8 @@ export default defineConfig(({ mode }) => {
 				],
 			}),
 			VitePWA({
-				registerType: 'prompt',
+				registerType: 'autoUpdate',
+				injectRegister: 'auto',
 				devOptions: {
 					enabled: isDevelopment,
 				},
@@ -57,6 +58,9 @@ export default defineConfig(({ mode }) => {
 					maximumFileSizeToCacheInBytes: 12 * 1024 * 1024 * 10, // 120 MB
 					globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
 					sourcemap: true,
+					cleanupOutdatedCaches: true,
+					skipWaiting: true,
+					clientsClaim: true,
 				},
 				manifest: {
 					name: 'Brigada',
@@ -114,8 +118,10 @@ export default defineConfig(({ mode }) => {
 				'@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs',
 			},
 		},
+
 		build: {
 			outDir: 'dist',
+			minify: true,
 			emptyOutDir: false,
 			rollupOptions: {
 				output: {

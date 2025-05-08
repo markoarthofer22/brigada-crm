@@ -188,22 +188,16 @@ export function Header({
 									</Link>
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
-
-								{miscStore.isDeferredDiscarded && (
-									<>
-										<DropdownMenuItem
-											className='lg:hidden'
-											onClick={() =>
-												miscStore.setIsDeferredDiscarded(false, 'center')
-											}
-										>
-											<IconShare2 className='mr-2 h-4 w-4' />
-											{t(`Header.user.${!isIOS() ? 'openPWA' : 'openPWAIos'}`)}
-										</DropdownMenuItem>
-										<DropdownMenuSeparator className='lg:hidden' />
-									</>
-								)}
-
+								<DropdownMenuItem
+									className='lg:hidden'
+									onClick={() =>
+										miscStore.setIsDeferredDiscarded(false, 'center')
+									}
+								>
+									<IconShare2 className='mr-2 h-4 w-4' />
+									{t(`Header.user.${!isIOS() ? 'openPWA' : 'openPWAIos'}`)}
+								</DropdownMenuItem>
+								<DropdownMenuSeparator className='lg:hidden' />
 								<DropdownMenuItem
 									onClick={() => logoutMutation.mutate()}
 									disabled={logoutMutation.isPending}
