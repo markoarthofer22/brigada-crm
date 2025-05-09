@@ -244,13 +244,14 @@ class Tracking
 
 		if (isset($params->id_zones)) {
 			$fields["id_zones"] = ":ID_ZONES";
+			$fields["id_tracking_zones"] = ":ID_TRACKING_ZONES";
 		}
 
 		$columns = implode(", ", array_keys($fields));
 		$values  = implode(", ", array_values($fields));
 
 		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.tracking_answers ($columns) VALUES ($values)
-				ON CONFLICT (id_tracking, id_questions, id_zones) 
+				ON CONFLICT (id_tracking, id_questions, id_tracking_zones, id_zones) 
 				DO NOTHING
 				RETURNING id_tracking_answers
 		";
@@ -265,6 +266,7 @@ class Tracking
 		$stmt->bindParam(':DATA', json_encode($params->data), PDO::PARAM_STR);
 		if (isset($params->id_zones)) {
 			$stmt->bindParam(':ID_ZONES', $params->id_zones, PDO::PARAM_INT);
+			$stmt->bindParam(':ID_TRACKING_ZONES', $params->id_tracking_zones, PDO::PARAM_INT);
 		}
 
 		$stmt->execute();
