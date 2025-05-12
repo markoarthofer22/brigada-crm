@@ -41,6 +41,7 @@ class Tracking
 			$_where .= " AND t.id_projects = {$params->id_projects} ";
 		}
 
+
 		// $sql = "SELECT 
 		// 			* 
 		// 		FROM {$_SESSION["SCHEMA"]}.tracking t
