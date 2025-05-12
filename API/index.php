@@ -187,12 +187,12 @@ $app->group('', function () use ($app) {
 		$app->post('', TrackingController::class . ":StartTracking");
 	})->add([new Auth(), 'Auth']);
 
-	// $app->group('/test', function () use ($app) {
-	// 	$app->get('/', TestController::class . ":Get");
-	// 	$app->get('/pp', TestController::class . ":PP");
-	// 	$app->get('/info', TestController::class . ":Info");
-	// 	$app->get('/oci', TestController::class . ":oci");
-	// });
+	$app->group('/test', function () use ($app) {
+		$app->get('/', TestController::class . ":Get");
+		$app->get('/pp', TestController::class . ":PP");
+		$app->get('/info', TestController::class . ":Info");
+		$app->get('/oci', TestController::class . ":oci");
+	});
 })->add([new Main(), 'Logs']);
 
 
