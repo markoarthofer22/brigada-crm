@@ -1,6 +1,7 @@
 import axios from '@/api/axios.ts'
 import {
 	GetTrackingsResponseSchema,
+	getTrackingZoneAnswersForTrackingSchema,
 	GetTrackingZonesForTrackingResponseSchema,
 	StartZonePayload,
 	TrackingAnswerUpsertSchema,
@@ -39,12 +40,20 @@ export async function addTrackingAnswer(data: TrackingsAnswerUpsert) {
 	}
 }
 
-export async function geAnswersForSpecificTracking(trackingId: number) {
+export async function getAnswersForSpecificTracking(trackingId: number) {
 	const response = await axios.get(
 		`/tracking/answers?id_tracking=${trackingId}`
 	)
 
 	return TrackingAnswerUpsertSchema.array().parse(response.data.results)
+}
+
+export async function getAnswersForSpecificZoneInTracking(id_tracking: number) {
+	const response = await axios.get(`/tracking/zones?id_tracking=${id_tracking}`)
+
+	return getTrackingZoneAnswersForTrackingSchema
+		.array()
+		.parse(response.data.results)
 }
 
 export async function startNewTackingEvent(

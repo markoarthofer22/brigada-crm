@@ -6,7 +6,10 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ProjectDetails } from '@/api/services/projects/schema'
-import { getAnswerForSpecificTracking } from '@/api/services/trackings/options.ts'
+import {
+	getAnswerForSpecificTracking,
+	getAnswerForSpecificZoneInTracking,
+} from '@/api/services/trackings/options.ts'
 import { TrackingsAnswerUpsert } from '@/api/services/trackings/schema.ts'
 import { addTrackingAnswer } from '@/api/services/trackings/trackings.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
@@ -44,8 +47,10 @@ interface TrackingExamProps {
 	questions: ProjectDetails['questions']
 	projectId: number
 	trackingId: number
+	zoneId?: number
 	examName?: string
 	onValidityChange?: (isValid: boolean) => void
+	trackingZoneId?: number
 }
 
 export function TrackingExam({
@@ -54,6 +59,8 @@ export function TrackingExam({
 	trackingId,
 	projectId,
 	onValidityChange,
+	zoneId,
+	trackingZoneId,
 }: TrackingExamProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
@@ -61,10 +68,20 @@ export function TrackingExam({
 
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
 
+	// diff depends zone_id exist
 	const trackingAnswersQuery = useQuery({
 		...getAnswerForSpecificTracking(trackingId),
-		enabled: !!trackingId,
+		enabled: !!trackingId && !zoneId,
 	})
+
+	const trackingAnswersZoneQuery = useQuery({
+		...getAnswerForSpecificZoneInTracking(trackingId),
+		enabled: !!trackingId && !!zoneId,
+	})
+
+	const activeQuestionAnswers = zoneId
+		? trackingAnswersZoneQuery
+		: trackingAnswersQuery
 
 	const answerQuestionMutation = useMutation({
 		mutationFn: (data: TrackingsAnswerUpsert) => {
@@ -76,7 +93,7 @@ export function TrackingExam({
 					`ProjectDetailsRegularUser.Exam.${data?.id_tracking_answers ? 'questionUpdated' : 'questionSaved'}`
 				)
 			)
-			trackingAnswersQuery.refetch()
+			activeQuestionAnswers.refetch()
 		},
 		onError: (err: unknown) => {
 			handleError(err)
@@ -126,13 +143,29 @@ export function TrackingExam({
 
 	const answerMap = useMemo(() => {
 		const map = new Map<number, number>()
-		trackingAnswersQuery.data?.forEach((entry) => {
+
+		let arr
+
+		if (zoneId) {
+			arr = activeQuestionAnswers.data
+				?.find(
+					(entry) =>
+						entry.id_zones === zoneId && entry.id_tracking === trackingId
+				)
+				// 	@ts-expect-error exist
+				?.answers?.filter((x) => x.id_tracking_zones === trackingZoneId)
+		} else {
+			arr = activeQuestionAnswers.data
+		}
+
+		// @ts-expect-error exist
+		arr?.forEach((entry) => {
 			if (entry.id_tracking_answers) {
 				map.set(entry.id_questions, entry.id_tracking_answers)
 			}
 		})
 		return map
-	}, [trackingAnswersQuery.data])
+	}, [activeQuestionAnswers.data])
 
 	const form = useForm<z.infer<typeof schema>>({
 		resolver: zodResolver(schema),
@@ -174,6 +207,8 @@ export function TrackingExam({
 				id_tracking: trackingId,
 				id_projects: projectId,
 				order: activeQuestion?.order,
+				id_tracking_zones: trackingZoneId,
+				id_zones: zoneId,
 				id_tracking_answers: answerMap.get(id),
 				question: {
 					...activeQuestion,
@@ -350,8 +385,8 @@ export function TrackingExam({
 	}
 
 	useEffect(() => {
-		if (!trackingAnswersQuery.data) return
-		if (trackingAnswersQuery.data.length === 0) {
+		if (!activeQuestionAnswers.data) return
+		if (activeQuestionAnswers.data.length === 0) {
 			const values: Record<string, string | string[]> = {}
 
 			for (const entry of questions) {
@@ -364,10 +399,25 @@ export function TrackingExam({
 			return
 		}
 
-		if (trackingAnswersQuery.data.length > 0) {
+		if (activeQuestionAnswers.data.length > 0) {
 			const values: Record<string, string | string[]> = {}
 
-			for (const entry of trackingAnswersQuery.data) {
+			let arr
+
+			if (zoneId && trackingZoneId) {
+				arr = activeQuestionAnswers.data
+					.find(
+						(entry) =>
+							entry.id_zones === zoneId && entry.id_tracking === trackingId
+					)
+					// 	@ts-expect-error exist
+					?.answers?.filter((x) => x.id_tracking_zones === trackingZoneId)
+			} else {
+				arr = activeQuestionAnswers.data
+			}
+			if (!arr) return
+
+			for (const entry of arr) {
 				const name = `q_${trackingId}_${entry.id_questions}`
 				const raw = entry.answer?.answer ?? ''
 				const qType = getQuestionType(entry.question?.id_questions_types)
@@ -377,7 +427,7 @@ export function TrackingExam({
 
 			form.reset(values)
 		}
-	}, [trackingAnswersQuery.data, questionTypes])
+	}, [activeQuestionAnswers.data, questionTypes])
 
 	useEffect(() => {
 		if (onValidityChange) {
@@ -385,7 +435,7 @@ export function TrackingExam({
 		}
 	}, [isValid, onValidityChange])
 
-	if (trackingAnswersQuery.isLoading) {
+	if (activeQuestionAnswers.isLoading) {
 		return <GlobalLoader />
 	}
 

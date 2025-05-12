@@ -433,7 +433,7 @@ const ZonesLayoutRegularUser = ({
 				</AlertDialog>
 			</div>
 
-			{activeZoneQuestions.length > 0 && (
+			{activeZoneQuestions.length > 0 && activeZone && (
 				<Dialog
 					open={activeZoneQuestions.length > 0}
 					onOpenChange={(open) => !open && setActiveZoneQuestions([])}
@@ -457,6 +457,8 @@ const ZonesLayoutRegularUser = ({
 						</DialogHeader>
 
 						<TrackingExam
+							trackingZoneId={activeZone.id_tracking_zones}
+							zoneId={activeZone.id_zones}
 							trackingId={trackingId}
 							projectId={projectId}
 							questions={activeZoneQuestions}

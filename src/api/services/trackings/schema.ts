@@ -23,6 +23,8 @@ export const TrackingAnswerUpsertSchema = z.object({
 	id_tracking_answers: z.number().optional(),
 	id_projects: z.number(),
 	id_questions: z.number(),
+	id_zones: z.number().optional().nullable(),
+	id_tracking_zones: z.number().optional().nullable(),
 	question: QuestionResponseSchema,
 	answer: z.object({
 		answer: z.string(),
@@ -50,4 +52,14 @@ export type StartZonePayload = {
 
 export const GetTrackingZonesForTrackingResponseSchema = z.object({
 	results: z.array(TrackingZonesForTrackingSchema),
+})
+
+export const getTrackingZoneAnswersForTrackingSchema = z.object({
+	id_projects: z.number(),
+	id_tracking: z.number(),
+	id_tracking_zones: z.number(),
+	id_zones: z.number(),
+	started_at: z.string(),
+	ended_at: z.string().nullable(),
+	answers: z.array(TrackingAnswerUpsertSchema),
 })
