@@ -94,14 +94,17 @@ const InstallButton: React.FC = () => {
 		miscStore.setIsDeferredDiscarded(true)
 	}
 
+	if (isIOS()) {
+		return null
+	}
+
 	// Don't render at all if not on mobile/tablet or not client, or other conditions
 	if (
 		!isClient ||
 		!isMobileOrTablet ||
 		isInstalled ||
 		!deferredPrompt ||
-		miscStore.isDeferredDiscarded ||
-		isIOS()
+		miscStore.isDeferredDiscarded
 	) {
 		return null
 	}

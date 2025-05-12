@@ -50,17 +50,12 @@ export default defineConfig(({ mode }) => {
 			}),
 			VitePWA({
 				registerType: 'autoUpdate',
-				injectRegister: 'auto',
 				devOptions: {
 					enabled: isDevelopment,
+					suppressWarnings: true,
 				},
 				workbox: {
-					maximumFileSizeToCacheInBytes: 12 * 1024 * 1024 * 10, // 120 MB
-					globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
 					sourcemap: true,
-					cleanupOutdatedCaches: true,
-					skipWaiting: true,
-					clientsClaim: true,
 				},
 				manifest: {
 					name: 'Brigada',

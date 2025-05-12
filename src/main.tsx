@@ -10,6 +10,7 @@ import i18n from '@/i18n'
 import { NuqsAdapter } from 'nuqs/adapters/react'
 import { I18nextProvider } from 'react-i18next'
 import { toast } from 'sonner'
+import { registerSW } from 'virtual:pwa-register'
 import { handleServerError } from '@/utils/handle-server-error'
 import { LoaderProvider } from '@/context/loader-provider.tsx'
 import { IosInstallPrompt } from '@/components/pwa/IosInstallPrompt.tsx'
@@ -19,6 +20,8 @@ import { ThemeProvider } from './context/theme-context'
 import './index.css'
 // Generated Routes
 import { routeTree } from './routeTree.gen'
+
+registerSW({ immediate: true })
 
 const queryClient = new QueryClient({
 	defaultOptions: {
