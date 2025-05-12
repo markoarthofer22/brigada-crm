@@ -46,6 +46,10 @@ export default defineConfig(({ mode }) => {
 						src: '.htaccess',
 						dest: '',
 					},
+					{
+						src: 'robots.txt',
+						dest: '',
+					},
 				],
 			}),
 			VitePWA({
@@ -117,7 +121,7 @@ export default defineConfig(({ mode }) => {
 		build: {
 			outDir: 'dist',
 			minify: true,
-			emptyOutDir: false,
+			emptyOutDir: true,
 			rollupOptions: {
 				output: {
 					entryFileNames: 'assets/[name]-[hash].js',
