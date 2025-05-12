@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useMiscellaneousStore } from '@/stores/miscStore.ts'
-import { isIOS } from '@/lib/utils.ts'
+import { isAndroid, isIOS } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -94,7 +94,7 @@ const InstallButton: React.FC = () => {
 		miscStore.setIsDeferredDiscarded(true)
 	}
 
-	if (isIOS()) {
+	if (isIOS() || !isAndroid()) {
 		return null
 	}
 

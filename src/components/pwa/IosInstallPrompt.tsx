@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { IconShare2, IconSquareRoundedPlus, IconX } from '@tabler/icons-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useMiscellaneousStore } from '@/stores/miscStore.ts'
-import { cn, isInStandaloneMode, isIOS } from '@/lib/utils.ts'
+import { cn, isAndroid, isInStandaloneMode, isIOS } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -21,6 +21,8 @@ export const IosInstallPrompt = () => {
 	useEffect(() => {
 		if (isIOS() && !isInStandaloneMode() && !miscStore.isDeferredDiscarded) {
 			setShowPrompt(true)
+		} else {
+			setShowPrompt(false)
 		}
 	}, [miscStore.isDeferredDiscarded])
 
@@ -28,6 +30,8 @@ export const IosInstallPrompt = () => {
 		setShowPrompt(false)
 		miscStore.setIsDeferredDiscarded(true)
 	}
+
+	if (isAndroid()) return null
 
 	if (!showPrompt && miscStore.isDeferredDiscarded) return null
 
