@@ -41,13 +41,26 @@ class Tracking
 			$_where .= " AND t.id_projects = {$params->id_projects} ";
 		}
 
-		$sql = "SELECT 
-					* 
-				FROM {$_SESSION["SCHEMA"]}.tracking t
-				{$_where}
-				AND t.ended_at IS NULL
-				AND t.id_users = {$_SESSION["user"]["id_users"]}
-				ORDER BY t.started_at ASC
+		// $sql = "SELECT 
+		// 			* 
+		// 		FROM {$_SESSION["SCHEMA"]}.tracking t
+		// 		{$_where}
+		// 		AND t.ended_at IS NULL
+		// 		AND t.id_users = {$_SESSION["user"]["id_users"]}
+		// 		ORDER BY t.started_at ASC
+		// ";
+		$sql = "WITH all_data AS (
+					SELECT 
+						*,
+						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
+					FROM brigada.tracking t
+					WHERE 
+						1=1  
+						AND t.id_projects = 8 
+						AND t.id_users = 12
+					ORDER BY t.started_at ASC
+				)
+				SELECT * FROM all_data WHERE ended_at IS NULL
 		";
 
 		$stmt = $this->database->prepare($sql);
