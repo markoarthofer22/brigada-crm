@@ -95,7 +95,11 @@ export default function ProjectDetailsForRegularUser() {
 
 	if (!projectQuery.isSuccess || !trackingQuery.isFetched) return null
 
-	if (trackingQuery.error)
+	if (
+		trackingQuery.error ||
+		projectQuery.data.images?.length === 0 ||
+		projectQuery.data.questions?.length === 0
+	)
 		return (
 			<>
 				<Header />
