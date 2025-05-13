@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { IconMinus, IconPlus } from '@tabler/icons-react'
+import { IconMinus, IconPlus, IconRestore } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { ProjectDetails } from '@/api/services/projects/schema.ts'
@@ -74,6 +74,7 @@ const ZonesLayoutRegularUser = ({
 	>([])
 	const [zoomLevel, setZoomLevel] = useState<number>(INITIAL_ZOOM_LEVEL)
 	const containerRef = useRef<HTMLDivElement>(null)
+	const initialZoomRef = useRef<number>(null)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const imageCanvasRef = useRef<HTMLCanvasElement>(null)
 	const { handleError } = useHandleGenericError()
@@ -309,6 +310,12 @@ const ZonesLayoutRegularUser = ({
 		})
 	}
 
+	const resetZoom = () => {
+		if (initialZoomRef.current) {
+			setZoomLevel(initialZoomRef.current)
+		}
+	}
+
 	useEffect(() => {
 		if (allImages?.length) {
 			setSelectedImage(allImages[0].id_images)
@@ -378,6 +385,9 @@ const ZonesLayoutRegularUser = ({
 		const imgWidth = activeImage.data.width
 		const containerWidth = containerRef.current.clientWidth
 		const fitZoom = containerWidth / imgWidth
+		if (initialZoomRef.current === null) {
+			initialZoomRef.current = fitZoom
+		}
 		setZoomLevel(Math.max(0.5, Math.min(2, fitZoom)))
 	}, [activeImage])
 
@@ -422,6 +432,14 @@ const ZonesLayoutRegularUser = ({
 					/>
 
 					<div className='absolute bottom-4 left-4 flex flex-col-reverse items-center gap-2 rounded-md bg-black/20'>
+						<Button
+							variant='outline'
+							className='shadow-3xl z-10 size-10 border-2 border-primary p-0 shadow-black'
+							onClick={resetZoom}
+							aria-label='Reset to inital'
+						>
+							<IconRestore className='h-5 w-5' />
+						</Button>
 						<Button
 							className='shadow-3xl z-10 size-10 border-2 border-primary p-0 shadow-black'
 							variant='outline'
