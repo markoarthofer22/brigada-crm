@@ -8,6 +8,7 @@ export const TrackingsSchema = z.object({
 	started_at: z.string(),
 	ended_at: z.string().nullable(),
 	id_users: z.number().optional(),
+	id_tracking_count: z.number().optional(),
 	// test
 	zones: z.array(z.any()).optional(),
 })

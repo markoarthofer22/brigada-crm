@@ -60,7 +60,7 @@ export default function TrackingButtonList({
 					>
 						<div className='flex flex-col items-center gap-1'>
 							<div className='text-sm font-medium'>
-								{t('TrackingCard.tracking')} {index + 1}
+								{t('TrackingCard.tracking')} {tracking.id_tracking_count}
 							</div>
 							<Stopwatch
 								startDate={tracking.started_at}
