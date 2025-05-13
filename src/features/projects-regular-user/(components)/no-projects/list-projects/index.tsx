@@ -4,7 +4,7 @@ import { IconDrone, IconLayout } from '@tabler/icons-react'
 import { BarChart3, Calendar, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ProjectDetails } from '@/api/services/projects/schema.ts'
-import { formatDate } from '@/lib/utils.ts'
+import { cn, formatDate } from '@/lib/utils.ts'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 
@@ -32,7 +32,12 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
 					<Link
 						to={'/projects/' + project.id_projects}
 						key={project.id_projects}
-						className='block transition-transform hover:scale-[1.02]'
+						className={cn('block transition-transform hover:scale-[1.02]', {
+							'pointer-events-none opacity-70':
+								!project.active ||
+								project.images?.length === 0 ||
+								project.questions?.length === 0,
+						})}
 					>
 						<Card className='h-full overflow-hidden'>
 							<div className='h-1.5' />
