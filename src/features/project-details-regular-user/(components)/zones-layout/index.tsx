@@ -3,7 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ProjectDetails } from '@/api/services/projects/schema.ts'
-import { getZonesForTracking } from '@/api/services/trackings/options.ts'
+import {
+	getAnswerForSpecificZoneInTracking,
+	getZonesForTracking,
+} from '@/api/services/trackings/options.ts'
 import { StartZonePayload } from '@/api/services/trackings/schema.ts'
 import {
 	closeZoneTracking,
@@ -70,11 +73,15 @@ const ZonesLayoutRegularUser = ({
 	const queryClient = useQueryClient()
 
 	const allTrackingZonesQuery = useQuery(getZonesForTracking(trackingId))
-
 	const activeZone = useMemo(() => {
 		const allTrackingZones = allTrackingZonesQuery.data?.results ?? []
 		return allTrackingZones.find((z) => z.ended_at === null)
 	}, [allTrackingZonesQuery.data?.results])
+
+	const trackingAnswersZoneQuery = useQuery({
+		...getAnswerForSpecificZoneInTracking(trackingId),
+		enabled: !!trackingId && !!activeZone?.id_zones,
+	})
 
 	const stopZoneTrackingMutation = useMutation({
 		mutationFn: ({ zoneId }: { zoneId: number }) => closeZoneTracking(zoneId),
@@ -308,6 +315,41 @@ const ZonesLayoutRegularUser = ({
 	useEffect(() => {
 		handleImageCanvasRender()
 	}, [handleImageCanvasRender])
+
+	useEffect(() => {
+		if (!activeZone) return
+		const createdAt = new Date(activeZone.started_at).getTime()
+		const now = Date.now()
+
+		if (now - createdAt < 15_000) {
+			mapZoneQuestions()
+		}
+	}, [activeZone, mapZoneQuestions])
+
+	useEffect(() => {
+		if (!trackingAnswersZoneQuery.data || !activeZone) return
+		const activeZoneRequiredQuestions = zones
+			.find((z) => z.id_zones === activeZone?.id_zones)
+			?.questions?.filter((z) => z.required)
+
+		const answersForActiveZone = trackingAnswersZoneQuery.data
+			.find(
+				(z) =>
+					z.id_zones === activeZone.id_zones &&
+					z.id_tracking_zones === activeZone.id_tracking_zones
+			)
+			?.answers?.filter(
+				(i) => i.id_tracking_zones === activeZone.id_tracking_zones
+			)
+			?.map((i) => i.id_questions)
+
+		const isInitZoneValid =
+			activeZoneRequiredQuestions?.every((question) =>
+				answersForActiveZone?.includes(question.id_questions)
+			) ?? false
+
+		setIsZoneValid(isInitZoneValid)
+	}, [activeZone, trackingAnswersZoneQuery.data, zones])
 
 	return (
 		<>
