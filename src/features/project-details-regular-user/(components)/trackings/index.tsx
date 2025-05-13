@@ -45,7 +45,7 @@ export default function TrackingButtonList({
 
 	return (
 		<div className='flex gap-2 overflow-x-auto whitespace-nowrap px-2 py-1'>
-			{trackings.map((tracking, index) => {
+			{trackings.map((tracking) => {
 				const isActive = tracking.id_tracking === activeTracking
 
 				return (
