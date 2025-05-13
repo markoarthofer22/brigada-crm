@@ -55,10 +55,7 @@ class Tracking
 						*,
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
 					FROM brigada.tracking t
-					WHERE 
-						1=1  
-						{$_where}
-						AND t.id_users = {$_SESSION["user"]["id_users"]}
+					{$_where} AND t.id_users = {$_SESSION["user"]["id_users"]}
 					ORDER BY t.started_at ASC
 				)
 				SELECT * FROM all_data WHERE ended_at IS NULL
