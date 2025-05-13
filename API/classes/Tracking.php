@@ -57,8 +57,8 @@ class Tracking
 					FROM brigada.tracking t
 					WHERE 
 						1=1  
-						AND t.id_projects = 8 
-						AND t.id_users = 12
+						{$_where}
+						AND t.id_users = {$_SESSION["user"]["id_users"]}
 					ORDER BY t.started_at ASC
 				)
 				SELECT * FROM all_data WHERE ended_at IS NULL
