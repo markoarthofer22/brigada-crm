@@ -1,10 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+'use client'
+
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { IconMinus, IconPlus, IconRestore } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { ProjectDetails } from '@/api/services/projects/schema.ts'
-import { getZonesForTracking } from '@/api/services/trackings/options.ts'
-import { StartZonePayload } from '@/api/services/trackings/schema.ts'
+import type { ProjectDetails } from '@/api/services/projects/schema.ts'
+import {
+	getAnswerForSpecificZoneInTracking,
+	getZonesForTracking,
+} from '@/api/services/trackings/options.ts'
+import type { StartZonePayload } from '@/api/services/trackings/schema.ts'
 import {
 	closeZoneTracking,
 	startNewZoneTracking,
@@ -48,6 +54,8 @@ interface ZoneLayoutProps {
 	trackingId: number
 }
 
+const INITIAL_ZOOM_LEVEL = 1
+
 const ZonesLayoutRegularUser = ({
 	zones,
 	allImages,
@@ -64,17 +72,24 @@ const ZonesLayoutRegularUser = ({
 	const [activeZoneQuestions, setActiveZoneQuestions] = useState<
 		ProjectDetails['questions']
 	>([])
+	const [zoomLevel, setZoomLevel] = useState<number>(INITIAL_ZOOM_LEVEL)
+	const containerRef = useRef<HTMLDivElement>(null)
+	const initialZoomRef = useRef<number>(null)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const imageCanvasRef = useRef<HTMLCanvasElement>(null)
 	const { handleError } = useHandleGenericError()
 	const queryClient = useQueryClient()
 
 	const allTrackingZonesQuery = useQuery(getZonesForTracking(trackingId))
-
 	const activeZone = useMemo(() => {
 		const allTrackingZones = allTrackingZonesQuery.data?.results ?? []
 		return allTrackingZones.find((z) => z.ended_at === null)
 	}, [allTrackingZonesQuery.data?.results])
+
+	const trackingAnswersZoneQuery = useQuery({
+		...getAnswerForSpecificZoneInTracking(trackingId),
+		enabled: !!trackingId && !!activeZone?.id_zones,
+	})
 
 	const stopZoneTrackingMutation = useMutation({
 		mutationFn: ({ zoneId }: { zoneId: number }) => closeZoneTracking(zoneId),
@@ -105,8 +120,8 @@ const ZonesLayoutRegularUser = ({
 			{ x: 0, y: 0 }
 		)
 		return {
-			x: total.x / points.length,
-			y: total.y / points.length,
+			x: (total.x / points.length) * zoomLevel,
+			y: (total.y / points.length) * zoomLevel,
 		}
 	}
 
@@ -122,8 +137,6 @@ const ZonesLayoutRegularUser = ({
 
 		if (!canvasRef.current) return
 		const rect = canvasRef.current.getBoundingClientRect()
-		const x = event.clientX - rect.left
-		const y = event.clientY - rect.top
 
 		const ctx = canvasRef.current.getContext('2d')
 		if (!ctx) return
@@ -134,14 +147,19 @@ const ZonesLayoutRegularUser = ({
 			const points = zone.coordinates.points
 			if (points.length < 3) continue
 
+			ctx.save()
+			ctx.setTransform(1, 0, 0, 1, 0, 0) // Reset transformation
 			ctx.beginPath()
-			ctx.moveTo(points[0].x, points[0].y)
+			ctx.moveTo(points[0].x * zoomLevel, points[0].y * zoomLevel)
 			for (let i = 1; i < points.length; i++) {
-				ctx.lineTo(points[i].x, points[i].y)
+				ctx.lineTo(points[i].x * zoomLevel, points[i].y * zoomLevel)
 			}
 			ctx.closePath()
 
-			if (ctx.isPointInPath(x, y)) {
+			if (
+				ctx.isPointInPath(event.clientX - rect.left, event.clientY - rect.top)
+			) {
+				ctx.restore()
 				if (!isZoneValid) {
 					toast.info(t('ProjectDetailsRegularUser.zoneQuestionsNotValid'))
 					mapZoneQuestions()
@@ -164,6 +182,7 @@ const ZonesLayoutRegularUser = ({
 				}
 				break
 			}
+			ctx.restore()
 		}
 	}
 
@@ -205,10 +224,11 @@ const ZonesLayoutRegularUser = ({
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
-		canvas.width = activeImage.data.width
-		canvas.height = activeImage.data.height
+		canvas.width = activeImage.data.width * zoomLevel
+		canvas.height = activeImage.data.height * zoomLevel
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		ctx.scale(zoomLevel, zoomLevel)
 
 		zones.forEach((zone) => {
 			if (zone.id_images !== activeImage.id_images) return
@@ -240,7 +260,7 @@ const ZonesLayoutRegularUser = ({
 				ctx.fillText(zone.name, center.x, center.y)
 			}
 		})
-	}, [activeImage, zones, handleCanvasLineDraw, activeZone])
+	}, [activeImage, zones, handleCanvasLineDraw, activeZone, zoomLevel])
 
 	const handleImageCanvasRender = useCallback(() => {
 		if (!activeImage || !imageCanvasRef.current) return
@@ -249,16 +269,17 @@ const ZonesLayoutRegularUser = ({
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
-		canvas.width = activeImage.data.width
-		canvas.height = activeImage.data.height
+		canvas.width = activeImage.data.width * zoomLevel
+		canvas.height = activeImage.data.height * zoomLevel
 
 		const img = new Image()
 		img.src = `${path}/${activeImage.name}`
 		img.onload = () => {
 			ctx.clearRect(0, 0, canvas.width, canvas.height)
+			ctx.scale(zoomLevel, zoomLevel)
 			ctx.drawImage(img, 0, 0, activeImage.data.width, activeImage.data.height)
 		}
-	}, [activeImage, path])
+	}, [activeImage, path, zoomLevel])
 
 	const mapZoneQuestions = useCallback(() => {
 		if (activeZone && zones.length > 0) {
@@ -279,6 +300,20 @@ const ZonesLayoutRegularUser = ({
 		stopZoneTrackingMutation.mutate({
 			zoneId: activeZone.id_tracking_zones,
 		})
+	}
+
+	const handleZoom = (direction: 'in' | 'out') => {
+		setZoomLevel((prev) => {
+			const delta = direction === 'in' ? 0.1 : -0.1
+			const newZoom = Math.round((prev + delta) * 10) / 10
+			return Math.max(0.5, Math.min(2, newZoom))
+		})
+	}
+
+	const resetZoom = () => {
+		if (initialZoomRef.current) {
+			setZoomLevel(initialZoomRef.current)
+		}
 	}
 
 	useEffect(() => {
@@ -309,6 +344,53 @@ const ZonesLayoutRegularUser = ({
 		handleImageCanvasRender()
 	}, [handleImageCanvasRender])
 
+	useEffect(() => {
+		if (!activeZone) return
+		const createdAt = new Date(activeZone.started_at).getTime()
+		const now = Date.now()
+
+		if (now - createdAt < 15_000) {
+			mapZoneQuestions()
+		}
+	}, [activeZone, mapZoneQuestions])
+
+	useEffect(() => {
+		if (!trackingAnswersZoneQuery.data || !activeZone) return
+		const activeZoneRequiredQuestions = zones
+			.find((z) => z.id_zones === activeZone?.id_zones)
+			?.questions?.filter((z) => z.required)
+
+		const answersForActiveZone = trackingAnswersZoneQuery.data
+			.find(
+				(z) =>
+					z.id_zones === activeZone.id_zones &&
+					z.id_tracking_zones === activeZone.id_tracking_zones
+			)
+			?.answers?.filter(
+				(i) => i.id_tracking_zones === activeZone.id_tracking_zones
+			)
+			?.map((i) => i.id_questions)
+
+		const isInitZoneValid =
+			activeZoneRequiredQuestions?.every((question) =>
+				answersForActiveZone?.includes(question.id_questions)
+			) ?? false
+
+		setIsZoneValid(isInitZoneValid)
+	}, [activeZone, trackingAnswersZoneQuery.data, zones])
+
+	useEffect(() => {
+		if (!activeImage || !containerRef.current) return
+
+		const imgWidth = activeImage.data.width
+		const containerWidth = containerRef.current.clientWidth
+		const fitZoom = containerWidth / imgWidth
+		if (initialZoomRef.current === null) {
+			initialZoomRef.current = fitZoom
+		}
+		setZoomLevel(Math.max(0.5, Math.min(2, fitZoom)))
+	}, [activeImage])
+
 	return (
 		<>
 			<div className={className}>
@@ -336,12 +418,8 @@ const ZonesLayoutRegularUser = ({
 				)}
 
 				<div
-					className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary'
-					style={{
-						maxWidth: activeImage?.data?.width
-							? activeImage.data.width + 13
-							: '100%',
-					}}
+					ref={containerRef}
+					className='relative h-[550px] w-full overflow-auto rounded-lg border border-primary'
 				>
 					<canvas
 						ref={imageCanvasRef}
@@ -352,6 +430,36 @@ const ZonesLayoutRegularUser = ({
 						onClick={handleCanvasClick}
 						className='cursor-pointer rounded-lg'
 					/>
+
+					<div className='absolute bottom-4 left-4 flex flex-col-reverse items-center gap-2 rounded-md bg-black/20'>
+						<Button
+							variant='outline'
+							className='shadow-3xl z-10 size-10 border-2 border-primary p-0 shadow-black'
+							onClick={resetZoom}
+							aria-label='Reset to inital'
+						>
+							<IconRestore className='h-5 w-5' />
+						</Button>
+						<Button
+							className='shadow-3xl z-10 size-10 border-2 border-primary p-0 shadow-black'
+							variant='outline'
+							onClick={() => handleZoom('out')}
+							aria-label='Zoom out'
+						>
+							<IconMinus className='size-6' />
+						</Button>
+						<span className='text-base font-semibold'>
+							{Math.round(zoomLevel * 100)}%
+						</span>
+						<Button
+							variant='outline'
+							className='shadow-3xl z-10 size-10 border-2 border-primary p-0 shadow-black'
+							onClick={() => handleZoom('in')}
+							aria-label='Zoom in'
+						>
+							<IconPlus className='size-6' />
+						</Button>
+					</div>
 
 					{zones.map((zone) => {
 						if (zone.id_images !== activeImage?.id_images) return null
@@ -397,41 +505,41 @@ const ZonesLayoutRegularUser = ({
 						)
 					})}
 				</div>
-
-				<AlertDialog
-					open={!!confirmZoneId}
-					onOpenChange={(open) => !open && setConfirmZoneId(null)}
-				>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>
-								{t('ProjectDetailsRegularUser.confirmCloseZoneTitle')}
-							</AlertDialogTitle>
-							<AlertDialogDescription>
-								{t('ProjectDetailsRegularUser.confirmCloseZone') ??
-									'Another zone is active. Starting a new one will close it. Continue?'}
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel>{t('Actions.cancel')}</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={() => {
-									if (confirmZoneId) {
-										startNewZoneTrackingMutation.mutate({
-											id_projects: projectId,
-											id_tracking: trackingId,
-											id_zones: confirmZoneId,
-										})
-									}
-									setConfirmZoneId(null)
-								}}
-							>
-								{t('Actions.continue')}
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
 			</div>
+
+			<AlertDialog
+				open={!!confirmZoneId}
+				onOpenChange={(open) => !open && setConfirmZoneId(null)}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{t('ProjectDetailsRegularUser.confirmCloseZoneTitle')}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{t('ProjectDetailsRegularUser.confirmCloseZone') ??
+								'Another zone is active. Starting a new one will close it. Continue?'}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>{t('Actions.cancel')}</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={() => {
+								if (confirmZoneId) {
+									startNewZoneTrackingMutation.mutate({
+										id_projects: projectId,
+										id_tracking: trackingId,
+										id_zones: confirmZoneId,
+									})
+								}
+								setConfirmZoneId(null)
+							}}
+						>
+							{t('Actions.continue')}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			{activeZoneQuestions.length > 0 && activeZone && (
 				<Dialog

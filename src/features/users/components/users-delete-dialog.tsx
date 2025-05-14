@@ -70,7 +70,7 @@ export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
 						i18nKey='Table.deleteDescription'
 						components={[<span className='font-bold'></span>]}
 						values={{
-							name: currentRow.email,
+							value: currentRow.email,
 						}}
 					/>
 

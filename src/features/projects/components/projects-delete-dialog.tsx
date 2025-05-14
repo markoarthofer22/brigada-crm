@@ -74,7 +74,7 @@ export function ProjectsDeleteDialog({
 						i18nKey='Table.deleteDescription'
 						components={[<span className='font-bold'></span>]}
 						values={{
-							name: currentRow.name,
+							value: currentRow.name,
 						}}
 					/>
 

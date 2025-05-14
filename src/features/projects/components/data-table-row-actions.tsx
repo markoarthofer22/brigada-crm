@@ -53,7 +53,8 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
-						onClick={() => {
+						onClick={(e) => {
+							e.stopPropagation()
 							setCurrentRow(row.original)
 							setOpen('delete')
 						}}
