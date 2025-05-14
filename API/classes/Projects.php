@@ -65,7 +65,7 @@ class Projects
 	 */
 	public function Get(object $params): array
 	{
-		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.projects p WHERE p.id_projects = :ID";
+		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.projects p WHERE p.id_projects = :ID AND deleted_at IS NULL";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
 
@@ -138,7 +138,11 @@ class Projects
 	 */
 	public function Delete(object $params): bool
 	{
-		$sql = "DELETE FROM {$_SESSION["SCHEMA"]}.projects 
+		// $sql = "DELETE FROM {$_SESSION["SCHEMA"]}.projects 
+		// 		WHERE id_projects = :ID
+		// ";
+		$sql = "UPDATE {$_SESSION["SCHEMA"]}.projects 
+				SET deleted_at = NOW()
 				WHERE id_projects = :ID
 		";
 
