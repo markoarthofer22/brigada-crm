@@ -116,8 +116,9 @@ export function GenericTable<T>({
 									className={cn('group/row', {
 										'cursor-pointer': Boolean(onRowClick),
 									})}
-									onClick={() => {
+									onClick={(e) => {
 										if (onRowClick) {
+											e.stopPropagation()
 											onRowClick(row.original)
 										}
 									}}
