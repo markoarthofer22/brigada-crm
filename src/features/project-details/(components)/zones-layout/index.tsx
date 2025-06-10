@@ -383,22 +383,24 @@ const ZoneLayout = ({
 					</div>
 				</div>
 			</div>
-			{/* canvas + zoom UI */}
-			<div
-				ref={containerRef}
-				className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary'
-				style={{
-					maxWidth: activeImage?.data.width
-						? activeImage.data.width * zoomLevel + 13
-						: '100%',
-				}}
-			>
-				<canvas ref={imageCanvasRef} className='absolute inset-0 z-[-1]' />
-				<canvas
-					ref={canvasRef}
-					className='cursor-pointer rounded-lg'
-					onClick={handleCanvasClick}
-				/>
+
+			<div className='relative'>
+				<div
+					ref={containerRef}
+					className='relative h-full max-h-[550px] w-full overflow-auto rounded-lg border border-primary'
+					style={{
+						maxWidth: activeImage?.data.width
+							? activeImage.data.width * zoomLevel + 13
+							: '100%',
+					}}
+				>
+					<canvas ref={imageCanvasRef} className='absolute inset-0 z-[-1]' />
+					<canvas
+						ref={canvasRef}
+						className='cursor-pointer rounded-lg'
+						onClick={handleCanvasClick}
+					/>
+				</div>
 				<div className='absolute bottom-4 left-4 flex flex-col items-center gap-2 rounded-md bg-black/20 p-1'>
 					<Button variant='outline' size='sm' onClick={resetZoom}>
 						<IconRestore className='!size-5' />

@@ -417,20 +417,65 @@ const ZonesLayoutRegularUser = ({
 					</div>
 				)}
 
-				<div
-					ref={containerRef}
-					className='relative h-[550px] w-full overflow-auto rounded-lg border border-primary'
-				>
-					<canvas
-						ref={imageCanvasRef}
-						className='absolute inset-0 z-[-1] grayscale'
-					/>
-					<canvas
-						ref={canvasRef}
-						onClick={handleCanvasClick}
-						className='cursor-pointer rounded-lg'
-					/>
+				<div className='relative'>
+					<div
+						ref={containerRef}
+						className='relative h-[550px] w-full overflow-auto rounded-lg border border-primary'
+					>
+						<canvas
+							ref={imageCanvasRef}
+							className='absolute inset-0 z-[-1] grayscale'
+						/>
+						<canvas
+							ref={canvasRef}
+							onClick={handleCanvasClick}
+							className='cursor-pointer rounded-lg'
+						/>
 
+						{zones.map((zone) => {
+							if (zone.id_images !== activeImage?.id_images) return null
+							const center = getZoneCenter(zone.coordinates.points)
+							const isActive = activeZone?.id_zones === zone.id_zones
+
+							if (!isActive) return null
+
+							return (
+								<div
+									key={zone.id_zones}
+									onClick={(e) => {
+										e.preventDefault()
+										e.stopPropagation()
+										if (isActive) {
+											mapZoneQuestions()
+											return
+										}
+									}}
+									className='absolute z-10 flex flex-col items-center justify-center gap-2 rounded-md bg-muted p-2 shadow transition-all'
+									style={{
+										left: center.x,
+										top: center.y,
+										transform: 'translate(-50%, -50%)',
+									}}
+								>
+									<div className='text-sm font-semibold'>{zone.name}</div>
+									<Stopwatch
+										startDate={activeZone?.started_at}
+										className='font-mono text-xs'
+									/>
+									<Button
+										variant='destructive'
+										size='sm'
+										onClick={(e) => {
+											e.stopPropagation()
+											stopTrackingZoneHandler()
+										}}
+									>
+										{t('Actions.close')}
+									</Button>
+								</div>
+							)
+						})}
+					</div>
 					<div className='absolute bottom-4 left-4 flex flex-col-reverse items-center gap-2 rounded-md bg-black/20'>
 						<Button
 							variant='outline'
@@ -460,50 +505,6 @@ const ZonesLayoutRegularUser = ({
 							<IconPlus className='size-6' />
 						</Button>
 					</div>
-
-					{zones.map((zone) => {
-						if (zone.id_images !== activeImage?.id_images) return null
-						const center = getZoneCenter(zone.coordinates.points)
-						const isActive = activeZone?.id_zones === zone.id_zones
-
-						if (!isActive) return null
-
-						return (
-							<div
-								key={zone.id_zones}
-								onClick={(e) => {
-									e.preventDefault()
-									e.stopPropagation()
-									if (isActive) {
-										mapZoneQuestions()
-										return
-									}
-								}}
-								className='absolute z-10 flex flex-col items-center justify-center gap-2 rounded-md bg-muted p-2 shadow transition-all'
-								style={{
-									left: center.x,
-									top: center.y,
-									transform: 'translate(-50%, -50%)',
-								}}
-							>
-								<div className='text-sm font-semibold'>{zone.name}</div>
-								<Stopwatch
-									startDate={activeZone?.started_at}
-									className='font-mono text-xs'
-								/>
-								<Button
-									variant='destructive'
-									size='sm'
-									onClick={(e) => {
-										e.stopPropagation()
-										stopTrackingZoneHandler()
-									}}
-								>
-									{t('Actions.close')}
-								</Button>
-							</div>
-						)
-					})}
 				</div>
 			</div>
 
