@@ -16,16 +16,6 @@ import {
 	startNewZoneTracking,
 } from '@/api/services/trackings/trackings.ts'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button.tsx'
 import {
 	Dialog,
@@ -55,6 +45,9 @@ interface ZoneLayoutProps {
 }
 
 const INITIAL_ZOOM_LEVEL = 1
+const MIN_ZOOM_LEVEL = 0.15
+const MAX_ZOOM_LEVEL = 2
+const CHANGE_ZOOM_STEP = 0.1
 
 const ZonesLayoutRegularUser = ({
 	zones,
@@ -67,7 +60,6 @@ const ZonesLayoutRegularUser = ({
 }: ZoneLayoutProps) => {
 	const { t } = useTranslation()
 	const [selectedImage, setSelectedImage] = useState<number | null>(null)
-	const [confirmZoneId, setConfirmZoneId] = useState<number | null>(null)
 	const [isZoneValid, setIsZoneValid] = useState<boolean>(true)
 	const [activeZoneQuestions, setActiveZoneQuestions] = useState<
 		ProjectDetails['questions']
@@ -166,7 +158,7 @@ const ZonesLayoutRegularUser = ({
 					return
 				}
 
-				if (!activeZone) {
+				if (!activeZone || activeZone.id_zones !== zone.id_zones) {
 					startNewZoneTrackingMutation.mutate({
 						id_projects: projectId,
 						id_tracking: trackingId,
@@ -175,11 +167,7 @@ const ZonesLayoutRegularUser = ({
 					return
 				}
 
-				if (activeZone && activeZone.id_zones !== zone.id_zones) {
-					setConfirmZoneId(zone.id_zones)
-				} else {
-					mapZoneQuestions()
-				}
+				mapZoneQuestions()
 				break
 			}
 			ctx.restore()
@@ -304,9 +292,22 @@ const ZonesLayoutRegularUser = ({
 
 	const handleZoom = (direction: 'in' | 'out') => {
 		setZoomLevel((prev) => {
-			const delta = direction === 'in' ? 0.1 : -0.1
+			const initial = initialZoomRef.current
+			if (!initial) return prev
+			const delta = direction === 'in' ? CHANGE_ZOOM_STEP : -CHANGE_ZOOM_STEP
+			if (
+				(direction === 'out' &&
+					prev > initial &&
+					prev - initial < CHANGE_ZOOM_STEP) ||
+				(direction === 'in' &&
+					prev < initial &&
+					initial - prev < CHANGE_ZOOM_STEP)
+			) {
+				return initial
+			}
+
 			const newZoom = Math.round((prev + delta) * 10) / 10
-			return Math.max(0.5, Math.min(2, newZoom))
+			return Math.max(MIN_ZOOM_LEVEL, Math.min(MAX_ZOOM_LEVEL, newZoom))
 		})
 	}
 
@@ -388,7 +389,7 @@ const ZonesLayoutRegularUser = ({
 		if (initialZoomRef.current === null) {
 			initialZoomRef.current = fitZoom
 		}
-		setZoomLevel(Math.max(0.5, Math.min(2, fitZoom)))
+		setZoomLevel(Math.max(MIN_ZOOM_LEVEL, Math.min(MAX_ZOOM_LEVEL, fitZoom)))
 	}, [activeImage])
 
 	return (
@@ -507,40 +508,6 @@ const ZonesLayoutRegularUser = ({
 					</div>
 				</div>
 			</div>
-
-			<AlertDialog
-				open={!!confirmZoneId}
-				onOpenChange={(open) => !open && setConfirmZoneId(null)}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							{t('ProjectDetailsRegularUser.confirmCloseZoneTitle')}
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							{t('ProjectDetailsRegularUser.confirmCloseZone') ??
-								'Another zone is active. Starting a new one will close it. Continue?'}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t('Actions.cancel')}</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={() => {
-								if (confirmZoneId) {
-									startNewZoneTrackingMutation.mutate({
-										id_projects: projectId,
-										id_tracking: trackingId,
-										id_zones: confirmZoneId,
-									})
-								}
-								setConfirmZoneId(null)
-							}}
-						>
-							{t('Actions.continue')}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
 
 			{activeZoneQuestions.length > 0 && activeZone && (
 				<Dialog

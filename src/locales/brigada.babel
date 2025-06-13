@@ -2663,6 +2663,21 @@
 						<name>ProjectDetailsRegularUser</name>
 						<children>
 							<concept_node>
+								<name>addComment</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>addNewTracking</name>
 								<description/>
 								<comment/>

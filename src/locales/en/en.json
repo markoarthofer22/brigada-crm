@@ -226,6 +226,7 @@
 		}
 	},
 	"ProjectDetailsRegularUser": {
+		"addComment": "Add new comment",
 		"addNewTracking": "Add new tracking",
 		"addTracking": "Start tracking",
 		"backToList": "Go back to projects",

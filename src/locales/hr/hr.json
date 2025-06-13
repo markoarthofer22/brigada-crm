@@ -226,6 +226,7 @@
 		}
 	},
 	"ProjectDetailsRegularUser": {
+		"addComment": "Pridruži komentar",
 		"addNewTracking": "Započni novo praćenje",
 		"addTracking": "Započnite praćenje",
 		"backToList": "Povratak na popis projekata",

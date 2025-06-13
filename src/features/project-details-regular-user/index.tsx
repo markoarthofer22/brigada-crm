@@ -15,11 +15,12 @@ import { Button } from '@/components/ui/button'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import SplitPanel from '@/components/split-panel'
+import { CommentPadModal } from '@/features/project-details-regular-user/(components)/add-comment-modal'
 import { TrackingExam } from '@/features/project-details-regular-user/(components)/tracking-exam'
 import TrackingButtonList from '@/features/project-details-regular-user/(components)/trackings'
 import ZonesLayoutRegularUser from '@/features/project-details-regular-user/(components)/zones-layout'
 
-const INITIAL_SPLIT = 66
+const INITIAL_SPLIT = 50
 
 export default function ProjectDetailsForRegularUser() {
 	const { t } = useTranslation()
@@ -27,6 +28,14 @@ export default function ProjectDetailsForRegularUser() {
 	const { handleError } = useHandleGenericError()
 	const [isTrackingValid, setIsTrackingValid] = useState<boolean>(true)
 	const [activeTrackingId, setActiveTrackingId] = useState<number | null>(null)
+
+	// test
+	const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
+	const [savedComment, setSavedComment] = useState('')
+	const handleSaveComment = (value: string) => {
+		setSavedComment(value)
+	}
+	// end test
 
 	const { showLoader, hideLoader } = useLoader()
 
@@ -161,24 +170,34 @@ export default function ProjectDetailsForRegularUser() {
 							}}
 						/>
 						<div className='mt-3 flex flex-col gap-y-3'>
-							<TrackingButtonList
-								onCloseTracking={(trackingId) => {
-									if (!isTrackingValid) {
-										toast.error(
-											t('ProjectDetailsRegularUser.trackingQuestionsNotValid')
-										)
-										return
-									}
+							<div className='flex items-center gap-2'>
+								<TrackingButtonList
+									onCloseTracking={(trackingId) => {
+										if (!isTrackingValid) {
+											toast.error(
+												t('ProjectDetailsRegularUser.trackingQuestionsNotValid')
+											)
+											return
+										}
 
-									endTrackingMutation.mutate(trackingId)
-								}}
-								addNewTrackingCallback={() => startNewTrackingMutation.mutate()}
-								trackings={trackingQuery.data ?? []}
-								activeTracking={activeTrackingId}
-								onSelect={(id) => {
-									setActiveTrackingId(id)
-								}}
-							/>
+										endTrackingMutation.mutate(trackingId)
+									}}
+									addNewTrackingCallback={() =>
+										startNewTrackingMutation.mutate()
+									}
+									trackings={trackingQuery.data ?? []}
+									activeTracking={activeTrackingId}
+									onSelect={(id) => {
+										setActiveTrackingId(id)
+									}}
+								/>
+								<Button
+									className='mt-2 h-24 self-start'
+									onClick={() => setIsCommentModalOpen(true)}
+								>
+									{t('ProjectDetailsRegularUser.addComment')}
+								</Button>
+							</div>
 							<ZonesLayoutRegularUser
 								trackingId={activeTrackingId}
 								path={projectQuery.data!.path!}
@@ -190,6 +209,13 @@ export default function ProjectDetailsForRegularUser() {
 					</SplitPanel>
 				</div>
 			</Main>
+			<CommentPadModal
+				title={t('ProjectDetailsRegularUser.addComment')}
+				open={isCommentModalOpen}
+				onOpenChange={setIsCommentModalOpen}
+				onSave={handleSaveComment}
+				initialValue={savedComment}
+			/>
 		</div>
 	)
 }

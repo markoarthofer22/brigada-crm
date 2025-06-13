@@ -61,6 +61,7 @@
 		"react-dropzone": "^14.3.8",
 		"react-hook-form": "^7.54.0",
 		"react-i18next": "^15.4.1",
+		"react-signature-canvas": "1.1.0-alpha.2",
 		"recharts": "^2.15.1",
 		"solid-js": "^1.9.5",
 		"sonner": "^2.0.1",

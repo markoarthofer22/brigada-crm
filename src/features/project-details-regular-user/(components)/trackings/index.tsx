@@ -1,19 +1,7 @@
-import { useState } from 'react'
 import { IconPlus } from '@tabler/icons-react'
 import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
 import { Trackings } from '@/api/services/trackings/schema.ts'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import Stopwatch from '@/components/stopwatch.tsx'
 
@@ -33,7 +21,6 @@ export default function TrackingButtonList({
 	addNewTrackingCallback,
 }: TrackingButtonListProps) {
 	const { t } = useTranslation()
-	const [showModalFor, setShowModalFor] = useState<number | null>(null)
 
 	const handleSelectTracking = (
 		e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -67,41 +54,14 @@ export default function TrackingButtonList({
 								className='font-mono text-xs'
 							/>
 						</div>
-
 						{isActive && (
-							<AlertDialog
-								open={showModalFor === tracking.id_tracking}
-								onOpenChange={(open) =>
-									setShowModalFor(open ? tracking.id_tracking : null)
-								}
+							<Button
+								variant='destructive'
+								className='mt-1 w-full text-xs'
+								onClick={() => onCloseTracking(tracking.id_tracking)}
 							>
-								<AlertDialogTrigger asChild>
-									<Button variant='destructive' className='mt-1 w-full text-xs'>
-										{t('TrackingCard.finishTrackingTitle')}
-									</Button>
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											{t('TrackingCard.finishTrackingTitle')}
-										</AlertDialogTitle>
-										<AlertDialogDescription>
-											{t('TrackingCard.finishTrackingDescription')}
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>{t('Actions.cancel')}</AlertDialogCancel>
-										<AlertDialogAction
-											onClick={() => {
-												onCloseTracking(tracking.id_tracking)
-												setShowModalFor(null)
-											}}
-										>
-											{t('Actions.close')}
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
+								{t('TrackingCard.finishTrackingTitle')}
+							</Button>
 						)}
 					</div>
 				)
@@ -110,9 +70,11 @@ export default function TrackingButtonList({
 				onClick={addNewTrackingCallback}
 				className='flex min-w-[160px] cursor-pointer flex-col items-center justify-center gap-1 rounded-sm border-2 border-dashed p-2 text-center transition-colors hover:bg-muted'
 			>
-				<div className='flex items-center gap-x-1.5 text-sm font-medium text-muted-foreground'>
+				<div className='flex flex-wrap items-center justify-center gap-1.5 text-sm font-medium text-muted-foreground'>
 					<IconPlus className='size-4' />{' '}
-					{t('ProjectDetailsRegularUser.addNewTracking')}
+					<span className='whitespace-break-spaces break-words'>
+						{t('ProjectDetailsRegularUser.addNewTracking')}
+					</span>
 				</div>
 			</div>
 		</div>

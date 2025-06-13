@@ -60,8 +60,8 @@ const QuestionLayout = ({
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
 			activationConstraint: {
-				delay: 100,
-				tolerance: 5,
+				delay: 320,
+				tolerance: 20,
 			},
 		}),
 		useSensor(TouchSensor),

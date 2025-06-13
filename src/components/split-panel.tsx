@@ -1,5 +1,5 @@
 import { ReactNode, useRef, useState } from 'react'
-import { GripVertical } from 'lucide-react'
+import { GripHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type SplitPanelProps = {
@@ -57,20 +57,20 @@ export default function SplitPanel({
 		>
 			<div
 				className='absolute left-0 right-0 overflow-auto'
-				style={{ height: `${dividerPos}%` }}
+				style={{ height: `${dividerPos - 0.5}%` }}
 			>
 				{children[0]}
 			</div>
 			<div
-				className='absolute left-0 right-0 z-10 h-2 cursor-row-resize touch-none'
-				style={{ top: `calc(${dividerPos}% - 1px)` }}
+				className='absolute left-0 right-0 z-10 h-[10px] cursor-row-resize touch-none'
+				style={{ top: `calc(${dividerPos - 0.2}%)` }}
 				onMouseDown={startDrag}
 				onTouchStart={startDrag}
 			>
-				<div className='absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2 bg-gray-200' />
+				<div className='absolute left-0 right-0 top-1/2 h-[20px] -translate-y-1/2 rounded-lg bg-gray-100' />
 				<div className='relative z-10 flex h-full items-center justify-center'>
 					<div className='rounded-md bg-muted px-2 py-0.5 shadow-sm'>
-						<GripVertical className='size-5 text-muted-foreground' />
+						<GripHorizontal className='size-5 text-muted-foreground' />
 					</div>
 				</div>
 			</div>
