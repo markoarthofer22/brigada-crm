@@ -20,6 +20,8 @@ use stdClass;
 class TrackingController extends BaseController
 {
 
+	protected array $colors;
+
 	/**
 	 * __construct function
 	 *
@@ -28,6 +30,15 @@ class TrackingController extends BaseController
 	public function __construct()
 	{
 		parent::__construct();
+		$this->colors = [
+			'#AEC6CF', // Pastel Blue
+			'#BFD8B8', // Pastel Green
+			'#F7C6C7', // Pastel Pink
+			'#FFF2B2', // Pastel Yellow
+			'#E3D4F3', // Pastel Lavender
+			'#FFDAB9', // Pastel Peach
+			'#D1F0E1', // Pastel Mint
+		];
 	}
 
 	/**
@@ -55,6 +66,8 @@ class TrackingController extends BaseController
 
 		$results = $Tracking->GetAll($params);
 		foreach ($results as &$result) {
+			$colorIndex = ($result['id_tracking_count'] - 1) % count($this->colors);
+			$result['color'] = $this->colors[$colorIndex];
 			$result["answers"] = $Tracking->GetAnswers((object) array("id_tracking" => $result["id_tracking"]));
 			$result["zones"] = $Tracking->GetZones((object) array("id_tracking" => $result["id_tracking"]));
 		}
