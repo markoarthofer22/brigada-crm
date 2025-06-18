@@ -34,18 +34,27 @@ class Projects
 	 * @return array
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function GetAll(): array
+	public function GetAll($params): array
 	{
 
 		$Helper = new Helper($this->database);
 
+		$where = "";
+		if (isset($params) && $params->type) {
+			$where = "WHERE p.type = :TYPE";
+		}
+
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.projects p
+				$where
 				ORDER BY p.created_at DESC
 		";
 
 		$stmt = $this->database->prepare($sql);
+		if (isset($params) && $params->type) {
+			$stmt->bindParam(':TYPE', $params->type, PDO::PARAM_INT);
+		}
 		$stmt->execute();
 
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);

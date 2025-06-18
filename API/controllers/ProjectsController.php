@@ -56,8 +56,14 @@ class ProjectsController extends BaseController
 
 		$vars = $request->getParsedBody();
 		$params = $Helper->ArrayToObject($vars);
+		$queryparams = $request->getQueryParams();
 
-		$results = $Projects->GetAll();
+		$params->type = false;
+		if (isset($queryparams["type"]) && in_array($queryparams["type"], ['1', '2', 1, 2])) {
+			$params->type = $queryparams["type"];
+		}
+
+		$results = $Projects->GetAll($params);
 
 		foreach ($results as &$result) {
 			$result["questions"] = $Questions->GetForProject((object) array("id" => $result["id_projects"]));
