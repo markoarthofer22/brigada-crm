@@ -351,6 +351,53 @@ class TrackingController extends BaseController
 		}
 	}
 
+	/**
+	 * AddComment function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function AddComment(Request $request, Response $response, array $args): Response
+	{
+
+		$Language = new Language($this->db);
+		$Tracking = new Tracking($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
+
+		$params->id = $args->id;
+
+		$requiredFields = [
+			"comment"
+		];
+
+		$params->data = $params->data ?? [];
+
+		foreach ($requiredFields as $field) {
+			if (!isset($params->{$field}) || $params->{$field} == "") {
+				return Message::WriteMessage(
+					400,
+					["Message" => $Language->Translate(["phrase" => "Missing {$field}"])],
+					$response
+				);
+			}
+		}
+
+		$is_ended = $Tracking->Get($params);
+		if ($is_ended["ended_at"] != null) {
+			return Message::WriteMessage(400, array("Message" => $Language->Translate(array("phrase" => "Tracking already ended"))), $response);
+		}
+
+		$Tracking->AddComment($params);
+		return $response->withStatus(204);
+	}
+
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// ZONES /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

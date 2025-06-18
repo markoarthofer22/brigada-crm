@@ -185,6 +185,7 @@ $app->group('', function () use ($app) {
 		$app->get('', TrackingController::class);
 		$app->get('/{id}', TrackingController::class . ":Get");
 		$app->post('', TrackingController::class . ":StartTracking");
+		$app->post('/comment/{id}', TrackingController::class . ":AddComment");
 	})->add([new Auth(), 'Auth']);
 
 	$app->group('/test', function () use ($app) {

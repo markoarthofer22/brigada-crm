@@ -41,15 +41,6 @@ class Tracking
 			$_where .= " AND t.id_projects = {$params->id_projects} ";
 		}
 
-
-		// $sql = "SELECT 
-		// 			* 
-		// 		FROM {$_SESSION["SCHEMA"]}.tracking t
-		// 		{$_where}
-		// 		AND t.ended_at IS NULL
-		// 		AND t.id_users = {$_SESSION["user"]["id_users"]}
-		// 		ORDER BY t.started_at ASC
-		// ";
 		$sql = "WITH all_data AS (
 					SELECT 
 						*,
@@ -164,6 +155,41 @@ class Tracking
 
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID', $params->id);
+		$stmt->execute();
+
+		return true;
+	}
+
+	/**
+	 * AddComment function
+	 *
+	 * @param object $params
+	 * @return boolean
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function AddComment(object $params): bool
+	{
+		$sql = "UPDATE {$_SESSION["SCHEMA"]}.tracking
+				SET 
+					ended_at = NOW(),
+					data = jsonb_set(
+						CASE
+							WHEN jsonb_typeof(data) = 'object' THEN data
+							ELSE '{}'::jsonb
+						END,
+						'{comments}',
+						COALESCE((CASE WHEN jsonb_typeof(data) = 'object' THEN data->'comments' ELSE NULL END), '[]'::jsonb) || to_jsonb(jsonb_build_object(
+							'date', to_char(NOW(), 'YYYY-MM-DD\"T\"HH24:MI:SS'),
+							'comment', :COMMENT::text
+						))
+					)
+				WHERE id_tracking = :ID
+
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID', $params->id);
+		$stmt->bindParam(':COMMENT', $params->comment);
 		$stmt->execute();
 
 		return true;
