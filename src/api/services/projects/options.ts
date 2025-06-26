@@ -3,11 +3,14 @@ import {
 	getProjectById as getProjectByIdApi,
 	getProjects,
 } from '@/api/services/projects/projects.ts'
+import { ProjectType } from '@/api/services/projects/schema.ts'
 
-export const getAllProjects = () => {
+export const getAllProjects = (type: ProjectType) => {
+	const _type = type || ProjectType.PROJECT
+
 	return queryOptions({
-		queryKey: ['projects'],
-		queryFn: getProjects,
+		queryKey: ['projects', _type],
+		queryFn: () => getProjects(_type),
 	})
 }
 

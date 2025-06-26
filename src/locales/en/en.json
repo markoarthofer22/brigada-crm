@@ -231,6 +231,7 @@
 		"addTracking": "Start tracking",
 		"backToList": "Go back to projects",
 		"closeTrackingSuccess": "Zone closed successfully",
+		"commentAdded": "Comment successfully saved!",
 		"confirmCloseZone": "Another zone is active. Starting a new one will close it. Continue?",
 		"confirmCloseZoneTitle": "Closing active zone",
 		"endTrackingSuccess": "Tracking ended successfully!",

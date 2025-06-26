@@ -9,7 +9,7 @@ export const TrackingsSchema = z.object({
 	ended_at: z.string().nullable(),
 	id_users: z.number().optional(),
 	id_tracking_count: z.number().optional(),
-	// test
+	color: z.string().optional(),
 	zones: z.array(z.any()).optional(),
 })
 

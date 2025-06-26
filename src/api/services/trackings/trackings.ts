@@ -91,3 +91,14 @@ export async function closeZoneTracking(trackingId: number) {
 
 	return response.data
 }
+
+export async function addCommentToTracking(
+	id_tracking: number,
+	comment: string
+) {
+	const response = await axios.post(`/tracking/comment/${id_tracking}`, {
+		comment,
+	})
+
+	return response.data
+}

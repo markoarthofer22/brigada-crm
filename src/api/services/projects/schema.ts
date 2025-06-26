@@ -12,6 +12,11 @@ export enum TabsEnum {
 	ZONES = 'zones',
 }
 
+export enum ProjectType {
+	PROJECT = 1,
+	TEMPLATE = 2,
+}
+
 export const ProjectResponseSchema = z.object({
 	id_projects: z.number(),
 	created_at: z.string(),

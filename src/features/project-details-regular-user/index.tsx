@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { getProjectById } from '@/api/services/projects/options.ts'
 import { getAllTrackings } from '@/api/services/trackings/options.ts'
 import {
+	addCommentToTracking,
 	closeTrackingEvent,
 	startNewTackingEvent,
 } from '@/api/services/trackings/trackings'
@@ -28,14 +29,7 @@ export default function ProjectDetailsForRegularUser() {
 	const { handleError } = useHandleGenericError()
 	const [isTrackingValid, setIsTrackingValid] = useState<boolean>(true)
 	const [activeTrackingId, setActiveTrackingId] = useState<number | null>(null)
-
-	// test
 	const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
-	const [savedComment, setSavedComment] = useState('')
-	const handleSaveComment = (value: string) => {
-		setSavedComment(value)
-	}
-	// end test
 
 	const { showLoader, hideLoader } = useLoader()
 
@@ -47,6 +41,23 @@ export default function ProjectDetailsForRegularUser() {
 	const trackingQuery = useQuery({
 		...getAllTrackings(Number(id)),
 		enabled: !!id,
+	})
+
+	console.log('activeTrackingId', activeTrackingId)
+
+	const addCommentMutation = useMutation({
+		mutationFn: (comment: string) => {
+			return addCommentToTracking(activeTrackingId!, comment)
+		},
+		onSuccess: () => {
+			toast.success(t('ProjectDetailsRegularUser.commentAdded'))
+			setIsCommentModalOpen(false)
+			// ako se ne treba odmah refetch, onda se može izbrisati
+			trackingQuery.refetch()
+		},
+		onError: (error: unknown) => {
+			handleError(error)
+		},
 	})
 
 	const startNewTrackingMutation = useMutation({
@@ -209,13 +220,17 @@ export default function ProjectDetailsForRegularUser() {
 					</SplitPanel>
 				</div>
 			</Main>
-			<CommentPadModal
-				title={t('ProjectDetailsRegularUser.addComment')}
-				open={isCommentModalOpen}
-				onOpenChange={setIsCommentModalOpen}
-				onSave={handleSaveComment}
-				initialValue={savedComment}
-			/>
+			{isCommentModalOpen && (
+				<CommentPadModal
+					title={t('ProjectDetailsRegularUser.addComment')}
+					open={isCommentModalOpen}
+					onOpenChange={setIsCommentModalOpen}
+					onSave={(comment: string) => {
+						addCommentMutation.mutate(comment)
+					}}
+					initialValue={''}
+				/>
+			)}
 		</div>
 	)
 }

@@ -1,5 +1,4 @@
 import { IconPlus } from '@tabler/icons-react'
-import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
 import { Trackings } from '@/api/services/trackings/schema.ts'
 import { Button } from '@/components/ui/button'
@@ -30,20 +29,38 @@ export default function TrackingButtonList({
 		onSelect(id)
 	}
 
+	const getColorStyles = (
+		hex: string,
+		isActive: boolean
+	): { backgroundColor: string; borderColor: string } => {
+		const clean = hex.replace(/^#/, '')
+		const num = parseInt(clean, 16)
+		const r = (num >> 16) & 0xff
+		const g = (num >> 8) & 0xff
+		const b = num & 0xff
+		const rgba35 = `rgba(${r},${g},${b},0.35)`
+		const rgba80 = `rgba(${r},${g},${b},0.8)`
+		const fullHex = hex.startsWith('#') ? hex : `#${clean}`
+		return isActive
+			? { backgroundColor: fullHex, borderColor: fullHex }
+			: { backgroundColor: rgba35, borderColor: rgba80 }
+	}
+
 	return (
 		<div className='flex gap-2 overflow-x-auto whitespace-nowrap px-2 py-1'>
 			{trackings.map((tracking) => {
 				const isActive = tracking.id_tracking === activeTracking
 
+				const { backgroundColor, borderColor } = getColorStyles(
+					tracking.color!,
+					isActive
+				)
 				return (
 					<div
 						key={tracking.id_tracking}
 						onClick={(e) => handleSelectTracking(e, tracking.id_tracking)}
-						className={clsx(
-							'flex min-w-[160px] cursor-pointer flex-col justify-center gap-1 rounded-sm border p-2 text-center',
-							isActive &&
-								'boring-destructive bg-destructive/20 ring-1 ring-destructive'
-						)}
+						style={{ backgroundColor, borderColor }}
+						className='flex min-w-[160px] cursor-pointer flex-col justify-center gap-1 rounded-sm border-2 p-2 text-center'
 					>
 						<div className='flex flex-col items-center gap-1'>
 							<div className='text-sm font-medium'>

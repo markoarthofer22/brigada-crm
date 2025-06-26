@@ -4,6 +4,7 @@ import {
 	ProjectDetails,
 	ProjectDetailsResponseSchema,
 	ProjectResponseSchema,
+	ProjectType,
 	ProjectUpsert,
 	ProjectUpsertSchema,
 	UpsertImageForProject,
@@ -11,8 +12,9 @@ import {
 	UpsertImageForProjectType,
 } from '@/api/services/projects/schema.ts'
 
-export async function getProjects() {
-	const response = await axios.get('/projects')
+export async function getProjects(type: ProjectType) {
+	const _type = type || ProjectType.PROJECT
+	const response = await axios.get(`/projects?type=${_type}`)
 
 	const data = response.data.results.map((project: ProjectDetails) => ({
 		...project,
