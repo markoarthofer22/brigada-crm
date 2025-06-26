@@ -171,7 +171,6 @@ class Tracking
 	{
 		$sql = "UPDATE {$_SESSION["SCHEMA"]}.tracking
 				SET 
-					ended_at = NOW(),
 					data = jsonb_set(
 						CASE
 							WHEN jsonb_typeof(data) = 'object' THEN data
