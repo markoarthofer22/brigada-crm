@@ -4,7 +4,10 @@ import { QuestionResponseSchema } from '@/api/services/questions/schema.ts'
 export const TrackingsSchema = z.object({
 	id_tracking: z.number(),
 	id_projects: z.number(),
-	data: z.array(z.any()),
+	data: z.union([
+		z.array(z.any()), // []
+		z.record(z.any()), // {}
+	]),
 	started_at: z.string(),
 	ended_at: z.string().nullable(),
 	id_users: z.number().optional(),
