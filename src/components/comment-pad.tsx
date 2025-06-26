@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
-import { IconX } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import SignatureCanvas from 'react-signature-canvas'
 import { cn } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button.tsx'
@@ -12,6 +12,7 @@ export interface CommentPadProps {
 
 const CommentPad = forwardRef<SignatureCanvas, CommentPadProps>(
 	({ value = '', onChange, className }, ref) => {
+		const { t } = useTranslation()
 		const sigRef = useRef<SignatureCanvas>(null)
 
 		// expose methods
@@ -67,14 +68,15 @@ const CommentPad = forwardRef<SignatureCanvas, CommentPadProps>(
 					}}
 					onEnd={handleEnd}
 				/>
-				<Button
-					variant='ghost'
-					size='icon'
-					onClick={handleClear}
-					className='absolute right-1 top-1 z-10 size-6 bg-red-500 p-0 text-white shadow-md hover:bg-red-600'
-				>
-					<IconX className='size-4 text-white' />
-				</Button>
+				<div className='absolute right-2 top-2 z-20 flex items-center gap-x-2'>
+					<Button
+						variant='ghost'
+						onClick={handleClear}
+						className='h-10 bg-green-700 p-0 px-6 font-semibold text-white shadow-md hover:bg-green-800 hover:text-white'
+					>
+						{t('Actions.delete')}
+					</Button>
+				</div>
 			</div>
 		)
 	}

@@ -9,6 +9,7 @@
 		"details": "Detalji",
 		"edit": "Uredi",
 		"goBack": "Idi natrag",
+		"newComment": "Dodaj novi",
 		"reset": "Resetiraj",
 		"submit": "Spremi",
 		"undo": "Poništi",
@@ -120,6 +121,7 @@
 			"questionType": "Tip pitanja",
 			"radius": "Radius",
 			"required": "Unos obavezan",
+			"templateId": "Predložak",
 			"uploadFile": "Ispustite ili pritisnite za upload!",
 			"username": "Korisničko ime",
 			"zoneName": "Naziv zone"
@@ -130,6 +132,7 @@
 			"questionTitle": "Unesite tekst pitanja",
 			"questionType": "Odaberite vrstu pitanja",
 			"select": "Odaberite opciju",
+			"templateId": "Odaberite predložak",
 			"username": "Unesite svoje korisničko ime"
 		},
 		"validation": {
@@ -359,13 +362,16 @@
 		"add": "Dodaj predložak",
 		"addDescription": "Ovdje kreirajte novi predložak.",
 		"created": "Izrađeno",
+		"createFromTemplate": "Izradi iz predloška",
 		"createSuccess": "Predložak {{value}} je uspješno kreiran.",
+		"creationSuccess": "Uspješno ste izradili projekt iz predloška!",
 		"delete": "Izbriši predložak",
 		"deletePlaceholder": "Unesite ime predloška za potvrdu brisanja",
 		"deleteSuccess": "Predložak {{value}} uspješno izbrisan!",
 		"description": "Ovdje upravljajte svojim predlošcima.",
 		"edit": "Uredi predložak",
 		"editDescription": "Ažurirajte predložak ovdje.",
+		"modalDescription": "Odaberite predložak iz kojeg želite izraditi svoj projekt",
 		"noProjects": "Nema pronađenih predložaka. Pokušajte ponovno kasnije!",
 		"title": "Predlošci",
 		"updateSuccess": "Predložak {{value}} je uspješno ažuriran."

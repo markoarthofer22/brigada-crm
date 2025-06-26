@@ -9,6 +9,7 @@
 		"details": "Details",
 		"edit": "Edit",
 		"goBack": "Go Back",
+		"newComment": "Add new",
 		"reset": "Reset",
 		"submit": "Save",
 		"undo": "Undo",
@@ -120,6 +121,7 @@
 			"questionType": "Question type",
 			"radius": "Radius",
 			"required": "Required",
+			"templateId": "Template",
 			"uploadFile": "Drag 'n' drop or click to upload!",
 			"username": "Username",
 			"zoneName": "Zone name"
@@ -130,6 +132,7 @@
 			"questionTitle": "Enter question text",
 			"questionType": "Select a question type",
 			"select": "Select an option",
+			"templateId": "Select template",
 			"username": "Enter your username"
 		},
 		"validation": {
@@ -359,13 +362,16 @@
 		"add": "Add template",
 		"addDescription": "Create new template here.",
 		"created": "Created",
+		"createFromTemplate": "Create from template",
 		"createSuccess": "Template {{value}} has been created successfully.",
+		"creationSuccess": "Successfully created project from template!",
 		"delete": "Delete template",
 		"deletePlaceholder": "Enter template name to confirm deletion",
 		"deleteSuccess": "Template {{value}} successfully deleted!",
 		"description": "Manage your template here.",
 		"edit": "Edit template",
 		"editDescription": "Update the template here.",
+		"modalDescription": "Please select template from which you want to create your project",
 		"noProjects": "No templates were found. Please try again later!",
 		"title": "Templates",
 		"updateSuccess": "Template {{value}} has been updated successfully."
