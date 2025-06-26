@@ -8,23 +8,23 @@ import { useLoader } from '@/context/loader-provider.tsx'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main.tsx'
 import { GenericTable } from '@/components/table/generic-table'
-import { columns } from '@/features/projects/components/projects-columns.tsx'
-import { ProjectDialogs } from '@/features/projects/components/projects-dialogs.tsx'
-import { ProjectsPrimaryButtons } from '@/features/projects/components/projects-primary-buttons.tsx'
-import ProjectsProvider from '@/features/projects/context/projects-context.tsx'
+import { TemplatesDialogs } from '@/features/templates/components/template-dialogs.tsx'
+import { TemplatePrimaryButtons } from '@/features/templates/components/template-primary-buttons.tsx'
+import TemplatesProvider from '@/features/templates/context/templates-context.tsx'
+import { columns } from './components/template-columns.tsx'
 
-const Projects = () => {
+const Templates = () => {
 	const { t } = useTranslation()
 	const { showLoader, hideLoader } = useLoader()
 	const router = useRouter()
 
 	const projectsQuery = useQuery({
-		...getAllProjects(ProjectType.PROJECT),
+		...getAllProjects(ProjectType.TEMPLATE),
 	})
 
 	const onRowClick = (row: Project) => {
 		if (row.id_projects) {
-			router.navigate({ to: `/admin/projects/${row.id_projects}` })
+			router.navigate({ to: `/admin/templates/${row.id_projects}` })
 		}
 	}
 
@@ -43,18 +43,20 @@ const Projects = () => {
 	}, [projectsQuery.isError, projectsQuery.isFetched])
 
 	return (
-		<ProjectsProvider>
+		<TemplatesProvider>
 			<Header />
 
 			<Main fixed>
 				<div className='mb-2 flex flex-wrap items-center justify-between space-y-2'>
 					<div>
 						<h2 className='text-2xl font-bold tracking-tight'>
-							{t('Projects.title')}
+							{t('Templates.title')}
 						</h2>
-						<p className='text-muted-foreground'>{t('Projects.description')}</p>
+						<p className='text-muted-foreground'>
+							{t('Templates.description')}
+						</p>
 					</div>
-					<ProjectsPrimaryButtons />
+					<TemplatePrimaryButtons />
 				</div>
 				<div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
 					<GenericTable
@@ -65,9 +67,9 @@ const Projects = () => {
 				</div>
 			</Main>
 
-			<ProjectDialogs />
-		</ProjectsProvider>
+			<TemplatesDialogs />
+		</TemplatesProvider>
 	)
 }
 
-export default Projects
+export default Templates

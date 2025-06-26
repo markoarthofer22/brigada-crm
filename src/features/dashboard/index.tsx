@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { getAllProjects } from '@/api/services/projects/options.ts'
+import { ProjectType } from '@/api/services/projects/schema.ts'
 import { getAllQuestions } from '@/api/services/questions/options.ts'
 import { getAllUsers } from '@/api/services/user/options.ts'
 import { getAllZones } from '@/api/services/zones/options.ts'
@@ -22,7 +23,7 @@ export default function Dashboard() {
 	})
 
 	const projectsQuery = useQuery({
-		...getAllProjects(),
+		...getAllProjects(ProjectType.PROJECT),
 	})
 
 	const questionsQuery = useQuery({

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { getAllProjects } from '@/api/services/projects/options.ts'
-import { ActiveStatus } from '@/api/services/projects/schema.ts'
+import { ActiveStatus, ProjectType } from '@/api/services/projects/schema.ts'
 import { useLoader } from '@/context/loader-provider'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main.tsx'
@@ -13,7 +13,7 @@ const ProjectsRegularUser = () => {
 	const { t } = useTranslation()
 	const { showLoader, hideLoader } = useLoader()
 	const projectsQuery = useQuery({
-		...getAllProjects(),
+		...getAllProjects(ProjectType.PROJECT),
 	})
 
 	useEffect(() => {

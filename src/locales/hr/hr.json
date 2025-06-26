@@ -288,6 +288,7 @@
 			"projects": "Projekti",
 			"questions": "Pitanja",
 			"settings": "Postavke",
+			"templates": "Predlošci",
 			"users": "Korisnici",
 			"zones": "Zone"
 		}
@@ -332,6 +333,21 @@
 			"toggleColumns": "Uključi/isključi stupce",
 			"view": "Pregled"
 		}
+	},
+	"Templates": {
+		"add": "Dodaj predložak",
+		"addDescription": "Ovdje kreirajte novi predložak.",
+		"created": "Izrađeno",
+		"createSuccess": "Predložak {{value}} je uspješno kreiran.",
+		"delete": "Izbriši predložak",
+		"deletePlaceholder": "Unesite ime predloška za potvrdu brisanja",
+		"deleteSuccess": "Predložak {{value}} uspješno izbrisan!",
+		"description": "Ovdje upravljajte svojim predlošcima.",
+		"edit": "Uredi predložak",
+		"editDescription": "Ažurirajte predložak ovdje.",
+		"noProjects": "Nema pronađenih predložaka. Pokušajte ponovno kasnije!",
+		"title": "Predlošci",
+		"updateSuccess": "Predložak {{value}} je uspješno ažuriran."
 	},
 	"TrackingCard": {
 		"closeZone": "Zatvori zonu",

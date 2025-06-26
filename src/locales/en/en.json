@@ -288,6 +288,7 @@
 			"projects": "Projects",
 			"questions": "Questions",
 			"settings": "Settings",
+			"templates": "Templates",
 			"users": "Users",
 			"zones": "Zones"
 		}
@@ -332,6 +333,21 @@
 			"toggleColumns": "Toggle columns",
 			"view": "View"
 		}
+	},
+	"Templates": {
+		"add": "Add template",
+		"addDescription": "Create new template here.",
+		"created": "Created",
+		"createSuccess": "Template {{value}} has been created successfully.",
+		"delete": "Delete template",
+		"deletePlaceholder": "Enter template name to confirm deletion",
+		"deleteSuccess": "Template {{value}} successfully deleted!",
+		"description": "Manage your template here.",
+		"edit": "Edit template",
+		"editDescription": "Update the template here.",
+		"noProjects": "No templates were found. Please try again later!",
+		"title": "Templates",
+		"updateSuccess": "Template {{value}} has been updated successfully."
 	},
 	"TrackingCard": {
 		"closeZone": "Close zone",

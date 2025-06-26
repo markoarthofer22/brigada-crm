@@ -2,6 +2,7 @@ import {
 	IconDeviceProjector,
 	IconLayoutDashboard,
 	IconSettings,
+	IconTemplate,
 	IconTool,
 	IconUsers,
 } from '@tabler/icons-react'
@@ -22,6 +23,11 @@ const adminRoutes: NavItem[] = [
 		title: 'projects',
 		url: '/admin/projects',
 		icon: IconDeviceProjector,
+	},
+	{
+		title: 'templates',
+		url: '/admin/templates',
+		icon: IconTemplate,
 	},
 ]
 

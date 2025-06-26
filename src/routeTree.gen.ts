@@ -49,6 +49,9 @@ const AuthenticatedProjectsIdIndexLazyImport = createFileRoute(
 const AuthenticatedAdminUsersIndexLazyImport = createFileRoute(
   '/_authenticated/admin/users/',
 )()
+const AuthenticatedAdminTemplatesIndexLazyImport = createFileRoute(
+  '/_authenticated/admin/templates/',
+)()
 const AuthenticatedAdminProjectsIndexLazyImport = createFileRoute(
   '/_authenticated/admin/projects/',
 )()
@@ -57,6 +60,9 @@ const AuthenticatedAdminUsersAddLazyImport = createFileRoute(
 )()
 const AuthenticatedAdminUsersIdIndexLazyImport = createFileRoute(
   '/_authenticated/admin/users/$id/',
+)()
+const AuthenticatedAdminTemplatesIdIndexLazyImport = createFileRoute(
+  '/_authenticated/admin/templates/$id/',
 )()
 const AuthenticatedAdminProjectsIdIndexLazyImport = createFileRoute(
   '/_authenticated/admin/projects/$id/',
@@ -219,6 +225,17 @@ const AuthenticatedAdminUsersIndexLazyRoute =
     ),
   )
 
+const AuthenticatedAdminTemplatesIndexLazyRoute =
+  AuthenticatedAdminTemplatesIndexLazyImport.update({
+    id: '/admin/templates/',
+    path: '/admin/templates/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/admin/templates/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
 const AuthenticatedAdminProjectsIndexLazyRoute =
   AuthenticatedAdminProjectsIndexLazyImport.update({
     id: '/admin/projects/',
@@ -246,6 +263,17 @@ const AuthenticatedAdminUsersIdIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/admin/users/$id/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const AuthenticatedAdminTemplatesIdIndexLazyRoute =
+  AuthenticatedAdminTemplatesIdIndexLazyImport.update({
+    id: '/admin/templates/$id/',
+    path: '/admin/templates/$id/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/admin/templates/$id/index.lazy').then(
       (d) => d.Route,
     ),
   )
@@ -398,6 +426,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProjectsIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/admin/templates/': {
+      id: '/_authenticated/admin/templates/'
+      path: '/admin/templates'
+      fullPath: '/admin/templates'
+      preLoaderRoute: typeof AuthenticatedAdminTemplatesIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/admin/users/': {
       id: '/_authenticated/admin/users/'
       path: '/admin/users'
@@ -417,6 +452,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/projects/$id'
       fullPath: '/admin/projects/$id'
       preLoaderRoute: typeof AuthenticatedAdminProjectsIdIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/admin/templates/$id/': {
+      id: '/_authenticated/admin/templates/$id/'
+      path: '/admin/templates/$id'
+      fullPath: '/admin/templates/$id'
+      preLoaderRoute: typeof AuthenticatedAdminTemplatesIdIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/admin/users/$id/': {
@@ -456,9 +498,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProjectsIndexLazyRoute: typeof AuthenticatedProjectsIndexLazyRoute
   AuthenticatedAdminUsersAddLazyRoute: typeof AuthenticatedAdminUsersAddLazyRoute
   AuthenticatedAdminProjectsIndexLazyRoute: typeof AuthenticatedAdminProjectsIndexLazyRoute
+  AuthenticatedAdminTemplatesIndexLazyRoute: typeof AuthenticatedAdminTemplatesIndexLazyRoute
   AuthenticatedAdminUsersIndexLazyRoute: typeof AuthenticatedAdminUsersIndexLazyRoute
   AuthenticatedProjectsIdIndexLazyRoute: typeof AuthenticatedProjectsIdIndexLazyRoute
   AuthenticatedAdminProjectsIdIndexLazyRoute: typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  AuthenticatedAdminTemplatesIdIndexLazyRoute: typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
   AuthenticatedAdminUsersIdIndexLazyRoute: typeof AuthenticatedAdminUsersIdIndexLazyRoute
 }
 
@@ -471,10 +515,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminUsersAddLazyRoute: AuthenticatedAdminUsersAddLazyRoute,
   AuthenticatedAdminProjectsIndexLazyRoute:
     AuthenticatedAdminProjectsIndexLazyRoute,
+  AuthenticatedAdminTemplatesIndexLazyRoute:
+    AuthenticatedAdminTemplatesIndexLazyRoute,
   AuthenticatedAdminUsersIndexLazyRoute: AuthenticatedAdminUsersIndexLazyRoute,
   AuthenticatedProjectsIdIndexLazyRoute: AuthenticatedProjectsIdIndexLazyRoute,
   AuthenticatedAdminProjectsIdIndexLazyRoute:
     AuthenticatedAdminProjectsIdIndexLazyRoute,
+  AuthenticatedAdminTemplatesIdIndexLazyRoute:
+    AuthenticatedAdminTemplatesIdIndexLazyRoute,
   AuthenticatedAdminUsersIdIndexLazyRoute:
     AuthenticatedAdminUsersIdIndexLazyRoute,
 }
@@ -501,9 +549,11 @@ export interface FileRoutesByFullPath {
   '/projects': typeof AuthenticatedProjectsIndexLazyRoute
   '/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
   '/admin/projects': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/admin/templates': typeof AuthenticatedAdminTemplatesIndexLazyRoute
   '/admin/users': typeof AuthenticatedAdminUsersIndexLazyRoute
   '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
   '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/admin/templates/$id': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
   '/admin/users/$id': typeof AuthenticatedAdminUsersIdIndexLazyRoute
 }
 
@@ -525,9 +575,11 @@ export interface FileRoutesByTo {
   '/projects': typeof AuthenticatedProjectsIndexLazyRoute
   '/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
   '/admin/projects': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/admin/templates': typeof AuthenticatedAdminTemplatesIndexLazyRoute
   '/admin/users': typeof AuthenticatedAdminUsersIndexLazyRoute
   '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
   '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/admin/templates/$id': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
   '/admin/users/$id': typeof AuthenticatedAdminUsersIdIndexLazyRoute
 }
 
@@ -552,9 +604,11 @@ export interface FileRoutesById {
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexLazyRoute
   '/_authenticated/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
   '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/_authenticated/admin/templates/': typeof AuthenticatedAdminTemplatesIndexLazyRoute
   '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexLazyRoute
   '/_authenticated/projects/$id/': typeof AuthenticatedProjectsIdIndexLazyRoute
   '/_authenticated/admin/projects/$id/': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/_authenticated/admin/templates/$id/': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
   '/_authenticated/admin/users/$id/': typeof AuthenticatedAdminUsersIdIndexLazyRoute
 }
 
@@ -579,9 +633,11 @@ export interface FileRouteTypes {
     | '/projects'
     | '/admin/users/add'
     | '/admin/projects'
+    | '/admin/templates'
     | '/admin/users'
     | '/projects/$id'
     | '/admin/projects/$id'
+    | '/admin/templates/$id'
     | '/admin/users/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -602,9 +658,11 @@ export interface FileRouteTypes {
     | '/projects'
     | '/admin/users/add'
     | '/admin/projects'
+    | '/admin/templates'
     | '/admin/users'
     | '/projects/$id'
     | '/admin/projects/$id'
+    | '/admin/templates/$id'
     | '/admin/users/$id'
   id:
     | '__root__'
@@ -627,9 +685,11 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/'
     | '/_authenticated/admin/users/add'
     | '/_authenticated/admin/projects/'
+    | '/_authenticated/admin/templates/'
     | '/_authenticated/admin/users/'
     | '/_authenticated/projects/$id/'
     | '/_authenticated/admin/projects/$id/'
+    | '/_authenticated/admin/templates/$id/'
     | '/_authenticated/admin/users/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -694,9 +754,11 @@ export const routeTree = rootRoute
         "/_authenticated/projects/",
         "/_authenticated/admin/users/add",
         "/_authenticated/admin/projects/",
+        "/_authenticated/admin/templates/",
         "/_authenticated/admin/users/",
         "/_authenticated/projects/$id/",
         "/_authenticated/admin/projects/$id/",
+        "/_authenticated/admin/templates/$id/",
         "/_authenticated/admin/users/$id/"
       ]
     },
@@ -766,6 +828,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/admin/projects/index.lazy.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/admin/templates/": {
+      "filePath": "_authenticated/admin/templates/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/admin/users/": {
       "filePath": "_authenticated/admin/users/index.lazy.tsx",
       "parent": "/_authenticated"
@@ -776,6 +842,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/admin/projects/$id/": {
       "filePath": "_authenticated/admin/projects/$id/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/admin/templates/$id/": {
+      "filePath": "_authenticated/admin/templates/$id/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/admin/users/$id/": {
