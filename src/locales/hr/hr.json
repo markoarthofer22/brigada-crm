@@ -334,6 +334,27 @@
 			"view": "Pregled"
 		}
 	},
+	"TemplateDetails": {
+		"description": "Ažurirajte postavke predloška. ",
+		"questions": {
+			"addOption": "Dodaj opciju",
+			"addQuestion": "Dodaj pitanje",
+			"addQuestionDescription": "Ispunite detalje za izradu novog pitanja.",
+			"addSuccess": "Pitanje je uspješno dodano.",
+			"confirmDelete": "Potvrdite brisanje",
+			"confirmDeleteDescription": "Jeste li sigurni da želite ovo izbrisati? Ova se radnja ne može poništiti.",
+			"deleteSuccess": "Pitanje izbrisano!",
+			"editQuestion": "Uredi pitanje",
+			"editQuestionDescription": "Ažurirajte detalje pitanja u nastavku.",
+			"editSuccess": "Pitanje je uspješno ažurirano.",
+			"emptyQuestion": "Ovaj predložak nema pitanja. Pritisnite {{value}}  za dodavanje novog pitanja.",
+			"freeInput": "Ovo je jednostavno tekstualno polje",
+			"freeTextArea": "Ovo je višeredni unos teksta",
+			"noOption": "Još nema dodanih opcija. Kliknite \"{{value}}\" za dodavanje mogućih odgovora.",
+			"orderUpdated": "Redoslijed pitanja ažuriran!"
+		},
+		"title": "Predložak"
+	},
 	"Templates": {
 		"add": "Dodaj predložak",
 		"addDescription": "Ovdje kreirajte novi predložak.",

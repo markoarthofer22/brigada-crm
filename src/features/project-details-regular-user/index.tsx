@@ -43,8 +43,6 @@ export default function ProjectDetailsForRegularUser() {
 		enabled: !!id,
 	})
 
-	console.log('activeTrackingId', activeTrackingId)
-
 	const addCommentMutation = useMutation({
 		mutationFn: (comment: string) => {
 			return addCommentToTracking(activeTrackingId!, comment)
@@ -52,8 +50,6 @@ export default function ProjectDetailsForRegularUser() {
 		onSuccess: () => {
 			toast.success(t('ProjectDetailsRegularUser.commentAdded'))
 			setIsCommentModalOpen(false)
-			// ako se ne treba odmah refetch, onda se može izbrisati
-			trackingQuery.refetch()
 		},
 		onError: (error: unknown) => {
 			handleError(error)

@@ -13,8 +13,8 @@ export enum TabsEnum {
 }
 
 export enum ProjectType {
-	PROJECT = 1,
-	TEMPLATE = 2,
+	PROJECT = '1',
+	TEMPLATE = '2',
 }
 
 export const ProjectResponseSchema = z.object({
@@ -39,6 +39,7 @@ export const QuestionItemResponseSchema = z.object({
 
 export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({
 	path: z.string().optional(),
+	type: z.nativeEnum(ProjectType),
 	images: z
 		.array(
 			z.object({
@@ -87,6 +88,7 @@ export const ProjectUpsertSchema = z.object({
 	name: z.string(),
 	active: z.nativeEnum(ActiveStatus).default(ActiveStatus.ACTIVE),
 	otherField: z.string().optional(),
+	type: z.nativeEnum(ProjectType).default(ProjectType.PROJECT),
 })
 
 export type ProjectUpsert = z.infer<typeof ProjectUpsertSchema>

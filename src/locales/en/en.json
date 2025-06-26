@@ -334,6 +334,27 @@
 			"view": "View"
 		}
 	},
+	"TemplateDetails": {
+		"description": "Update you template settings. ",
+		"questions": {
+			"addOption": "Add option",
+			"addQuestion": "Add Question",
+			"addQuestionDescription": "Fill in the details to create a new question.",
+			"addSuccess": "Question successfully added.",
+			"confirmDelete": "Confirm delete",
+			"confirmDeleteDescription": "Are you sure you want to delete this? This action cannot be undone.",
+			"deleteSuccess": "Question deleted successfully!",
+			"editQuestion": "Edit question",
+			"editQuestionDescription": "Update the question details below.",
+			"editSuccess": "Question successfully updated.",
+			"emptyQuestion": "This template has no questions. Press on {{value}} button to add new question.",
+			"freeInput": "This is a simple text field",
+			"freeTextArea": "This is a multi-line text input",
+			"noOption": "No options added yet. Click \"{{value}}\" to add possible answers.",
+			"orderUpdated": "Question order updated!"
+		},
+		"title": "Template"
+	},
 	"Templates": {
 		"add": "Add template",
 		"addDescription": "Create new template here.",

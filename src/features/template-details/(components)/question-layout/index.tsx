@@ -80,7 +80,7 @@ const QuestionLayout = ({
 				queryKey: ['projects', projectId],
 			})
 			hideLoader()
-			toast.success(t('TemplateDetails.questions.deleteSuccess'))
+			toast.success(t('ProjectDetails.questions.deleteSuccess'))
 		},
 		onError: (error) => {
 			hideLoader()
@@ -95,7 +95,7 @@ const QuestionLayout = ({
 		},
 		onSuccess: async () => {
 			hideLoader()
-			toast.success(t('TemplateDetails.questions.orderUpdated'))
+			toast.success(t('ProjectDetails.questions.orderUpdated'))
 		},
 		onError: (error) => {
 			hideLoader()
@@ -119,7 +119,7 @@ const QuestionLayout = ({
 
 			toast.success(
 				t(
-					`TemplateDetails.questions.${res.id_questions ? 'editSuccess' : 'addSuccess'}`
+					`ProjectDetails.questions.${res.id_questions ? 'editSuccess' : 'addSuccess'}`
 				)
 			)
 
@@ -183,14 +183,14 @@ const QuestionLayout = ({
 					})}
 				>
 					<IconCirclePlusFilled className='h-4 w-4' />
-					{t('TemplateDetails.questions.addQuestion')}
+					{t('ProjectDetails.questions.addQuestion')}
 				</Button>
 			</div>
 			{questions.length === 0 && (
 				<Card>
 					<CardContent className='p-6 text-center text-muted-foreground'>
-						{t('TemplateDetails.questions.emptyQuestion', {
-							value: `"${t('TemplateDetails.questions.addQuestion')}"`,
+						{t('ProjectDetails.zones.table.emptyQuestion', {
+							value: t('ProjectDetails.questions.addQuestion'),
 						})}
 					</CardContent>
 				</Card>
