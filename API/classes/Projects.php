@@ -48,6 +48,7 @@ class Projects
 					* 
 				FROM {$_SESSION["SCHEMA"]}.projects p
 				$where
+				AND p.deleted_at IS NULL
 				ORDER BY p.created_at DESC
 		";
 
