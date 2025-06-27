@@ -9,6 +9,7 @@ import { upsertProject } from '@/api/services/projects/projects'
 import {
 	ActiveStatus,
 	Project,
+	ProjectType,
 	ProjectUpsert,
 	ProjectUpsertSchema,
 } from '@/api/services/projects/schema.ts'
@@ -56,6 +57,7 @@ export function TemplateUpsertDialog({
 			name: currentRow?.name ?? '',
 			active: currentRow?.active ?? ActiveStatus.ACTIVE,
 			id_projects: currentRow?.id_projects ?? undefined,
+			type: ProjectType.TEMPLATE,
 		},
 	})
 
@@ -63,7 +65,7 @@ export function TemplateUpsertDialog({
 		mutationFn: (data: ProjectUpsert) => upsertProject(data),
 		onSuccess: async (res) => {
 			await queryClient.invalidateQueries({
-				queryKey: ['projects'],
+				queryKey: ['projects', ProjectType.TEMPLATE],
 				exact: false,
 			})
 

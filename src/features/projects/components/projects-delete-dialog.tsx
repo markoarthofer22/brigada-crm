@@ -6,7 +6,7 @@ import { IconAlertTriangle } from '@tabler/icons-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { deleteProject } from '@/api/services/projects/projects.ts'
-import { Project } from '@/api/services/projects/schema.ts'
+import { Project, ProjectType } from '@/api/services/projects/schema.ts'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
@@ -33,7 +33,7 @@ export function ProjectsDeleteDialog({
 		mutationFn: (id: number) => deleteProject(id),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
-				queryKey: ['projects'],
+				queryKey: ['projects', ProjectType.PROJECT],
 			})
 
 			toast.success(t('Projects.deleteSuccess', { value: currentRow.name }))

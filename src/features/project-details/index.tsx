@@ -6,7 +6,11 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getProjectById } from '@/api/services/projects/options.ts'
 import { upsertProject } from '@/api/services/projects/projects.ts'
-import { ActiveStatus, TabsEnum } from '@/api/services/projects/schema'
+import {
+	ActiveStatus,
+	ProjectType,
+	TabsEnum,
+} from '@/api/services/projects/schema'
 import { useLoader } from '@/context/loader-provider'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button.tsx'
@@ -71,6 +75,7 @@ export default function ProjectDetails() {
 				id_projects: Number(id),
 				active,
 				name,
+				type: ProjectType.PROJECT,
 			})
 		},
 		onSuccess: async (res) => {

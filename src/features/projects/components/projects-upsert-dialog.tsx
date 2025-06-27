@@ -1,5 +1,3 @@
-'use client'
-
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -9,6 +7,7 @@ import { upsertProject } from '@/api/services/projects/projects'
 import {
 	ActiveStatus,
 	Project,
+	ProjectType,
 	ProjectUpsert,
 	ProjectUpsertSchema,
 } from '@/api/services/projects/schema.ts'
@@ -58,6 +57,7 @@ export function ProjectsUpsertDialog({
 			name: currentRow?.name ?? '',
 			active: currentRow?.active ?? ActiveStatus.ACTIVE,
 			id_projects: currentRow?.id_projects ?? undefined,
+			type: ProjectType.PROJECT,
 		},
 	})
 
@@ -65,7 +65,7 @@ export function ProjectsUpsertDialog({
 		mutationFn: (data: ProjectUpsert) => upsertProject(data),
 		onSuccess: async (res) => {
 			await queryClient.invalidateQueries({
-				queryKey: ['projects'],
+				queryKey: ['projects', ProjectType.PROJECT],
 				exact: false,
 			})
 
