@@ -12,6 +12,8 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use stdClass;
 
+use function PHPSTORM_META\type;
+
 /**
  * TrackingController class
  *
@@ -327,6 +329,10 @@ class TrackingController extends BaseController
 		];
 
 		$params->data = $params->data ?? [];
+
+		if (is_string($params->answer->answer)) {
+			$params->answer->answer = json_decode($params->answer->answer);
+		}
 
 		foreach ($requiredFields as $field) {
 			if (!isset($params->{$field}) || $params->{$field} == "") {
