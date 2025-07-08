@@ -110,7 +110,7 @@ class ProjectsController extends BaseController
 		$result["static_questions"] = array(
 			array(
 				"id_projects" => $args->id,
-				"id_questions" => 0,
+				"id_questions" => 1,
 				"id_questions_types" => 4,
 				"label" => "Broj ljudi",
 				"data" => array("required" => true),
