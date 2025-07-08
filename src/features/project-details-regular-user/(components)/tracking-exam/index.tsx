@@ -129,55 +129,59 @@ export function TrackingExam({
 		for (const q of staticQuestions) {
 			const name = `q_${trackingId}_${q.id_questions}`
 			const qType = getQuestionType(q.id_questions_types)
+			const isCheckbox = qType?.type === 'checkbox'
+			const isOptional =
+				!q.data?.required || qType?.type === 'input' || qType?.type === 'text'
 
-			if (qType?.type === 'checkbox') {
-				shape[name] = z
-					.array(z.string(), {
+			let schema: any = isCheckbox
+				? z.array(z.string(), {
 						required_error: t('Input.validation.required'),
 						invalid_type_error: t('Input.validation.invalid'),
 					})
-					.min(1, { message: t('Input.validation.required') })
-			} else {
-				shape[name] = z
-					.string({
+				: z.string({
 						required_error: t('Input.validation.required'),
 						invalid_type_error: t('Input.validation.invalid'),
 					})
-					.min(1, { message: t('Input.validation.required') })
+
+			if (!isOptional) {
+				schema = schema.min(1, { message: t('Input.validation.required') })
 			}
 
-			if (
-				!q.data?.required ||
-				qType?.type === 'input' ||
-				qType?.type === 'text'
-			) {
-				shape[name] = shape[name].optional()
+			if (isOptional) {
+				schema = schema.optional()
 			}
+
+			shape[name] = schema
 		}
 
 		for (const q of questions) {
 			const name = `q_${trackingId}_${q.id_questions}`
 			const qType = getQuestionType(q.id_questions_types)
+			const isCheckbox = qType?.type === 'checkbox'
+			const isTriviallyOptional =
+				!q.required || qType?.type === 'input' || qType?.type === 'text'
 
-			if (qType?.type === 'checkbox') {
-				shape[name] = z
-					.array(z.string(), {
-						required_error: t('Input.validation.required'),
+			let schema: any = isCheckbox
+				? z.array(z.string(), {
 						invalid_type_error: t('Input.validation.invalid'),
 					})
-					.min(1, { message: t('Input.validation.required') })
-			} else {
-				shape[name] = z
-					.string({
-						required_error: t('Input.validation.required'),
+				: z.string({
 						invalid_type_error: t('Input.validation.invalid'),
 					})
-					.min(1, { message: t('Input.validation.required') })
+
+			if (!isTriviallyOptional) {
+				if (isCheckbox) {
+					schema = schema.min(1, { message: t('Input.validation.required') })
+				} else {
+					schema = schema.min(1, { message: t('Input.validation.required') })
+				}
 			}
 
-			if (!q.required || qType?.type === 'input' || qType?.type === 'text') {
-				shape[name] = shape[name].optional()
+			if (isTriviallyOptional) {
+				schema = schema.optional()
 			}
+
+			shape[name] = schema
 		}
 
 		return z.object(shape)
