@@ -239,11 +239,13 @@
 		"confirmCloseZoneTitle": "Closing active zone",
 		"endTrackingSuccess": "Tracking ended successfully!",
 		"Exam": {
+			"allFilled": "All question must be answered in order for it to be valid",
 			"fullscreen": "Fullscreen",
 			"minimize": "Minimize",
 			"questionNotFound": "Question not found. If you think this is an error in the app please contact the admin!",
 			"questionSaved": "Question saved",
-			"questionUpdated": "Question updated"
+			"questionUpdated": "Question updated",
+			"save": "Save answers"
 		},
 		"startTrackingSuccess": "Tracking started!",
 		"startZoneSuccess": "Zone tracking started",

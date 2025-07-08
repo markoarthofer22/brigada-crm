@@ -533,6 +533,7 @@ const ZonesLayoutRegularUser = ({
 						</DialogHeader>
 
 						<TrackingExam
+							staticQuestions={[]}
 							trackingZoneId={activeZone.id_tracking_zones}
 							zoneId={activeZone.id_zones}
 							trackingId={trackingId}

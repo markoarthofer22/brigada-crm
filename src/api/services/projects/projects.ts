@@ -18,6 +18,7 @@ export async function getProjects(type: ProjectType) {
 
 	const data = response.data.results.map((project: ProjectDetails) => ({
 		...project,
+		static_questions: project.static_questions ?? [],
 		zones: project.zones.map((zone) => ({
 			...zone,
 			coordinates: {
@@ -46,7 +47,7 @@ export async function getProjectById(id: number) {
 				required:
 					question.id_questions_types === 1 || question.id_questions_types === 2
 						? false
-						: (JSON.parse(question?.data ?? '{}')?.required ?? false),
+						: (question?.data?.required ?? false),
 			})
 		),
 		zones: response.data.zones.map((zone: ProjectDetails['zones'][number]) => ({
@@ -58,7 +59,7 @@ export async function getProjectById(id: number) {
 						question.id_questions_types === 1 ||
 						question.id_questions_types === 2
 							? false
-							: (JSON.parse(question?.data ?? '{}')?.required ?? false),
+							: (question?.data?.required ?? false),
 				})
 			),
 			coordinates: {

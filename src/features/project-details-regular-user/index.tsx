@@ -171,6 +171,7 @@ export default function ProjectDetailsForRegularUser() {
 							trackingId={activeTrackingId}
 							projectId={projectQuery.data.id_projects}
 							questions={projectQuery.data.questions}
+							staticQuestions={projectQuery.data.static_questions}
 							examName={`${t('ProjectDetails.title')} ${projectQuery.data.name}`}
 							onValidityChange={(isValid) => {
 								setIsTrackingValid(isValid)

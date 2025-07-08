@@ -239,11 +239,13 @@
 		"confirmCloseZoneTitle": "Zatvaranje praćenja aktivne zone",
 		"endTrackingSuccess": "Praćenje zatvoreno!",
 		"Exam": {
+			"allFilled": "Sva pitanja moraju biti odgovorena",
 			"fullscreen": "Cijeli zaslon",
 			"minimize": "Minimiziranje",
 			"questionNotFound": "Pitanje nije pronađeno. Ako mislite da je ovo pogreška u aplikaciji, obratite se administratoru!",
 			"questionSaved": "Odgovor dodan",
-			"questionUpdated": "Odgovor promijenjen"
+			"questionUpdated": "Odgovor promijenjen",
+			"save": "Spremi odgovore"
 		},
 		"startTrackingSuccess": "Praćenje je započeto!",
 		"startZoneSuccess": "Započeto praćenje za zonu",

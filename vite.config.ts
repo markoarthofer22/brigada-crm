@@ -53,13 +53,15 @@ export default defineConfig(({ mode }) => {
 				],
 			}),
 			VitePWA({
+				// @ts-expect-error: not yet in plugin’s types
+				enableWorkboxModulesLogs: false,
 				registerType: 'autoUpdate',
 				devOptions: {
-					enabled: isDevelopment,
+					enabled: false,
 					suppressWarnings: true,
 				},
 				workbox: {
-					sourcemap: true,
+					sourcemap: false,
 				},
 				manifest: {
 					name: 'Brigada',

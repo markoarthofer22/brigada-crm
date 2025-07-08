@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<babeledit_project be_version="5.4.1" version="1.3">
+<babeledit_project be_version="5.5.0" version="1.3">
 	<!--
 
     BabelEdit project file
@@ -2846,6 +2846,21 @@
 								<name>Exam</name>
 								<children>
 									<concept_node>
+										<name>allFilled</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
 										<name>fullscreen</name>
 										<description/>
 										<comment/>
@@ -2907,6 +2922,21 @@
 									</concept_node>
 									<concept_node>
 										<name>questionUpdated</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>save</name>
 										<description/>
 										<comment/>
 										<translations>

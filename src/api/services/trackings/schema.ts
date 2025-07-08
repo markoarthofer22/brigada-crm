@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { QuestionResponseSchema } from '@/api/services/questions/schema.ts'
 
 export const TrackingsSchema = z.object({
 	id_tracking: z.number(),
@@ -29,7 +28,7 @@ export const TrackingAnswerUpsertSchema = z.object({
 	id_questions: z.number(),
 	id_zones: z.number().optional().nullable(),
 	id_tracking_zones: z.number().optional().nullable(),
-	question: QuestionResponseSchema,
+	question: z.any(),
 	answer: z.object({
 		answer: z.string(),
 	}),
@@ -61,6 +60,7 @@ export const GetTrackingZonesForTrackingResponseSchema = z.object({
 export const getTrackingZoneAnswersForTrackingSchema = z.object({
 	id_projects: z.number(),
 	id_tracking: z.number(),
+	id_questions: z.number().optional(),
 	id_tracking_zones: z.number(),
 	id_zones: z.number(),
 	started_at: z.string(),

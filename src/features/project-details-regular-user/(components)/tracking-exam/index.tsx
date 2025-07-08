@@ -5,7 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { ProjectDetails } from '@/api/services/projects/schema'
+import {
+	ProjectDetails,
+	StaticQuestionItem,
+} from '@/api/services/projects/schema'
 import {
 	getAnswerForSpecificTracking,
 	getAnswerForSpecificZoneInTracking,
@@ -41,10 +44,17 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx'
 import { Textarea } from '@/components/ui/textarea.tsx'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@/components/ui/tooltip.tsx'
 import { GlobalLoader } from '@/components/global-loader.tsx'
 
 interface TrackingExamProps {
 	questions: ProjectDetails['questions']
+	staticQuestions: StaticQuestionItem[]
 	projectId: number
 	trackingId: number
 	zoneId?: number
@@ -61,10 +71,13 @@ export function TrackingExam({
 	onValidityChange,
 	zoneId,
 	trackingZoneId,
+	staticQuestions,
 }: TrackingExamProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
 	const [isFullscreen, setIsFullscreen] = useState(false)
+	const [isStaticValid, setIsStaticValid] = useState(false)
+	// const isStaticValid = useRef<boolean>(true)
 
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
 
@@ -112,6 +125,35 @@ export function TrackingExam({
 
 	const schema = useMemo(() => {
 		const shape: Record<string, z.ZodTypeAny> = {}
+
+		for (const q of staticQuestions) {
+			const name = `q_${trackingId}_${q.id_questions}`
+			const qType = getQuestionType(q.id_questions_types)
+
+			if (qType?.type === 'checkbox') {
+				shape[name] = z
+					.array(z.string(), {
+						required_error: t('Input.validation.required'),
+						invalid_type_error: t('Input.validation.invalid'),
+					})
+					.min(1, { message: t('Input.validation.required') })
+			} else {
+				shape[name] = z
+					.string({
+						required_error: t('Input.validation.required'),
+						invalid_type_error: t('Input.validation.invalid'),
+					})
+					.min(1, { message: t('Input.validation.required') })
+			}
+
+			if (
+				!q.data?.required ||
+				qType?.type === 'input' ||
+				qType?.type === 'text'
+			) {
+				shape[name] = shape[name].optional()
+			}
+		}
 
 		for (const q of questions) {
 			const name = `q_${trackingId}_${q.id_questions}`
@@ -180,11 +222,14 @@ export function TrackingExam({
 		formState: { isValid },
 	} = form
 
-	const handleBlurSubmit = async (name: string, id: number) => {
+	const handleBlurSubmit = async (
+		name: string,
+		id: number,
+		isStatic = false
+	) => {
 		const isValid = await trigger(name)
-		// probably a better way to do this, but it works
-		// don't submit if the value is empty
 		const value = getValues(name) as string | string[]
+
 		if (
 			!value ||
 			(typeof value === 'string' && value === '') ||
@@ -194,32 +239,317 @@ export function TrackingExam({
 		}
 
 		if (isValid) {
-			const value = getValues(name) as string | string[]
-			const activeQuestion = questions.find((q) => q.id_questions === id)
-
-			if (!activeQuestion) {
-				toast.error(t('ProjectDetailsRegularUser.Exam.questionNotFound'))
-				return
+			if (!isStatic) {
+				const activeQuestion = questions.find((q) => q.id_questions === id)
+				if (!activeQuestion) {
+					toast.error(t('ProjectDetailsRegularUser.Exam.questionNotFound'))
+					return
+				}
+				const data: TrackingsAnswerUpsert = {
+					id_questions: id,
+					id_tracking: trackingId,
+					id_projects: projectId,
+					order: activeQuestion?.order,
+					id_tracking_zones: trackingZoneId,
+					id_zones: zoneId,
+					id_tracking_answers: answerMap.get(id),
+					question: {
+						...activeQuestion,
+						data: activeQuestion?.data ?? {},
+					},
+					answer: {
+						answer: Array.isArray(value) ? value.join(',') : value,
+					},
+				}
+				answerQuestionMutation.mutate(data)
 			}
 
-			const data: TrackingsAnswerUpsert = {
-				id_questions: id,
-				id_tracking: trackingId,
-				id_projects: projectId,
-				order: activeQuestion?.order,
-				id_tracking_zones: trackingZoneId,
-				id_zones: zoneId,
-				id_tracking_answers: answerMap.get(id),
-				question: {
-					...activeQuestion,
-					data: JSON.parse(activeQuestion?.data ?? '{}'),
-				},
-				answer: {
-					answer: Array.isArray(value) ? value.join(',') : value,
-				},
+			if (isStatic) {
+				const staticQuestion = staticQuestions.find(
+					(q) => q.id_questions === id
+				)
+				if (!staticQuestion) {
+					toast.error(t('ProjectDetailsRegularUser.Exam.questionNotFound'))
+					return
+				}
+
+				// Get all form values to process subquestions
+				const allFormValues = getValues()
+
+				const subAnswers: Array<Record<string, string>> = []
+
+				if (staticQuestion.subquestions && Number(value) > 0) {
+					for (let i = 1; i <= Number(value); i++) {
+						const subAnswerGroup: Record<string, string> = {}
+
+						staticQuestion.subquestions.forEach((subQuestion) => {
+							const subFieldName = `q_sub_${trackingId}_${subQuestion.label}_${i}`
+							const subValue = allFormValues[subFieldName]
+
+							if (subValue) {
+								subAnswerGroup[subQuestion.label] = Array.isArray(subValue)
+									? subValue.join(',')
+									: subValue
+							}
+						})
+
+						if (Object.keys(subAnswerGroup).length > 0) {
+							subAnswers.push(subAnswerGroup)
+						}
+					}
+				}
+
+				const data: TrackingsAnswerUpsert = {
+					id_questions: id,
+					id_tracking: trackingId,
+					id_projects: projectId,
+					order: 1,
+					id_tracking_zones: trackingZoneId,
+					id_zones: zoneId,
+					id_tracking_answers: answerMap.get(id),
+					question: {
+						...staticQuestion,
+						data: staticQuestion?.data ?? {},
+					},
+					answer: { answer: JSON.stringify(subAnswers) },
+				}
+				answerQuestionMutation.mutate(data)
 			}
-			answerQuestionMutation.mutate(data)
 		}
+	}
+
+	const renderStaticField = (
+		staticQuestion: StaticQuestionItem,
+		recursive = false,
+		parentIndex?: number
+	) => {
+		const name = !recursive
+			? `q_${trackingId}_${staticQuestion.id_questions}`
+			: `q_sub_${trackingId}_${staticQuestion.label}_${parentIndex}`
+
+		const qType = getQuestionType(staticQuestion.id_questions_types)
+		const possibleAnswers = Object.values(staticQuestion.possible_answers || {})
+		const watchField = watch(name)
+		let mainField
+
+		if (!qType) return null
+
+		// Check if all fields are filled
+		const checkAllFieldsFilled = () => {
+			const allFormValues = getValues()
+			const mainFieldName = `q_${trackingId}_${staticQuestion.id_questions}`
+			const mainValue = allFormValues[mainFieldName]
+
+			if (!mainValue) return false
+
+			if (staticQuestion.subquestions && Number(mainValue) > 0) {
+				for (let i = 1; i <= Number(mainValue); i++) {
+					for (const subQuestion of staticQuestion.subquestions) {
+						const subFieldName = `q_sub_${trackingId}_${subQuestion.label}_${i}`
+						const subValue = allFormValues[subFieldName]
+
+						if (
+							subQuestion.data?.required &&
+							(!subValue || (Array.isArray(subValue) && subValue.length === 0))
+						) {
+							return false
+						}
+					}
+				}
+			}
+
+			return true
+		}
+
+		switch (qType.type) {
+			case 'select':
+				mainField = (
+					<FormField
+						control={form.control}
+						name={name}
+						render={({ field }) => (
+							<FormItem>
+								<Select
+									key={field.value || 'empty'}
+									value={field.value || ''}
+									onValueChange={(val) => {
+										field.onChange(val)
+									}}
+								>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue
+												placeholder={t('Input.placeholder.select')}
+											/>
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{possibleAnswers.map((a, i) => (
+											<SelectItem
+												key={i}
+												value={typeof a === 'string' ? a : String(a)}
+											>
+												{a}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				)
+				break
+			case 'radio':
+				mainField = (
+					<FormField
+						control={form.control}
+						name={name}
+						render={({ field }) => (
+							<FormItem>
+								<FormControl>
+									<RadioGroup
+										value={field.value}
+										onValueChange={(val) => {
+											field.onChange(val)
+										}}
+									>
+										{possibleAnswers.map((a, i) => (
+											<div key={i} className='flex items-center space-x-2'>
+												<RadioGroupItem
+													value={typeof a === 'string' ? a : String(a)}
+													id={`${name}-${i}`}
+												/>
+												<FormLabel htmlFor={`${name}-${i}`}>{a}</FormLabel>
+											</div>
+										))}
+									</RadioGroup>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				)
+				break
+			case 'checkbox':
+				mainField = (
+					<FormField
+						control={form.control}
+						name={name}
+						render={() => {
+							const selected: string[] = watch(name) || []
+							return (
+								<FormItem>
+									<FormControl>
+										<div className='space-y-2'>
+											{possibleAnswers.map((answer, i) => {
+												const checked = selected.includes(
+													typeof answer === 'string' ? answer : String(answer)
+												)
+												return (
+													<div key={i} className='flex items-center space-x-2'>
+														<Checkbox
+															checked={checked}
+															onCheckedChange={(isChecked) => {
+																const updated = isChecked
+																	? [...selected, answer]
+																	: selected.filter((x) => x !== answer)
+																setValue(name, updated, {
+																	shouldValidate: true,
+																})
+															}}
+														/>
+														<FormLabel>{answer}</FormLabel>
+													</div>
+												)
+											})}
+										</div>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)
+						}}
+					/>
+				)
+				break
+			default:
+				mainField = (
+					<p className='text-sm text-red-500'>Unknown question type</p>
+				)
+				break
+		}
+
+		if (recursive) {
+			return mainField
+		}
+
+		const allFieldsFilled = checkAllFieldsFilled()
+		if (isStaticValid !== allFieldsFilled) {
+			setIsStaticValid(allFieldsFilled)
+		}
+
+		return (
+			<div className='flex flex-col gap-y-4'>
+				{mainField}
+				{staticQuestion.subquestions &&
+					watchField &&
+					Number(watchField) > 0 && (
+						<div className='space-y-4'>
+							{Array.from({ length: Number(watchField) }, (_, i) => (
+								<div key={i} className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
+									{staticQuestion.subquestions.map((subQuestion, subIndex) => {
+										const subQuestionId =
+											staticQuestion.id_questions * 1000 + subIndex * 10 + i + 1
+										return (
+											<div key={subIndex}>
+												<FormLabel className='text-sm font-medium'>
+													{subQuestion.label} #{i + 1}
+												</FormLabel>
+												{renderStaticField(
+													{
+														...subQuestion,
+														id_questions: subQuestionId,
+														id_projects: projectId,
+														subquestions: [],
+													},
+													true,
+													i + 1
+												)}
+											</div>
+										)
+									})}
+								</div>
+							))}
+						</div>
+					)}
+
+				<TooltipProvider>
+					<Tooltip delayDuration={0}>
+						<TooltipTrigger asChild>
+							<div className='mt-4 w-full flex-1'>
+								<Button
+									disabled={!allFieldsFilled}
+									onClick={() => {
+										const mainFieldName = `q_${trackingId}_${staticQuestion.id_questions}`
+										handleBlurSubmit(
+											mainFieldName,
+											staticQuestion.id_questions,
+											true
+										)
+									}}
+									className='w-full'
+								>
+									{t('ProjectDetailsRegularUser.Exam.save')}
+								</Button>
+							</div>
+						</TooltipTrigger>
+						<TooltipContent>
+							{t('ProjectDetailsRegularUser.Exam.allFilled')}
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			</div>
+		)
 	}
 
 	const renderField = (question: ProjectDetails['questions'][number]) => {
@@ -401,7 +731,6 @@ export function TrackingExam({
 
 		if (activeQuestionAnswers.data.length > 0) {
 			const values: Record<string, string | string[]> = {}
-
 			let arr
 
 			if (zoneId && trackingZoneId) {
@@ -418,11 +747,60 @@ export function TrackingExam({
 			if (!arr) return
 
 			for (const entry of arr) {
-				const name = `q_${trackingId}_${entry.id_questions}`
-				const raw = entry.answer?.answer ?? ''
-				const qType = getQuestionType(entry.question?.id_questions_types)
+				// Check if it's a static question (id < 1000)
+				if (entry?.id_questions < 1000) {
+					// Static question handling
+					const staticQuestion = staticQuestions.find(
+						(q) => q.id_questions === entry.id_questions
+					)
+					if (!staticQuestion) continue
 
-				values[name] = qType?.type === 'checkbox' ? raw.split(',') : raw
+					const name = `q_${trackingId}_${entry.id_questions}`
+
+					try {
+						// Parse the stringified answer array
+						const answerArray = JSON.parse(entry.answer?.answer ?? '[]')
+
+						// Set main question value to the length of answers
+						const qType = getQuestionType(staticQuestion.id_questions_types)
+						values[name] =
+							qType?.type === 'checkbox'
+								? [String(answerArray.length)]
+								: String(answerArray.length)
+
+						// Set subquestion values
+						answerArray.forEach(
+							(answerGroup: Record<string, string>, index: number) => {
+								if (staticQuestion.subquestions) {
+									staticQuestion.subquestions.forEach((subQuestion) => {
+										const subFieldName = `q_sub_${trackingId}_${subQuestion.label}_${index + 1}`
+										const subValue = answerGroup[subQuestion.label]
+
+										if (subValue) {
+											const subQType = getQuestionType(
+												subQuestion.id_questions_types
+											)
+											values[subFieldName] =
+												subQType?.type === 'checkbox'
+													? subValue.split(',')
+													: subValue
+										}
+									})
+								}
+							}
+						)
+					} catch (error) {
+						console.error('Error parsing static question answer:', error)
+						// Fallback to empty value
+						const qType = getQuestionType(staticQuestion.id_questions_types)
+						values[name] = qType?.type === 'checkbox' ? [] : ''
+					}
+				} else {
+					const name = `q_${trackingId}_${entry.id_questions}`
+					const raw = entry.answer?.answer ?? ''
+					const qType = getQuestionType(entry.question?.id_questions_types)
+					values[name] = qType?.type === 'checkbox' ? raw.split(',') : raw
+				}
 			}
 
 			form.reset(values)
@@ -431,9 +809,35 @@ export function TrackingExam({
 
 	useEffect(() => {
 		if (onValidityChange) {
-			onValidityChange(isValid)
+			onValidityChange(isValid && isStaticValid)
 		}
-	}, [isValid, onValidityChange])
+	}, [isStaticValid, isValid, onValidityChange])
+
+	useEffect(() => {
+		const submitAllStaticQuestions = async () => {
+			if (isStaticValid && staticQuestions.length > 0) {
+				const promises = []
+
+				for (const q of staticQuestions) {
+					const staticQuestionHasAnswers = activeQuestionAnswers.data?.find(
+						(entry) => entry.id_questions === q.id_questions
+					)
+					const name = `q_${trackingId}_${q.id_questions}`
+					if (!staticQuestionHasAnswers) {
+						promises.push(handleBlurSubmit(name, q.id_questions, true))
+					}
+				}
+
+				try {
+					await Promise.all(promises)
+					console.log('All static questions submitted successfully')
+				} catch (error) {
+					console.error('Error submitting static questions:', error)
+				}
+			}
+		}
+		void submitAllStaticQuestions()
+	}, [activeQuestionAnswers.data, isStaticValid, staticQuestions])
 
 	if (activeQuestionAnswers.isLoading) {
 		return <GlobalLoader />
@@ -473,6 +877,22 @@ export function TrackingExam({
 							'sm:grid-cols-1': questions.length === 1 || isFullscreen,
 						})}
 					>
+						{staticQuestions.map((q) => (
+							<Card key={q.id_questions} className='sm:col-span-2'>
+								<CardHeader className='px-4 pb-1.5 pt-4'>
+									<CardTitle className='capitalize'>
+										{q.label}{' '}
+										{q.data?.required && (
+											<sup className='text-destructive'>*</sup>
+										)}
+									</CardTitle>
+								</CardHeader>
+								<CardContent className='px-4 py-3'>
+									{renderStaticField(q)}
+								</CardContent>
+							</Card>
+						))}
+
 						{questions.map((q) => (
 							<Card key={q.id_questions}>
 								<CardHeader className='px-4 pb-1.5 pt-4'>

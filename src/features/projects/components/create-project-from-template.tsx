@@ -108,7 +108,7 @@ const CreateProjectFromTemplate = () => {
 							order: question.order,
 							label: question.label,
 							possible_answers: Object.values(question.possible_answers),
-							data: JSON.parse(question.data ?? '{}'),
+							data: question.data ?? {},
 						}
 						return upsertQuestionMutation.mutateAsync(payload)
 					})

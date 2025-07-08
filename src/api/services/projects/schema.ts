@@ -25,6 +25,37 @@ export const ProjectResponseSchema = z.object({
 	otherField: z.string().optional(),
 })
 
+export const StaticQuestionItemResponseSchema = z.object({
+	data: z
+		.object({
+			required: z.boolean().optional(),
+		})
+		.optional()
+		.nullable(),
+	id_projects: z.number(),
+	id_questions: z.number(),
+	id_questions_types: z.number(),
+	label: z.string(),
+	possible_answers: z.array(z.union([z.number(), z.string()])),
+	subquestions: z.array(
+		z.object({
+			possible_answers: z.array(z.union([z.number(), z.string()])),
+			id_questions_types: z.number(),
+			label: z.string(),
+			data: z
+				.object({
+					required: z.boolean().optional(),
+				})
+				.optional()
+				.nullable(),
+		})
+	),
+})
+
+export type StaticQuestionItem = z.infer<
+	typeof StaticQuestionItemResponseSchema
+>
+
 export const QuestionItemResponseSchema = z.object({
 	id_questions: z.number(),
 	id_projects: z.number(),
@@ -34,7 +65,12 @@ export const QuestionItemResponseSchema = z.object({
 	label: z.string(),
 	possible_answers: z.record(z.string()),
 	required: z.boolean().optional(),
-	data: z.string().optional().nullable(),
+	data: z
+		.object({
+			required: z.boolean().optional(),
+		})
+		.optional()
+		.nullable(),
 })
 
 export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({
@@ -73,6 +109,7 @@ export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({
 		})
 	),
 	questions: z.array(QuestionItemResponseSchema),
+	static_questions: z.array(StaticQuestionItemResponseSchema),
 })
 
 export const AllProjectsResponseSchema = z.object({
