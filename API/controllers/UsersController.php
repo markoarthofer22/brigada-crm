@@ -78,10 +78,19 @@ class UsersController extends BaseController
 
 		$result = $User->Login($params);
 
-		if ($result == "" || !is_array($result) || empty($result)) {
+		if (
+			$result == "" ||
+			!is_array($result) ||
+			empty($result) ||
+			empty($result['access_token']) ||
+			empty($result['refresh_token'])
+		) {
 			$User->Logout(0);
-			return Message::WriteMessage(401, array("Message" => $Language->Translate(array("phrase" => "Login error. Unathorized"))), $response);
+			return Message::WriteMessage(401, array(
+				"Message" => $Language->Translate(array("phrase" => "Login error. Unauthorized"))
+			), $response);
 		}
+
 
 		return $response->withJson($result);
 	}
