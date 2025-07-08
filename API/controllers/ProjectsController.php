@@ -107,6 +107,49 @@ class ProjectsController extends BaseController
 		$result["images"] = $Projects->GetImages($args);
 		$result["path"] = $_ENV["DOMAIN"] . $this->folder;
 
+		$result["static_questions"] = array(
+			array(
+				"id_projects" => $args->id,
+				"id_questions" => 0,
+				"id_questions_types" => 4,
+				"label" => "Broj ljudi",
+				"data" => array("required" => true),
+				"possible_answers" => array(
+					0 => 1,
+					1 => 2,
+					2 => 3,
+					3 => 4,
+					4 => 5,
+					5 => 6,
+				),
+				"subquestions" => array(
+					array(
+						"id_questions_types" => 4,
+						"label" => "Dobna skupina",
+						"data" => array("required" => true),
+						"possible_answers" => array(
+							0 => "0-18",
+							1 => "19-30",
+							2 => "31-45",
+							3 => "46-60",
+							4 => "61-75",
+							5 => "76+",
+						)
+					),
+					array(
+						"id_questions_types" => 4,
+						"label" => "Spol",
+						"data" => array("required" => true),
+						"possible_answers" => array(
+							0 => "Muški",
+							1 => "Ženski",
+						)
+					)
+				)
+
+			)
+		);
+
 		return $response->withJson($result, 200);
 	}
 

@@ -34,7 +34,7 @@ export const QuestionItemResponseSchema = z.object({
 	label: z.string(),
 	possible_answers: z.record(z.string()),
 	required: z.boolean().optional(),
-	data: z.string().optional().nullable(),
+	data: z.record(z.any()).nullable(), //z.string().optional().nullable(),
 })
 
 export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({
