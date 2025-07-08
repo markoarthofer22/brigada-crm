@@ -249,6 +249,7 @@ class Questions
 		foreach ($results as &$result) {
 			if ($result) {
 				$result["possible_answers"] = json_decode($result["possible_answers"]);
+				$result["data"] = json_decode($result["data"]);
 			}
 		}
 
