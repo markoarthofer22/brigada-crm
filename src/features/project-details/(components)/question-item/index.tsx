@@ -40,6 +40,7 @@ interface QuestionItemProps {
 	disabled?: boolean
 	isLoading?: boolean
 	orderLabel?: string | number
+	zoneId?: number
 }
 
 export function QuestionItem({
@@ -50,6 +51,7 @@ export function QuestionItem({
 	disabled,
 	isLoading,
 	orderLabel,
+	zoneId,
 }: QuestionItemProps) {
 	const { t } = useTranslation()
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
@@ -119,7 +121,7 @@ export function QuestionItem({
 
 	const handleEditSubmit = (data: QuestionUpsertType) => {
 		if (onEdit) {
-			onEdit(data)
+			onEdit({ ...data, id_zones: zoneId ?? undefined })
 		}
 
 		setEditDialogOpen(false)

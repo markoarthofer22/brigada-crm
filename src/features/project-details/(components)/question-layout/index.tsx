@@ -212,6 +212,7 @@ const QuestionLayout = ({
 						<SortableContext items={draggableQuestions}>
 							{draggableQuestions?.map((question, index) => (
 								<QuestionItem
+									zoneId={zoneId}
 									question={question}
 									orderLabel={index + 1}
 									key={question.id_questions}
