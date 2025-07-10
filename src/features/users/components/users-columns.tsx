@@ -69,7 +69,7 @@ export const columns = [
 					{userType.icon && (
 						<userType.icon size={16} className='text-muted-foreground' />
 					)}
-					<span className='text-sm capitalize'>
+					<span className='_capitalize text-sm'>
 						{t(`Users.admin.${getValue()}`)}
 					</span>
 				</div>

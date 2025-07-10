@@ -884,7 +884,7 @@ export function TrackingExam({
 						{staticQuestions.map((q) => (
 							<Card key={q.id_questions} className='sm:col-span-2'>
 								<CardHeader className='px-4 pb-1.5 pt-4'>
-									<CardTitle className='capitalize'>
+									<CardTitle className='_capitalize'>
 										{q.label}{' '}
 										{q.data?.required && (
 											<sup className='text-destructive'>*</sup>
@@ -900,7 +900,7 @@ export function TrackingExam({
 						{questions.map((q) => (
 							<Card key={q.id_questions}>
 								<CardHeader className='px-4 pb-1.5 pt-4'>
-									<CardTitle className='capitalize'>
+									<CardTitle className='_capitalize'>
 										{q.label}{' '}
 										{q.required && <sup className='text-destructive'>*</sup>}
 									</CardTitle>

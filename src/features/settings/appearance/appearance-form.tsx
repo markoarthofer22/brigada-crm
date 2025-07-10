@@ -70,7 +70,7 @@ export function AppearanceForm() {
 									<select
 										className={cn(
 											buttonVariants({ variant: 'outline' }),
-											'w-[200px] appearance-none font-normal capitalize'
+											'_capitalize w-[200px] appearance-none font-normal'
 										)}
 										{...field}
 									>

@@ -252,7 +252,7 @@ export function QuestionItem({
 				})}
 			>
 				<CardHeader>
-					<CardTitle className='flex items-center gap-1.5 text-lg capitalize'>
+					<CardTitle className='_capitalize flex items-center gap-1.5 text-lg'>
 						{orderLabel && <span className='text-base'>{orderLabel}.</span>}
 						{question.label}
 						{question.required && <sup className='text-destructive'>*</sup>}
