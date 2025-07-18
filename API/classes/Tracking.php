@@ -225,9 +225,9 @@ class Tracking
 
 		foreach ($results as &$result) {
 			if ($result) {
-				$result["data"] = json_decode($result["data"]);
-				$result["question"] = json_decode($result["question"]);
-				$result["answer"] = json_decode($result["answer"]);
+				$result["data"] = json_decode($result["data"], true);
+				$result["question"] = json_decode($result["question"], true);
+				$result["answer"] = json_decode($result["answer"], true);
 			}
 		}
 
