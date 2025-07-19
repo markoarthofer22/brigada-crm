@@ -15,6 +15,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
+import { Route as errorsNoConnectionImport } from './routes/(errors)/no-connection'
 import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as auth500Import } from './routes/(auth)/500'
@@ -147,6 +148,12 @@ const AuthenticatedSettingsRouteLazyRoute =
   } as any).lazy(() =>
     import('./routes/_authenticated/settings/route.lazy').then((d) => d.Route),
   )
+
+const errorsNoConnectionRoute = errorsNoConnectionImport.update({
+  id: '/(errors)/no-connection',
+  path: '/no-connection',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const authSignInRoute = authSignInImport.update({
   id: '/(auth)/sign-in',
@@ -319,6 +326,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof authSignInImport
+      parentRoute: typeof rootRoute
+    }
+    '/(errors)/no-connection': {
+      id: '/(errors)/no-connection'
+      path: '/no-connection'
+      fullPath: '/no-connection'
+      preLoaderRoute: typeof errorsNoConnectionImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/settings': {
@@ -535,6 +549,7 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500LazyRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
+  '/no-connection': typeof errorsNoConnectionRoute
   '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/forgot-password': typeof authForgotPasswordLazyRoute
   '/sign-up': typeof authSignUpLazyRoute
@@ -561,6 +576,7 @@ export interface FileRoutesByTo {
   '/500': typeof errors500LazyRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
+  '/no-connection': typeof errorsNoConnectionRoute
   '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/forgot-password': typeof authForgotPasswordLazyRoute
   '/sign-up': typeof authSignUpLazyRoute
@@ -589,6 +605,7 @@ export interface FileRoutesById {
   '/(auth)/500': typeof auth500Route
   '/(auth)/otp': typeof authOtpRoute
   '/(auth)/sign-in': typeof authSignInRoute
+  '/(errors)/no-connection': typeof errorsNoConnectionRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
   '/(auth)/forgot-password': typeof authForgotPasswordLazyRoute
   '/(auth)/sign-up': typeof authSignUpLazyRoute
@@ -619,6 +636,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/otp'
     | '/sign-in'
+    | '/no-connection'
     | '/settings'
     | '/forgot-password'
     | '/sign-up'
@@ -644,6 +662,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/otp'
     | '/sign-in'
+    | '/no-connection'
     | '/settings'
     | '/forgot-password'
     | '/sign-up'
@@ -670,6 +689,7 @@ export interface FileRouteTypes {
     | '/(auth)/500'
     | '/(auth)/otp'
     | '/(auth)/sign-in'
+    | '/(errors)/no-connection'
     | '/_authenticated/settings'
     | '/(auth)/forgot-password'
     | '/(auth)/sign-up'
@@ -699,6 +719,7 @@ export interface RootRouteChildren {
   auth500Route: typeof auth500Route
   authOtpRoute: typeof authOtpRoute
   authSignInRoute: typeof authSignInRoute
+  errorsNoConnectionRoute: typeof errorsNoConnectionRoute
   authForgotPasswordLazyRoute: typeof authForgotPasswordLazyRoute
   authSignUpLazyRoute: typeof authSignUpLazyRoute
   errors401LazyRoute: typeof errors401LazyRoute
@@ -713,6 +734,7 @@ const rootRouteChildren: RootRouteChildren = {
   auth500Route: auth500Route,
   authOtpRoute: authOtpRoute,
   authSignInRoute: authSignInRoute,
+  errorsNoConnectionRoute: errorsNoConnectionRoute,
   authForgotPasswordLazyRoute: authForgotPasswordLazyRoute,
   authSignUpLazyRoute: authSignUpLazyRoute,
   errors401LazyRoute: errors401LazyRoute,
@@ -736,6 +758,7 @@ export const routeTree = rootRoute
         "/(auth)/500",
         "/(auth)/otp",
         "/(auth)/sign-in",
+        "/(errors)/no-connection",
         "/(auth)/forgot-password",
         "/(auth)/sign-up",
         "/(errors)/401",
@@ -770,6 +793,9 @@ export const routeTree = rootRoute
     },
     "/(auth)/sign-in": {
       "filePath": "(auth)/sign-in.tsx"
+    },
+    "/(errors)/no-connection": {
+      "filePath": "(errors)/no-connection.tsx"
     },
     "/_authenticated/settings": {
       "filePath": "_authenticated/settings/route.lazy.tsx",

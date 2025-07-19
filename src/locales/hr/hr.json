@@ -61,6 +61,11 @@
 			"description": "Web stranica je u izradi!",
 			"explanation": "Žao nam je, ali usluga trenutno nije dostupna. Pokušajte ponovno kasnije.",
 			"title": "503"
+		},
+		"NoConnection": {
+			"description": "Nema internetske veze",
+			"explanation": "Niste povezani s internetom. Provjerite svoju vezu i pokušajte ponovno!",
+			"title": "Internet konekcija neuspjela!"
 		}
 	},
 	"Global": {

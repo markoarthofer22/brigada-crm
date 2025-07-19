@@ -152,26 +152,25 @@ const ZonesLayoutRegularUser = ({
 				ctx.isPointInPath(event.clientX - rect.left, event.clientY - rect.top)
 			) {
 				ctx.restore()
-				// if (!isZoneValid) {
-				// 	toast.info(t('ProjectDetailsRegularUser.zoneQuestionsNotValid'))
-				// 	mapZoneQuestions()
-				// 	return
-				// }
-
-				if (!isZoneValid || isZoneValid) {
-					if (!activeZone || activeZone.id_zones !== zone.id_zones) {
-						startNewZoneTrackingMutation.mutate({
-							id_projects: projectId,
-							id_tracking: trackingId,
-							id_zones: zone.id_zones,
-						})
-						return
-					}
-
+				if (!isZoneValid) {
+					toast.info(t('ProjectDetailsRegularUser.zoneQuestionsNotValid'))
 					mapZoneQuestions()
-					break
+					return
 				}
+
+				if (!activeZone || activeZone.id_zones !== zone.id_zones) {
+					startNewZoneTrackingMutation.mutate({
+						id_projects: projectId,
+						id_tracking: trackingId,
+						id_zones: zone.id_zones,
+					})
+					return
+				}
+
+				mapZoneQuestions()
+				break
 			}
+
 			ctx.restore()
 		}
 	}
@@ -281,21 +280,17 @@ const ZonesLayoutRegularUser = ({
 	const stopTrackingZoneHandler = () => {
 		if (!activeZone) return
 
-		// if (!isZoneValid) {
-		// 	toast.info(t('ProjectDetailsRegularUser.zoneQuestionsNotValid'))
-		// 	mapZoneQuestions()
-		// 	return
-		// }
+		if (!isZoneValid) {
+			toast.info(t('ProjectDetailsRegularUser.zoneQuestionsNotValid'))
+			mapZoneQuestions()
+			return
+		}
 
-		if (!isZoneValid || isZoneValid) {
+		if (isZoneValid) {
 			stopZoneTrackingMutation.mutate({
 				zoneId: activeZone.id_tracking_zones,
 			})
 		}
-
-		stopZoneTrackingMutation.mutate({
-			zoneId: activeZone.id_tracking_zones,
-		})
 	}
 
 	const handleZoom = (direction: 'in' | 'out') => {
