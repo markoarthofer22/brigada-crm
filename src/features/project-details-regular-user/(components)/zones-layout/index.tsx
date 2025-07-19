@@ -158,17 +158,19 @@ const ZonesLayoutRegularUser = ({
 				// 	return
 				// }
 
-				if (!activeZone || activeZone.id_zones !== zone.id_zones) {
-					startNewZoneTrackingMutation.mutate({
-						id_projects: projectId,
-						id_tracking: trackingId,
-						id_zones: zone.id_zones,
-					})
-					return
-				}
+				if (!isZoneValid || isZoneValid) {
+					if (!activeZone || activeZone.id_zones !== zone.id_zones) {
+						startNewZoneTrackingMutation.mutate({
+							id_projects: projectId,
+							id_tracking: trackingId,
+							id_zones: zone.id_zones,
+						})
+						return
+					}
 
-				mapZoneQuestions()
-				break
+					mapZoneQuestions()
+					break
+				}
 			}
 			ctx.restore()
 		}
@@ -284,6 +286,12 @@ const ZonesLayoutRegularUser = ({
 		// 	mapZoneQuestions()
 		// 	return
 		// }
+
+		if (!isZoneValid || isZoneValid) {
+			stopZoneTrackingMutation.mutate({
+				zoneId: activeZone.id_tracking_zones,
+			})
+		}
 
 		stopZoneTrackingMutation.mutate({
 			zoneId: activeZone.id_tracking_zones,
