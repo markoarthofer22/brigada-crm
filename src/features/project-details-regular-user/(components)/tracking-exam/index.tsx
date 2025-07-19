@@ -70,7 +70,9 @@ export function TrackingExam({
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
 	const [isFullscreen, setIsFullscreen] = useState(false)
-	const [isStaticValid, setIsStaticValid] = useState(false)
+	const [isStaticValid, setIsStaticValid] = useState(
+		staticQuestions.length === 0
+	)
 
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
 
