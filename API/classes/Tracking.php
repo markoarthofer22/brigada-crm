@@ -223,11 +223,18 @@ class Tracking
 		$stmt->execute();
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+		// print_r($results);
+		// exit;
 		foreach ($results as &$result) {
 			if ($result) {
 				$result["data"] = json_decode($result["data"], true);
 				$result["question"] = json_decode($result["question"], true);
-				$result["answer"] = json_decode($result["answer"], true);
+				if ($result["id_questions"] != 1) {
+					$result["answer"] = json_decode($result["answer"], true);
+				} else {
+					$result['answer'] = json_decode($result['answer'], true);
+					$result['answer']['answer'] = json_encode($result['answer']['answer']);
+				}
 			}
 		}
 
@@ -253,7 +260,13 @@ class Tracking
 		if ($result) {
 			$result["data"] = json_decode($result["data"]);
 			$result["question"] = json_decode($result["question"]);
-			$result["answer"] = json_decode($result["answer"]);
+
+			if ($result["id_questions"] != 1) {
+				$result["answer"] = json_decode($result["answer"], true);
+			} else {
+				$result['answer'] = json_decode($result['answer'], true);
+				$result['answer']['answer'] = json_encode($result['answer']['answer']);
+			}
 		}
 
 		return $result ?: [];
@@ -306,8 +319,6 @@ class Tracking
 		}
 
 		$stmt->execute();
-
-
 
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
 		if ($result) {

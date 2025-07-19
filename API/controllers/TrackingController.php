@@ -270,9 +270,12 @@ class TrackingController extends BaseController
 
 		$params->data = $params->data ?? [];
 
-		// if (is_string($params->answer->answer)) {
-		// 	$params->answer->answer = json_decode($params->answer->answer);
-		// }
+		if (is_string($params->answer->answer)) {
+			$decoded = json_decode($params->answer->answer, true);
+			if (json_last_error() === JSON_ERROR_NONE && (is_array($decoded) || is_object($decoded))) {
+				$params->answer->answer = $decoded;
+			}
+		}
 
 		foreach ($requiredFields as $field) {
 			if (!isset($params->{$field}) || $params->{$field} == "") {
@@ -334,12 +337,12 @@ class TrackingController extends BaseController
 
 		$params->data = $params->data ?? [];
 
-		// if (is_string($params->answer->answer)) {
-		// 	$decoded = json_decode($params->answer->answer, true);
-		// 	if (json_last_error() === JSON_ERROR_NONE && (is_array($decoded) || is_object($decoded))) {
-		// 		$params->answer->answer = $decoded;
-		// 	}
-		// }
+		if (is_string($params->answer->answer)) {
+			$decoded = json_decode($params->answer->answer, true);
+			if (json_last_error() === JSON_ERROR_NONE && (is_array($decoded) || is_object($decoded))) {
+				$params->answer->answer = $decoded;
+			}
+		}
 
 		foreach ($requiredFields as $field) {
 			if (!isset($params->{$field}) || $params->{$field} == "") {

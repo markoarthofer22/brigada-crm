@@ -16,6 +16,7 @@ use PP\Controller\TestController;
 use PP\Controller\TrackingController;
 use PP\Controller\UsersController;
 use PP\Controller\ZonesController;
+use PP\Controller\AnalyticsController;
 use PP\Middleware\Auth;
 use PP\Middleware\Main;
 use Slim\Http\Request;
@@ -186,6 +187,11 @@ $app->group('', function () use ($app) {
 		$app->get('/{id}', TrackingController::class . ":Get");
 		$app->post('', TrackingController::class . ":StartTracking");
 		$app->post('/comment/{id}', TrackingController::class . ":AddComment");
+	})->add([new Auth(), 'Auth']);
+
+
+	$app->group('/analytics', function () use ($app) {
+		$app->post('', AnalyticsController::class);
 	})->add([new Auth(), 'Auth']);
 
 	$app->group('/test', function () use ($app) {
