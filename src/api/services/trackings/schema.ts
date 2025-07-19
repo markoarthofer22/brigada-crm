@@ -33,6 +33,7 @@ export const TrackingAnswerUpsertSchema = z.object({
 		answer: z.string(),
 	}),
 	order: z.number().optional(),
+	isStatic: z.boolean().optional(),
 })
 
 export type TrackingsAnswerUpsert = z.infer<typeof TrackingAnswerUpsertSchema>

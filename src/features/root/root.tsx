@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { getGlobalSettings } from '@/api/services/globals/options.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
+import { useMiscellaneousStore } from '@/stores/miscStore.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { useTheme } from '@/context/theme-context.tsx'
 import { Toaster } from '@/components/ui/sonner.tsx'
@@ -16,6 +17,7 @@ const Root = () => {
 	const setUser = useAuthStore((state) => state.auth.setUser)
 	const setQuestionTypes = useAuthStore((state) => state.auth.setQuestionTypes)
 	const authToken = useAuthStore((state) => state.auth.accessToken)
+	const setIsOnline = useMiscellaneousStore((state) => state.setIsOnline)
 	const { showLoader, hideLoader } = useLoader()
 	const { theme } = useTheme()
 	const globalSettingsQuery = useQuery({
@@ -54,6 +56,27 @@ const Root = () => {
 			hideLoader()
 		}
 	}, [globalSettingsQuery.isLoading])
+
+	useEffect(() => {
+		const update = (online: boolean) => {
+			console.log('Network status changed:', online)
+			setIsOnline(online)
+			if (!online)
+				router.navigate({
+					to: '/no-connection',
+				})
+		}
+
+		update(navigator.onLine)
+
+		window.addEventListener('online', () => update(true))
+		window.addEventListener('offline', () => update(false))
+
+		return () => {
+			window.removeEventListener('online', () => update(true))
+			window.removeEventListener('offline', () => update(false))
+		}
+	}, [router, setIsOnline])
 
 	if (globalSettingsQuery.isLoading) {
 		return null

@@ -44,12 +44,6 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx'
 import { Textarea } from '@/components/ui/textarea.tsx'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip.tsx'
 import { GlobalLoader } from '@/components/global-loader.tsx'
 
 interface TrackingExamProps {
@@ -76,8 +70,9 @@ export function TrackingExam({
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
 	const [isFullscreen, setIsFullscreen] = useState(false)
-	const [isStaticValid, setIsStaticValid] = useState(false)
-	// const isStaticValid = useRef<boolean>(true)
+	const [isStaticValid, setIsStaticValid] = useState(
+		staticQuestions.length === 0
+	)
 
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
 
@@ -100,13 +95,17 @@ export function TrackingExam({
 		mutationFn: (data: TrackingsAnswerUpsert) => {
 			return addTrackingAnswer(data)
 		},
-		onSuccess: (data) => {
-			toast.success(
-				t(
-					`ProjectDetailsRegularUser.Exam.${data?.id_tracking_answers ? 'questionUpdated' : 'questionSaved'}`
+		onSuccess: (data, req) => {
+			if (!req.isStatic) {
+				toast.success(
+					t(
+						`ProjectDetailsRegularUser.Exam.${data?.id_tracking_answers ? 'questionUpdated' : 'questionSaved'}`
+					)
 				)
-			)
-			activeQuestionAnswers.refetch()
+			}
+			if (!req.isStatic) {
+				activeQuestionAnswers.refetch()
+			}
 		},
 		onError: (err: unknown) => {
 			handleError(err)
@@ -215,7 +214,8 @@ export function TrackingExam({
 
 	const form = useForm<z.infer<typeof schema>>({
 		resolver: zodResolver(schema),
-		mode: 'onBlur',
+		mode: 'onTouched',
+		reValidateMode: 'onChange',
 	})
 
 	const {
@@ -304,6 +304,7 @@ export function TrackingExam({
 				}
 
 				const data: TrackingsAnswerUpsert = {
+					isStatic,
 					id_questions: id,
 					id_tracking: trackingId,
 					id_projects: projectId,
@@ -325,7 +326,8 @@ export function TrackingExam({
 	const renderStaticField = (
 		staticQuestion: StaticQuestionItem,
 		recursive = false,
-		parentIndex?: number
+		parentIndex?: number,
+		parentQuestion?: StaticQuestionItem
 	) => {
 		const name = !recursive
 			? `q_${trackingId}_${staticQuestion.id_questions}`
@@ -378,6 +380,17 @@ export function TrackingExam({
 									value={field.value || ''}
 									onValueChange={(val) => {
 										field.onChange(val)
+										//  ovo je ruzno da me sram kako izgleda, al nemam ideju kako drugacije napravit
+										if (recursive && parentQuestion) {
+											handleBlurSubmit(
+												`q_${trackingId}_${parentQuestion.id_questions}`,
+												parentQuestion.id_questions,
+												true
+											)
+										} else if (checkAllFieldsFilled()) {
+											handleBlurSubmit(name, staticQuestion.id_questions, true)
+										}
+										// 	zavrsio komentar
 									}}
 								>
 									<FormControl>
@@ -517,7 +530,8 @@ export function TrackingExam({
 														subquestions: [],
 													},
 													true,
-													i + 1
+													i + 1,
+													staticQuestion
 												)}
 											</div>
 										)
@@ -526,32 +540,6 @@ export function TrackingExam({
 							))}
 						</div>
 					)}
-
-				<TooltipProvider>
-					<Tooltip delayDuration={0}>
-						<TooltipTrigger asChild>
-							<div className='mt-4 w-full flex-1'>
-								<Button
-									disabled={!allFieldsFilled}
-									onClick={() => {
-										const mainFieldName = `q_${trackingId}_${staticQuestion.id_questions}`
-										handleBlurSubmit(
-											mainFieldName,
-											staticQuestion.id_questions,
-											true
-										)
-									}}
-									className='w-full'
-								>
-									{t('ProjectDetailsRegularUser.Exam.save')}
-								</Button>
-							</div>
-						</TooltipTrigger>
-						<TooltipContent>
-							{t('ProjectDetailsRegularUser.Exam.allFilled')}
-						</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
 			</div>
 		)
 	}
@@ -823,13 +811,9 @@ export function TrackingExam({
 				const promises = []
 
 				for (const q of staticQuestions) {
-					const staticQuestionHasAnswers = activeQuestionAnswers.data?.find(
-						(entry) => entry.id_questions === q.id_questions
-					)
+					// note da ne zab. uvijek imamo 1 question
 					const name = `q_${trackingId}_${q.id_questions}`
-					if (!staticQuestionHasAnswers) {
-						promises.push(handleBlurSubmit(name, q.id_questions, true))
-					}
+					promises.push(handleBlurSubmit(name, q.id_questions, true))
 				}
 
 				try {

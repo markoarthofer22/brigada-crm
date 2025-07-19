@@ -8,6 +8,8 @@ interface DefaultState {
 		position?: 'bottom' | 'center'
 	) => void
 	iosPromptPosition: 'bottom' | 'center'
+	isOnline: boolean
+	setIsOnline: (isOnline: boolean) => void
 }
 
 const MISC_TOKEN = import.meta.env.VITE_COOKIE_MISC_TOKEN
@@ -25,6 +27,11 @@ export const useMiscellaneousStore = create<DefaultState>()((set) => {
 				expires: PERSIST_7_DAYS,
 			})
 			set({ isDeferredDiscarded, iosPromptPosition: position })
+		},
+		isOnline:
+			window !== undefined && window.navigator.onLine ? navigator.onLine : true,
+		setIsOnline: (isOnline) => {
+			set({ isOnline })
 		},
 	}
 })

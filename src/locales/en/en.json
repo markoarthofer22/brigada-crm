@@ -61,6 +61,11 @@
 			"description": "Website is under maintenance!",
 			"explanation": "We are sorry, but the service is currently unavailable. Please try again later.",
 			"title": "503"
+		},
+		"NoConnection": {
+			"description": "No internet connection",
+			"explanation": "You have lost connection to the internet. Please check your connection and try again!",
+			"title": "Connection Failed!"
 		}
 	},
 	"Global": {
