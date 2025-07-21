@@ -1,6 +1,6 @@
 import path from 'path'
 import { defineConfig, Plugin } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import fs from 'fs-extra'
 import { VitePWA } from 'vite-plugin-pwa'

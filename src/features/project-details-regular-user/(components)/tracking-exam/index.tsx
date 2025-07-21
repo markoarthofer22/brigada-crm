@@ -103,9 +103,7 @@ export function TrackingExam({
 					)
 				)
 			}
-			if (!req.isStatic) {
-				activeQuestionAnswers.refetch()
-			}
+			activeQuestionAnswers.refetch()
 		},
 		onError: (err: unknown) => {
 			handleError(err)
@@ -302,6 +300,8 @@ export function TrackingExam({
 						}
 					}
 				}
+
+				console.log(answerMap, id)
 
 				const data: TrackingsAnswerUpsert = {
 					isStatic,
@@ -752,13 +752,17 @@ export function TrackingExam({
 					try {
 						// Parse the stringified answer array
 						const answerArray = JSON.parse(entry.answer?.answer ?? '[]')
-
+						const currentMainValue = getValues(name)
+						const mainValue =
+							currentMainValue && Number(currentMainValue) > answerArray.length
+								? currentMainValue
+								: answerArray.length
 						// Set main question value to the length of answers
 						const qType = getQuestionType(staticQuestion.id_questions_types)
 						values[name] =
 							qType?.type === 'checkbox'
-								? [String(answerArray.length)]
-								: String(answerArray.length)
+								? [String(mainValue)]
+								: String(mainValue)
 
 						// Set subquestion values
 						answerArray.forEach(
@@ -795,7 +799,12 @@ export function TrackingExam({
 				}
 			}
 
-			form.reset(values)
+			Object.entries(values).forEach(([name, val]) => {
+				setValue(name, val, {
+					shouldDirty: true, // mark the field dirty if it changed
+					shouldTouch: true, // mark it as touched
+				})
+			})
 		}
 	}, [activeQuestionAnswers.data, questionTypes])
 
@@ -805,27 +814,27 @@ export function TrackingExam({
 		}
 	}, [isStaticValid, isValid, onValidityChange])
 
-	useEffect(() => {
-		const submitAllStaticQuestions = async () => {
-			if (isStaticValid && staticQuestions.length > 0) {
-				const promises = []
-
-				for (const q of staticQuestions) {
-					// note da ne zab. uvijek imamo 1 question
-					const name = `q_${trackingId}_${q.id_questions}`
-					promises.push(handleBlurSubmit(name, q.id_questions, true))
-				}
-
-				try {
-					await Promise.all(promises)
-					console.log('All static questions submitted successfully')
-				} catch (error) {
-					console.error('Error submitting static questions:', error)
-				}
-			}
-		}
-		void submitAllStaticQuestions()
-	}, [activeQuestionAnswers.data, isStaticValid, staticQuestions])
+	// useEffect(() => {
+	// 	const submitAllStaticQuestions = async () => {
+	// 		if (isStaticValid && staticQuestions.length > 0) {
+	// 			const promises = []
+	//
+	// 			for (const q of staticQuestions) {
+	// 				// note da ne zab. uvijek imamo 1 question
+	// 				const name = `q_${trackingId}_${q.id_questions}`
+	// 				promises.push(handleBlurSubmit(name, q.id_questions, true))
+	// 			}
+	//
+	// 			try {
+	// 				await Promise.all(promises)
+	// 				console.log('All static questions submitted successfully')
+	// 			} catch (error) {
+	// 				console.error('Error submitting static questions:', error)
+	// 			}
+	// 		}
+	// 	}
+	// 	void submitAllStaticQuestions()
+	// }, [activeQuestionAnswers.data, isStaticValid, staticQuestions])
 
 	if (activeQuestionAnswers.isLoading) {
 		return <GlobalLoader />
