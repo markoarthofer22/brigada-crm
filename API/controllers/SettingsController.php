@@ -62,4 +62,9 @@ class SettingsController extends BaseController
 
 		return $response->withJson($settings, 200);
 	}
+
+	public function Ping(Request $request, Response $response, array $args): Response
+	{
+		return $response->withJson(array(), 200);
+	}
 }

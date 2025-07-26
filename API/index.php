@@ -120,6 +120,7 @@ $_SESSION["lang"] = isset($_GET["lang"]) ? $_GET["lang"] : (isset($_SESSION["lan
 
 $app->group('', function () use ($app) {
 
+	$app->get('/ping', SettingsController::class . ":Ping");
 	$app->get('/settings', SettingsController::class)->add([new Auth(), 'Auth']);
 
 	$app->get('/', function (Request $request, Response $response, array $args) {
