@@ -69,12 +69,90 @@ class AnalyticsController extends BaseController
 			);
 		}
 
+		$result = $this->InternatGet($params);
+		$result["timespan"] = $Analytics->GetTimespan($params);
+
+		$min = new \DateTime($result["timespan"]["min"]);
+		$max = new \DateTime($result["timespan"]["max"]);
+
+		$interval = $min->diff($max);
+		$totalSeconds = $max->getTimestamp() - $min->getTimestamp();
+
+		// Format the duration like "2h 15m 30s" or similar
+		$parts = [];
+		if ($interval->h > 0) {
+			$parts[] = $interval->h . 'h';
+		}
+		if ($interval->i > 0) {
+			$parts[] = $interval->i . 'm';
+		}
+		if ($interval->s > 0) {
+			$parts[] = $interval->s . 's';
+		}
+		$formatted = implode(' ', $parts);
+
+		$result["timespan"]["lasted"] = [
+			"formatted" => $formatted,
+			"seconds" => $totalSeconds
+		];
+
+
+
+		// Snap $start down to previous 15-minute mark
+		$start = clone $min;
+		$startMinute = (int) $start->format('i');
+		$start->modify('-' . ($startMinute % 15) . ' minutes');
+		$start->setTime((int)$start->format('H'), (int)$start->format('i'), 0);
+
+		// Snap $end up to next 15-minute mark
+		$end = clone $max;
+		$endMinute = (int) $end->format('i');
+		$remainder = $endMinute % 15;
+		if ($remainder !== 0 || (int)$end->format('s') !== 0) {
+			$end->modify('+' . (15 - $remainder) . ' minutes');
+		}
+		$end->setTime((int)$end->format('H'), (int)$end->format('i'), 0);
+
+		$interval = new \DateInterval('PT15M');
+		$period = new \DatePeriod($start, $interval, $end);
+
+		$result["timespan"]["every_fifteen_minutes"] = [];
+
+		foreach ($period as $from) {
+			$to = clone $from;
+			$to->add($interval);
+
+			$params->from = $from->format('Y-m-d H:i:s');
+			$params->to = $to->format('Y-m-d H:i:s');
+
+			$result["timespan"]["every_fifteen_minutes"][] = [
+				"from" => $params->from,
+				"to" => $params->to,
+				"data" => $this->InternatGet($params)
+			];
+		}
+
+		return $response->withJson($result, 200);
+	}
+
+
+	public function InternatGet($params)
+	{
+		$Helper = new Helper($this->db);
+		$Language = new Language($this->db);
+		$Projects = new Projects($this->db);
+		$Questions = new Questions($this->db);
+		$Zones = new Zones($this->db);
+		$Analytics = new Analytics($this->db);
+
+		$args = new \stdClass;
 		$args->id = $params->id_projects;
 		$result = $Projects->Get($args);
 		$result_questions = $Questions->GetForProject($args);
 		$result_zones = $Zones->GetForProject($args);
 		foreach ($result_zones as &$zone) {
 			$zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
+			// $zone["questions_answers_raw"] = $Analytics->GetAnswers((object) array("id_tracking" => $result["id_tracking"], "id_zones" => $zone["id_zones"]));
 		}
 		$result_images = $Projects->GetImages($args);
 
@@ -122,14 +200,64 @@ class AnalyticsController extends BaseController
 		);
 
 		$result["trackings"] = $Analytics->GetTrackings($params);
+
 		foreach ($result["trackings"] as &$item) {
-			$item["zones"] = $Analytics->GetZones((object) array("id_tracking" => $item["id_tracking"]));
+			$item["comments"] = $item["data"];
+			$item["data"] = [];
+
+			// $item["lasted"] = date_diff(new \DateTime($item["started_at"]), new \DateTime($item["ended_at"]))->format('%H:%I:%S');
+			$diff = date_diff(new \DateTime($item["started_at"]), new \DateTime($item["ended_at"]));
+			$item["lasted"] = [
+				"formatted" => $diff->format('%H:%I:%S'),
+				"seconds" => $diff->s + ($diff->i * 60) + ($diff->h * 3600) + ($diff->days * 86400)
+			];
+
 			// $item["answers"] = $Analytics->GetAnswers((object) array("id_tracking" => $item["id_tracking"]));
 			$item_answers = $Analytics->GetAnswers((object) array("id_tracking" => $item["id_tracking"]));
 			$item["data"]["broj_ljudi"] = $Analytics->CountPeople($item_answers);
-			$item["data"]["dobna_skupina"] = $Analytics->CountAgeGroup($item_answers);
 			$item["data"]["broj_muski"] = $Analytics->CountMalePeople($item_answers);
 			$item["data"]["broj_zenski"] = $Analytics->CountFemalePeople($item_answers);
+
+			// Calculate percentages
+			$totalPeople = $item["data"]["broj_ljudi"];
+			$item["data"]["broj_muski_percentage"] = $totalPeople > 0 ? round(($item["data"]["broj_muski"] / $totalPeople) * 100, 2) : 0;
+			$item["data"]["broj_zenski_percentage"] = $totalPeople > 0 ? round(($item["data"]["broj_zenski"] / $totalPeople) * 100, 2) : 0;
+
+			$item["data"]["dobna_skupina_raw"] = $Analytics->CountAgeGroup($item_answers);
+			$item["data"]["dobna_skupina"] = $Analytics->PrepareDobnaSkupinaData($item, $result_static_questions);
+
+			$zones = $Analytics->GetZones((object) array("id_tracking" => $item["id_tracking"], "from" => $params->from, "to" => $params->to));
+
+			foreach ($zones as &$zone) {
+				// $zone["lasted"] = date_diff(new \DateTime($zone["started_at"]), new \DateTime($zone["ended_at"]))->format('%H:%I:%S');
+
+				$diff = date_diff(new \DateTime($zone["started_at"]), new \DateTime($zone["ended_at"]));
+				$totalSeconds = $diff->s + ($diff->i * 60) + ($diff->h * 3600) + ($diff->days * 86400);
+
+				$numberOfPeople = $item["data"]["broj_ljudi"];
+
+				$zone["lasted"] = [
+					"formatted" => $diff->format('%H:%I:%S'),
+					"seconds" => $totalSeconds,
+					"average" => [
+						"by_number_of_people" => $Analytics->getLastingAverageByNumberOfPeople($totalSeconds, $numberOfPeople, true),
+						"by_number_of_people_seconds" => $Analytics->getLastingAverageByNumberOfPeople($totalSeconds, $numberOfPeople, false)
+					]
+				];
+
+				$zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
+				$zone["questions_answers_raw"] = $Analytics->GetAnswers((object) array("id_tracking" => $zone["id_tracking"], "id_zones" => $zone["id_zones"]));
+				$zone["questions_answers"] = $Analytics->PrepareQuestionsAnswersDataZones($zone, $item);
+
+				$zone["data"] = array(
+					"broj_ljudi" => $item["data"]["broj_ljudi"],
+					"broj_muski" => $item["data"]["broj_muski"],
+					"broj_zenski" => $item["data"]["broj_zenski"],
+					"dobna_skupina" => $item["data"]["dobna_skupina"],
+				);
+			}
+
+			$item["zones"] = $zones; //$Analytics->groupZonesByIdZones($zones);
 
 			foreach ($result_questions as $q) {
 				$r = array_values(array_filter(array_map(function ($a) use ($q) {
@@ -139,75 +267,48 @@ class AnalyticsController extends BaseController
 					return false;
 				}, $item_answers)))[0];
 
-				$item["data"]["questions_answers"][] = array(
+				$item["data"]["questions_answers_raw"][] = array(
 					"id_questions" => $q["id_questions"],
 					"label" => $q["label"],
 					"answer" => $r["answer"] ?? "",
 					"possible_answers" => $q["possible_answers"] ?? [],
 				);
 			}
+			$item["data"]["questions_answers"] = $Analytics->PrepareQuestionsAnswersData($result["trackings"]);
 		}
 
-		$result["total_data"]["broj_ljudi"] = 0;
-		foreach ($result["trackings"] as $item) {
-			$result["total_data"]["broj_ljudi"] += $item["data"]["broj_ljudi"];
-		}
-		$result["total_data"]["broj_muski"] = 0;
-		foreach ($result["trackings"] as $item) {
-			$result["total_data"]["broj_muski"] += $item["data"]["broj_muski"];
-		}
-		$result["total_data"]["broj_zenski"] = 0;
-		foreach ($result["trackings"] as $item) {
-			$result["total_data"]["broj_zenski"] += $item["data"]["broj_zenski"];
+		$broj_ljudi = 0;
+		$broj_muski = 0;
+		$broj_zenski = 0;
+		$tracking_lasted = 0;
+		foreach ($result["trackings"] as &$item) {
+			$broj_ljudi += $item["data"]["broj_ljudi"];
+			$broj_muski += $item["data"]["broj_muski"];
+			$broj_zenski += $item["data"]["broj_zenski"];
+			$tracking_lasted += $item["lasted"]["seconds"];
 		}
 
-		$labelCounts = [];
-		foreach ($result["trackings"] as $item) {
-			foreach ($item["data"]["questions_answers"] as $qa) {
-				$label = $qa["label"] ?? null;
-				$answer = $qa["answer"] ?? null;
-
-				if ($label && $answer) {
-					if (!isset($labelCounts[$label])) {
-						$labelCounts[$label] = [];
-					}
-					$answers = array_map('trim', explode(',', $answer));
-					foreach ($answers as $singleAnswer) {
-						if (!isset($labelCounts[$label][$singleAnswer])) {
-							$labelCounts[$label][$singleAnswer] = 0;
-						}
-						$labelCounts[$label][$singleAnswer]++;
-					}
-				}
-			}
-		}
-
-		// Convert to non-associative array
-		$questions_answers = [];
-		foreach ($labelCounts as $label => $data) {
-			$questions_answers[] = [
-				"label" => $label,
-				"count"  => $data
-			];
-		}
-		$result["total_data"]["questions_answers"] = $questions_answers;
-
-		$ds = [];
-		foreach ($result["trackings"] as $item) {
-			foreach ($item["data"]["dobna_skupina"] as $key => $value) {
-				$ds[$key] += $value;
-			}
-		}
-		$dobna_skupina = array("possible_answers" => $result_static_questions[0]["subquestions"][0]["possible_answers"]);
-		foreach ($dobna_skupina["possible_answers"] as $answer) {
-			$dobna_skupina["data"][] = [
-				"label" => $answer,
-				"count"  => isset($ds[$answer]) ? $ds[$answer] : 0,
-			];
-		}
-		$result["total_data"]["dobna_skupina"] = $dobna_skupina;
+		$result["total_data"]["broj_ljudi"] = $broj_ljudi;
+		$result["total_data"]["broj_muski"] = $broj_muski;
+		$result["total_data"]["broj_zenski"] = $broj_zenski;
+		$result["total_data"]["trackings"]["count"] = count($result["trackings"]);
+		$result["total_data"]["trackings"]["total_lasted"] = $tracking_lasted;
+		$result["total_data"]["trackings"]["average_people"]["per_tracking"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_ljudi / $result["total_data"]["trackings"]["count"] : 0;
+		$result["total_data"]["trackings"]["average_people"]["per_tracking_males"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_muski / $result["total_data"]["trackings"]["count"] : 0;
+		$result["total_data"]["trackings"]["average_people"]["per_tracking_females"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_zenski / $result["total_data"]["trackings"]["count"] : 0;
+		$result["total_data"]["trackings"]["average_lasted"]["per_people"] = $broj_ljudi > 0 ? $tracking_lasted / $broj_ljudi : 0;
+		$result["total_data"]["trackings"]["average_lasted"]["per_males"] = $broj_muski > 0 ? $tracking_lasted / $broj_muski : 0;
+		$result["total_data"]["trackings"]["average_lasted"]["per_females"] = $broj_zenski > 0 ? $tracking_lasted / $broj_zenski : 0;
 
 
-		return $response->withJson($result, 200);
+		// Calculate percentages
+		$result["total_data"]["broj_muski_percentage"] = $broj_ljudi > 0 ? round(($broj_muski / $broj_ljudi) * 100, 2) : 0;
+		$result["total_data"]["broj_zenski_percentage"] = $broj_ljudi > 0 ? round(($broj_zenski / $broj_ljudi) * 100, 2) : 0;
+
+		$result["total_data"]["questions_answers"] = $Analytics->PrepareQuestionsAnswersData($result["trackings"]);
+		$result["total_data"]["dobna_skupina"] = $Analytics->PrepareDobnaSkupinaDataTotal($result["trackings"], $result_static_questions);
+		$result["total_data"]["zones"] = $Analytics->PrepareDataZones($result["trackings"]);
+
+		return $result;
 	}
 }

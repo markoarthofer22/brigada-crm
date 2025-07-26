@@ -299,9 +299,19 @@ class Tracking
 		$columns = implode(", ", array_keys($fields));
 		$values  = implode(", ", array_values($fields));
 
+		// Build the SET clause for UPDATE
+		$updateFields = [];
+		foreach ($fields as $column => $placeholder) {
+			// Skip the conflict columns from being updated
+			if (!in_array($column, ['id_tracking', 'id_questions', 'id_tracking_zones', 'id_zones'])) {
+				$updateFields[] = "$column = EXCLUDED.$column";
+			}
+		}
+		$updateClause = implode(", ", $updateFields);
+
 		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.tracking_answers ($columns) VALUES ($values)
-				ON CONFLICT (id_tracking, id_questions, id_tracking_zones, id_zones) 
-				DO NOTHING
+				ON CONFLICT (id_tracking, id_questions, id_tracking_zones_safe, id_zones_safe) 
+				DO UPDATE SET $updateClause
 				RETURNING id_tracking_answers
 		";
 
