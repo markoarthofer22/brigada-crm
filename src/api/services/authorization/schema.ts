@@ -2,10 +2,10 @@ import { z } from 'zod'
 import { MIN_PASSWORD_LENGTH } from '@/api/services/authorization/const.ts'
 
 export const LoginSchema = z.object({
-	username: z.string().nonempty({ message: 'Error.required' }),
+	username: z.string().nonempty({ message: 'Input.validation.required' }),
 	password: z
 		.string()
-		.nonempty({ message: 'Error.required' })
+		.nonempty({ message: 'Input.validation.required' })
 		.min(MIN_PASSWORD_LENGTH, {
 			message: 'Input.validation.password.min',
 		}),
@@ -21,6 +21,6 @@ export const LoginResponseSchema = z.object({
 })
 
 export const GetRefreshTokenSchema = z.object({
-	refresh_token: z.string().nonempty({ message: 'Error.required' }),
-	access_token: z.string().nonempty({ message: 'Error.required' }),
+	refresh_token: z.string().nonempty({ message: 'Input.validation.required' }),
+	access_token: z.string().nonempty({ message: 'Input.validation.required' }),
 })
