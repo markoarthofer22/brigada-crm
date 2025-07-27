@@ -70,67 +70,53 @@ class AnalyticsController extends BaseController
 		}
 
 		$result = $this->InternatGet($params);
-		$result["timespan"] = $Analytics->GetTimespan($params);
-
-		$min = new \DateTime($result["timespan"]["min"]);
-		$max = new \DateTime($result["timespan"]["max"]);
-
-		$interval = $min->diff($max);
-		$totalSeconds = $max->getTimestamp() - $min->getTimestamp();
-
-		// Format the duration like "2h 15m 30s" or similar
-		$parts = [];
-		if ($interval->h > 0) {
-			$parts[] = $interval->h . 'h';
-		}
-		if ($interval->i > 0) {
-			$parts[] = $interval->i . 'm';
-		}
-		if ($interval->s > 0) {
-			$parts[] = $interval->s . 's';
-		}
-		$formatted = implode(' ', $parts);
-
-		$result["timespan"]["lasted"] = [
-			"formatted" => $formatted,
-			"seconds" => $totalSeconds
-		];
 
 
 
-		// Snap $start down to previous 15-minute mark
-		$start = clone $min;
-		$startMinute = (int) $start->format('i');
-		$start->modify('-' . ($startMinute % 15) . ' minutes');
-		$start->setTime((int)$start->format('H'), (int)$start->format('i'), 0);
+		if (isset($params->interval) && in_array((int)$params->interval, [15, 30, 60], true)) {
+			$result["timespan"] = $Analytics->GetTimespan($params);
 
-		// Snap $end up to next 15-minute mark
-		$end = clone $max;
-		$endMinute = (int) $end->format('i');
-		$remainder = $endMinute % 15;
-		if ($remainder !== 0 || (int)$end->format('s') !== 0) {
-			$end->modify('+' . (15 - $remainder) . ' minutes');
-		}
-		$end->setTime((int)$end->format('H'), (int)$end->format('i'), 0);
+			$min = new \DateTime($result["timespan"]["min"]);
+			$max = new \DateTime($result["timespan"]["max"]);
 
-		$interval = new \DateInterval('PT15M');
-		$period = new \DatePeriod($start, $interval, $end);
+			$interval = $min->diff($max);
+			$totalSeconds = $max->getTimestamp() - $min->getTimestamp();
 
-		$result["timespan"]["every_fifteen_minutes"] = [];
+			// Format the duration like "2h 15m 30s" or similar
+			$parts = [];
+			if ($interval->h > 0) {
+				$parts[] = $interval->h . 'h';
+			}
+			if ($interval->i > 0) {
+				$parts[] = $interval->i . 'm';
+			}
+			if ($interval->s > 0) {
+				$parts[] = $interval->s . 's';
+			}
+			$formatted = implode(' ', $parts);
 
-		foreach ($period as $from) {
-			$to = clone $from;
-			$to->add($interval);
-
-			$params->from = $from->format('Y-m-d H:i:s');
-			$params->to = $to->format('Y-m-d H:i:s');
-
-			$result["timespan"]["every_fifteen_minutes"][] = [
-				"from" => $params->from,
-				"to" => $params->to,
-				"data" => $this->InternatGet($params)
+			$result["timespan"]["lasted"] = [
+				"formatted" => $formatted,
+				"seconds" => $totalSeconds
 			];
+			$result["timespan"]["interval"] = $params->interval;
+
+			$p = new \stdclass;
+			$p->interval = $params->interval;
+			$p->min = $min;
+			$p->max = $max;
+			$p->params = $params;
+			$result["timespan"]["data"] = $Analytics->GetTimespanData($p, $this);
 		}
+
+
+
+		/////////////////////////////////////////
+		// EVERY 15 MINUTES /////////////////////
+		/////////////////////////////////////////
+		/////////////////////////////////////////
+		/////////////////////////////////////////
+
 
 		return $response->withJson($result, 200);
 	}
@@ -202,8 +188,18 @@ class AnalyticsController extends BaseController
 		$result["trackings"] = $Analytics->GetTrackings($params);
 
 		foreach ($result["trackings"] as &$item) {
-			$item["comments"] = $item["data"];
-			$item["data"] = [];
+
+			// if ($item["id_tracking"] == 130) {
+			// 	echo "<pre>";
+			// 	// $result["trackings"] = json_decode(json_encode($result["trackings"]), true);
+			// 	print_r($item);
+			// 	exit;
+			// }
+			// print_r($item);
+			// exit;
+
+			$item["comments"] = (array)$item["data"];
+			$item["data"] = array();
 
 			// $item["lasted"] = date_diff(new \DateTime($item["started_at"]), new \DateTime($item["ended_at"]))->format('%H:%I:%S');
 			$diff = date_diff(new \DateTime($item["started_at"]), new \DateTime($item["ended_at"]));
@@ -274,6 +270,13 @@ class AnalyticsController extends BaseController
 					"possible_answers" => $q["possible_answers"] ?? [],
 				);
 			}
+
+			// if ($item["id_tracking"] == 130) {
+			// 	echo "<pre>";
+			// 	// $result["trackings"] = json_decode(json_encode($result["trackings"]), true);
+			// 	print_r($item);
+			// 	exit;
+			// }
 			$item["data"]["questions_answers"] = $Analytics->PrepareQuestionsAnswersData($result["trackings"]);
 		}
 

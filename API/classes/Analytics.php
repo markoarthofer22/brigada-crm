@@ -38,6 +38,45 @@ class Analytics
 		return (array)$result ?: [];
 	}
 
+	public function GetTimespanData(object $p, $callback): array
+	{
+
+		$start = clone $p->min;
+		$startMinute = (int) $start->format('i');
+		$start->modify('-' . ($startMinute % $p->interval) . ' minutes');
+		$start->setTime((int)$start->format('H'), (int)$start->format('i'), 0);
+
+		// Snap $end up to next 15-minute mark
+		$end = clone $p->max;
+		$endMinute = (int) $end->format('i');
+		$remainder = $endMinute % 15;
+		if ($remainder !== 0 || (int)$end->format('s') !== 0) {
+			$end->modify('+' . (15 - $remainder) . ' minutes');
+		}
+		$end->setTime((int)$end->format('H'), (int)$end->format('i'), 0);
+
+		$interval = new \DateInterval("PT{$p->interval}M");
+		$period = new \DatePeriod($start, $interval, $end);
+
+		$output = [];
+
+		foreach ($period as $from) {
+			$to = new \DateTime($from->format('Y-m-d H:i:s'));
+			$to->add($interval);
+
+			$p->params->from = $from->format('Y-m-d H:i:s');
+			$p->params->to = $to->format('Y-m-d H:i:s');
+
+			$output[] = [
+				"from" => $p->params->from,
+				"to" => $p->params->to,
+				"data" => $callback->InternatGet($p->params)
+			];
+		}
+
+		return $output;
+	}
+
 	/**
 	 * GetTrackings function
 	 *
@@ -69,7 +108,7 @@ class Analytics
 						*,
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
 					FROM brigada.tracking t
-					{$_where} AND t.ended_at IS NOT NULL -- AND id_tracking in (100,102)
+					{$_where} AND t.ended_at IS NOT NULL -- AND id_tracking in (130)
 					ORDER BY t.started_at ASC
 				)
 				SELECT * FROM all_data
@@ -80,7 +119,7 @@ class Analytics
 
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($results as &$result) {
-			$result["data"] = json_decode($result["data"]);
+			$result["data"] = json_decode($result["data"], true);
 		}
 		return $results;
 	}
@@ -297,22 +336,29 @@ class Analytics
 	{
 		$labelCounts = [];
 		foreach ($trackings as &$item) {
-			foreach ($item["data"]["questions_answers_raw"] as $qa) {
-				$label = $qa["label"] ?? null;
-				$answer = $qa["answer"] ?? null;
-				$possible_answers = $qa["possible_answers"] ?? [];
+			// if (is_object($item["data"])) {
+			// 	echo "<pre>";
+			// 	print_R($item);
+			// 	exit;
+			// }
+			if ($item["data"]["questions_answers_raw"]) {
+				foreach ($item["data"]["questions_answers_raw"] as $qa) {
+					$label = $qa["label"] ?? null;
+					$answer = $qa["answer"] ?? null;
+					$possible_answers = $qa["possible_answers"] ?? [];
 
-				if ($label && $answer) {
-					if (!isset($labelCounts[$label])) {
-						$labelCounts[$label] = [];
-						$labelCounts[$label]["possible_answers"] = $possible_answers;
-					}
-					$answers = array_map('trim', explode(',', $answer));
-					foreach ($answers as $singleAnswer) {
-						if (!isset($labelCounts[$label][$singleAnswer])) {
-							$labelCounts[$label][$singleAnswer] = 0;
+					if ($label && $answer) {
+						if (!isset($labelCounts[$label])) {
+							$labelCounts[$label] = [];
+							$labelCounts[$label]["possible_answers"] = $possible_answers;
 						}
-						$labelCounts[$label][$singleAnswer]++;
+						$answers = array_map('trim', explode(',', $answer));
+						foreach ($answers as $singleAnswer) {
+							if (!isset($labelCounts[$label][$singleAnswer])) {
+								$labelCounts[$label][$singleAnswer] = 0;
+							}
+							$labelCounts[$label][$singleAnswer]++;
+						}
 					}
 				}
 			}
