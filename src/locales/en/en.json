@@ -300,7 +300,8 @@
 			"settings": "Settings",
 			"templates": "Templates",
 			"users": "Users",
-			"zones": "Zones"
+			"zones": "Zones",
+			"analytics": "Analytics"
 		}
 	},
 	"Table": {

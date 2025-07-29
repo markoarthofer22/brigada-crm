@@ -11,6 +11,7 @@ import { NuqsAdapter } from 'nuqs/adapters/react'
 import { I18nextProvider } from 'react-i18next'
 import { toast } from 'sonner'
 import { registerSW } from 'virtual:pwa-register'
+import { useMiscellaneousStore } from '@/stores/miscStore.ts'
 import { handleServerError } from '@/utils/handle-server-error'
 import { LoaderProvider } from '@/context/loader-provider.tsx'
 import { IosInstallPrompt } from '@/components/pwa/IosInstallPrompt.tsx'
@@ -32,6 +33,12 @@ const queryClient = new QueryClient({
 		},
 		mutations: {
 			onError: (error) => {
+				const isOnline = useMiscellaneousStore.getState().isOnline
+
+				if (!isOnline) {
+					return
+				}
+
 				handleServerError(error)
 				if (error instanceof AxiosError) {
 					if (error.response?.status === 304) {
@@ -43,6 +50,12 @@ const queryClient = new QueryClient({
 	},
 	queryCache: new QueryCache({
 		onError: (error) => {
+			const isOnline = useMiscellaneousStore.getState().isOnline
+
+			if (!isOnline) {
+				return
+			}
+
 			if (error instanceof AxiosError) {
 				if (error.response?.status === 401) {
 					const redirect = `${router.history.location.href}`

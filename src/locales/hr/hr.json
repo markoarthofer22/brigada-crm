@@ -300,7 +300,8 @@
 			"settings": "Postavke",
 			"templates": "Predlošci",
 			"users": "Korisnici",
-			"zones": "Zone"
+			"zones": "Zone",
+			"analytics": "Statistika"
 		}
 	},
 	"Table": {

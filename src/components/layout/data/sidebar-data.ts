@@ -1,4 +1,5 @@
 import {
+	IconChartHistogram,
 	IconDeviceProjector,
 	IconLayoutDashboard,
 	IconSettings,
@@ -13,6 +14,11 @@ const adminRoutes: NavItem[] = [
 		title: 'dashboard',
 		url: '/admin',
 		icon: IconLayoutDashboard,
+	},
+	{
+		title: 'analytics',
+		url: '/admin/analytics',
+		icon: IconChartHistogram,
 	},
 	{
 		title: 'users',

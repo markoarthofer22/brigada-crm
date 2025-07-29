@@ -6,7 +6,6 @@ import { getAllQuestions } from '@/api/services/questions/options.ts'
 import { getAllUsers } from '@/api/services/user/options.ts'
 import { getAllZones } from '@/api/services/zones/options.ts'
 import { formatDate } from '@/lib/utils.ts'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import { RecentProjects } from '@/features/dashboard/(components)/recent-projects'
@@ -73,42 +72,26 @@ export default function Dashboard() {
 						{t('Dashboard.title')}
 					</h1>
 				</div>
-				<Tabs
-					orientation='vertical'
-					defaultValue='overview'
-					className='space-y-4'
-				>
-					<div className='w-full overflow-x-auto pb-2'>
-						<TabsList>
-							<TabsTrigger value='overview'>
-								{t('Dashboard.overview')}
-							</TabsTrigger>
-							<TabsTrigger disabled value='analytics'>
-								{t('Dashboard.analytics')}
-							</TabsTrigger>
-						</TabsList>
-					</div>
-					<TabsContent value='overview' className='space-y-4'>
-						<StatCards
-							totalProjects={projectsQuery.data?.length}
-							lastProjectAdded={formatDate(lastProjectAdded ?? '', {
-								year: 'numeric',
-								month: '2-digit',
-								day: 'numeric',
-							})}
-							activeUsers={usersQuery.data?.length}
-							activeQuestions={questionsQuery.data?.length}
-							activeZones={zonesQuery.data?.length}
-							usersInLastMonth={usersInLastMonth}
-						/>
-						<RecentProjects projects={projectsQuery.data ?? []} />
+				<div className='mb-6 flex flex-col gap-4'>
+					<StatCards
+						totalProjects={projectsQuery.data?.length}
+						lastProjectAdded={formatDate(lastProjectAdded ?? '', {
+							year: 'numeric',
+							month: '2-digit',
+							day: 'numeric',
+						})}
+						activeUsers={usersQuery.data?.length}
+						activeQuestions={questionsQuery.data?.length}
+						activeZones={zonesQuery.data?.length}
+						usersInLastMonth={usersInLastMonth}
+					/>
+					<RecentProjects projects={projectsQuery.data ?? []} />
 
-						<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-							<UserDistribution users={usersQuery.data ?? []} />
-							<RecentUsers />
-						</div>
-					</TabsContent>
-				</Tabs>
+					<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+						<UserDistribution users={usersQuery.data ?? []} />
+						<RecentUsers />
+					</div>
+				</div>
 			</Main>
 		</>
 	)

@@ -3,7 +3,10 @@ import { useQuery } from '@tanstack/react-query'
 import { Outlet, useRouter } from '@tanstack/react-router'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { getGlobalSettings } from '@/api/services/globals/options.ts'
+import {
+	getGlobalSettings,
+	pingServer,
+} from '@/api/services/globals/options.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { useMiscellaneousStore } from '@/stores/miscStore.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
@@ -17,13 +20,19 @@ const Root = () => {
 	const setUser = useAuthStore((state) => state.auth.setUser)
 	const setQuestionTypes = useAuthStore((state) => state.auth.setQuestionTypes)
 	const authToken = useAuthStore((state) => state.auth.accessToken)
+	const isOnline = useMiscellaneousStore((state) => state.isOnline)
 	const setIsOnline = useMiscellaneousStore((state) => state.setIsOnline)
 	const { showLoader, hideLoader } = useLoader()
 	const { theme } = useTheme()
 	const globalSettingsQuery = useQuery({
 		...getGlobalSettings(),
-		enabled: !!authToken,
+		enabled: !!authToken && isOnline,
 	})
+
+	const pingServerQuery = useQuery({
+		...pingServer(),
+	})
+
 	const router = useRouter()
 
 	useEffect(() => {
@@ -61,22 +70,41 @@ const Root = () => {
 		const update = (online: boolean) => {
 			console.log('Network status changed:', online)
 			setIsOnline(online)
-			if (!online)
-				router.navigate({
-					to: '/no-connection',
-				})
+			const onNoConnection = window.location.pathname === '/no-connection'
+			if (!online && !onNoConnection) {
+				window.location.replace('/no-connection')
+			}
 		}
 
-		update(navigator.onLine)
+		function handleOnline() {
+			update(true)
+		}
+		function handleOffline() {
+			update(false)
+		}
 
-		window.addEventListener('online', () => update(true))
-		window.addEventListener('offline', () => update(false))
+		const isOnNoConnectionPage = window.location.pathname === '/no-connection'
+		if (!isOnNoConnectionPage) {
+			update(navigator.onLine)
+		}
+
+		window.addEventListener('online', handleOnline)
+		window.addEventListener('offline', handleOffline)
 
 		return () => {
-			window.removeEventListener('online', () => update(true))
-			window.removeEventListener('offline', () => update(false))
+			window.removeEventListener('online', handleOnline)
+			window.removeEventListener('offline', handleOffline)
 		}
-	}, [router, setIsOnline])
+	}, [setIsOnline])
+
+	useEffect(() => {
+		if (user?.id_users || !authToken) return
+
+		const isOnNoConnection = window.location.pathname === '/no-connection'
+		if (pingServerQuery.isError && !isOnNoConnection) {
+			window.location.replace('/no-connection')
+		}
+	}, [authToken, pingServerQuery.isError, user?.id_users])
 
 	if (globalSettingsQuery.isLoading) {
 		return null
