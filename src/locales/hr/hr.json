@@ -417,6 +417,10 @@
 			"questions": "Pitanja i odgovori",
 			"zones": "Zone"
 		},
+		"basic": "Osnovni podaci",
+		"time": "Vrijeme",
+		"demographics": "Demografski podaci",
+		"years": "Dobna skupina",
 		"totalPeople": "Ukupno Ljudi",
 		"males": "Muškarci",
 		"females": "Žene",
@@ -469,6 +473,13 @@
 		"metric": "Metrika",
 		"value": "Vrijednost",
 		"seconds": "sec",
-		"peoplePerTracking": "ljudi po praćenju"
+		"peoplePerTracking": "ljudi po praćenju",
+		"start": "Početak",
+		"end": "Kraj",
+		"chart": "Grafički pregled",
+		"selected": "odabrano",
+		"selectAll": "Odaberi sve",
+		"deselectAll": "Odznači sve",
+		"tracking": "Tracking"
 	}
 }

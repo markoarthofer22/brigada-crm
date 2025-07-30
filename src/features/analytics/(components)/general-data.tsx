@@ -1,6 +1,7 @@
 import React from 'react'
 import { format } from 'date-fns'
 import { hr } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import {
 	Table,
@@ -10,6 +11,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
+import GeneralDataChart from '@/features/analytics/(components)/general-data-chart.tsx'
 
 const ZONE_COLORS = [
 	{
@@ -73,6 +75,7 @@ interface GeneralDataProps {
 }
 
 export default function GeneralData({ data }: GeneralDataProps) {
+	const { t } = useTranslation()
 	const getAgeGroups = () => {
 		if (data.length === 0) return []
 		return data[0].data.dobna_skupina.data.map((age: any) => age.label)
@@ -158,7 +161,7 @@ export default function GeneralData({ data }: GeneralDataProps) {
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
 
-	const basicInfoCols = 3
+	const basicInfoCols = 1
 	const timeCols = 3
 	const demographicsCols = 5
 	const ageGroupsCols = ageGroups.length
@@ -167,8 +170,19 @@ export default function GeneralData({ data }: GeneralDataProps) {
 		return total + 1 + getZoneQuestions(zoneName).length
 	}, 0)
 
+	if (!data || data.length === 0) {
+		return (
+			<div className='p-4 text-center'>
+				<p className='text-lg text-muted-foreground'>
+					{t('Analytics.noDataAvailable')}
+				</p>
+			</div>
+		)
+	}
+
 	return (
 		<div className='w-full'>
+			<GeneralDataChart data={data} />
 			<div className='rounded-lg border bg-card shadow-sm'>
 				<div className='overflow-auto'>
 					<Table>
@@ -178,37 +192,37 @@ export default function GeneralData({ data }: GeneralDataProps) {
 									className='border-r-2 text-center font-semibold text-black'
 									colSpan={basicInfoCols}
 								>
-									Osnovni podaci
+									{t('Analytics.basic')}
 								</TableHead>
 								<TableHead
 									className='border-r-2 text-center font-semibold text-black'
 									colSpan={timeCols}
 								>
-									Vrijeme
+									{t('Analytics.time')}
 								</TableHead>
 								<TableHead
 									className='border-r-2 text-center font-semibold text-black'
 									colSpan={demographicsCols}
 								>
-									Demografija
+									{t('Analytics.demographics')}
 								</TableHead>
 								<TableHead
 									className='border-r-2 text-center font-semibold text-black'
 									colSpan={ageGroupsCols}
 								>
-									Dobna skupina
+									{t('Analytics.years')}
 								</TableHead>
 								<TableHead
 									className='border-r-2 text-center font-semibold text-black'
 									colSpan={questionsCols}
 								>
-									Pitanja i odgovori
+									{t('Analytics.tabs.questions')}
 								</TableHead>
 								<TableHead
 									className='text-center font-semibold text-black'
 									colSpan={totalZoneCols}
 								>
-									Zone
+									{t('Analytics.tabs.zones')}
 								</TableHead>
 							</TableRow>
 
@@ -253,37 +267,30 @@ export default function GeneralData({ data }: GeneralDataProps) {
 								<TableHead className='whitespace-nowrap border-r text-center text-xs font-semibold'>
 									ID
 								</TableHead>
-								<TableHead className='whitespace-nowrap border-r text-center text-xs font-semibold'>
-									Project
-								</TableHead>
-								<TableHead className='whitespace-nowrap border-r text-center text-xs font-semibold'>
-									User
-								</TableHead>
-
 								<TableHead className='whitespace-nowrap border-r bg-purple-50 text-center text-xs font-semibold'>
-									Trajanje
+									{t('Analytics.duration')}
 								</TableHead>
 								<TableHead className='whitespace-nowrap border-r bg-purple-50 text-center text-xs font-semibold'>
-									Početak
+									{t('Analytics.start')}
 								</TableHead>
 								<TableHead className='whitespace-nowrap border-r bg-purple-50 text-center text-xs font-semibold'>
-									Kraj
+									{t('Analytics.end')}
 								</TableHead>
 
 								<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-									Ukupno
+									{t('Analytics.totalPeople')}
 								</TableHead>
 								<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-									Muški
+									{t('Analytics.males')}
 								</TableHead>
 								<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-									M %
+									%
 								</TableHead>
 								<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-									Ženski
+									{t('Analytics.females')}
 								</TableHead>
 								<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-									Ž %
+									%
 								</TableHead>
 
 								{ageGroups.map((ageLabel: any, index: number) => (
@@ -349,12 +356,6 @@ export default function GeneralData({ data }: GeneralDataProps) {
 								>
 									<TableCell className='whitespace-nowrap border-r text-center font-medium'>
 										{record.id_tracking}
-									</TableCell>
-									<TableCell className='whitespace-nowrap border-r text-center'>
-										{record.id_projects}
-									</TableCell>
-									<TableCell className='whitespace-nowrap border-r text-center'>
-										{record.id_users}
 									</TableCell>
 
 									<TableCell className='whitespace-nowrap border-r bg-purple-50/30 text-center'>
@@ -447,7 +448,7 @@ export default function GeneralData({ data }: GeneralDataProps) {
 																(row: any, rowIndex: number) => (
 																	<th
 																		key={`answer-${rowIndex}`}
-																		className={`px-1 py-1 text-xs font-medium text-gray-800 ${rowIndex < questionData.answerRows.length - 1 ? 'border-r border-gray-200' : ''}`}
+																		className={`min-w-28 px-1 py-1 text-xs font-medium text-gray-800 ${rowIndex < questionData.answerRows.length - 1 ? 'border-r border-gray-200' : ''}`}
 																	>
 																		{row.answer}
 																	</th>

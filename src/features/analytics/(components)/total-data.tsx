@@ -45,6 +45,8 @@ export default function TotalData({ data }: TotalDataProps) {
 	}
 
 	const formatSeconds = (sec: number) => {
+		if (!sec || sec <= 0) return '-'
+
 		const duration = intervalToDuration({ start: 0, end: sec * 1000 })
 		const { hours, minutes } = duration
 
@@ -108,11 +110,11 @@ export default function TotalData({ data }: TotalDataProps) {
 					</CardHeader>
 					<CardContent>
 						<div className='text-2xl font-bold'>
-							{formatSeconds(data.trackings.total_lasted)}
+							{formatSeconds(data.trackings?.total_lasted)}
 						</div>
 						<p className='text-xs text-muted-foreground'>
 							{t('Analytics.avgPerPerson')}{' '}
-							{formatSeconds(data.trackings.average_lasted.per_people)}
+							{formatSeconds(data.trackings?.average_lasted.per_people)}
 						</p>
 					</CardContent>
 				</Card>
