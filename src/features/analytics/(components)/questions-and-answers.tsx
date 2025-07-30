@@ -66,6 +66,7 @@ export default function QuestionsAndAnswers({ data }: QuestionsAnswersProps) {
 
 	return (
 		<div className='mt-8 space-y-8'>
+			f
 			{data.map((question, index) => (
 				<Card key={index}>
 					<CardHeader className='flex flex-row items-center justify-between'>

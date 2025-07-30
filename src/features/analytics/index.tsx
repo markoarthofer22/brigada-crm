@@ -131,7 +131,9 @@ export default function Analytics() {
 							</TabsTrigger>
 						</TabsList>
 						<TabsContent value={AnalyticsTabs.General}>
-							{selectedProject && <GeneralData />}
+							{selectedProject && (
+								<GeneralData data={analyticsQuery.data?.trackings} />
+							)}
 						</TabsContent>
 						<TabsContent value={AnalyticsTabs.Total}>
 							{selectedProject && (
