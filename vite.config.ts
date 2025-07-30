@@ -101,7 +101,10 @@ export default defineConfig(({ mode }) => {
 			// basicSsl(),
 		],
 		server: isDevelopment
-			? undefined
+			? {
+					port: 3000,
+					open: true,
+				}
 			: {
 					host: true,
 					https: {

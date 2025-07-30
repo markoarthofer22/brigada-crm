@@ -29,8 +29,11 @@ const Root = () => {
 		enabled: !!authToken && isOnline,
 	})
 
+	const isDevMode = import.meta.env.MODE === 'development'
+
 	const pingServerQuery = useQuery({
 		...pingServer(),
+		enabled: !isDevMode,
 	})
 
 	const router = useRouter()
