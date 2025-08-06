@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { format } from 'date-fns'
 import { hr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
@@ -72,10 +72,44 @@ const ZONE_COLORS = [
 
 interface GeneralDataProps {
 	data: any[]
+	timespan?: {
+		data: Array<{
+			from: string
+			to: string
+			data: {
+				trackings: any[]
+			}
+		}>
+		interval: number
+		lasted: { formatted: string; seconds: number }
+		max: string
+		min: string
+	}
 }
 
-export default function GeneralData({ data }: GeneralDataProps) {
+export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	const { t } = useTranslation()
+
+	const tableData = useMemo(() => {
+		if (!timespan || !timespan.data || timespan.data.length === 0) {
+			return data
+		}
+
+		return timespan.data
+			.map((data: any) => {
+				const trackings = data.data.trackings
+				const fromDate = new Date(data.from)
+				const toDate = new Date(data.to)
+
+				return trackings?.map((tracking: any) => ({
+					...tracking,
+					fromDate,
+					toDate,
+				}))
+			})
+			.flat()
+	}, [data, timespan])
+
 	const getAgeGroups = () => {
 		if (data.length === 0) return []
 		return data[0].data.dobna_skupina.data.map((age: any) => age.label)
@@ -170,7 +204,7 @@ export default function GeneralData({ data }: GeneralDataProps) {
 		return total + 1 + getZoneQuestions(zoneName).length
 	}, 0)
 
-	if (!data || data.length === 0) {
+	if (!tableData || tableData.length === 0) {
 		return (
 			<div className='p-4 text-center'>
 				<p className='text-lg text-muted-foreground'>
@@ -188,6 +222,11 @@ export default function GeneralData({ data }: GeneralDataProps) {
 					<Table>
 						<TableHeader>
 							<TableRow className='border-b-2 bg-slate-100'>
+								{timespan && (
+									<TableHead className='border-r-2 text-center font-semibold text-black'>
+										{t('Analytics.timeRange')}
+									</TableHead>
+								)}
 								<TableHead
 									className='border-r-2 text-center font-semibold text-black'
 									colSpan={basicInfoCols}
@@ -227,6 +266,7 @@ export default function GeneralData({ data }: GeneralDataProps) {
 							</TableRow>
 
 							<TableRow className='bg-slate-75 border-b'>
+								{timespan && <TableHead className='border-r'></TableHead>}
 								<TableHead
 									className='border-r text-center font-semibold text-slate-600'
 									colSpan={basicInfoCols}
@@ -264,6 +304,7 @@ export default function GeneralData({ data }: GeneralDataProps) {
 							</TableRow>
 
 							<TableRow className='bg-slate-50'>
+								{timespan && <TableHead className='border-r'></TableHead>}
 								<TableHead className='whitespace-nowrap border-r text-center text-xs font-semibold'>
 									ID
 								</TableHead>
@@ -322,7 +363,7 @@ export default function GeneralData({ data }: GeneralDataProps) {
 											<TableHead
 												className={`whitespace-nowrap border-r text-center text-xs font-semibold ${zoneColor.bg}`}
 											>
-												Trajanje
+												{t('Analytics.duration')}
 											</TableHead>
 
 											{zoneQuestions.map(
@@ -349,11 +390,23 @@ export default function GeneralData({ data }: GeneralDataProps) {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{data.map((record: any) => (
+							{tableData.map((record: any) => (
 								<TableRow
 									key={record.id_tracking}
 									className='hover:bg-muted/30'
 								>
+									{timespan && (
+										<TableCell className='whitespace-nowrap border-r text-center font-medium'>
+											{format(record.fromDate, 'dd.MM.yyyy HH:mm', {
+												locale: hr,
+											})}{' '}
+											-{' '}
+											{format(record.toDate, 'HH:mm', {
+												locale: hr,
+											})}
+										</TableCell>
+									)}
+
 									<TableCell className='whitespace-nowrap border-r text-center font-medium'>
 										{record.id_tracking}
 									</TableCell>

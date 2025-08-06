@@ -179,7 +179,7 @@ export default function Analytics() {
 	return (
 		<>
 			<Header className='border-b-0' />
-			<Main fixed className='max-w-screen-lg pb-6 pl-4'>
+			<Main fixed className='pb-6 pl-4'>
 				<div className='mb-2 flex items-center justify-between space-y-2'>
 					<h1 className='text-2xl font-bold tracking-tight'>
 						{t('Analytics.title')}
@@ -206,25 +206,39 @@ export default function Analytics() {
 							))}
 						</SelectContent>
 					</Select>
-					<Select
-						value={interval ? String(interval) : undefined}
-						onValueChange={setInterval}
-					>
-						<SelectTrigger className='w-full max-w-xs'>
-							<SelectValue placeholder={t('Input.placeholder.interval')} />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value={String(15)}>
-								15 {t('Analytics.min')}
-							</SelectItem>
-							<SelectItem value={String(30)}>
-								30 {t('Analytics.min')}
-							</SelectItem>
-							<SelectItem value={String(60)}>
-								60 {t('Analytics.min')}
-							</SelectItem>
-						</SelectContent>
-					</Select>
+					<div className='relative w-full max-w-xs'>
+						<Select
+							value={interval ? String(interval) : undefined}
+							onValueChange={setInterval}
+						>
+							<SelectTrigger className='w-full'>
+								<SelectValue placeholder={t('Input.placeholder.interval')} />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value={String(15)}>
+									15 {t('Analytics.min')}
+								</SelectItem>
+								<SelectItem value={String(30)}>
+									30 {t('Analytics.min')}
+								</SelectItem>
+								<SelectItem value={String(60)}>
+									60 {t('Analytics.min')}
+								</SelectItem>
+							</SelectContent>
+						</Select>
+						{interval && (
+							<div
+								className='absolute right-2 top-1/2 z-50 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md bg-destructive text-muted-foreground transition-colors duration-300 hover:bg-destructive/80'
+								onClick={async (e) => {
+									e.preventDefault()
+									e.stopPropagation()
+									await setInterval('')
+								}}
+							>
+								<IconX className='size-4 text-white' />
+							</div>
+						)}
+					</div>
 					<div className='flex flex-col gap-y-2'>
 						<Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
 							<PopoverTrigger asChild>
@@ -344,7 +358,12 @@ export default function Analytics() {
 							</Button>
 						</div>
 						<TabsContent value={AnalyticsTabs.General}>
-							{project && <GeneralData data={analyticsQuery.data?.trackings} />}
+							{project && (
+								<GeneralData
+									timespan={analyticsQuery.data?.timespan}
+									data={analyticsQuery.data?.trackings}
+								/>
+							)}
 						</TabsContent>
 						<TabsContent value={AnalyticsTabs.Total}>
 							{project && <TotalData data={analyticsQuery.data?.total_data} />}
