@@ -198,7 +198,10 @@ class AnalyticsController extends BaseController
 			// print_r($item);
 			// exit;
 
-			$item["comments"] = (array)$item["data"];
+			// $item["comments"] = (array)$item["data"];
+			$item["comments"] = empty($item["data"]) ? new stdClass : (array)$item["data"];
+			// print_r($item["data"]);
+			// continue;
 			$item["data"] = array();
 
 			// $item["lasted"] = date_diff(new \DateTime($item["started_at"]), new \DateTime($item["ended_at"]))->format('%H:%I:%S');
