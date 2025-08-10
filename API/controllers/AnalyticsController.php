@@ -253,7 +253,9 @@ class AnalyticsController extends BaseController
 				);
 			}
 
-			$item["zones"] = $zones; //$Analytics->groupZonesByIdZones($zones);
+			// $item["zones"] = $zones;
+			$item["zones"] = $Analytics->groupZonesByIdZones($zones);
+			// $item["zones2"] = $Analytics->groupZonesByIdZones($zones);
 
 			foreach ($result_questions as $q) {
 				$r = array_values(array_filter(array_map(function ($a) use ($q) {

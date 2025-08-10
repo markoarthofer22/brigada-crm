@@ -108,7 +108,7 @@ class Analytics
 						*,
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
 					FROM brigada.tracking t
-					{$_where} AND t.ended_at IS NOT NULL -- AND id_tracking in (130)
+					{$_where} AND t.ended_at IS NOT NULL -- AND id_tracking in (120)
 					ORDER BY t.started_at ASC
 				)
 				SELECT * FROM all_data
@@ -834,13 +834,26 @@ class Analytics
 			// Only sum lasted field
 			$totalSeconds = 0;
 			foreach ($group as $zone) {
-				$timeParts = explode(':', $zone['lasted']);
+				$timeParts = explode(':', $zone['lasted']['formatted']);
 				$totalSeconds += (int)$timeParts[0] * 3600 + (int)$timeParts[1] * 60 + (int)$timeParts[2];
+
+				$numberOfPeople = $zone["data"]["broj_ljudi"];
+				$males = $zone["data"]["broj_muski"];
+				$females = $zone["data"]["broj_zenski"];
 			}
 			$hours = str_pad(floor($totalSeconds / 3600), 2, '0', STR_PAD_LEFT);
 			$minutes = str_pad(floor(($totalSeconds % 3600) / 60), 2, '0', STR_PAD_LEFT);
 			$seconds = str_pad($totalSeconds % 60, 2, '0', STR_PAD_LEFT);
-			$base['lasted'] = "$hours:$minutes:$seconds";
+			$base['lasted']['formatted'] = "$hours:$minutes:$seconds";
+			$base['lasted']['seconds'] = $totalSeconds;
+			$base['lasted']['average'] = [
+				'by_number_of_people' => $this->getLastingAverageByNumberOfPeople($totalSeconds, $numberOfPeople, true),
+				'by_number_of_people_seconds' => $this->getLastingAverageByNumberOfPeople($totalSeconds, $numberOfPeople, false)
+			];
+
+			$base['data']['broj_ljudi'] = $numberOfPeople;
+			$base['data']['broj_muski'] = $males;
+			$base['data']['broj_zenski'] = $females;
 
 			$result[] = $base;
 		}
