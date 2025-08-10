@@ -313,6 +313,21 @@
 								</translations>
 							</concept_node>
 							<concept_node>
+								<name>analyticsTitle</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>answer</name>
 								<description/>
 								<comment/>
@@ -404,6 +419,36 @@
 							</concept_node>
 							<concept_node>
 								<name>chart</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>comments</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>commentsFor</name>
 								<description/>
 								<comment/>
 								<translations>
@@ -689,6 +734,21 @@
 							</concept_node>
 							<concept_node>
 								<name>group</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>image</name>
 								<description/>
 								<comment/>
 								<translations>

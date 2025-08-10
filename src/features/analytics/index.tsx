@@ -14,24 +14,9 @@ import { formatDate } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar.tsx'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select.tsx'
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@/components/ui/tabs.tsx'
+import { Popover, PopoverContent, PopoverTrigger, } from '@/components/ui/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select.tsx'
+import { Tabs, TabsContent, TabsList, TabsTrigger, } from '@/components/ui/tabs.tsx'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import GeneralData from '@/features/analytics/(components)/general-data.tsx'
@@ -151,7 +136,12 @@ export default function Analytics() {
 		showLoader()
 		try {
 			// trebat ce dodat interval kao prop (drugacija tablica)
-			await exportToExcel({ data: analyticsQuery.data?.trackings, t })
+			await exportToExcel({
+				name: `${analyticsQuery.data?.name} #${analyticsQuery.data?.id_projects}`,
+				data: analyticsQuery.data?.trackings,
+				timespan: analyticsQuery.data?.timespan,
+				t,
+			})
 		} catch (error) {
 			console.error('Export failed:', error)
 			toast.error(t('Analytics.exportError'))

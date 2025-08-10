@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { hr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +11,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
+import CommentsModal from '@/features/analytics/(components)/comments-modal.tsx'
 import GeneralDataChart from '@/features/analytics/(components)/general-data-chart.tsx'
 
 const ZONE_COLORS = [
@@ -90,45 +91,152 @@ interface GeneralDataProps {
 export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	const { t } = useTranslation()
 
+	const [commentOptions, setCommentOptions] = useState<{
+		tracking: any | null
+		isOpen: boolean
+	}>({
+		tracking: null,
+		isOpen: false,
+	})
+
 	const tableData = useMemo(() => {
 		if (!timespan || !timespan.data || timespan.data.length === 0) {
 			return data
 		}
 
-		return timespan.data
-			.map((data: any) => {
-				const trackings = data.data.trackings
-				const fromDate = new Date(data.from)
-				const toDate = new Date(data.to)
+		return timespan.data.flatMap((data: any) => {
+			const trackings = data.data.trackings
+			const fromDate = new Date(data.from)
+			const toDate = new Date(data.to)
 
-				return trackings?.map((tracking: any) => ({
-					...tracking,
-					fromDate,
-					toDate,
-				}))
-			})
-			.flat()
+			if (!trackings || trackings.length === 0) {
+				return [
+					{
+						comments: [],
+						id_tracking: `-`,
+						fromDate,
+						toDate,
+						lasted: { formatted: '-' },
+						started_at: data.from,
+						ended_at: data.to,
+						data: {
+							broj_ljudi: 0,
+							broj_muski: 0,
+							broj_muski_percentage: 0,
+							broj_zenski: 0,
+							broj_zenski_percentage: 0,
+							dobna_skupina: { data: [] },
+							questions_answers: [],
+						},
+						zones: [],
+						isEmpty: true,
+					},
+				]
+			}
+
+			return trackings?.map((tracking: any) => ({
+				...tracking,
+				fromDate,
+				toDate,
+				isEmpty: false,
+			}))
+		})
 	}, [data, timespan])
 
 	const getAgeGroups = () => {
 		if (data.length === 0) return []
-		return data[0].data.dobna_skupina.data.map((age: any) => age.label)
+
+		const allAgeGroups = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.data?.dobna_skupina?.data) {
+				tracking.data.dobna_skupina.data.forEach((age: any) => {
+					if (age.label) {
+						allAgeGroups.add(age.label)
+					}
+				})
+			}
+		})
+
+		return Array.from(allAgeGroups)
 	}
 
 	const getMainQuestions = () => {
 		if (data.length === 0) return []
-		return data[0].data.questions_answers.map((q: any) => q.label)
+
+		const allQuestions = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.data?.questions_answers) {
+				tracking.data.questions_answers.forEach((q: any) => {
+					if (q.label) {
+						allQuestions.add(q.label)
+					}
+				})
+			}
+		})
+
+		return Array.from(allQuestions)
 	}
 
 	const getZones = () => {
 		if (data.length === 0) return []
-		return data[0].zones.map((zone: any) => zone.name)
+
+		const allZones = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.zones) {
+				tracking.zones.forEach((zone: any) => {
+					if (zone.name) {
+						allZones.add(zone.name)
+					}
+				})
+			}
+		})
+
+		return Array.from(allZones)
 	}
 
 	const getZoneQuestions = (zoneName: string) => {
 		if (data.length === 0) return []
-		const zone = data[0].zones.find((z: any) => z.name === zoneName)
-		return zone ? zone.questions_answers.map((q: any) => q.label) : []
+
+		const allZoneQuestions = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.zones) {
+				const zone = tracking.zones.find((z: any) => z.name === zoneName)
+				if (zone?.questions_answers) {
+					zone.questions_answers.forEach((q: any) => {
+						if (q.label) {
+							allZoneQuestions.add(q.label)
+						}
+					})
+				}
+			}
+		})
+
+		return Array.from(allZoneQuestions)
+	}
+
+	const getCommentsInfo = (comments: any) => {
+		if (!comments || Object.keys(comments).length === 0) {
+			return { type: 'empty', count: 0, display: '-' }
+		}
+
+		if (comments.comments && Array.isArray(comments.comments)) {
+			return {
+				type: 'images',
+				count: comments.comments.length,
+				display: comments.comments.length,
+			}
+		}
+
+		const keys = Object.keys(comments)
+		if (keys.length > 0) {
+			return {
+				type: 'keyvalue',
+				count: keys.length,
+				display: `${keys.length} ${t('Analytics.comments')}`,
+			}
+		}
+
+		return { type: 'empty', count: 0, display: '-' }
 	}
 
 	const getZoneColor = (index: number) => {
@@ -142,29 +250,6 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 		} catch (_error) {
 			return dateString
 		}
-	}
-
-	const getQuestionAnswerData = (questions: any[], questionLabel: string) => {
-		const question = questions.find((q: any) => q.label === questionLabel)
-		if (!question) {
-			return { answerRows: [] }
-		}
-
-		const possibleAnswers = question.possible_answers
-			? Object.values(question.possible_answers)
-			: []
-
-		const answerRows = possibleAnswers.map((answer: any) => {
-			const answerData =
-				question.count_percentage && question.count_percentage[answer]
-			return {
-				answer,
-				count: answerData ? answerData.count : 0,
-				percentage: answerData ? answerData.percentage : 0,
-			}
-		})
-
-		return { answerRows }
 	}
 
 	const getAgeGroupCount = (ageData: any[], ageLabel: string) => {
@@ -195,11 +280,28 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
 
-	const basicInfoCols = 1
+	const basicInfoCols = 2
 	const timeCols = 3
 	const demographicsCols = 5
 	const ageGroupsCols = ageGroups.length
-	const questionsCols = mainQuestions.length
+	const questionsCols = mainQuestions.reduce(
+		(total: number, questionLabel: string) => {
+			const sampleQuestion = data
+				.find((tracking) =>
+					tracking.data?.questions_answers?.find(
+						(q: any) => q.label === questionLabel
+					)
+				)
+				?.data?.questions_answers?.find((q: any) => q.label === questionLabel)
+
+			const possibleAnswers = sampleQuestion?.possible_answers
+				? Object.values(sampleQuestion.possible_answers)
+				: []
+
+			return total + possibleAnswers.length
+		},
+		0
+	)
 	const totalZoneCols = zones.reduce((total: number, zoneName: any) => {
 		return total + 1 + getZoneQuestions(zoneName).length
 	}, 0)
@@ -252,7 +354,7 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 									{t('Analytics.years')}
 								</TableHead>
 								<TableHead
-									className='border-r-2 text-center font-semibold text-black'
+									className='border-r text-center font-semibold text-yellow-600'
 									colSpan={questionsCols}
 								>
 									{t('Analytics.tabs.questions')}
@@ -287,6 +389,7 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 									className='border-r text-center font-semibold text-yellow-600'
 									colSpan={questionsCols}
 								></TableHead>
+
 								{zones.map((zoneName: any, index: number) => {
 									const zoneQuestionCount = getZoneQuestions(zoneName).length
 									const isLast = index === zones.length - 1
@@ -303,10 +406,92 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 								})}
 							</TableRow>
 
+							<TableRow className='bg-slate-25'>
+								{timespan && <TableHead className='border-r'></TableHead>}
+								<TableHead className='border-r'></TableHead>
+								<TableHead className='border-r'></TableHead>
+								<TableHead className='border-r bg-purple-50'></TableHead>
+								<TableHead className='border-r bg-purple-50'></TableHead>
+								<TableHead className='border-r bg-purple-50'></TableHead>
+								<TableHead className='border-r bg-blue-50'></TableHead>
+								<TableHead className='border-r bg-blue-50'></TableHead>
+								<TableHead className='border-r bg-blue-50'></TableHead>
+								<TableHead className='border-r bg-blue-50'></TableHead>
+								<TableHead className='border-r bg-blue-50'></TableHead>
+
+								{ageGroups.map((ageLabel: any) => (
+									<TableHead
+										key={ageLabel}
+										className={`border-r bg-green-50`}
+									></TableHead>
+								))}
+
+								{mainQuestions.map((questionLabel: any, index: number) => {
+									// Get the first tracking that has this question to determine answer structure
+									const sampleQuestion = data
+										.find((tracking) =>
+											tracking.data?.questions_answers?.find(
+												(q: any) => q.label === questionLabel
+											)
+										)
+										?.data?.questions_answers?.find(
+											(q: any) => q.label === questionLabel
+										)
+
+									const possibleAnswers = sampleQuestion?.possible_answers
+										? Object.values(sampleQuestion.possible_answers)
+										: []
+
+									return (
+										<TableHead
+											key={questionLabel}
+											className={`text-center ${index < mainQuestions.length - 1 ? 'border-r' : 'border-r'} whitespace-nowrap bg-yellow-50 p-1`}
+											colSpan={possibleAnswers.length}
+										>
+											<div className='text-xs font-semibold text-yellow-800'>
+												{questionLabel}
+											</div>
+										</TableHead>
+									)
+								})}
+
+								{zones.map((zoneName: any, zoneIndex: number) => {
+									const zoneQuestions = getZoneQuestions(zoneName)
+									const zoneColor = getZoneColor(zoneIndex)
+
+									return (
+										<React.Fragment key={zoneName}>
+											<TableHead
+												className={`border-r ${zoneColor.bg}`}
+											></TableHead>
+											{zoneQuestions.map(
+												(questionLabel: any, qIndex: number) => {
+													const isLastQuestion =
+														qIndex === zoneQuestions.length - 1
+													const isLastZone = zoneIndex === zones.length - 1
+													const shouldHaveBorder =
+														!isLastQuestion || !isLastZone
+
+													return (
+														<TableHead
+															key={`${zoneName}-${questionLabel}`}
+															className={`${shouldHaveBorder ? 'border-r' : ''} ${zoneColor.bg}`}
+														></TableHead>
+													)
+												}
+											)}
+										</React.Fragment>
+									)
+								})}
+							</TableRow>
+
 							<TableRow className='bg-slate-50'>
 								{timespan && <TableHead className='border-r'></TableHead>}
 								<TableHead className='whitespace-nowrap border-r text-center text-xs font-semibold'>
 									ID
+								</TableHead>
+								<TableHead className='whitespace-nowrap border-r text-center text-xs font-semibold'>
+									{t('Analytics.comments')}
 								</TableHead>
 								<TableHead className='whitespace-nowrap border-r bg-purple-50 text-center text-xs font-semibold'>
 									{t('Analytics.duration')}
@@ -343,15 +528,29 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 									</TableHead>
 								))}
 
-								{mainQuestions.map((questionLabel: any, index: number) => {
-									return (
-										<TableCell
-											key={questionLabel}
-											className={`text-center ${index < mainQuestions.length - 1 ? 'border-r' : 'border-r'} whitespace-nowrap bg-yellow-50/30 p-0`}
+								{mainQuestions.map((questionLabel: any) => {
+									const sampleQuestion = data
+										.find((tracking) =>
+											tracking.data?.questions_answers?.find(
+												(q: any) => q.label === questionLabel
+											)
+										)
+										?.data?.questions_answers?.find(
+											(q: any) => q.label === questionLabel
+										)
+
+									const possibleAnswers = sampleQuestion?.possible_answers
+										? Object.values(sampleQuestion.possible_answers)
+										: []
+
+									return possibleAnswers.map((answer: any) => (
+										<TableHead
+											key={`${questionLabel}-${answer}`}
+											className={`whitespace-nowrap border-r bg-yellow-50/50 p-1 text-center text-xs font-medium`}
 										>
-											{/* Placeholder for question data */}
-										</TableCell>
-									)
+											<div className='text-yellow-700'>{answer}</div>
+										</TableHead>
+									))
 								})}
 
 								{zones.map((zoneName: any, zoneIndex: number) => {
@@ -390,11 +589,8 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{tableData.map((record: any) => (
-								<TableRow
-									key={record.id_tracking}
-									className='hover:bg-muted/30'
-								>
+							{tableData.map((record: any, index: number) => (
+								<TableRow key={index} className='hover:bg-muted/30'>
 									{timespan && (
 										<TableCell className='whitespace-nowrap border-r text-center font-medium'>
 											{format(record.fromDate, 'dd.MM.yyyy HH:mm', {
@@ -409,6 +605,46 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 
 									<TableCell className='whitespace-nowrap border-r text-center font-medium'>
 										{record.id_tracking}
+									</TableCell>
+
+									<TableCell
+										className='cursor-pointer whitespace-nowrap border-r text-center font-medium hover:bg-gray-100'
+										onClick={() => {
+											const commentsInfo = getCommentsInfo(record?.comments)
+											if (commentsInfo.count > 0) {
+												setCommentOptions({ tracking: record, isOpen: true })
+											}
+										}}
+									>
+										{(() => {
+											const commentsInfo = getCommentsInfo(record?.comments)
+
+											if (commentsInfo.type === 'empty') {
+												return <span className='text-gray-400'>-</span>
+											}
+
+											if (commentsInfo.type === 'images') {
+												return (
+													<div className='flex items-center justify-center gap-1'>
+														<span className='text-blue-600'>📷</span>
+														<span>{commentsInfo.count}</span>
+													</div>
+												)
+											}
+
+											if (commentsInfo.type === 'keyvalue') {
+												return (
+													<div className='flex items-center justify-center gap-1'>
+														<span className='text-green-600'>📋</span>
+														<span className='text-xs'>
+															{commentsInfo.count}
+														</span>
+													</div>
+												)
+											}
+
+											return commentsInfo.display
+										})()}
 									</TableCell>
 
 									<TableCell className='whitespace-nowrap border-r bg-purple-50/30 text-center'>
@@ -483,56 +719,49 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 										</TableCell>
 									))}
 
-									{mainQuestions.map((questionLabel: any, index: number) => {
-										const questionData = getQuestionAnswerData(
-											record.data.questions_answers,
-											questionLabel
-										)
+									{mainQuestions.map((questionLabel: any) => {
+										const sampleQuestion = data
+											.find((tracking) =>
+												tracking.data?.questions_answers?.find(
+													(q: any) => q.label === questionLabel
+												)
+											)
+											?.data?.questions_answers?.find(
+												(q: any) => q.label === questionLabel
+											)
 
-										return (
-											<TableCell
-												key={questionLabel}
-												className={`text-center ${index < mainQuestions.length - 1 ? 'border-r' : 'border-r'} whitespace-nowrap bg-yellow-50/30 p-0`}
-											>
-												<table className='h-full w-full'>
-													<thead>
-														<tr>
-															{questionData.answerRows.map(
-																(row: any, rowIndex: number) => (
-																	<th
-																		key={`answer-${rowIndex}`}
-																		className={`min-w-28 px-1 py-1 text-xs font-medium text-gray-800 ${rowIndex < questionData.answerRows.length - 1 ? 'border-r border-gray-200' : ''}`}
-																	>
-																		{row.answer}
-																	</th>
-																)
-															)}
-														</tr>
-													</thead>
-													<tbody>
-														<tr className='border-t border-gray-300'>
-															{questionData.answerRows.map(
-																(row: any, rowIndex: number) => (
-																	<td
-																		key={`stats-${rowIndex}`}
-																		className={`p-0 ${rowIndex < questionData.answerRows.length - 1 ? 'border-r border-gray-200' : ''}`}
-																	>
-																		<div className='grid grid-cols-2 border-t'>
-																			<span className='border-r p-1 text-xs text-blue-600'>
-																				{row.count}
-																			</span>
-																			<span className='p-1 text-xs text-green-600'>
-																				{row.percentage}%
-																			</span>
-																		</div>
-																	</td>
-																)
-															)}
-														</tr>
-													</tbody>
-												</table>
-											</TableCell>
-										)
+										const possibleAnswers = sampleQuestion?.possible_answers
+											? Object.values(sampleQuestion.possible_answers)
+											: []
+
+										return possibleAnswers.map((answer: any) => {
+											const recordQuestion =
+												record.data.questions_answers?.find(
+													(q: any) => q.label === questionLabel
+												)
+
+											// Get count and percentage for this specific answer
+											const answerData =
+												recordQuestion?.count_percentage?.[answer]
+											const count = answerData?.count || 0
+											const percentage = answerData?.percentage || 0
+
+											return (
+												<TableCell
+													key={`${questionLabel}-${answer}`}
+													className={`whitespace-nowrap border-r bg-yellow-50/30 p-2 text-center`}
+												>
+													<div className='flex flex-row items-center justify-start gap-2'>
+														<span className='basis-1/2 items-center justify-center text-xs font-medium text-black'>
+															{count}
+														</span>
+														<span className='basis-1/2 items-center justify-center text-xs text-green-600'>
+															({percentage}%)
+														</span>
+													</div>
+												</TableCell>
+											)
+										})
 									})}
 
 									{zones.map((zoneName: any, zoneIndex: number) => {
@@ -565,18 +794,7 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 																key={`${zoneName}-${questionLabel}`}
 																className={`text-center ${shouldHaveBorder ? 'border-r' : ''} ${zoneColor.bg}/30 whitespace-nowrap`}
 															>
-																<Badge
-																	variant={
-																		getZoneAnswer(
-																			record.zones,
-																			zoneName,
-																			questionLabel
-																		) === 'DA'
-																			? 'default'
-																			: 'outline'
-																	}
-																	className='text-xs'
-																>
+																<Badge variant='outline' className='text-xs'>
 																	{getZoneAnswer(
 																		record.zones,
 																		zoneName,
@@ -596,6 +814,13 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 					</Table>
 				</div>
 			</div>
+			<CommentsModal
+				isOpen={commentOptions.isOpen}
+				tracking={commentOptions.tracking}
+				onOpenChange={() => {
+					setCommentOptions({ tracking: null, isOpen: false })
+				}}
+			/>
 		</div>
 	)
 }

@@ -1,87 +1,244 @@
-import * as ExcelJS from 'exceljs'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
 import { toast } from 'sonner'
 
 interface ExportData {
 	data: any[]
-	t: (key: string) => string
+	name: string
+	timespan?: {
+		data: Array<{
+			from: string
+			to: string
+			data: {
+				trackings: any[]
+			}
+		}>
+		interval: number
+		lasted: { formatted: string; seconds: number }
+		max: string
+		min: string
+	}
+	t: (key: string, other?: any) => string
 }
 
-export const exportToExcel = async ({ data, t }: ExportData) => {
-	if (!data || data.length === 0) {
+const colors = {
+	headerBg: 'E2E8F0', // slate-100
+	basicBg: 'F8FAFC', // slate-50
+	timeBg: 'FAF5FF', // purple-50
+	demographicsBg: 'EFF6FF', // blue-50
+	ageBg: 'F0FDF4', // green-50
+	questionsBg: 'FFFBEB', // yellow-50
+	zoneColors: [
+		'EFF6FF', // blue-50
+		'F0FDF4', // green-50
+		'FAF5FF', // purple-50
+		'FFF7ED', // orange-50
+		'EEF2FF', // indigo-50
+		'FDF2F8', // pink-50
+		'F0FDFA', // teal-50
+		'FFFBEB', // amber-50
+		'ECFEFF', // cyan-50
+	],
+}
+
+const formatDateTime = (dateString: string) => {
+	const date = new Date(dateString)
+	return `${date.toLocaleDateString('hr-HR')} ${date.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })}`
+}
+
+const getAgeGroupCount = (ageGroupsData: any[], ageLabel: string) => {
+	const ageGroup = ageGroupsData.find((age: any) => age.label === ageLabel)
+	return ageGroup ? ageGroup.count : 0
+}
+
+export const exportToExcel = async ({
+	data,
+	timespan,
+	t,
+	name,
+}: ExportData) => {
+	// Process data similar to React component
+	const tableData = (() => {
+		if (!timespan || !timespan.data || timespan.data.length === 0) {
+			return data
+		}
+
+		return timespan.data.flatMap((timespanItem: any) => {
+			const trackings = timespanItem.data.trackings
+			const fromDate = new Date(timespanItem.from)
+			const toDate = new Date(timespanItem.to)
+
+			// If trackings is empty, create placeholder row
+			if (!trackings || trackings.length === 0) {
+				return [
+					{
+						id_tracking: '-',
+						fromDate,
+						toDate,
+						lasted: { formatted: '-' },
+						started_at: timespanItem.from,
+						ended_at: timespanItem.to,
+						data: {
+							broj_ljudi: 0,
+							broj_muski: 0,
+							broj_muski_percentage: 0,
+							broj_zenski: 0,
+							broj_zenski_percentage: 0,
+							dobna_skupina: { data: [] },
+							questions_answers: [],
+						},
+						zones: [],
+						comments: [],
+						isEmpty: true,
+					},
+				]
+			}
+
+			return trackings.map((tracking: any) => ({
+				...tracking,
+				fromDate,
+				toDate,
+				isEmpty: false,
+			}))
+		})
+	})()
+
+	if (!tableData || tableData.length === 0) {
 		toast.info(t('Analytics.noData'))
 		return
 	}
 
-	const workbook = new ExcelJS.Workbook()
-	const worksheet = workbook.addWorksheet('Tracking Data Analysis')
+	// Helper functions - use original data for structure, not tableData
+	const getAgeGroups = () => {
+		if (data.length === 0) return []
+		const allAgeGroups = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.data?.dobna_skupina?.data) {
+				tracking.data.dobna_skupina.data.forEach((age: any) => {
+					if (age.label) {
+						allAgeGroups.add(age.label)
+					}
+				})
+			}
+		})
+		return Array.from(allAgeGroups)
+	}
 
-	// Helper functions
-	const getAgeGroups = () =>
-		data[0].data.dobna_skupina.data.map((age: any) => age.label)
-	const getMainQuestions = () =>
-		data[0].data.questions_answers.map((q: any) => q.label)
-	const getZones = () => data[0].zones.map((zone: any) => zone.name)
+	const getMainQuestions = () => {
+		if (data.length === 0) return []
+		const allQuestions = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.data?.questions_answers) {
+				tracking.data.questions_answers.forEach((q: any) => {
+					if (q.label) {
+						allQuestions.add(q.label)
+					}
+				})
+			}
+		})
+		return Array.from(allQuestions)
+	}
+
+	const getZones = () => {
+		if (data.length === 0) return []
+		const allZones = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.zones) {
+				tracking.zones.forEach((zone: any) => {
+					if (zone.name) {
+						allZones.add(zone.name)
+					}
+				})
+			}
+		})
+		return Array.from(allZones)
+	}
+
 	const getZoneQuestions = (zoneName: string) => {
-		const zone = data[0].zones.find((z: any) => z.name === zoneName)
-		return zone ? zone.questions_answers.map((q: any) => q.label) : []
+		if (data.length === 0) return []
+		const allZoneQuestions = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.zones) {
+				const zone = tracking.zones.find((z: any) => z.name === zoneName)
+				if (zone?.questions_answers) {
+					zone.questions_answers.forEach((q: any) => {
+						if (q.label) {
+							allZoneQuestions.add(q.label)
+						}
+					})
+				}
+			}
+		})
+		return Array.from(allZoneQuestions)
 	}
 
 	const ageGroups = getAgeGroups()
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
 
-	// Calculate column spans
-	const basicInfoCols = 1
-	const timeCols = 3
-	const demographicsCols = 5
-	const ageGroupsCols = ageGroups.length
-	const questionsCols = mainQuestions.length
-	const totalZoneCols = zones.reduce((total: number, zoneName: any) => {
-		return total + 1 + getZoneQuestions(zoneName).length
+	const questionsCols = mainQuestions.reduce(
+		(total: number, questionLabel: string) => {
+			const sampleQuestion = data
+				.find((tracking) =>
+					tracking.data?.questions_answers?.find(
+						(q: any) => q.label === questionLabel
+					)
+				)
+				?.data?.questions_answers?.find((q: any) => q.label === questionLabel)
+
+			const possibleAnswers = sampleQuestion?.possible_answers
+				? Object.values(sampleQuestion.possible_answers)
+				: []
+			return total + possibleAnswers.length
+		},
+		0
+	)
+
+	const zoneQuestionsCols = zones.reduce((total: number, zoneName: string) => {
+		return total + getZoneQuestions(zoneName).length
 	}, 0)
 
-	const totalCols =
-		basicInfoCols +
-		timeCols +
-		demographicsCols +
-		ageGroupsCols +
-		questionsCols +
-		totalZoneCols
-
-	// Define colors
-	const colors = {
-		headerBg: 'E2E8F0', // slate-100
-		basicBg: 'F8FAFC', // slate-50
-		timeBg: 'FAF5FF', // purple-50
-		demographicsBg: 'EFF6FF', // blue-50
-		ageBg: 'F0FDF4', // green-50
-		questionsBg: 'FFFBEB', // yellow-50
-		zoneColors: [
-			'EFF6FF', // blue-50
-			'F0FDF4', // green-50
-			'FAF5FF', // purple-50
-			'FFF7ED', // orange-50
-			'EEF2FF', // indigo-50
-			'FDF2F8', // pink-50
-			'F0FDFA', // teal-50
-			'FFFBEB', // amber-50
-			'ECFEFF', // cyan-50
-		],
-	}
+	const workbook = new ExcelJS.Workbook()
+	const worksheet = workbook.addWorksheet(t('Analytics.analytics'))
 
 	// Row 1: Main headers
 	let currentCol = 1
 
-	// Basic header
-	worksheet.mergeCells(1, currentCol, 1, currentCol + basicInfoCols - 1)
-	const basicCell = worksheet.getCell(1, currentCol)
-	basicCell.value = t('Analytics.basic')
-	basicCell.style = {
+	// Add timespan header if exists
+	if (timespan) {
+		const timespanCell = worksheet.getCell(1, currentCol)
+		timespanCell.value = t('Analytics.timeRange')
+		timespanCell.style = {
+			font: { bold: true, color: { argb: '000000' } },
+			fill: {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: colors.headerBg },
+			},
+			alignment: { horizontal: 'center', vertical: 'middle' },
+			border: {
+				top: { style: 'thick' },
+				bottom: { style: 'thick' },
+				left: { style: 'thick' },
+				right: { style: 'thick' },
+			},
+		}
+		currentCol += 1
+	}
+
+	// Basic info (2 columns: ID, Comments)
+	const basicInfoCols = 2
+	if (basicInfoCols > 1) {
+		worksheet.mergeCells(1, currentCol, 1, currentCol + basicInfoCols - 1)
+	}
+	const basicInfo = worksheet.getCell(1, currentCol)
+	basicInfo.value = t('Analytics.basic')
+	basicInfo.style = {
 		font: { bold: true, color: { argb: '000000' } },
 		fill: {
 			type: 'pattern',
 			pattern: 'solid',
-			fgColor: { argb: colors.headerBg },
+			fgColor: { argb: colors.basicBg },
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
@@ -93,16 +250,19 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 	}
 	currentCol += basicInfoCols
 
-	// Time header
-	worksheet.mergeCells(1, currentCol, 1, currentCol + timeCols - 1)
-	const timeCell = worksheet.getCell(1, currentCol)
-	timeCell.value = t('Analytics.time')
-	timeCell.style = {
-		font: { bold: true, color: { argb: '000000' } },
+	// Time info (3 columns: Duration, Start, End)
+	const timeCols = 3
+	if (timeCols > 1) {
+		worksheet.mergeCells(1, currentCol, 1, currentCol + timeCols - 1)
+	}
+	const timeInfo = worksheet.getCell(1, currentCol)
+	timeInfo.value = t('Analytics.time')
+	timeInfo.style = {
+		font: { bold: true, color: { argb: '7C3AED' } }, // purple-600
 		fill: {
 			type: 'pattern',
 			pattern: 'solid',
-			fgColor: { argb: colors.headerBg },
+			fgColor: { argb: colors.timeBg },
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
@@ -114,16 +274,19 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 	}
 	currentCol += timeCols
 
-	// Demographics header
-	worksheet.mergeCells(1, currentCol, 1, currentCol + demographicsCols - 1)
-	const demoCell = worksheet.getCell(1, currentCol)
-	demoCell.value = t('Analytics.demographics')
-	demoCell.style = {
-		font: { bold: true, color: { argb: '000000' } },
+	// Demographics (5 columns: Total, Males, %, Females, %)
+	const demographicsCols = 5
+	if (demographicsCols > 1) {
+		worksheet.mergeCells(1, currentCol, 1, currentCol + demographicsCols - 1)
+	}
+	const demographics = worksheet.getCell(1, currentCol)
+	demographics.value = t('Analytics.demographics')
+	demographics.style = {
+		font: { bold: true, color: { argb: '2563EB' } }, // blue-600
 		fill: {
 			type: 'pattern',
 			pattern: 'solid',
-			fgColor: { argb: colors.headerBg },
+			fgColor: { argb: colors.demographicsBg },
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
@@ -135,16 +298,18 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 	}
 	currentCol += demographicsCols
 
-	// Age Groups header
-	worksheet.mergeCells(1, currentCol, 1, currentCol + ageGroupsCols - 1)
-	const ageCell = worksheet.getCell(1, currentCol)
-	ageCell.value = t('Analytics.years')
-	ageCell.style = {
-		font: { bold: true, color: { argb: '000000' } },
+	// Age groups
+	if (ageGroups.length > 1) {
+		worksheet.mergeCells(1, currentCol, 1, currentCol + ageGroups.length - 1)
+	}
+	const ageGroupsHeader = worksheet.getCell(1, currentCol)
+	ageGroupsHeader.value = t('Analytics.years')
+	ageGroupsHeader.style = {
+		font: { bold: true, color: { argb: '16A34A' } }, // green-600
 		fill: {
 			type: 'pattern',
 			pattern: 'solid',
-			fgColor: { argb: colors.headerBg },
+			fgColor: { argb: colors.ageBg },
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
@@ -154,18 +319,20 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 			right: { style: 'thick' },
 		},
 	}
-	currentCol += ageGroupsCols
+	currentCol += ageGroups.length
 
-	// Questions header
-	worksheet.mergeCells(1, currentCol, 1, currentCol + questionsCols - 1)
-	const questionsCell = worksheet.getCell(1, currentCol)
-	questionsCell.value = t('Analytics.tabs.questions')
-	questionsCell.style = {
-		font: { bold: true, color: { argb: '000000' } },
+	// Questions
+	if (questionsCols > 1) {
+		worksheet.mergeCells(1, currentCol, 1, currentCol + questionsCols - 1)
+	}
+	const questionsHeader = worksheet.getCell(1, currentCol)
+	questionsHeader.value = t('Analytics.tabs.questions')
+	questionsHeader.style = {
+		font: { bold: true, color: { argb: 'D97706' } }, // yellow-600
 		fill: {
 			type: 'pattern',
 			pattern: 'solid',
-			fgColor: { argb: colors.headerBg },
+			fgColor: { argb: colors.questionsBg },
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
@@ -177,40 +344,18 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 	}
 	currentCol += questionsCols
 
-	// Zones header
-	worksheet.mergeCells(1, currentCol, 1, currentCol + totalZoneCols - 1)
-	const zonesCell = worksheet.getCell(1, currentCol)
-	zonesCell.value = t('Analytics.tabs.zones')
-	zonesCell.style = {
-		font: { bold: true, color: { argb: '000000' } },
-		fill: {
-			type: 'pattern',
-			pattern: 'solid',
-			fgColor: { argb: colors.headerBg },
-		},
-		alignment: { horizontal: 'center', vertical: 'middle' },
-		border: {
-			top: { style: 'thick' },
-			bottom: { style: 'thick' },
-			left: { style: 'thick' },
-			right: { style: 'thick' },
-		},
-	}
+	// Zones
+	zones.forEach((zoneName: string, index: number) => {
+		const zoneQuestions = getZoneQuestions(zoneName)
+		const zoneColSpan = zoneQuestions.length + 1 // +1 for duration column
 
-	// Row 2: Zone sub-headers
-	currentCol =
-		basicInfoCols +
-		timeCols +
-		demographicsCols +
-		ageGroupsCols +
-		questionsCols +
-		1
-	zones.forEach((zoneName: any, index: number) => {
-		const zoneQuestionCount = getZoneQuestions(zoneName).length
-		worksheet.mergeCells(2, currentCol, 2, currentCol + zoneQuestionCount)
-		const zoneCell = worksheet.getCell(2, currentCol)
-		zoneCell.value = zoneName
-		zoneCell.style = {
+		if (zoneColSpan > 1) {
+			worksheet.mergeCells(1, currentCol, 1, currentCol + zoneColSpan - 1)
+		}
+
+		const zoneHeader = worksheet.getCell(1, currentCol)
+		zoneHeader.value = zoneName
+		zoneHeader.style = {
 			font: { bold: true, color: { argb: 'EA580C' } }, // orange-600
 			fill: {
 				type: 'pattern',
@@ -219,18 +364,25 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 			},
 			alignment: { horizontal: 'center', vertical: 'middle' },
 			border: {
-				top: { style: 'medium' },
-				bottom: { style: 'medium' },
-				left: { style: 'medium' },
-				right: { style: 'medium' },
+				top: { style: 'thick' },
+				bottom: { style: 'thick' },
+				left: { style: 'thick' },
+				right: { style: 'thick' },
 			},
 		}
-		currentCol += 1 + zoneQuestionCount
+		currentCol += zoneColSpan
 	})
 
-	// Row 3: Column headers
-	const headers = [
+	// Row 2: Sub headers
+	const headers = []
+
+	if (timespan) {
+		headers.push(t('Analytics.timeRange'))
+	}
+
+	headers.push(
 		'ID',
+		t('Analytics.comments'),
 		t('Analytics.duration'),
 		t('Analytics.start'),
 		t('Analytics.end'),
@@ -239,25 +391,47 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 		'%',
 		t('Analytics.females'),
 		'%',
-		...ageGroups,
-		...mainQuestions,
-	]
+		...ageGroups
+	)
 
-	// Add zone headers
-	zones.forEach((zoneName: any) => {
-		headers.push('Trajanje')
-		const zoneQuestions = getZoneQuestions(zoneName)
-		headers.push(...zoneQuestions)
+	// Add question headers with individual answer columns
+	mainQuestions.forEach((questionLabel: any) => {
+		const sampleQuestion = data
+			.find((tracking) =>
+				tracking.data?.questions_answers?.find(
+					(q: any) => q.label === questionLabel
+				)
+			)
+			?.data?.questions_answers?.find((q: any) => q.label === questionLabel)
+
+		const possibleAnswers = sampleQuestion?.possible_answers
+			? Object.values(sampleQuestion.possible_answers)
+			: []
+		possibleAnswers.forEach((answer: any) => {
+			headers.push(`${questionLabel}: ${answer}`)
+		})
 	})
 
-	// Set column headers
-	headers.forEach((header, index) => {
-		const cell = worksheet.getCell(3, index + 1)
-		cell.value = header
-		cell.style = {
-			font: { bold: true, size: 10 },
-			fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F1F5F9' } }, // slate-100
-			alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
+	zones.forEach((zoneName: string) => {
+		headers.push(`${zoneName}: ${t('Analytics.duration')}`) // Add duration column
+		const zoneQuestions = getZoneQuestions(zoneName)
+		zoneQuestions.forEach((question: any) => {
+			headers.push(`${zoneName}: ${question}`)
+		})
+	})
+
+	worksheet.addRow(headers)
+
+	// Row 3: Style headers
+	for (let i = 1; i <= headers.length; i++) {
+		worksheet.getCell(2, i).style = {
+			font: { bold: true, color: { argb: '000000' } },
+			fill: {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: colors.headerBg },
+			},
+			alignment: { horizontal: 'center', vertical: 'middle' },
 			border: {
 				top: { style: 'thin' },
 				bottom: { style: 'thin' },
@@ -265,72 +439,22 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 				right: { style: 'thin' },
 			},
 		}
-	})
-
-	// Helper functions for data extraction
-	const formatDateTime = (dateString: string) => {
-		try {
-			const date = new Date(dateString)
-			return (
-				date.toLocaleDateString('hr-HR') +
-				' ' +
-				date.toLocaleTimeString('hr-HR')
-			)
-		} catch {
-			return dateString
-		}
-	}
-
-	const getQuestionAnswerData = (questions: any[], questionLabel: string) => {
-		const question = questions.find((q: any) => q.label === questionLabel)
-		if (!question) return { answerRows: [] }
-
-		const possibleAnswers = question.possible_answers
-			? Object.values(question.possible_answers)
-			: []
-		const answerRows = possibleAnswers.map((answer: any) => {
-			const answerData =
-				question.count_percentage && question.count_percentage[answer]
-			return {
-				answer,
-				count: answerData ? answerData.count : 0,
-				percentage: answerData ? answerData.percentage : 0,
-			}
-		})
-		return { answerRows }
-	}
-
-	const getAgeGroupCount = (ageData: any[], ageLabel: string) => {
-		const ageGroup = ageData.find((age: any) => age.label === ageLabel)
-		return ageGroup ? ageGroup.count : 0
-	}
-
-	const getZoneAnswer = (
-		zones: any[],
-		zoneName: string,
-		questionLabel: string
-	) => {
-		const zone = zones.find((z: any) => z.name === zoneName)
-		if (!zone) return '-'
-		const question = zone.questions_answers.find(
-			(q: any) => q.label === questionLabel
-		)
-		return question ? question.answer || '-' : '-'
-	}
-
-	const getZoneDuration = (zones: any[], zoneName: string) => {
-		const zone = zones.find((z: any) => z.name === zoneName)
-		return zone ? zone.lasted.formatted : '-'
 	}
 
 	// Add data rows
-	data.forEach((record: any, recordIndex: number) => {
+	tableData.forEach((record: any, recordIndex: number) => {
 		const rowIndex = recordIndex + 4 // Start from row 4
-
 		let colIndex = 1
+
+		// Add timespan column if exists
+		if (timespan) {
+			const timespanValue = `${record.fromDate.toLocaleDateString('hr-HR')} ${record.fromDate.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })} - ${record.toDate.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })}`
+			worksheet.getCell(rowIndex, colIndex++).value = timespanValue
+		}
 
 		// Basic info
 		worksheet.getCell(rowIndex, colIndex++).value = record.id_tracking
+		worksheet.getCell(rowIndex, colIndex++).value = record.comments?.length || 0
 
 		// Time info
 		worksheet.getCell(rowIndex, colIndex++).value = record.lasted.formatted
@@ -358,37 +482,52 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 			)
 		})
 
-		// Main questions - simplified for Excel
+		// Questions - individual answer columns
 		mainQuestions.forEach((questionLabel: any) => {
-			const questionData = getQuestionAnswerData(
-				record.data.questions_answers,
-				questionLabel
-			)
-			const answers = questionData.answerRows
-				.filter((row) => row.count > 0)
-				.map((row) => `${row.answer}: ${row.count} (${row.percentage}%)`)
-				.join('; ')
-			worksheet.getCell(rowIndex, colIndex++).value = answers || '-'
-		})
-
-		// Zones
-		zones.forEach((zoneName: any) => {
-			worksheet.getCell(rowIndex, colIndex++).value = getZoneDuration(
-				record.zones,
-				zoneName
-			)
-			const zoneQuestions = getZoneQuestions(zoneName)
-			zoneQuestions.forEach((questionLabel: any) => {
-				worksheet.getCell(rowIndex, colIndex++).value = getZoneAnswer(
-					record.zones,
-					zoneName,
-					questionLabel
+			const sampleQuestion = data
+				.find((tracking) =>
+					tracking.data?.questions_answers?.find(
+						(q: any) => q.label === questionLabel
+					)
 				)
+				?.data?.questions_answers?.find((q: any) => q.label === questionLabel)
+
+			const possibleAnswers = sampleQuestion?.possible_answers
+				? Object.values(sampleQuestion.possible_answers)
+				: []
+
+			possibleAnswers.forEach((answer: any) => {
+				const recordQuestion = record.data.questions_answers?.find(
+					(q: any) => q.label === questionLabel
+				)
+				const answerData = recordQuestion?.count_percentage?.[answer]
+				const count = answerData?.count || 0
+				const percentage = answerData?.percentage || 0
+				worksheet.getCell(rowIndex, colIndex++).value =
+					`${count} (${percentage}%)`
 			})
 		})
 
-		// Style data rows
-		for (let col = 1; col <= totalCols; col++) {
+		// Zones
+		zones.forEach((zoneName: string) => {
+			// Add duration first
+			const zone = record.zones?.find((z: any) => z.name === zoneName)
+			const duration = zone?.lasted?.formatted || '-'
+			worksheet.getCell(rowIndex, colIndex++).value = duration
+
+			// Then add zone questions
+			const zoneQuestions = getZoneQuestions(zoneName)
+			zoneQuestions.forEach((questionLabel: string) => {
+				const question = zone?.questions_answers?.find(
+					(q: any) => q.label === questionLabel
+				)
+				const answer = question?.answer || '-'
+				worksheet.getCell(rowIndex, colIndex++).value = answer
+			})
+		})
+
+		// Style data rows with background colors
+		for (let col = 1; col <= headers.length; col++) {
 			const cell = worksheet.getCell(rowIndex, col)
 			cell.style = {
 				alignment: { horizontal: 'center', vertical: 'middle' },
@@ -400,58 +539,75 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 				},
 			}
 
-			// Apply background colors based on column
-			if (col <= basicInfoCols) {
+			// Apply background colors based on column position
+			let currentColCheck = 1
+
+			// Timespan column
+			if (timespan) {
+				if (col === currentColCheck) {
+					cell.style.fill = {
+						type: 'pattern',
+						pattern: 'solid',
+						fgColor: { argb: colors.headerBg },
+					}
+				}
+				currentColCheck += 1
+			}
+
+			// Basic info columns
+			if (col >= currentColCheck && col < currentColCheck + basicInfoCols) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.basicBg },
 				}
-			} else if (col <= basicInfoCols + timeCols) {
+			}
+			currentColCheck += basicInfoCols
+
+			// Time columns
+			if (col >= currentColCheck && col < currentColCheck + timeCols) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.timeBg },
 				}
-			} else if (col <= basicInfoCols + timeCols + demographicsCols) {
+			}
+			currentColCheck += timeCols
+
+			// Demographics columns
+			if (col >= currentColCheck && col < currentColCheck + demographicsCols) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.demographicsBg },
 				}
-			} else if (
-				col <=
-				basicInfoCols + timeCols + demographicsCols + ageGroupsCols
-			) {
+			}
+			currentColCheck += demographicsCols
+
+			// Age groups columns
+			if (col >= currentColCheck && col < currentColCheck + ageGroups.length) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.ageBg },
 				}
-			} else if (
-				col <=
-				basicInfoCols +
-					timeCols +
-					demographicsCols +
-					ageGroupsCols +
-					questionsCols
-			) {
+			}
+			currentColCheck += ageGroups.length
+
+			// Questions columns
+			if (col >= currentColCheck && col < currentColCheck + questionsCols) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.questionsBg },
 				}
-			} else {
-				// Zone colors
+			}
+			currentColCheck += questionsCols
+
+			// Zone columns
+			if (col >= currentColCheck) {
 				const zoneIndex = Math.floor(
-					(col -
-						basicInfoCols -
-						timeCols -
-						demographicsCols -
-						ageGroupsCols -
-						questionsCols -
-						1) /
-						2
+					(col - currentColCheck) / (zoneQuestionsCols / zones.length + 1)
 				)
 				cell.style.fill = {
 					type: 'pattern',
@@ -464,45 +620,19 @@ export const exportToExcel = async ({ data, t }: ExportData) => {
 		}
 	})
 
-	// Set column widths
-	const columnWidths = [
-		8, // ID
-		12, // Duration
-		18, // Start
-		18, // End
-		10, // Total People
-		8, // Males
-		5, // %
-		8, // Females
-		5, // %
-		...ageGroups.map(() => 8), // Age groups
-		...mainQuestions.map(() => 25), // Questions (wider for answers)
-	]
-
-	// Add zone column widths
-	zones.forEach(() => {
-		columnWidths.push(12) // Duration
-		const zoneQuestions = getZoneQuestions(zones[0]) // Use first zone as reference
-		zoneQuestions.forEach(() => columnWidths.push(15)) // Zone questions
+	worksheet.columns.forEach((column: any) => {
+		column.width = 15
 	})
-
-	columnWidths.forEach((width, index) => {
-		worksheet.getColumn(index + 1).width = width
-	})
-
-	// Set row heights
-	worksheet.getRow(1).height = 25
-	worksheet.getRow(2).height = 20
-	worksheet.getRow(3).height = 30
-
-	// Generate and download file
+	// Save the Excel file
 	const buffer = await workbook.xlsx.writeBuffer()
-	const blob = new Blob([buffer], {
-		type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-	})
-	const fileName = `tracking-data-analysis-${new Date().toISOString().split('T')[0]}.xlsx`
-
-	// Use default import for file-saver
-	const FileSaver = await import('file-saver')
-	FileSaver.default.saveAs(blob, fileName)
+	const fileType =
+		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+	const fileExtension = '.xlsx'
+	const blob = new Blob([buffer], { type: fileType })
+	saveAs(
+		blob,
+		t('Analytics.analyticsTitle', {
+			value: name,
+		}) + fileExtension
+	)
 }
