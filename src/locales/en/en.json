@@ -47,6 +47,7 @@
 		"foodConsumption": "Food Consumption",
 		"foodType": "Food Type",
 		"genderBalance": "Gender Balance",
+		"genderBreakdown": "Gender breakdown",
 		"genderDistribution": "Gender Distribution",
 		"genderDistributionDesc": "Equal distribution of males and females",
 		"group": "Group",
@@ -74,6 +75,8 @@
 		"start": "Start",
 		"summaryStats": "Summary Statistics",
 		"summaryStatsDesc": "Key performance indicators and insights",
+		"surveyOverview": "Zones overview",
+		"surveyQuestions": "Total questions",
 		"tabs": {
 			"general": "General",
 			"questions": "Questions and Answers",

@@ -14,9 +14,24 @@ import { formatDate } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar.tsx'
-import { Popover, PopoverContent, PopoverTrigger, } from '@/components/ui/popover'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select.tsx'
-import { Tabs, TabsContent, TabsList, TabsTrigger, } from '@/components/ui/tabs.tsx'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select.tsx'
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from '@/components/ui/tabs.tsx'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import GeneralData from '@/features/analytics/(components)/general-data.tsx'

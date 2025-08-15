@@ -6,26 +6,9 @@ import { Clock, MapPin, TrendingUp, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
-import {
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-} from '@/components/ui/chart'
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from '@/components/ui/card'
+import { ChartContainer, ChartTooltip, ChartTooltipContent, } from '@/components/ui/chart'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from '@/components/ui/table'
 
 interface TotalDataProps {
 	data: any
@@ -92,12 +75,38 @@ export default function TotalData({ data }: TotalDataProps) {
 						<TrendingUp className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{data.trackings.count}</div>
-						<p className='text-xs text-muted-foreground'>
-							{t('Analytics.avgPeoplePerTracking')}{' '}
-							{data.trackings.average_people.per_tracking.toFixed(1)}{' '}
-							{t('Analytics.peoplePerTracking')}
-						</p>
+						<div className='text-2xl font-bold'>
+							{data.trackings?.count || 0}
+						</div>
+						<div className='mt-2 space-y-2'>
+							<p className='text-xs text-muted-foreground'>
+								{t('Analytics.avgPeoplePerTracking')}{' '}
+								{data.trackings?.average_people?.per_tracking?.toFixed(1) ||
+									'0'}
+							</p>
+							<div className='grid grid-cols-2 gap-2 text-xs'>
+								<div className='rounded bg-blue-50 p-2'>
+									<span className='font-medium text-blue-700'>
+										{t('Analytics.males')}
+									</span>
+									<div className='font-semibold text-blue-900'>
+										{data.trackings?.average_people?.per_tracking_males?.toFixed(
+											3
+										) || '0'}
+									</div>
+								</div>
+								<div className='rounded bg-pink-50 p-2'>
+									<span className='font-medium text-pink-700'>
+										{t('Analytics.females')}
+									</span>
+									<div className='font-semibold text-pink-900'>
+										{data.trackings?.average_people?.per_tracking_females?.toFixed(
+											3
+										) || '0'}
+									</div>
+								</div>
+							</div>
+						</div>
 					</CardContent>
 				</Card>
 
@@ -112,10 +121,30 @@ export default function TotalData({ data }: TotalDataProps) {
 						<div className='text-2xl font-bold'>
 							{formatSeconds(data.trackings?.total_lasted)}
 						</div>
-						<p className='text-xs text-muted-foreground'>
-							{t('Analytics.avgPerPerson')}{' '}
-							{formatSeconds(data.trackings?.average_lasted.per_people)}
-						</p>
+						<div className='mt-2 space-y-2'>
+							<p className='text-xs text-muted-foreground'>
+								{t('Analytics.avgPerPerson')}{' '}
+								{formatSeconds(data.trackings?.average_lasted?.per_people)}
+							</p>
+							<div className='grid grid-cols-2 gap-2 text-xs'>
+								<div className='rounded bg-blue-50 p-2'>
+									<span className='font-medium text-blue-700'>
+										{t('Analytics.males')}
+									</span>
+									<div className='font-semibold text-blue-900'>
+										{formatSeconds(data.trackings?.average_lasted?.per_males)}
+									</div>
+								</div>
+								<div className='rounded bg-pink-50 p-2'>
+									<span className='font-medium text-pink-700'>
+										{t('Analytics.females')}
+									</span>
+									<div className='font-semibold text-pink-900'>
+										{formatSeconds(data.trackings?.average_lasted?.per_females)}
+									</div>
+								</div>
+							</div>
+						</div>
 					</CardContent>
 				</Card>
 
@@ -228,6 +257,104 @@ export default function TotalData({ data }: TotalDataProps) {
 							</TableBody>
 						</Table>
 					)}
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>{t('Analytics.trackingStatistics')}</CardTitle>
+					<CardDescription>
+						{t('Analytics.detailedTrackingBreakdown')}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
+						<div className='space-y-4'>
+							<h4 className='text-lg font-semibold text-gray-900'>
+								{t('Analytics.averagePeoplePerTracking')}
+							</h4>
+							<div className='space-y-3'>
+								<div className='rounded-lg bg-gray-50 p-3'>
+									<div className='flex items-center justify-between'>
+										<span className='text-sm font-medium text-gray-700'>
+											{t('Analytics.total')}
+										</span>
+										<span className='text-lg font-bold text-gray-900'>
+											{data.trackings?.average_people?.per_tracking?.toFixed(
+												2
+											) || '0'}
+										</span>
+									</div>
+								</div>
+								<div className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'>
+									<div className='flex items-center justify-between'>
+										<span className='text-sm font-medium text-blue-700'>
+											{t('Analytics.males')}
+										</span>
+										<span className='text-lg font-bold text-blue-900'>
+											{data.trackings?.average_people?.per_tracking_males?.toFixed(
+												2
+											) || '0'}
+										</span>
+									</div>
+								</div>
+								<div className='rounded-lg border-l-4 border-pink-500 bg-pink-50 p-3'>
+									<div className='flex items-center justify-between'>
+										<span className='text-sm font-medium text-pink-700'>
+											{t('Analytics.females')}
+										</span>
+										<span className='text-lg font-bold text-pink-900'>
+											{data.trackings?.average_people?.per_tracking_females?.toFixed(
+												2
+											) || '0'}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div className='space-y-4'>
+							<h4 className='text-lg font-semibold text-gray-900'>
+								{t('Analytics.averageDurationPerPerson')}
+							</h4>
+							<div className='space-y-3'>
+								<div className='rounded-lg bg-gray-50 p-3'>
+									<div className='flex items-center justify-between'>
+										<span className='text-sm font-medium text-gray-700'>
+											{t('Analytics.overall')}
+										</span>
+										<span className='text-lg font-bold text-gray-900'>
+											{formatSeconds(
+												data.trackings?.average_lasted?.per_people
+											)}
+										</span>
+									</div>
+								</div>
+								<div className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'>
+									<div className='flex items-center justify-between'>
+										<span className='text-sm font-medium text-blue-700'>
+											{t('Analytics.males')}
+										</span>
+										<span className='text-lg font-bold text-blue-900'>
+											{formatSeconds(data.trackings?.average_lasted?.per_males)}
+										</span>
+									</div>
+								</div>
+								<div className='rounded-lg border-l-4 border-pink-500 bg-pink-50 p-3'>
+									<div className='flex items-center justify-between'>
+										<span className='text-sm font-medium text-pink-700'>
+											{t('Analytics.females')}
+										</span>
+										<span className='text-lg font-bold text-pink-900'>
+											{formatSeconds(
+												data.trackings?.average_lasted?.per_females
+											)}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				</CardContent>
 			</Card>
 		</div>

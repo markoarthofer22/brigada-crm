@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
@@ -24,7 +26,10 @@ import {
 } from '@/components/ui/table'
 
 interface ZonesProps {
-	data: any
+	data: {
+		per_zone?: any[]
+		total?: any
+	}
 }
 
 export default function Zones({ data }: ZonesProps) {
@@ -40,6 +45,8 @@ export default function Zones({ data }: ZonesProps) {
 		}))
 	}
 
+	const pastedTextData = data?.total?.data
+
 	if (!data || !data.per_zone || data.per_zone.length === 0) {
 		return (
 			<div className='p-4 text-center'>
@@ -52,6 +59,125 @@ export default function Zones({ data }: ZonesProps) {
 
 	return (
 		<div className='mt-8 space-y-7'>
+			{pastedTextData && (
+				<Card className='border-2 border-primary bg-primary-foreground shadow-lg'>
+					<CardHeader>
+						<CardTitle className='text-2xl font-bold text-primary'>
+							{t('Analytics.surveyOverview')}
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+							<div className='grid grid-cols-2 gap-4'>
+								<div className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'>
+									<div className='text-4xl font-bold text-orange-600'>
+										{pastedTextData.broj_ljudi}
+									</div>
+									<div className='text-sm font-medium text-primary'>
+										{t('Analytics.totalPeople')}
+									</div>
+								</div>
+								<div className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'>
+									<div className='text-3xl font-bold text-green-600'>
+										{pastedTextData.questions_answers?.length || 0}
+									</div>
+									<div className='text-sm text-primary'>
+										{t('Analytics.surveyQuestions')}
+									</div>
+								</div>
+								<div className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'>
+									<div className='text-3xl font-bold text-primary'>
+										{pastedTextData.broj_muski}
+									</div>
+									<div className='text-sm text-primary'>
+										{t('Analytics.males')} (
+										{pastedTextData.percentage_muski.toFixed(1)}%)
+									</div>
+								</div>
+								<div className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'>
+									<div className='text-3xl font-bold text-pink-600'>
+										{pastedTextData.broj_zenski}
+									</div>
+									<div className='text-sm text-primary'>
+										{t('Analytics.females')} (
+										{pastedTextData.percentage_zenski.toFixed(1)}%)
+									</div>
+								</div>
+							</div>
+
+							<div className='rounded-lg border border-primary bg-white p-4 shadow-sm'>
+								<h4 className='mb-3 text-lg font-semibold text-blue-900'>
+									{t('Analytics.genderBreakdown')}
+								</h4>
+								<ChartContainer
+									config={{
+										males: { label: t('Analytics.males'), color: '#2563eb' },
+										females: {
+											label: t('Analytics.females'),
+											color: '#ec4899',
+										},
+									}}
+									className='h-[250px]'
+								>
+									<PieChart>
+										<Pie
+											data={[
+												{
+													name: t('Analytics.males'),
+													value: pastedTextData.broj_muski,
+													fill: '#2563eb',
+												},
+												{
+													name: t('Analytics.females'),
+													value: pastedTextData.broj_zenski,
+													fill: '#ec4899',
+												},
+											]}
+											cx='50%'
+											cy='50%'
+											outerRadius={80}
+											dataKey='value'
+											label={({ name, value, percent }) =>
+												`${name}: ${value} (${(percent * 100).toFixed(0)}%)`
+											}
+										/>
+										<ChartTooltip content={<ChartTooltipContent />} />
+									</PieChart>
+								</ChartContainer>
+							</div>
+						</div>
+
+						{pastedTextData.dobna_skupina && (
+							<div className='mt-6'>
+								<h4 className='mb-3 text-lg font-semibold text-primary'>
+									{t('Analytics.ageGroups')}
+								</h4>
+								<div className='grid grid-cols-2 gap-2 xl:grid-cols-6'>
+									{pastedTextData.dobna_skupina.data.map((ageGroup: any) => (
+										<div
+											key={ageGroup.label}
+											className='rounded-lg border border-destructive bg-white p-3 text-center shadow-sm'
+										>
+											<div className='text-lg font-bold text-destructive'>
+												{ageGroup.count}
+											</div>
+											<div className='flex items-center justify-center gap-2'>
+												<div className='text-sm font-medium text-primary'>
+													{ageGroup.label}
+												</div>
+												<div className='text-sm text-primary'>
+													({ageGroup.percentage}%)
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+					</CardContent>
+				</Card>
+			)}
+
 			<Card>
 				<CardHeader>
 					<CardTitle>{t('Analytics.zoneActivityOverview')}</CardTitle>
@@ -85,7 +211,6 @@ export default function Zones({ data }: ZonesProps) {
 				</CardContent>
 			</Card>
 
-			{/* Individual Zone Details */}
 			{data.per_zone.map((zone: any) => (
 				<Card key={zone.id_zones}>
 					<CardHeader className='flex flex-row items-center justify-between'>
@@ -185,7 +310,7 @@ export default function Zones({ data }: ZonesProps) {
 									<TableRow>
 										<TableCell>{t('Analytics.avgPerPerson')}</TableCell>
 										<TableCell>
-											{parseFloat(
+											{Number.parseFloat(
 												zone.lasted.average.by_number_of_people_seconds
 											)?.toFixed(2)}{' '}
 											{t('Analytics.seconds')}

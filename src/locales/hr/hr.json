@@ -47,6 +47,7 @@
 		"foodConsumption": "Konzumiranje Hrane",
 		"foodType": "Vrsta Hrane",
 		"genderBalance": "Ravnoteža Spola",
+		"genderBreakdown": "Pregled po spolovima",
 		"genderDistribution": "Distribucija Spola",
 		"genderDistributionDesc": "Jednaka distribucija muškaraca i žena",
 		"group": "Društvo",
@@ -74,6 +75,8 @@
 		"start": "Početak",
 		"summaryStats": "Sažetak Statistika",
 		"summaryStatsDesc": "Ključni pokazatelji performansi i uvidi",
+		"surveyOverview": "Pregled zona",
+		"surveyQuestions": "Ukupno pitanja",
 		"tabs": {
 			"general": "General",
 			"questions": "Pitanja i odgovori",
