@@ -332,32 +332,46 @@ class Analytics
 		return $dobna_skupina;
 	}
 
-	public function PrepareQuestionsAnswersData(array $trackings): array
+	public function PrepareQuestionsAnswersDataSingleTracking(array $item): array
 	{
 		$labelCounts = [];
-		foreach ($trackings as &$item) {
-			// if (is_object($item["data"])) {
-			// 	echo "<pre>";
-			// 	print_R($item);
-			// 	exit;
-			// }
-			if ($item["data"]["questions_answers_raw"]) {
-				foreach ($item["data"]["questions_answers_raw"] as $qa) {
-					$label = $qa["label"] ?? null;
-					$answer = $qa["answer"] ?? null;
-					$possible_answers = $qa["possible_answers"] ?? [];
+		if ($item["data"]["questions_answers_raw"]) {
+			$broj_ljudi = $item["data"]["broj_ljudi"] ?? 0;
+			$broj_muski = $item["data"]["broj_muski"] ?? 0;
+			$broj_zenski = $item["data"]["broj_zenski"] ?? 0;
 
-					if ($label && $answer) {
-						if (!isset($labelCounts[$label])) {
-							$labelCounts[$label] = [];
-							$labelCounts[$label]["possible_answers"] = $possible_answers;
+			foreach ($item["data"]["questions_answers_raw"] as $qa) {
+				$label = $qa["label"] ?? null;
+				$answer = $qa["answer"] ?? null;
+				$possible_answers = $qa["possible_answers"] ?? [];
+
+				if ($label && $answer) {
+					if (!isset($labelCounts[$label])) {
+						$labelCounts[$label] = [];
+						$labelCounts[$label]["possible_answers"] = $possible_answers;
+					}
+
+					$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
+					$labelCounts[$label]["for_question"]["people"]["broj_muski"] += $broj_muski;
+					$labelCounts[$label]["for_question"]["people"]["broj_zenski"] += $broj_zenski;
+
+					foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
+						$labelCounts[$label]["for_question"]["dobna_skupina"][$ds] += $v;
+					}
+
+					$answers = array_map('trim', explode(',', $answer));
+					foreach ($answers as $singleAnswer) {
+						if (!isset($labelCounts[$label]["answers"][$singleAnswer])) {
+							$labelCounts[$label]["answers"][$singleAnswer] = 0;
 						}
-						$answers = array_map('trim', explode(',', $answer));
-						foreach ($answers as $singleAnswer) {
-							if (!isset($labelCounts[$label][$singleAnswer])) {
-								$labelCounts[$label][$singleAnswer] = 0;
-							}
-							$labelCounts[$label][$singleAnswer]++;
+						$labelCounts[$label]["answers"][$singleAnswer]++;
+
+						$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_ljudi"] += $broj_ljudi;
+						$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_muski"] += $broj_muski;
+						$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_zenski"] += $broj_zenski;
+
+						foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
+							$labelCounts[$label]["for_answers"]["dobna_skupina"][$singleAnswer][$ds] += $v;
 						}
 					}
 				}
@@ -371,19 +385,224 @@ class Analytics
 		$questions_answers = [];
 		$possible_answers = [];
 		foreach ($labelCounts as $label => $data) {
-			$totalCount = array_sum($data);
+			// print_r($data);
+			// exit;
+			$totalCountAnswers = array_sum($data["answers"]);
+			$totalDobnaSkupinaQuestion = array_sum($data["for_question"]["dobna_skupina"]);
+			foreach ($data["for_answers"]["dobna_skupina"] as $key => $value) {
+				$totalDobnaSkupinaAnswers[$key] = array_sum($value);
+			}
+
 			$countWithPercentages = [];
+
+			// foreach ($data as $answer => $count) {
+			// 	print_r($answer);
+			// }
+
+			// echo $totalCountAnswers;
+			// echo "<br>";
+			// exit;
 
 			$possible_answers[$label] = $data["possible_answers"];
 			unset($data["possible_answers"]);
 
-			foreach ($data as $answer => $count) {
-				$percentage = $totalCount > 0 ? round(($count / $totalCount) * 100, 2) : 0;
+			foreach ($data["answers"] as $answer => $count) {
+				$percentage = $totalCountAnswers > 0 ? round(($count / $totalCountAnswers) * 100, 2) : 0;
 				$countWithPercentages[$answer] = [
 					'count' => $count,
 					'percentage' => $percentage,
 				];
 			}
+
+			// echo "<pre>";
+			// print_r($data);
+			// print_r($totalDobnaSkupinaAnswers);
+			// exit;
+
+			$temp = array();
+			$temp = array(
+				array("label" => "broj_ljudi", "count" => $data["for_question"]["people"]["broj_ljudi"], "percentage" => 100),
+				array("label" => "broj_muski", "count" => $data["for_question"]["people"]["broj_muski"], "percentage" => $data["for_question"]["people"]["broj_muski"] > 0 ? round(($data["for_question"]["people"]["broj_muski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0),
+				array("label" => "broj_zenski", "count" => $data["for_question"]["people"]["broj_zenski"], "percentage" => $data["for_question"]["people"]["broj_zenski"] > 0 ? round(($data["for_question"]["people"]["broj_zenski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0)
+			);
+			$data["for_question"]["people"] = $temp;
+
+			$temp = array();
+			foreach ($item["data"]["dobna_skupina"]["possible_answers"] as $ds => $v) {
+				$temp[] = array("label" => $v, "count" => $data["for_question"]["dobna_skupina"][$v] ?? 0, "percentage" => $totalDobnaSkupinaQuestion > 0 ? round(($data["for_question"]["dobna_skupina"][$v] / $totalDobnaSkupinaQuestion) * 100, 2) : 0);
+			}
+			$data["for_question"]["dobna_skupina"] = $temp;
+
+			$temp = array();
+			foreach ($data["for_answers"]["people"] as $key => $it) {
+				$temp[] = array("label" => $key, "people" =>  array(
+					array("label" => "broj_ljudi", "count" => $it["broj_ljudi"], "percentage" => 100),
+					array("label" => "broj_muski", "count" => $it["broj_muski"], "percentage" => $it["broj_muski"] > 0 ? round(($it["broj_muski"] / $it["broj_ljudi"]) * 100, 2) : 0),
+					array("label" => "broj_zenski", "count" => $it["broj_zenski"], "percentage" => $it["broj_zenski"] > 0 ? round(($it["broj_zenski"] / $it["broj_ljudi"]) * 100, 2) : 0)
+				));
+			}
+			$data["for_answers"]["people"] = $temp;
+
+			$temp = array();
+			foreach ($data["for_answers"]["dobna_skupina"] as $key => $it) {
+				$t[$key] = array("label" => $key);
+				foreach ($item["data"]["dobna_skupina"]["possible_answers"] as $ds => $v) {
+					$count = $it[$v] ?? 0;
+					$t[$key]["dobna_skupina"][] = array("label" => $v, "count" => $count, "percentage" => $totalDobnaSkupinaAnswers[$key] > 0 ? round(($count / $totalDobnaSkupinaAnswers[$key]) * 100, 2) : 0);
+				}
+				$temp[] = $t[$key];
+			}
+			$data["for_answers"]["dobna_skupina"] = $temp;
+
+			$questions_answers[] = [
+				"label" => $label,
+				"possible_answers" => $possible_answers[$label],
+				"count" => $data,
+				"count_percentage" => $countWithPercentages
+			];
+
+			// echo "<pre>";
+			// print_r($questions_answers);
+			// exit;
+		}
+
+		// echo "<pre>";
+		// print_r($questions_answers);
+		// exit;
+
+		return $questions_answers;
+	}
+
+	// public function PrepareQuestionsAnswersDataDobnaSkupina(array $trackings): array
+	// {
+
+	// 	$people["male"] = 0;
+	// 	$people["female"] = 0;
+	// 	foreach ($trackings as &$item) {
+	// 	}
+	// 	return $trackings[0];
+	// 	return array();
+	// }
+
+
+	public function PrepareQuestionsAnswersData(array $trackings): array
+	{
+		$labelCounts = [];
+		foreach ($trackings as &$item) {
+			// if (is_object($item["data"])) {
+			// 	echo "<pre>";
+			// 	print_R($item);
+			// 	exit;
+			// }
+			if ($item["data"]["questions_answers_raw"]) {
+				$broj_ljudi = $item["data"]["broj_ljudi"] ?? 0;
+				$broj_muski = $item["data"]["broj_muski"] ?? 0;
+				$broj_zenski = $item["data"]["broj_zenski"] ?? 0;
+
+				foreach ($item["data"]["questions_answers_raw"] as $qa) {
+					$label = $qa["label"] ?? null;
+					$answer = $qa["answer"] ?? null;
+					$possible_answers = $qa["possible_answers"] ?? [];
+
+					if ($label && $answer) {
+						if (!isset($labelCounts[$label])) {
+							$labelCounts[$label] = [];
+							$labelCounts[$label]["possible_answers"] = $possible_answers;
+						}
+
+						$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
+						$labelCounts[$label]["for_question"]["people"]["broj_muski"] += $broj_muski;
+						$labelCounts[$label]["for_question"]["people"]["broj_zenski"] += $broj_zenski;
+
+						foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
+							$labelCounts[$label]["for_question"]["dobna_skupina"][$ds] += $v;
+						}
+
+						$answers = array_map('trim', explode(',', $answer));
+						foreach ($answers as $singleAnswer) {
+							if (!isset($labelCounts[$label]["answers"][$singleAnswer])) {
+								$labelCounts[$label]["answers"][$singleAnswer] = 0;
+							}
+							$labelCounts[$label]["answers"][$singleAnswer]++;
+
+
+							$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_ljudi"] += $broj_ljudi;
+							$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_muski"] += $broj_muski;
+							$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_zenski"] += $broj_zenski;
+
+							foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
+								$labelCounts[$label]["for_answers"]["dobna_skupina"][$singleAnswer][$ds] += $v;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// echo "<pre>";
+		// print_r($labelCounts);
+		// exit;
+
+		$questions_answers = [];
+		$possible_answers = [];
+		foreach ($labelCounts as $label => $data) {
+			$totalCountAnswers = array_sum($data["answers"]);
+			$totalDobnaSkupinaQuestion = array_sum($data["for_question"]["dobna_skupina"]);
+			foreach ($data["for_answers"]["dobna_skupina"] as $key => $value) {
+				$totalDobnaSkupinaAnswers[$key] = array_sum($value);
+			}
+
+			$countWithPercentages = [];
+
+			$possible_answers[$label] = $data["possible_answers"];
+			unset($data["possible_answers"]);
+
+			foreach ($data["answers"] as $answer => $count) {
+				$percentage = $totalCountAnswers > 0 ? round(($count / $totalCountAnswers) * 100, 2) : 0;
+				$countWithPercentages[$answer] = [
+					'count' => $count,
+					'percentage' => $percentage,
+				];
+			}
+
+			// print_r($data["for_question"]["people"]);
+			$temp = array(
+				array("label" => "broj_ljudi", "count" => $data["for_question"]["people"]["broj_ljudi"], "percentage" => 100),
+				array("label" => "broj_muski", "count" => $data["for_question"]["people"]["broj_muski"], "percentage" => $data["for_question"]["people"]["broj_muski"] > 0 ? round(($data["for_question"]["people"]["broj_muski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0),
+				array("label" => "broj_zenski", "count" => $data["for_question"]["people"]["broj_zenski"], "percentage" => $data["for_question"]["people"]["broj_zenski"] > 0 ? round(($data["for_question"]["people"]["broj_zenski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0)
+			);
+			$data["for_question"]["people"] = $temp;
+
+			$temp = array();
+
+			// print_r($data["for_question"]["dobna_skupina"]);
+			foreach ($item["data"]["dobna_skupina"]["possible_answers"] as $ds => $v) {
+				$temp[] = array("label" => $v, "count" => $data["for_question"]["dobna_skupina"][$v] ?? 0, "percentage" => $totalDobnaSkupinaQuestion > 0 ? round(($data["for_question"]["dobna_skupina"][$v] / $totalDobnaSkupinaQuestion) * 100, 2) : 0);
+			}
+			// print_r($temp);
+			$data["for_question"]["dobna_skupina"] = $temp;
+
+			$temp = array();
+			foreach ($data["for_answers"]["people"] as $key => $it) {
+				$temp[] = array("label" => $key, "people" =>  array(
+					array("label" => "broj_ljudi", "count" => $it["broj_ljudi"], "percentage" => 100),
+					array("label" => "broj_muski", "count" => $it["broj_muski"], "percentage" => $it["broj_muski"] > 0 ? round(($it["broj_muski"] / $it["broj_ljudi"]) * 100, 2) : 0),
+					array("label" => "broj_zenski", "count" => $it["broj_zenski"], "percentage" => $it["broj_zenski"] > 0 ? round(($it["broj_zenski"] / $it["broj_ljudi"]) * 100, 2) : 0)
+				));
+			}
+			$data["for_answers"]["people"] = $temp;
+
+			$temp = array();
+			foreach ($data["for_answers"]["dobna_skupina"] as $key => $it) {
+				$t = array();
+				$t[$key] = array("label" => $key);
+				foreach ($item["data"]["dobna_skupina"]["possible_answers"] as $ds => $v) {
+					$count = $it[$v] ?? 0;
+					$t[$key]["dobna_skupina"][] = array("label" => $v, "count" => $count, "percentage" => $totalDobnaSkupinaAnswers[$key] > 0 ? round(($count / $totalDobnaSkupinaAnswers[$key]) * 100, 2) : 0);
+				}
+				$temp[] = $t[$key];
+			}
+			$data["for_answers"]["dobna_skupina"] = $temp;
 
 			$questions_answers[] = [
 				"label" => $label,
@@ -392,6 +611,11 @@ class Analytics
 				"count_percentage" => $countWithPercentages
 			];
 		}
+
+		// echo "<pre>";
+		// // print_r($data);
+		// print_r($questions_answers);
+		// exit;
 
 		return $questions_answers;
 	}
