@@ -62,11 +62,11 @@ export default function TotalData({ data }: TotalDataProps) {
 		if (!sec || sec <= 0) return '-'
 
 		const duration = intervalToDuration({ start: 0, end: sec * 1000 })
-		const { hours, minutes } = duration
+		const { hours, minutes, seconds } = duration
 
 		if (hours && minutes) return `${hours}h ${minutes} min`
 		if (hours && !minutes) return `${hours}h`
-		return `${minutes} min`
+		return `${minutes} min ${seconds} sec`
 	}
 
 	const prepareAnswersChartData = (countPercentage: any) => {
