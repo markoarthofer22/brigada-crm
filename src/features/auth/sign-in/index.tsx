@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Trans, useTranslation } from 'react-i18next'
+import EuLogo from '@/assets/eu-logo.png'
 import LoginBg from '@/assets/loginBg.svg'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
@@ -52,6 +53,11 @@ export default function SignIn() {
 							</p>
 						</div>
 						<UserAuthForm />
+						<img
+							alt='Financirano sredstvima iz Europske unije'
+							className='mx-auto !mt-6 w-full max-w-[300px]'
+							src={EuLogo}
+						/>
 					</div>
 				</div>
 			</div>
