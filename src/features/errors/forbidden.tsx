@@ -1,11 +1,18 @@
+import { useEffect } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { useLoader } from '@/context/loader-provider.tsx'
 import { Button } from '@/components/ui/button'
 
 export default function ForbiddenError() {
 	const navigate = useNavigate()
 	const { history } = useRouter()
 	const { t } = useTranslation()
+	const { hideLoader } = useLoader()
+
+	useEffect(() => {
+		hideLoader()
+	}, [])
 
 	return (
 		<div className='h-svh'>

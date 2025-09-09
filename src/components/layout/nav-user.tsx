@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { BadgeCheck, ChevronsUpDown, LogOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -29,6 +29,7 @@ export function NavUser() {
 	const { isMobile } = useSidebar()
 	const user = useAuthStore((state) => state.auth.user)
 	const resetState = useAuthStore((state) => state.auth.reset)
+	const queryClient = useQueryClient()
 	const router = useRouter()
 	const { handleError } = useHandleGenericError()
 	const { showLoader, hideLoader } = useLoader()
@@ -40,6 +41,7 @@ export function NavUser() {
 		},
 		onSuccess: () => {
 			resetState()
+			queryClient.clear()
 			router.navigate({
 				to: '/sign-in',
 				replace: true,
@@ -49,6 +51,9 @@ export function NavUser() {
 		},
 		onError: (error: unknown) => {
 			handleError(error)
+			hideLoader()
+		},
+		onSettled: () => {
 			hideLoader()
 		},
 	})

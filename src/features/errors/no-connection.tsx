@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { IconWorldOff } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { useMiscellaneousStore } from '@/stores/miscStore.ts'
+import { useLoader } from '@/context/loader-provider.tsx'
 import { Button } from '@/components/ui/button'
 
 export default function NotFoundError() {
@@ -9,6 +11,12 @@ export default function NotFoundError() {
 	const { history } = useRouter()
 	const { t } = useTranslation()
 	const isOnline = useMiscellaneousStore((store) => store.isOnline)
+
+	const { hideLoader } = useLoader()
+
+	useEffect(() => {
+		hideLoader()
+	}, [])
 
 	return (
 		<div className='h-svh'>

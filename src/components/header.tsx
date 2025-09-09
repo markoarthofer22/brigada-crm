@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { IconShare2 } from '@tabler/icons-react'
 import { Globe, Laptop, LogOut, Moon, Sun, User } from 'lucide-react'
@@ -38,6 +38,7 @@ export function Header({
 	const setLanguage = useAuthStore((state) => state.auth.setLang)
 	const user = useAuthStore((state) => state.auth.user)
 	const resetState = useAuthStore((state) => state.auth.reset)
+	const queryClient = useQueryClient()
 	const router = useRouter()
 	const { showLoader, hideLoader } = useLoader()
 	const { handleError } = useHandleGenericError()
@@ -60,6 +61,7 @@ export function Header({
 		},
 		onSuccess: () => {
 			resetState()
+			queryClient.clear()
 			router.navigate({
 				to: '/sign-in',
 				replace: true,
@@ -69,6 +71,9 @@ export function Header({
 		},
 		onError: (error: unknown) => {
 			handleError(error)
+			hideLoader()
+		},
+		onSettled: () => {
 			hideLoader()
 		},
 	})

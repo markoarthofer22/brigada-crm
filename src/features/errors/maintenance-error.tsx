@@ -1,7 +1,15 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLoader } from '@/context/loader-provider.tsx'
 
 export default function MaintenanceError() {
 	const { t } = useTranslation()
+
+	const { hideLoader } = useLoader()
+
+	useEffect(() => {
+		hideLoader()
+	}, [])
 
 	return (
 		<div className='h-svh'>

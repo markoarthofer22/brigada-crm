@@ -2,6 +2,8 @@ import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useLoader } from '@/context/loader-provider.tsx'
+import { useEffect } from 'react'
 
 interface GeneralErrorProps extends React.HTMLAttributes<HTMLDivElement> {
 	minimal?: boolean
@@ -14,6 +16,13 @@ export default function GeneralError({
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const { history } = useRouter()
+
+	const { hideLoader } = useLoader()
+
+	useEffect(() => {
+		hideLoader()
+	}, [])
+
 	return (
 		<div className={cn('h-svh w-full', className)}>
 			<div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
