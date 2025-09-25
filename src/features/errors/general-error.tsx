@@ -1,9 +1,9 @@
+import { useEffect } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { useLoader } from '@/context/loader-provider.tsx'
-import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 
 interface GeneralErrorProps extends React.HTMLAttributes<HTMLDivElement> {
 	minimal?: boolean

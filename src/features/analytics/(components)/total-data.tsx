@@ -66,7 +66,7 @@ export default function TotalData({ data }: TotalDataProps) {
 
 		if (hours && minutes) return `${hours}h ${minutes} min`
 		if (hours && !minutes) return `${hours}h`
-		return `${minutes} min ${seconds} sec`
+		return `${minutes ? `${minutes} min` : ''} ${seconds} sec`
 	}
 
 	const prepareAnswersChartData = (countPercentage: any) => {
