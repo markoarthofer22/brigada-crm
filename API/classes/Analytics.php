@@ -199,10 +199,11 @@ class Analytics
 		foreach ($results as &$result) {
 			if ($result && $result["coordinates"]) {
 				$result["coordinates"] = json_decode($result["coordinates"], true);
-				$result["center"] = $this->getPolygonCentroid($result["coordinates"]["points"]);
+				$result["heat"] = $this->getPolygonCentroid($result["coordinates"]["points"]);
+				unset($result["coordinates"]);
+				$result["heat"]["value"] = (float) $result["duration_seconds"];
 			}
-
-			$result["duration_seconds"] = (float) $result["duration_seconds"];
+			unset($result["duration_seconds"]);
 		}
 
 		return $results ?: [];
