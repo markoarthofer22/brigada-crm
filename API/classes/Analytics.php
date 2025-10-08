@@ -159,6 +159,55 @@ class Analytics
 		return $results ?: [];
 	}
 
+
+	/**
+	 * GetZonesForHeatMap function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function GetZonesForHeatMap(object $params): array
+	{
+
+		$_where = " WHERE 1=1 ";
+		if ($params->id_tracking) {
+			$_where .= " AND tz.id_tracking = {$params->id_tracking} ";
+		}
+
+		if ($params->id_projects) {
+			$_where .= " AND tz.id_projects = {$params->id_projects} ";
+		}
+
+		if ($params->from && $params->to) {
+			$params->from = date('Y-m-d H:i:s', strtotime($params->from));
+			$params->to = date('Y-m-d H:i:s', strtotime($params->to));
+			$_where .= " AND tz.started_at BETWEEN '{$params->from}' AND '{$params->to}' ";
+		}
+
+		if ($params->from && !$params->to) {
+			$params->from = date('Y-m-d H:i:s', strtotime($params->from));
+			$_where .= " AND tz.started_at >= '{$params->from}'";
+		}
+
+		$sql = "SELECT tz.*, z.name, EXTRACT(EPOCH FROM (tz.ended_at - tz.started_at)) AS duration_seconds, z.coordinates FROM {$_SESSION["SCHEMA"]}.tracking_zones tz LEFT JOIN {$_SESSION["SCHEMA"]}.zones z ON tz.id_zones = z.id_zones {$_where} ORDER BY tz.started_at ASC";
+		$stmt = $this->database->prepare($sql);
+
+		$stmt->execute();
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($results as &$result) {
+			if ($result && $result["coordinates"]) {
+				$result["coordinates"] = json_decode($result["coordinates"], true);
+				$result["center"] = $this->getPolygonCentroid($result["coordinates"]["points"]);
+			}
+
+			$result["duration_seconds"] = (float) $result["duration_seconds"];
+		}
+
+		return $results ?: [];
+	}
+
 	/**
 	 * GetAnswers function
 	 *
@@ -1105,5 +1154,32 @@ class Analytics
 
 
 		return $avgSecondsPerPerson;
+	}
+
+
+	public function getPolygonCentroid($points)
+	{
+		$signedArea = 0;
+		$cx = 0;
+		$cy = 0;
+		$count = count($points);
+
+		for ($i = 0; $i < $count; $i++) {
+			$x0 = $points[$i]['x'];
+			$y0 = $points[$i]['y'];
+			$x1 = $points[($i + 1) % $count]['x'];
+			$y1 = $points[($i + 1) % $count]['y'];
+
+			$a = $x0 * $y1 - $x1 * $y0;
+			$signedArea += $a;
+			$cx += ($x0 + $x1) * $a;
+			$cy += ($y0 + $y1) * $a;
+		}
+
+		$signedArea *= 0.5;
+		$cx = ($cx) / (6.0 * $signedArea);
+		$cy = ($cy) / (6.0 * $signedArea);
+
+		return ['x' => $cx, 'y' => $cy];
 	}
 }

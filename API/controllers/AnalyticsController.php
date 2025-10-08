@@ -323,6 +323,10 @@ class AnalyticsController extends BaseController
 		$result["total_data"]["dobna_skupina"] = $Analytics->PrepareDobnaSkupinaDataTotal($result["trackings"], $result_static_questions);
 		$result["total_data"]["zones"] = $Analytics->PrepareDataZones($result["trackings"]);
 
+
+		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
+
+
 		return $result;
 	}
 }
