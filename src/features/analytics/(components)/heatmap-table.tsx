@@ -2,13 +2,7 @@ import React, { useMemo } from 'react'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { cn, formatDate } from '@/lib/utils.ts'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select.tsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select.tsx'
 import LongText from '@/components/long-text.tsx'
 import { DataTableColumnHeader } from '@/components/table/data-table-column-header.tsx'
 import { GenericTable } from '@/components/table/generic-table.tsx'
@@ -38,6 +32,8 @@ const HeatmapTable = ({
 			name: t('Table.trackingName', { value: tracking.id_tracking }),
 		}))
 	}, [t, trackings])
+
+	// console.log("test")
 
 	const columns = useMemo(() => {
 		return [
