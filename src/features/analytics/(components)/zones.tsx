@@ -74,7 +74,7 @@ export default function Zones({ data }: ZonesProps) {
 										{pastedTextData.broj_ljudi}
 									</div>
 									<div className='text-sm font-medium text-primary'>
-										{t('Analytics.totalPeople')}
+										{t('Analytics.totalPeopleCount')}
 									</div>
 								</div>
 								<div className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'>
@@ -90,7 +90,7 @@ export default function Zones({ data }: ZonesProps) {
 										{pastedTextData.broj_muski}
 									</div>
 									<div className='text-sm text-primary'>
-										{t('Analytics.males')} (
+										{t('Analytics.malesCount')} (
 										{pastedTextData.percentage_muski.toFixed(1)}%)
 									</div>
 								</div>
@@ -99,7 +99,7 @@ export default function Zones({ data }: ZonesProps) {
 										{pastedTextData.broj_zenski}
 									</div>
 									<div className='text-sm text-primary'>
-										{t('Analytics.females')} (
+										{t('Analytics.femalesCount')} (
 										{pastedTextData.percentage_zenski.toFixed(1)}%)
 									</div>
 								</div>
@@ -234,7 +234,7 @@ export default function Zones({ data }: ZonesProps) {
 							<div className='text-center'>
 								<div className='text-2xl font-bold'>{zone.data.broj_ljudi}</div>
 								<div className='text-sm text-muted-foreground'>
-									{t('Analytics.totalPeople')}
+									{t('Analytics.totalPeopleCount')}
 								</div>
 							</div>
 							<div className='text-center'>

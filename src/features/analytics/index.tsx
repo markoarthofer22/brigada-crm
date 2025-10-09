@@ -376,19 +376,21 @@ export default function Analytics() {
 								</TabsTrigger>
 							</TabsList>
 
-							<Button
-								disabled={
-									!project ||
-									analyticsQuery.isLoading ||
-									!analyticsQuery.data ||
-									!analyticsQuery.data.trackings?.length
-								}
-								onClick={handleExportToExcel}
-								className='ml-auto flex items-center gap-2'
-							>
-								<Download size={16} />
-								{t('Analytics.exportToExcel')}
-							</Button>
+							{tabs === AnalyticsTabs.General && (
+								<Button
+									disabled={
+										!project ||
+										analyticsQuery.isLoading ||
+										!analyticsQuery.data ||
+										!analyticsQuery.data.trackings?.length
+									}
+									onClick={handleExportToExcel}
+									className='ml-auto flex items-center gap-2'
+								>
+									<Download size={16} />
+									{t('Analytics.exportToExcel')}
+								</Button>
+							)}
 						</div>
 						<TabsContent value={AnalyticsTabs.General}>
 							{project && (
