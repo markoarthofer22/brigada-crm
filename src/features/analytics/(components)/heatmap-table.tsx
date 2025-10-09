@@ -1,8 +1,22 @@
 import React, { useMemo } from 'react'
+import {
+	differenceInSeconds,
+	format,
+	isDate,
+	isValid,
+	parseISO,
+} from 'date-fns'
 import { createColumnHelper } from '@tanstack/react-table'
+import { hr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
-import { cn, formatDate } from '@/lib/utils.ts'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select.tsx'
+import { cn } from '@/lib/utils.ts'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select.tsx'
 import LongText from '@/components/long-text.tsx'
 import { DataTableColumnHeader } from '@/components/table/data-table-column-header.tsx'
 import { GenericTable } from '@/components/table/generic-table.tsx'
@@ -33,7 +47,39 @@ const HeatmapTable = ({
 		}))
 	}, [t, trackings])
 
-	// console.log("test")
+	const toDate = (v: unknown): Date | null => {
+		if (!v) return null
+		if (isDate(v)) return isValid(v) ? v : null
+		try {
+			const d = typeof v === 'string' ? parseISO(v) : (v as Date)
+			return isValid(d) ? d : null
+		} catch {
+			return null
+		}
+	}
+
+	const formatDuration = (start: unknown, end: unknown): string | null => {
+		const s = toDate(start)
+		const e = toDate(end)
+		if (!s || !e) return null
+
+		// use Math.ceil to avoid "0 sec" for 1-second difference
+		const totalSeconds = Math.ceil((e.getTime() - s.getTime()) / 1000)
+		if (totalSeconds < 0) return null
+
+		const hours = Math.floor(totalSeconds / 3600)
+		const minutes = Math.floor((totalSeconds % 3600) / 60)
+		const seconds = totalSeconds % 60
+
+		return `${hours} h ${minutes} min ${seconds} sec`
+	}
+
+	const diffValue = (start: unknown, end: unknown): number | null => {
+		const s = toDate(start)
+		const e = toDate(end)
+		if (!s || !e) return null
+		return differenceInSeconds(e, s) // for sorting
+	}
 
 	const columns = useMemo(() => {
 		return [
@@ -74,11 +120,7 @@ const HeatmapTable = ({
 				),
 				cell: ({ getValue }) => (
 					<div className='w-fit text-nowrap'>
-						{formatDate(getValue(), {
-							year: 'numeric',
-							month: '2-digit',
-							day: 'numeric',
-						})}
+						{format(getValue(), 'dd.MM.yyyy HH:mm:ss', { locale: hr })}
 					</div>
 				),
 				sortingFn: 'datetime',
@@ -93,14 +135,35 @@ const HeatmapTable = ({
 				),
 				cell: ({ getValue }) => (
 					<div className='w-fit text-nowrap'>
-						{formatDate(getValue(), {
-							year: 'numeric',
-							month: '2-digit',
-							day: 'numeric',
-						})}
+						{format(getValue(), 'dd.MM.yyyy HH:mm:ss', { locale: hr })}
 					</div>
 				),
 				sortingFn: 'datetime',
+			}),
+
+			columnHelper.accessor((row) => diffValue(row.started_at, row.ended_at), {
+				id: 'duration',
+				header: ({ column }) => (
+					<DataTableColumnHeader
+						column={column}
+						title='Table.header.duration'
+					/>
+				),
+				cell: ({ row }) => {
+					const value = formatDuration(
+						row.original.started_at,
+						row.original.ended_at
+					)
+					return <div className='w-fit text-nowrap'>{value ?? '—'}</div>
+				},
+				sortingFn: (rowA, rowB, columnId) => {
+					const a = rowA.getValue<number | null>(columnId)
+					const b = rowB.getValue<number | null>(columnId)
+					if (a == null && b == null) return 0
+					if (a == null) return 1
+					if (b == null) return -1
+					return a - b
+				},
 			}),
 			columnHelper.accessor('heat.value', {
 				header: ({ column }) => (
