@@ -9,6 +9,7 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
+	PaginationState,
 	RowData,
 	SortingState,
 	type Table as TableType,
@@ -38,8 +39,10 @@ declare module '@tanstack/react-table' {
 interface DataTableProps<T> {
 	columns: ColumnDef<T, any>[]
 	data: T[]
-	facetFilters?: (table: TableType<T>) => React.ReactNode
+	facetFilters?: React.ReactNode | ((table: TableType<T>) => React.ReactNode)
 	onRowClick?: (row: T) => void
+	perPage?: number
+	initialPageIndex?: number
 }
 
 export function GenericTable<T>({
@@ -47,9 +50,14 @@ export function GenericTable<T>({
 	data,
 	facetFilters,
 	onRowClick,
+	perPage = 10,
+	initialPageIndex = 0,
 }: DataTableProps<T>) {
 	const { t } = useTranslation()
-
+	const [pagination, setPagination] = useState<PaginationState>({
+		pageIndex: initialPageIndex,
+		pageSize: perPage,
+	})
 	const [rowSelection, setRowSelection] = useState({})
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -63,8 +71,10 @@ export function GenericTable<T>({
 			columnVisibility,
 			rowSelection,
 			columnFilters,
+			pagination,
 		},
 		enableRowSelection: true,
+		onPaginationChange: setPagination,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -80,7 +90,13 @@ export function GenericTable<T>({
 	return (
 		<div className='space-y-4'>
 			<DataTableToolbar
-				facetFilters={facetFilters ? facetFilters(table) : null}
+				facetFilters={
+					facetFilters
+						? typeof facetFilters === 'function'
+							? facetFilters(table)
+							: facetFilters
+						: null
+				}
 				table={table}
 			/>
 			<div className='rounded-md border'>

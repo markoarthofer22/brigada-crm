@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import { IconX } from '@tabler/icons-react'
@@ -36,6 +36,7 @@ import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import CommentsList from '@/features/analytics/(components)/comments-list.tsx'
 import GeneralData from '@/features/analytics/(components)/general-data.tsx'
+import HeatmapWrapper from '@/features/analytics/(components)/heatmap-wrapper.tsx'
 import QuestionsAndAnswers from '@/features/analytics/(components)/questions-and-answers.tsx'
 import TotalData from '@/features/analytics/(components)/total-data.tsx'
 import Zones from '@/features/analytics/(components)/zones.tsx'
@@ -48,6 +49,7 @@ enum AnalyticsTabs {
 	Questions = 'questions',
 	Zones = 'zones',
 	Comments = 'comments',
+	Heatmap = 'heatmap',
 }
 
 export default function Analytics() {
@@ -165,6 +167,23 @@ export default function Analytics() {
 			hideLoader()
 		}
 	}
+
+	const activeProject = useMemo(() => {
+		return projectsQuery.data?.find((p) => p.id_projects === project)
+	}, [projectsQuery.data, project])
+
+	const lastAddedFloorPlan = useMemo(() => {
+		if (!activeProject?.images?.length || !activeProject) return null
+
+		return {
+			url: `${activeProject?.path}/${activeProject?.images[activeProject.images.length - 1]?.name}`,
+			name: activeProject?.images[activeProject.images.length - 1]?.name,
+			width:
+				activeProject?.images[activeProject.images.length - 1]?.data?.width,
+			height:
+				activeProject?.images[activeProject.images.length - 1]?.data?.height,
+		}
+	}, [activeProject])
 
 	if (analyticsQuery.isLoading || projectsQuery.isLoading) {
 		return (
@@ -351,6 +370,10 @@ export default function Analytics() {
 								<TabsTrigger disabled={!project} value={AnalyticsTabs.Comments}>
 									{t('Analytics.tabs.comments')}
 								</TabsTrigger>
+
+								<TabsTrigger disabled={!project} value={AnalyticsTabs.Heatmap}>
+									{t('Analytics.tabs.heatmap')}
+								</TabsTrigger>
 							</TabsList>
 
 							<Button
@@ -394,6 +417,22 @@ export default function Analytics() {
 							{project && (
 								<CommentsList trackingItems={analyticsQuery?.data?.trackings} />
 							)}
+						</TabsContent>
+						<TabsContent value={AnalyticsTabs.Heatmap}>
+							{project &&
+								analyticsQuery?.data?.zones_heatmap &&
+								lastAddedFloorPlan && (
+									<HeatmapWrapper
+										trackings={analyticsQuery?.data?.trackings}
+										zones={activeProject!.zones}
+										heatmaps={analyticsQuery?.data?.zones_heatmap}
+										backgroundImage={lastAddedFloorPlan.url}
+										width={lastAddedFloorPlan.width}
+										height={lastAddedFloorPlan.height}
+										radius={150}
+										blur={0.85}
+									/>
+								)}
 						</TabsContent>
 					</Tabs>
 				</div>

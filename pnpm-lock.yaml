@@ -122,6 +122,9 @@ importers:
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
+      heatmap.js:
+        specifier: https://github.com/ionata/heatmap.js.git
+        version: https://codeload.github.com/ionata/heatmap.js/tar.gz/1452fc74fb3442f5f74b43394fddd06057fc387b
       i18next:
         specifier: ^24.2.3
         version: 24.2.3(typescript@5.7.3)
@@ -216,6 +219,9 @@ importers:
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
+      '@types/heatmap.js':
+        specifier: ^2.0.41
+        version: 2.0.41
       '@types/js-cookie':
         specifier: ^3.0.6
         version: 3.0.6
@@ -2303,6 +2309,12 @@ packages:
   '@types/fs-extra@11.0.4':
     resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
 
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
+  '@types/heatmap.js@2.0.41':
+    resolution: {integrity: sha512-3oHffxC+N+1EKXjeC65klk1kHnLJ5i6tEKFNb/04J+qSfQuCliacsNBWDpt59JfG2vBXRRn+ICbzRZj48j6HfQ==}
+
   '@types/js-cookie@3.0.6':
     resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
 
@@ -2311,6 +2323,9 @@ packages:
 
   '@types/jsonfile@6.1.4':
     resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
+
+  '@types/leaflet@0.7.40':
+    resolution: {integrity: sha512-R2UwXOKwnKZi9zNm37WbPTAVuqHmysE6NVihkc5DUrovTirUxFSbZzvXrlwv0n5sibe0w8VF1bWu0ta4kZlAaA==}
 
   '@types/node@14.18.63':
     resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
@@ -3309,6 +3324,10 @@ packages:
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
+
+  heatmap.js@https://codeload.github.com/ionata/heatmap.js/tar.gz/1452fc74fb3442f5f74b43394fddd06057fc387b:
+    resolution: {tarball: https://codeload.github.com/ionata/heatmap.js/tar.gz/1452fc74fb3442f5f74b43394fddd06057fc387b}
+    version: 2.0.5
 
   html-parse-stringify@3.0.1:
     resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
@@ -7128,6 +7147,12 @@ snapshots:
       '@types/jsonfile': 6.1.4
       '@types/node': 22.13.8
 
+  '@types/geojson@7946.0.16': {}
+
+  '@types/heatmap.js@2.0.41':
+    dependencies:
+      '@types/leaflet': 0.7.40
+
   '@types/js-cookie@3.0.6': {}
 
   '@types/json-schema@7.0.15': {}
@@ -7135,6 +7160,10 @@ snapshots:
   '@types/jsonfile@6.1.4':
     dependencies:
       '@types/node': 22.13.8
+
+  '@types/leaflet@0.7.40':
+    dependencies:
+      '@types/geojson': 7946.0.16
 
   '@types/node@14.18.63': {}
 
@@ -8282,6 +8311,8 @@ snapshots:
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
+
+  heatmap.js@https://codeload.github.com/ionata/heatmap.js/tar.gz/1452fc74fb3442f5f74b43394fddd06057fc387b: {}
 
   html-parse-stringify@3.0.1:
     dependencies:

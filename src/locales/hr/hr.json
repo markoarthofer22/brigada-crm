@@ -3,6 +3,7 @@
 		"actions": "Akcije",
 		"backToHome": "Nazad na početnu",
 		"cancel": "Otkaži",
+		"clearFilters": "Reset",
 		"close": "Zatvori",
 		"continue": "Nastavi",
 		"delete": "Obriši",
@@ -67,6 +68,13 @@
 		"genderDistribution": "Distribucija Spola",
 		"genderDistributionDesc": "Jednaka distribucija muškaraca i žena",
 		"group": "Društvo",
+		"heatmap": {
+			"avgHeat": "Avg. Heat:",
+			"data": "Ukupno točaka:",
+			"heatmap": "Heatmap",
+			"table": "Tablični prikaz",
+			"totalHeat": "Total Heat:"
+		},
 		"image": "Slika #{{value}}",
 		"males": "Muškarci",
 		"metric": "Metrika",
@@ -102,6 +110,7 @@
 		"tabs": {
 			"comments": "Komentari",
 			"general": "General",
+			"heatmap": "Heatmap",
 			"questions": "Pitanja i odgovori",
 			"total": "Ukupno",
 			"zones": "Zone"
@@ -422,6 +431,7 @@
 		}
 	},
 	"Table": {
+		"allTrackings": "Sva praćenja",
 		"deleteDescription": "Jeste li sigurni da želite izbrisati <0>{{value}}</0> iz sustava. Ovo se ne može poništiti.",
 		"deleteTitle": "Obriši zapis",
 		"facetedFilter": {
@@ -429,13 +439,18 @@
 			"noResultsFound": "Nema rezultata.",
 			"selectedBadge": "{{count}} odabrano"
 		},
+		"filter": "Pretraži...",
 		"header": {
 			"actions": "Akcije",
 			"active": "Aktivan",
 			"admin": "Pristup",
 			"created_at": "Kreirano",
 			"email": "E-mail",
+			"ended_at": "Završeno",
 			"firstname": "Ime",
+			"heat_value": "Vrijednost",
+			"id_projects": "ID projekta",
+			"id_tracking": "Praćenje",
 			"lastname": "Prezime",
 			"name": "Naziv",
 			"questions": "Broj pitanja",
@@ -444,7 +459,9 @@
 				"desc": "Desc",
 				"hide": "Sakrij"
 			},
+			"started_at": "Započeto",
 			"status": "Status",
+			"zoneName": "Naziv zone",
 			"zones": "Zone"
 		},
 		"noData": "Nema unesenih podataka",
@@ -457,6 +474,8 @@
 			"rowsPerPage": "Redovi po stranici",
 			"selected": " Odabrano {{selected}} od {{total}} ."
 		},
+		"selectTracking": "Odaberite praćenje za koje želite vidjeti heatmap",
+		"trackingName": "Praćenje #{{value}}",
 		"viewOptions": {
 			"toggleColumns": "Uključi/isključi stupce",
 			"view": "Pregled"
