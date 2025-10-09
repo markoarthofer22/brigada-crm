@@ -200,6 +200,7 @@ class Analytics
 			if ($result && $result["coordinates"]) {
 				$result["coordinates"] = json_decode($result["coordinates"], true);
 				$result["heat"] = $this->getPolygonCentroid($result["coordinates"]["points"]);
+				// $result["heat"] = $this->getRandomPointInPolygon($result["coordinates"]["points"]);
 				unset($result["coordinates"]);
 				$result["heat"]["value"] = (float) $result["duration_seconds"];
 			}
@@ -1182,5 +1183,48 @@ class Analytics
 		$cy = ($cy) / (6.0 * $signedArea);
 
 		return ['x' => $cx, 'y' => $cy];
+	}
+
+
+	public function getRandomPointInPolygon($points)
+	{
+		$xs = array_column($points, 'x');
+		$ys = array_column($points, 'y');
+
+		$minX = min($xs);
+		$maxX = max($xs);
+		$minY = min($ys);
+		$maxY = max($ys);
+
+		while (true) {
+			$x = rand($minX, $maxX);
+			$y = rand($minY, $maxY);
+
+			if ($this->pointInPolygon($x, $y, $points)) {
+				return ['x' => $x, 'y' => $y];
+			}
+		}
+	}
+
+	private function pointInPolygon($x, $y, $polygon)
+	{
+		$inside = false;
+		$n = count($polygon);
+
+		for ($i = 0, $j = $n - 1; $i < $n; $j = $i++) {
+			$xi = $polygon[$i]['x'];
+			$yi = $polygon[$i]['y'];
+			$xj = $polygon[$j]['x'];
+			$yj = $polygon[$j]['y'];
+
+			$intersect = (($yi > $y) != ($yj > $y))
+				&& ($x < ($xj - $xi) * ($y - $yi) / ($yj - $yi + 0.00001) + $xi);
+
+			if ($intersect) {
+				$inside = !$inside;
+			}
+		}
+
+		return $inside;
 	}
 }

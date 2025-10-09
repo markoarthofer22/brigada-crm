@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# MORA SE OVO DODATI AKO NE RADI GIT PUSH LIVE MAIN
+# git remote add live ssh://root@213.136.84.150/var/www/subdomains/brigada.nacverto.hr/repo.git
+
+
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
