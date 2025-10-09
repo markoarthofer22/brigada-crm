@@ -37,6 +37,13 @@
 		"chart": "",
 		"comments": "Comments",
 		"commentsFor": "Comments for tracking {{value}}",
+		"commentsList": {
+			"noComments": "No comments available for this project",
+			"noCommentsForThis": "No comments",
+			"noResult": "No results were found for this search term. Please try with different one!",
+			"searchUserOrId": "Search comments by tracking number or by user",
+			"title": "Tracking #{{trackingId}} for {{user}}"
+		},
 		"count": "Count",
 		"couple": "Couple",
 		"customerProfile": "Customer Profile",
@@ -93,6 +100,7 @@
 		"surveyOverview": "Zones overview",
 		"surveyQuestions": "Total questions",
 		"tabs": {
+			"comments": "Comments",
 			"general": "General",
 			"questions": "Questions and Answers",
 			"total": "Total",

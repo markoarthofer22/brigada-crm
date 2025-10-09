@@ -301,8 +301,6 @@ export function TrackingExam({
 					}
 				}
 
-				console.log(answerMap, id)
-
 				const data: TrackingsAnswerUpsert = {
 					isStatic,
 					id_questions: id,
@@ -466,6 +464,7 @@ export function TrackingExam({
 												return (
 													<div key={i} className='flex items-center space-x-2'>
 														<Checkbox
+															id={`${name}-${i}`}
 															checked={checked}
 															onCheckedChange={(isChecked) => {
 																const updated = isChecked
@@ -476,7 +475,9 @@ export function TrackingExam({
 																})
 															}}
 														/>
-														<FormLabel>{answer}</FormLabel>
+														<FormLabel htmlFor={`${name}-${i}`}>
+															{answer}
+														</FormLabel>
 													</div>
 												)
 											})}
@@ -676,6 +677,7 @@ export function TrackingExam({
 												return (
 													<div key={i} className='flex items-center space-x-2'>
 														<Checkbox
+															id={`${name}-${i}`}
 															checked={checked}
 															onCheckedChange={(isChecked) => {
 																const updated = isChecked
@@ -688,7 +690,9 @@ export function TrackingExam({
 																handleBlurSubmit(name, question.id_questions)
 															}}
 														/>
-														<FormLabel>{answer}</FormLabel>
+														<FormLabel htmlFor={`${name}-${i}`}>
+															{answer}
+														</FormLabel>
 													</div>
 												)
 											})}
@@ -813,28 +817,6 @@ export function TrackingExam({
 			onValidityChange(isValid && isStaticValid)
 		}
 	}, [isStaticValid, isValid, onValidityChange])
-
-	// useEffect(() => {
-	// 	const submitAllStaticQuestions = async () => {
-	// 		if (isStaticValid && staticQuestions.length > 0) {
-	// 			const promises = []
-	//
-	// 			for (const q of staticQuestions) {
-	// 				// note da ne zab. uvijek imamo 1 question
-	// 				const name = `q_${trackingId}_${q.id_questions}`
-	// 				promises.push(handleBlurSubmit(name, q.id_questions, true))
-	// 			}
-	//
-	// 			try {
-	// 				await Promise.all(promises)
-	// 				console.log('All static questions submitted successfully')
-	// 			} catch (error) {
-	// 				console.error('Error submitting static questions:', error)
-	// 			}
-	// 		}
-	// 	}
-	// 	void submitAllStaticQuestions()
-	// }, [activeQuestionAnswers.data, isStaticValid, staticQuestions])
 
 	if (activeQuestionAnswers.isLoading) {
 		return <GlobalLoader />

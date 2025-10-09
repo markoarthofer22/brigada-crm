@@ -37,6 +37,13 @@
 		"chart": "Grafički pregled",
 		"comments": "Komentari",
 		"commentsFor": "Komentari za tracking {{value}}",
+		"commentsList": {
+			"noComments": "Nema dostupnih komentara za ovaj projekt",
+			"noCommentsForThis": "Nema komentara",
+			"noResult": "Za ovaj pojam nisu pronađeni rezultati. Pokušajte ponovo!",
+			"searchUserOrId": "Pretraživanje komentara prema broju za praćenje ili po korisniku",
+			"title": "Praćenje #{{trackingId}} za {{user}}"
+		},
 		"count": "Broj",
 		"couple": "Par",
 		"customerProfile": "Profil Kupca",
@@ -93,6 +100,7 @@
 		"surveyOverview": "Pregled zona",
 		"surveyQuestions": "Ukupno pitanja",
 		"tabs": {
+			"comments": "Komentari",
 			"general": "General",
 			"questions": "Pitanja i odgovori",
 			"total": "Ukupno",

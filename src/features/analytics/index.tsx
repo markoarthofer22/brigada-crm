@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/tabs.tsx'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
+import CommentsList from '@/features/analytics/(components)/comments-list.tsx'
 import GeneralData from '@/features/analytics/(components)/general-data.tsx'
 import QuestionsAndAnswers from '@/features/analytics/(components)/questions-and-answers.tsx'
 import TotalData from '@/features/analytics/(components)/total-data.tsx'
@@ -46,6 +47,7 @@ enum AnalyticsTabs {
 	Total = 'total',
 	Questions = 'questions',
 	Zones = 'zones',
+	Comments = 'comments',
 }
 
 export default function Analytics() {
@@ -150,7 +152,6 @@ export default function Analytics() {
 	const handleExportToExcel = async () => {
 		showLoader()
 		try {
-			// trebat ce dodat interval kao prop (drugacija tablica)
 			await exportToExcel({
 				name: `${analyticsQuery.data?.name} #${analyticsQuery.data?.id_projects}`,
 				data: analyticsQuery.data?.trackings,
@@ -346,6 +347,10 @@ export default function Analytics() {
 								<TabsTrigger disabled={!project} value={AnalyticsTabs.Zones}>
 									{t('Analytics.tabs.zones')}
 								</TabsTrigger>
+
+								<TabsTrigger disabled={!project} value={AnalyticsTabs.Comments}>
+									{t('Analytics.tabs.comments')}
+								</TabsTrigger>
 							</TabsList>
 
 							<Button
@@ -383,6 +388,11 @@ export default function Analytics() {
 						<TabsContent value={AnalyticsTabs.Zones}>
 							{project && (
 								<Zones data={analyticsQuery.data?.total_data?.zones} />
+							)}
+						</TabsContent>
+						<TabsContent value={AnalyticsTabs.Comments}>
+							{project && (
+								<CommentsList trackingItems={analyticsQuery?.data?.trackings} />
 							)}
 						</TabsContent>
 					</Tabs>

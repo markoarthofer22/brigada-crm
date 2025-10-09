@@ -1,6 +1,9 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getProjectById } from '@/api/services/projects/options.ts'
@@ -10,6 +13,7 @@ import {
 	closeTrackingEvent,
 	startNewTackingEvent,
 } from '@/api/services/trackings/trackings'
+import { cn } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error'
 import { Button } from '@/components/ui/button'
@@ -30,6 +34,7 @@ export default function ProjectDetailsForRegularUser() {
 	const [isTrackingValid, setIsTrackingValid] = useState<boolean>(true)
 	const [activeTrackingId, setActiveTrackingId] = useState<number | null>(null)
 	const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
+	const [isMinimized, setIsMinimized] = useState(false)
 
 	const { showLoader, hideLoader } = useLoader()
 
@@ -161,9 +166,68 @@ export default function ProjectDetailsForRegularUser() {
 		<div className='flex h-screen flex-col'>
 			<Header />
 
-			<Main className='flex flex-1 flex-col overflow-hidden'>
-				<div className='flex flex-wrap items-center justify-between space-y-2'>
-					<div className='mb-4 space-y-4'></div>
+			<Main className='flex flex-1 flex-col overflow-hidden py-4'>
+				<div
+					className={cn(
+						'mb-4 rounded-lg border-2 border-border bg-card shadow-lg transition-all duration-300',
+						{
+							'px-4 py-2': !isMinimized,
+							'px-2 py-1': isMinimized,
+						}
+					)}
+				>
+					<div className='flex items-start gap-2'>
+						<TrackingButtonList
+							onCloseTracking={(trackingId) => {
+								if (!isTrackingValid) {
+									toast.error(
+										t('ProjectDetailsRegularUser.trackingQuestionsNotValid')
+									)
+									return
+								}
+
+								endTrackingMutation.mutate(trackingId)
+							}}
+							addNewTrackingCallback={() => startNewTrackingMutation.mutate()}
+							trackings={trackingQuery.data ?? []}
+							activeTracking={activeTrackingId}
+							onSelect={(id) => {
+								setActiveTrackingId(id)
+							}}
+							isMinimized={isMinimized}
+						/>
+						<Button
+							className={cn(
+								'shrink-0 self-center transition-all duration-300',
+								{
+									'h-8': isMinimized,
+									'h-24': !isMinimized,
+								}
+							)}
+							onClick={() => setIsCommentModalOpen(true)}
+						>
+							{t('ProjectDetailsRegularUser.addComment')}
+						</Button>
+						<Button
+							variant='outline'
+							size='icon'
+							onClick={() => setIsMinimized(!isMinimized)}
+							className={cn(
+								'shrink-0 self-center transition-all duration-300',
+								{
+									'h-8': isMinimized,
+									'h-24 w-12': !isMinimized,
+								}
+							)}
+							title={isMinimized ? 'Expand' : 'Minimize'}
+						>
+							{isMinimized ? (
+								<IconChevronDown className='size-4' />
+							) : (
+								<IconChevronUp className='size-4' />
+							)}
+						</Button>
+					</div>
 				</div>
 				<div className='min-h-0 flex-1 overflow-hidden'>
 					<SplitPanel className='px-2' initialSplit={INITIAL_SPLIT}>
@@ -178,34 +242,6 @@ export default function ProjectDetailsForRegularUser() {
 							}}
 						/>
 						<div className='mt-3 flex flex-col gap-y-3'>
-							<div className='flex items-center gap-2'>
-								<TrackingButtonList
-									onCloseTracking={(trackingId) => {
-										if (!isTrackingValid) {
-											toast.error(
-												t('ProjectDetailsRegularUser.trackingQuestionsNotValid')
-											)
-											return
-										}
-
-										endTrackingMutation.mutate(trackingId)
-									}}
-									addNewTrackingCallback={() =>
-										startNewTrackingMutation.mutate()
-									}
-									trackings={trackingQuery.data ?? []}
-									activeTracking={activeTrackingId}
-									onSelect={(id) => {
-										setActiveTrackingId(id)
-									}}
-								/>
-								<Button
-									className='mt-2 h-24 self-start'
-									onClick={() => setIsCommentModalOpen(true)}
-								>
-									{t('ProjectDetailsRegularUser.addComment')}
-								</Button>
-							</div>
 							<ZonesLayoutRegularUser
 								trackingId={activeTrackingId}
 								path={projectQuery.data!.path!}
