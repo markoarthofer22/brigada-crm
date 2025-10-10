@@ -56,6 +56,7 @@ export interface HeatmapViewerProps {
 	selectedTrackingId: number | null
 	setSelectedTrackingId: React.Dispatch<React.SetStateAction<number | null>>
 	trackings?: any[]
+	exportName?: string
 }
 
 const INITIAL_ZOOM_LEVEL = 1
@@ -76,6 +77,7 @@ export function HeatmapViewer({
 	selectedTrackingId,
 	setSelectedTrackingId,
 	trackings = [],
+	exportName,
 }: HeatmapViewerProps) {
 	const { t } = useTranslation()
 
@@ -385,7 +387,6 @@ export function HeatmapViewer({
 		const ctx = exportCanvas.getContext('2d')
 		if (!ctx) return
 
-		// 1. Draw background image
 		if (backgroundImage) {
 			const img = new Image()
 			img.src = backgroundImage
@@ -449,13 +450,13 @@ export function HeatmapViewer({
 					const url = URL.createObjectURL(blob)
 					const link = document.createElement('a')
 					link.href = url
-					link.download = `heatmap-export-${Date.now()}.png`
+					link.download = exportName ?? `heatmap-${exportName}.png`
 					link.click()
 					URL.revokeObjectURL(url)
 				}, 'image/png')
 			}
 		}
-	}, [backgroundImage, width, height, zones])
+	}, [width, height, backgroundImage, zones, exportName])
 
 	return (
 		<div className='relative'>

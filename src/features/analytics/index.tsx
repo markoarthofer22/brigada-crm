@@ -425,6 +425,13 @@ export default function Analytics() {
 								analyticsQuery?.data?.zones_heatmap &&
 								lastAddedFloorPlan && (
 									<HeatmapWrapper
+										exportName={`Heatmap_Projekt_${activeProject?.name}_${format(
+											new Date(),
+											'd. MMMM yyyy',
+											{
+												locale: hr,
+											}
+										)}.png`}
 										trackings={analyticsQuery?.data?.trackings}
 										zones={activeProject!.zones}
 										heatmaps={analyticsQuery?.data?.zones_heatmap}

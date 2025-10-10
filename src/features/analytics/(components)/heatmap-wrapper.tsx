@@ -16,6 +16,7 @@ interface Props
 	> {
 	className?: string
 	trackings?: any[]
+	exportName?: string
 }
 
 const HeatmapWrapper = ({
@@ -28,6 +29,7 @@ const HeatmapWrapper = ({
 	radius = 25,
 	blur = 0.6,
 	zones = [],
+	exportName,
 }: Props) => {
 	const { t } = useTranslation()
 
@@ -83,6 +85,7 @@ const HeatmapWrapper = ({
 				/>
 			) : (
 				<HeatmapViewer
+					exportName={exportName}
 					zones={zones}
 					selectedTrackingId={selectedTrackingId}
 					setSelectedTrackingId={setSelectedTrackingId}
