@@ -199,8 +199,8 @@ class Analytics
 		foreach ($results as &$result) {
 			if ($result && $result["coordinates"]) {
 				$result["coordinates"] = json_decode($result["coordinates"], true);
-				$result["heat"] = $this->getPolygonCentroid($result["coordinates"]["points"]);
-				// $result["heat"] = $this->getRandomPointInPolygon($result["coordinates"]["points"]);
+				// $result["heat"] = $this->getPolygonCentroid($result["coordinates"]["points"]);
+				$result["heat"] = $this->getRandomPointInPolygon($result["coordinates"]["points"]);
 				unset($result["coordinates"]);
 				$result["heat"]["value"] = (float) $result["duration_seconds"];
 			}
