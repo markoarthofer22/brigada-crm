@@ -1,11 +1,14 @@
-'use client'
-
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { IconMinus, IconPlus, IconRestore } from '@tabler/icons-react'
+import type React from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+	IconDownload,
+	IconMinus,
+	IconPlus,
+	IconRestore,
+} from '@tabler/icons-react'
 import h337 from 'heatmap.js'
 import { useTranslation } from 'react-i18next'
-import type { ProjectDetails } from '@/api/services/projects/schema.ts'
-import { hexToRgba } from '@/lib/utils.ts'
+import { hexToRgba } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
 	Select,
@@ -13,7 +16,16 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select.tsx'
+} from '@/components/ui/select'
+
+export interface Zone {
+	id_zones: number
+	name: string
+	coordinates: {
+		points: Array<{ x: number; y: number }>
+		color?: string
+	}
+}
 
 export interface HeatmapData {
 	id_tracking_zones: number
@@ -40,7 +52,7 @@ export interface HeatmapViewerProps {
 	radius?: number
 	blur?: number
 	showDebugPoints?: boolean
-	zones: ProjectDetails['zones']
+	zones: Zone[]
 	selectedTrackingId: number | null
 	setSelectedTrackingId: React.Dispatch<React.SetStateAction<number | null>>
 	trackings?: any[]
@@ -366,6 +378,85 @@ export function HeatmapViewer({
 		return { left, top }
 	}
 
+	const exportAsImage = useCallback(() => {
+		const exportCanvas = document.createElement('canvas')
+		exportCanvas.width = width
+		exportCanvas.height = height
+		const ctx = exportCanvas.getContext('2d')
+		if (!ctx) return
+
+		// 1. Draw background image
+		if (backgroundImage) {
+			const img = new Image()
+			img.src = backgroundImage
+			img.onload = () => {
+				ctx.filter = 'grayscale(100%)'
+				ctx.drawImage(img, 0, 0, width, height)
+				ctx.filter = 'none'
+
+				const heatmapCanvas =
+					heatmapContainerRef.current?.querySelector('canvas')
+				if (heatmapCanvas) {
+					ctx.drawImage(heatmapCanvas, 0, 0, width, height)
+				}
+
+				if (zones.length > 0) {
+					zones.forEach((zone) => {
+						const points = zone.coordinates.points
+						if (points.length < 3) return
+
+						points.forEach((point) => {
+							ctx.beginPath()
+							ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI)
+							ctx.fillStyle = 'black'
+							ctx.fill()
+						})
+
+						ctx.beginPath()
+						ctx.moveTo(points[0].x, points[0].y)
+						for (let i = 1; i < points.length; i++) {
+							ctx.lineTo(points[i].x, points[i].y)
+						}
+						ctx.closePath()
+
+						ctx.fillStyle = zone?.coordinates?.color
+							? hexToRgba(zone?.coordinates?.color, 0.3)
+							: 'rgba(180, 180, 180, 0.6)'
+						ctx.fill()
+
+						ctx.strokeStyle = 'black'
+						ctx.lineWidth = 4
+						ctx.stroke()
+
+						// Draw zone label
+						const center = points.reduce(
+							(acc, point) => ({ x: acc.x + point.x, y: acc.y + point.y }),
+							{ x: 0, y: 0 }
+						)
+						center.x /= points.length
+						center.y /= points.length
+
+						ctx.font = '20px sans-serif'
+						ctx.fillStyle = 'black'
+						ctx.textAlign = 'center'
+						ctx.textBaseline = 'middle'
+						ctx.fillText(zone.name, center.x, center.y)
+					})
+				}
+
+				exportCanvas.toBlob((blob) => {
+					if (!blob) return
+					const url = URL.createObjectURL(blob)
+					const link = document.createElement('a')
+					link.href = url
+					link.download = `heatmap-export-${Date.now()}.png`
+					link.click()
+					URL.revokeObjectURL(url)
+				}, 'image/png')
+			}
+		}
+	}, [backgroundImage, width, height, zones])
+
 	return (
 		<div className='relative'>
 			<div className='mb-6 flex items-center gap-4'>
@@ -377,7 +468,7 @@ export function HeatmapViewer({
 						)
 					}}
 				>
-					<SelectTrigger className='h-8 w-[200px] lg:w-[380px]'>
+					<SelectTrigger className='h-8 w-[200px] text-xs font-medium lg:w-[380px]'>
 						<SelectValue placeholder={t('Table.selectTracking')} />
 					</SelectTrigger>
 					<SelectContent>
@@ -389,6 +480,15 @@ export function HeatmapViewer({
 						))}
 					</SelectContent>
 				</Select>
+				<Button
+					variant='outline'
+					size='sm'
+					onClick={exportAsImage}
+					className='gap-2 bg-transparent'
+				>
+					<IconDownload className='h-4 w-4' />
+					{t('Analytics.heatmap.export')}
+				</Button>
 			</div>
 
 			<div

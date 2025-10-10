@@ -72,6 +72,7 @@
 		"heatmap": {
 			"avgHeat": "Avg. Heat:",
 			"data": "Ukupno točaka:",
+			"export": "Preuzmi sliku",
 			"heatmap": "Heatmap",
 			"table": "Tablični prikaz",
 			"totalHeat": "Total Heat:"
