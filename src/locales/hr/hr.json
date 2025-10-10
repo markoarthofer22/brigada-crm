@@ -72,6 +72,7 @@
 		"heatmap": {
 			"avgHeat": "Avg. Heat:",
 			"data": "Ukupno točaka:",
+			"excel": "Izvezi tablicu",
 			"export": "Preuzmi sliku",
 			"heatmap": "Heatmap",
 			"table": "Tablični prikaz",
@@ -142,7 +143,10 @@
 		"zoneId": "ID Zone"
 	},
 	"Dashboard": {
-		"active": ["Neaktivan", "Aktivan"],
+		"active": [
+			"Neaktivan",
+			"Aktivan"
+		],
 		"analytics": "Analitika",
 		"lastAdded": "Zadnje dodano - {{value}}",
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
@@ -530,7 +534,10 @@
 	},
 	"Users": {
 		"add": "Dodaj korisnika",
-		"admin": ["Korisnik", "Administrator"],
+		"admin": [
+			"Korisnik",
+			"Administrator"
+		],
 		"createSuccess": "Korisnik {{value}} je uspješno kreiran.",
 		"delete": "Izbriši korisnika",
 		"deletePlaceholder": "Unesite email za potvrdu brisanja",

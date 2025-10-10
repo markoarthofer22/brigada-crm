@@ -124,7 +124,8 @@ const ZoneLayout = ({
 
 	// Initialize selection
 	useEffect(() => {
-		if (allImages?.length) setSelectedImage(allImages[0].id_images)
+		if (allImages?.length)
+			setSelectedImage(allImages[allImages.length - 1].id_images)
 	}, [allImages])
 
 	// Clear canvases and working zone on image change
@@ -322,7 +323,6 @@ const ZoneLayout = ({
 
 	return (
 		<>
-			{/* selector + controls */}
 			<div className='my-6 flex flex-col items-start space-y-6'>
 				<p className='text-sm font-medium'>{t('ProjectDetails.selectImage')}</p>
 				<div
@@ -330,6 +330,7 @@ const ZoneLayout = ({
 					style={{ maxWidth: activeImage?.data.width ?? '100%' }}
 				>
 					<Select
+						disabled
 						value={selectedImage?.toString()}
 						onValueChange={(v) => setSelectedImage(Number(v))}
 					>
@@ -339,8 +340,7 @@ const ZoneLayout = ({
 						<SelectContent side='bottom'>
 							{allImages?.map((img) => (
 								<SelectItem key={img.id_images} value={`${img.id_images}`}>
-									{' '}
-									{img.data.file_name}{' '}
+									{img.data.file_name}
 								</SelectItem>
 							))}
 						</SelectContent>

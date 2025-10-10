@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import {
 	differenceInSeconds,
 	format,
@@ -7,9 +7,11 @@ import {
 	parseISO,
 } from 'date-fns'
 import { createColumnHelper } from '@tanstack/react-table'
+import { IconFileExcel } from '@tabler/icons-react'
 import { hr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils.ts'
+import { Button } from '@/components/ui/button.tsx'
 import {
 	Select,
 	SelectContent,
@@ -21,6 +23,7 @@ import LongText from '@/components/long-text.tsx'
 import { DataTableColumnHeader } from '@/components/table/data-table-column-header.tsx'
 import { GenericTable } from '@/components/table/generic-table.tsx'
 import { HeatmapData } from '@/features/analytics/(components)/heatmap.tsx'
+import { exportHeatmapToExcel } from '@/features/analytics/services/heatmap-export.ts'
 
 interface Props {
 	className?: string
@@ -39,6 +42,7 @@ const HeatmapTable = ({
 }: Props) => {
 	const { t } = useTranslation()
 	const columnHelper = createColumnHelper<HeatmapData>()
+	const [isExporting, setIsExporting] = useState<boolean>(false)
 
 	const trackingOptions = useMemo(() => {
 		return trackings.map((tracking: any) => ({
@@ -181,32 +185,63 @@ const HeatmapTable = ({
 				},
 			}),
 		]
-	}, [columnHelper, t])
+	}, [columnHelper, diffValue, formatDuration, t])
+
+	const exportExcel = useCallback(async () => {
+		setIsExporting(true)
+		try {
+			await exportHeatmapToExcel({
+				data: heatmaps,
+				title: t('Analytics.heatmap.excelTitle'),
+				filename: `heatmap-export-${new Date().getTime()}.xlsx`,
+				t,
+			})
+		} catch (error) {
+			console.error('Export failed:', error)
+		} finally {
+			setIsExporting(false)
+		}
+	}, [heatmaps])
 
 	return (
 		<div className={cn('', className)}>
 			<GenericTable
 				facetFilters={
-					<Select
-						value={selectedTrackingId ? String(selectedTrackingId) : undefined}
-						onValueChange={(value) => {
-							setSelectedTrackingId(
-								value ? (value === 'none' ? null : Number(value)) : null
-							)
-						}}
-					>
-						<SelectTrigger className='h-8 w-[200px] lg:w-[380px]'>
-							<SelectValue placeholder={t('Table.selectTracking')} />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value='none'>{t('Table.allTrackings')}</SelectItem>
-							{trackingOptions.map((option) => (
-								<SelectItem key={option.id} value={String(option.id)}>
-									{option.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					<>
+						<Select
+							disabled={isExporting}
+							value={
+								selectedTrackingId ? String(selectedTrackingId) : undefined
+							}
+							onValueChange={(value) => {
+								setSelectedTrackingId(
+									value ? (value === 'none' ? null : Number(value)) : null
+								)
+							}}
+						>
+							<SelectTrigger className='h-8 w-[200px] lg:w-[380px]'>
+								<SelectValue placeholder={t('Table.selectTracking')} />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='none'>{t('Table.allTrackings')}</SelectItem>
+								{trackingOptions.map((option) => (
+									<SelectItem key={option.id} value={String(option.id)}>
+										{option.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						<Button
+							variant='outline'
+							size='sm'
+							disabled={isExporting}
+							onClick={exportExcel}
+							className='gap-2 bg-transparent'
+						>
+							<IconFileExcel className='h-4 w-4' />
+							{t('Analytics.heatmap.excel')}
+						</Button>
+					</>
 				}
 				perPage={20}
 				data={heatmaps}

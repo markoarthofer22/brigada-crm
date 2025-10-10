@@ -181,7 +181,10 @@ export default function ProjectDetails() {
 								path={projectQuery.data.path!}
 								projectId={projectQuery.data?.id_projects}
 								allImages={projectQuery.data?.images}
-								selectDisabled={projectQuery.data?.images?.length === 0}
+								selectDisabled={
+									!projectQuery.data?.images ||
+									projectQuery.data?.images?.length <= 1
+								}
 							/>
 						</TabsContent>
 						<TabsContent value={TabsEnum.QUESTIONS}>

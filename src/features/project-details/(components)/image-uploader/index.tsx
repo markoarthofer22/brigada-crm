@@ -140,9 +140,7 @@ const ImageUploader = ({
 
 					<Button
 						disabled={
-							allImages?.length === 0 ||
-							upsertImageMutation.isPending ||
-							deleteImageMutation.isPending
+							upsertImageMutation.isPending || deleteImageMutation.isPending
 						}
 						onClick={() => {
 							setSelectedImage(null)
