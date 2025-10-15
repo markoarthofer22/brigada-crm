@@ -138,7 +138,7 @@ const ImageUploader = ({
 						</SelectContent>
 					</Select>
 
-					<Button
+					{/* <Button
 						disabled={
 							upsertImageMutation.isPending || deleteImageMutation.isPending
 						}
@@ -147,7 +147,7 @@ const ImageUploader = ({
 						}}
 					>
 						{t('ProjectDetails.addImage')}
-					</Button>
+					</Button> */}
 
 					<Button
 						onClick={() => deleteImageMutation.mutate()}
