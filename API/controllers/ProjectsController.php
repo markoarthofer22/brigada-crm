@@ -146,7 +146,21 @@ class ProjectsController extends BaseController
 						)
 					)
 				)
-
+			),
+			array(
+				"id_projects" => (int)$args->id,
+				"id_questions" => 2,
+				"id_questions_types" => 4,
+				"label" => "Profil kupca",
+				"data" => array("required" => true),
+				"possible_answers" => array(
+					0 => "Obitelj",
+					1 => "Pojedinac",
+					2 => "Par",
+					3 => "Teens",
+					4 => "Grupa prijatelja",
+				),
+				"subquestions" => array()
 			)
 		);
 

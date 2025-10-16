@@ -28,8 +28,8 @@
 		"analyticsTitle": "Analytics_{{value}}",
 		"answer": "Answer",
 		"answerDistribution": "Answer Distribution",
-		"averageDurationPerPerson": "Per person",
-		"averagePeoplePerTracking": "Per tracking",
+		"averageDurationPerPerson": "Average per person",
+		"averagePeoplePerTracking": "Average per tracking",
 		"avgPeoplePerTracking": "Average",
 		"avgPerPerson": "Average",
 		"basic": "Basic Information",
@@ -143,10 +143,7 @@
 		"zoneId": "Zone ID"
 	},
 	"Dashboard": {
-		"active": [
-			"Inactive",
-			"Active"
-		],
+		"active": ["Inactive", "Active"],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -534,10 +531,7 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": [
-			"Regular user",
-			"Admin"
-		],
+		"admin": ["Regular user", "Admin"],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",
