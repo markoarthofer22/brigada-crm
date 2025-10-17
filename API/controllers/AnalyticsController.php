@@ -341,6 +341,8 @@ class AnalyticsController extends BaseController
 
 		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
 
+		$result["result_static_questions"] = $result_static_questions;
+
 
 		return $result;
 	}
