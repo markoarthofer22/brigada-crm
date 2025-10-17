@@ -69,7 +69,7 @@ class AnalyticsController extends BaseController
 			);
 		}
 
-		$result = $this->InternalGet($params);
+		$result = $this->InternatGet($params);
 
 
 
@@ -122,7 +122,7 @@ class AnalyticsController extends BaseController
 	}
 
 
-	public function InternalGet($params)
+	public function InternatGet($params)
 	{
 		$Helper = new Helper($this->db);
 		$Language = new Language($this->db);
@@ -200,9 +200,40 @@ class AnalyticsController extends BaseController
 			)
 		);
 
+		$filters = array(
+			array(
+				"label" => "f_dobna",
+				"possible_answers" => array(
+					0 => "0-18",
+					1 => "19-30",
+					2 => "31-45",
+					3 => "46-60",
+					4 => "61-75",
+					5 => "76+",
+				)
+			),
+			array(
+				"label" => "f_spol",
+				"possible_answers" => array(
+					0 => "Muški",
+					1 => "Ženski",
+				)
+			),
+			array(
+				"label" => "f_profil",
+				"possible_answers" => array(
+					0 => "Obitelj",
+					1 => "Pojedinac",
+					2 => "Par",
+					3 => "Teens",
+					4 => "Grupa prijatelja",
+				)
+			)
+		);
+
 		$result["trackings"] = $Analytics->GetTrackings($params);
 
-		foreach ($result["trackings"] as &$item) {
+		foreach ($result["trackings"] as $key => &$item) {
 
 			// if ($item["id_tracking"] == 130) {
 			// 	echo "<pre>";
@@ -228,6 +259,46 @@ class AnalyticsController extends BaseController
 
 			// $item["answers"] = $Analytics->GetAnswers((object) array("id_tracking" => $item["id_tracking"]));
 			$item_answers = $Analytics->GetAnswers((object) array("id_tracking" => $item["id_tracking"]));
+
+			// Check if $item_answers has at least one non-empty question with id_questions = 1
+			$hasQ1 = false;
+			$hasQ2 = false;
+
+			if (is_array($item_answers)) {
+				foreach ($item_answers as $qa) {
+					if (!isset($qa["id_questions"])) {
+						continue;
+					}
+
+					if (
+						$qa["id_questions"] == 1 &&
+						!empty($qa["answer"]["answer"]) &&
+						is_array($qa["answer"]["answer"])
+					) {
+						$hasQ1 = true;
+					}
+
+					if (
+						$qa["id_questions"] == 2 &&
+						!empty($qa["answer"]["answer"]) &&
+						is_array($qa["answer"]["answer"])
+					) {
+						$hasQ2 = true;
+					}
+				}
+			}
+
+			// Both must be true
+			$hasValidAnswers = $hasQ1 && $hasQ2;
+
+			if (!$hasValidAnswers) {
+				unset($result["trackings"][$key]);
+				continue;
+			}
+
+			// echo json_encode($item_answers);
+			// exit;
+
 			$item["data"]["broj_ljudi"] = $Analytics->CountPeople($item_answers);
 			$item["data"]["broj_muski"] = $Analytics->CountMalePeople($item_answers);
 			$item["data"]["broj_zenski"] = $Analytics->CountFemalePeople($item_answers);
@@ -273,6 +344,7 @@ class AnalyticsController extends BaseController
 
 			// $item["zones"] = $zones;
 			$item["zones"] = $Analytics->groupZonesByIdZones($zones);
+			// $item["zones2"] = $Analytics->groupZonesByIdZones($zones);
 
 			foreach ($result_questions as $q) {
 				$r = array_values(array_filter(array_map(function ($a) use ($q) {
@@ -298,6 +370,8 @@ class AnalyticsController extends BaseController
 			// }
 			$item["data"]["questions_answers"] = $Analytics->PrepareQuestionsAnswersDataSingleTracking($item);
 		}
+
+		$result["trackings"] = array_values($result["trackings"]);
 
 		$broj_ljudi = 0;
 		$broj_muski = 0;
@@ -341,6 +415,7 @@ class AnalyticsController extends BaseController
 		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
 
 		$result["result_static_questions"] = $result_static_questions;
+		$result["filters"] = $filters;
 
 
 		return $result;

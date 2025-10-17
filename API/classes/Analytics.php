@@ -70,7 +70,7 @@ class Analytics
 			$output[] = [
 				"from" => $p->params->from,
 				"to" => $p->params->to,
-				"data" => $callback->InternalGet($p->params)
+				"data" => $callback->InternatGet($p->params)
 			];
 		}
 
@@ -238,13 +238,72 @@ class Analytics
 		$stmt->execute();
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-		// print_r($results);
-		// exit;
 		foreach ($results as &$result) {
+
 			if ($result) {
+				$result["answer"] = json_decode($result["answer"], true);
+
+				// Parse GET filters (comma-delimited → arrays)
+				$f_spol  = !empty($_GET["f_spol"])
+					? array_map('trim', explode(',', $_GET["f_spol"]))
+					: [];
+				$f_dobna = !empty($_GET["f_dobna"])
+					? array_map('trim', explode(',', $_GET["f_dobna"]))
+					: [];
+
+				$f_profil = !empty($_GET["f_profil"])
+					? array_map('trim', explode(',', $_GET["f_profil"]))
+					: [];
+
+				// Only filter if the structure exists
+				if (isset($result["answer"]["answer"]) && is_array($result["answer"]["answer"])) {
+					$result["answer"]["answer"] = array_values(array_filter(
+						$result["answer"]["answer"],
+						function ($item) use ($result, $f_spol, $f_dobna, $f_profil) {
+							// If no filters at all → keep all
+							if (empty($f_spol) && empty($f_dobna) && empty($f_profil)) {
+								return true;
+							}
+
+							// Current question id
+							$id_question = $result["id_questions"] ?? null;
+
+							// Default: keep unless explicitly filtered out
+							$keep = true;
+
+							// If this is question 1 → filter by Spol and Dobna skupina
+							if ($id_question == 1) {
+								$matchSpol = empty($f_spol) || in_array($item["Spol"] ?? '', $f_spol);
+								$matchDobna = empty($f_dobna) || in_array($item["Dobna skupina"] ?? '', $f_dobna);
+								$keep = $matchSpol && $matchDobna;
+							}
+
+							// If this is question 2 → filter by Profil kupca
+							elseif ($id_question == 2) {
+								$matchProfil = empty($f_profil) || in_array($item["Profil kupca"] ?? '', $f_profil);
+								$keep = $matchProfil;
+							}
+
+							return $keep;
+						}
+					));
+				}
+
+
+				if (($_GET["f_profil"] || $_GET["f_spol"] || $_GET["f_dobna"]) && $result["id_questions"] == 1) {
+					// echo "<pre>";
+					// print_r($result);
+				}
+
+				if (($_GET["f_profil"] || $_GET["f_spol"] || $_GET["f_dobna"]) && $result["id_questions"] == 2) {
+					// echo "<pre>";
+					// print_r($result);
+					// exit;
+				}
+
+
 				$result["data"] = json_decode($result["data"], true);
 				$result["question"] = json_decode($result["question"], true);
-				$result["answer"] = json_decode($result["answer"], true);
 			}
 		}
 

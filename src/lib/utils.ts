@@ -194,17 +194,40 @@ export const handleScreenshot = async (
 	exportName: string
 ) => {
 	if (!div) return
-	const canvas = await html2canvas(div, {
-		useCORS: true,
-		backgroundColor: null,
-		scale: 3,
-		logging: false,
-	})
-	const blob: Blob = await new Promise((res, rej) =>
-		canvas.toBlob(
-			(b) => (b ? res(b) : rej(new Error('toBlob failed'))),
-			'image/png'
-		)
+
+	const buttons = Array.from(div.querySelectorAll('button'))
+	const zoneIdElements = Array.from(div.querySelectorAll('*')).filter((el) =>
+		el.textContent?.trim().startsWith('Zone ID')
 	)
-	saveAs(blob, `${exportName}.png`)
+	const elementsToHide = [...buttons, ...zoneIdElements]
+	elementsToHide.forEach((el) => (el.style.visibility = 'hidden'))
+
+	try {
+		// Wait a short moment to let browser apply the hidden state
+		await new Promise((r) => setTimeout(r, 100))
+
+		// Capture the div
+		const canvas = await html2canvas(div, {
+			useCORS: true,
+			backgroundColor: null,
+			scale: 3,
+			logging: false,
+		})
+
+		// Convert to blob
+		const blob: Blob = await new Promise((res, rej) =>
+			canvas.toBlob(
+				(b) => (b ? res(b) : rej(new Error('toBlob failed'))),
+				'image/png'
+			)
+		)
+
+		// Save image
+		saveAs(blob, `${exportName}.png`)
+	} catch (err) {
+		// console.error('Screenshot failed:', err)
+	} finally {
+		// Show elements again after screenshot
+		elementsToHide.forEach((el) => (el.style.visibility = 'visible'))
+	}
 }
