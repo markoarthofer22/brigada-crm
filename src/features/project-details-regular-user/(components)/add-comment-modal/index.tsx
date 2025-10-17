@@ -55,13 +55,18 @@ export function CommentPadModal({
 				</DialogHeader>
 				<div className='flex w-full justify-center px-4'>
 					<CommentPad
+						showDeleteButton={false}
 						ref={commentPadRef}
-						value={open ? commentValue : ''} // Only pass value when modal is open
+						value={open ? commentValue : ''}
 						onChange={handleChange}
 						className='w-full'
 					/>
 				</div>
-				<Button className='mt-6 h-14 rounded-none' onClick={handleSave}>
+				<Button
+					variant='ghost'
+					className='mt-6 h-20 rounded-none bg-green-700 text-2xl font-semibold text-white shadow-md hover:bg-green-800 hover:text-white'
+					onClick={handleSave}
+				>
 					{t('Actions.submit')}
 				</Button>
 			</DialogContent>

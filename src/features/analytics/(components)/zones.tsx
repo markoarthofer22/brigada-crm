@@ -72,8 +72,6 @@ export default function Zones({ data, projectName }: ZonesProps) {
 
 	const pastedTextData = data?.total?.data
 
-	console.log('data', data)
-
 	if (!data || !data.per_zone || data.per_zone.length === 0) {
 		return (
 			<div className='p-4 text-center'>

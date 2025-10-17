@@ -8,10 +8,11 @@ export interface CommentPadProps {
 	value?: string
 	onChange: (value: string) => void
 	className?: string
+	showDeleteButton?: boolean
 }
 
 const CommentPad = forwardRef<SignatureCanvas, CommentPadProps>(
-	({ value = '', onChange, className }, ref) => {
+	({ value = '', onChange, className, showDeleteButton = true }, ref) => {
 		const { t } = useTranslation()
 		const sigRef = useRef<SignatureCanvas>(null)
 
@@ -68,15 +69,17 @@ const CommentPad = forwardRef<SignatureCanvas, CommentPadProps>(
 					}}
 					onEnd={handleEnd}
 				/>
-				<div className='absolute right-2 top-2 z-20 flex items-center gap-x-2'>
-					<Button
-						variant='ghost'
-						onClick={handleClear}
-						className='h-10 bg-green-700 p-0 px-6 font-semibold text-white shadow-md hover:bg-green-800 hover:text-white'
-					>
-						{t('Actions.delete')}
-					</Button>
-				</div>
+				{showDeleteButton && (
+					<div className='absolute right-2 top-2 z-20 flex items-center gap-x-2'>
+						<Button
+							variant='destructive'
+							onClick={handleClear}
+							className='h-10 bg-green-700 p-0 px-6 font-semibold text-white shadow-md hover:bg-green-800 hover:text-white'
+						>
+							{t('Actions.resetComment')}
+						</Button>
+					</div>
+				)}
 			</div>
 		)
 	}
