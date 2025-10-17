@@ -1,37 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { intervalToDuration } from 'date-fns'
 import { Clock, MapPin, TrendingUp, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, XAxis, YAxis } from 'recharts'
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from '@/components/ui/accordion'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
-import {
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-} from '@/components/ui/chart'
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from '@/components/ui/card'
+import { ChartContainer, ChartTooltip, ChartTooltipContent, } from '@/components/ui/chart'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface TotalDataProps {
@@ -59,15 +36,18 @@ export default function TotalData({ data }: TotalDataProps) {
 	}
 
 	const formatSeconds = (sec: number) => {
-		if (!sec || sec <= 0) return '-'
+		if (!isFinite(sec) || sec <= 0) return '-';
 
-		const duration = intervalToDuration({ start: 0, end: sec * 1000 })
-		const { hours, minutes, seconds } = duration
+		const totalSeconds = Math.round(sec);
 
-		if (hours && minutes) return `${hours}h ${minutes} min`
-		if (hours && !minutes) return `${hours}h`
-		return `${minutes ? `${minutes} min` : ''} ${seconds} sec`
-	}
+		const hours   = Math.floor(totalSeconds / 3600);
+		const minutes = Math.floor((totalSeconds % 3600) / 60);
+		const seconds = totalSeconds % 60;
+
+		if (hours && minutes) return `${hours}h ${minutes} min`;
+		if (hours && !minutes) return `${hours}h`;
+		return `${minutes ? `${minutes} min` : ''} ${seconds} sec`.trim();
+	};
 
 	const prepareAnswersChartData = (countPercentage: any) => {
 		return Object.entries(countPercentage).map(

@@ -144,7 +144,7 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	}, [data, timespan])
 
 	const getAgeGroups = () => {
-		if (data.length === 0) return []
+		if (data?.length === 0) return []
 
 		const allAgeGroups = new Set<string>()
 		data.forEach((tracking: any) => {

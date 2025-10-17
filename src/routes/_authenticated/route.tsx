@@ -9,6 +9,7 @@ import {
 import { UserType } from '@/api/services/user/schema.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { cn } from '@/lib/utils'
+import { useLoader } from '@/context/loader-provider.tsx'
 import { SearchProvider } from '@/context/search-context'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
@@ -19,6 +20,7 @@ export const Route = createFileRoute('/_authenticated')({
 
 function RouteComponent() {
 	const defaultOpen = Cookies.get('sidebar:state') !== 'false'
+	const { hideLoader } = useLoader()
 	const user = useAuthStore((state) => state.auth.user)
 	const authToken = useAuthStore((state) => state.auth.accessToken)
 	const router = useRouter()
@@ -55,6 +57,10 @@ function RouteComponent() {
 			router.navigate({ to: '/admin' })
 		}
 	}, [router, user?.admin, pathname])
+
+	useEffect(() => {
+		hideLoader()
+	}, [])
 
 	return (
 		<SearchProvider>
