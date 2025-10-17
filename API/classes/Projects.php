@@ -301,7 +301,34 @@ class Projects
 			$this->ConnectProjectsImages((object)["id_projects" => $id_projects_new, "id_images" => $image["id_images_new"]]);
 
 			// ZONES
-			$sql = "WITH inserted AS (
+			// $sql = "WITH inserted AS (
+			// 			INSERT INTO brigada.zones (id_projects, id_images, name, coordinates, data)
+			// 			SELECT 
+			// 				:ID_PROJECTS_NEW,
+			// 				:ID_IMAGES_NEW,
+			// 				name,
+			// 				coordinates,
+			// 				data
+			// 			FROM brigada.zones
+			// 			WHERE id_projects = :ID_PROJECTS AND id_images = :ID_IMAGES
+			// 			RETURNING id_zones
+			// 		)
+			// 		SELECT 
+			// 			inserted.id_zones AS id_zones_new,
+			// 			z.id_zones AS id_zones_old
+			// 		FROM inserted, brigada.zones z
+			// 		WHERE z.id_projects = :ID_PROJECTS AND z.id_images = :ID_IMAGES;
+			// ";
+			$sql = "WITH source AS (
+						SELECT 
+							id_zones AS id_zones_old,
+							name,
+							coordinates,
+							data
+						FROM brigada.zones
+						WHERE id_projects = :ID_PROJECTS AND id_images = :ID_IMAGES
+					),
+					inserted AS (
 						INSERT INTO brigada.zones (id_projects, id_images, name, coordinates, data)
 						SELECT 
 							:ID_PROJECTS_NEW,
@@ -309,40 +336,47 @@ class Projects
 							name,
 							coordinates,
 							data
-						FROM brigada.zones
-						WHERE id_projects = :ID_PROJECTS AND id_images = :ID_IMAGES
-						RETURNING id_zones
+						FROM source
+						RETURNING id_zones AS id_zones_new, name, id_projects
 					)
-					SELECT 
-						inserted.id_zones AS id_zones_new,
-						z.id_zones AS id_zones_old
-					FROM inserted, brigada.zones z
-					WHERE z.id_projects = :ID_PROJECTS AND z.id_images = :ID_IMAGES;
-			";
+					SELECT inserted.id_zones_new, source.id_zones_old from inserted
+					JOIN source on inserted.name = source.name
+					";
 			$stmt = $this->database->prepare($sql);
 			$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
 			$stmt->bindParam(':ID_PROJECTS_NEW', $id_projects_new);
 			$stmt->bindParam(':ID_IMAGES_NEW', $image["id_images_new"]);
 			$stmt->bindParam(':ID_IMAGES', $image["id_images_old"]);
 			$stmt->execute();
-			$result = $stmt->fetch(PDO::FETCH_ASSOC);
-			$id_zones_new = $result['id_zones_new'];
-			$id_zones_old = $result['id_zones_old'];
+			$new_zones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			// echo "<pre>";
+			// print_r($new_zones);
+			// exit;
 
-			// QUESTIONS WITHIN ZONES
-			$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
-					SELECT :ID_PROJECTS_NEW,:ID_ZONES_NEW,label,id_questions_types,possible_answers,\"order\",data FROM brigada.questions WHERE id_projects = :ID_PROJECTS AND id_zones = :ID_ZONES_OLD
-					RETURNING id_zones
-			";
-			$stmt = $this->database->prepare($sql);
-			$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
-			$stmt->bindParam(':ID_PROJECTS_NEW', $id_projects_new);
-			$stmt->bindParam(':ID_ZONES_NEW', $id_zones_new);
-			$stmt->bindParam(':ID_ZONES_OLD', $id_zones_old);
-			$stmt->execute();
-			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			// echo "<pre>";
+			// echo "OLD ZONE ID: " . $id_zones_old . " => NEW ZONE ID: " . $id_zones_new . "\n";
+
+			foreach ($new_zones as $nz) {
+				$id_zones_new = $nz['id_zones_new'];
+				$id_zones_old = $nz['id_zones_old'];
+
+				// QUESTIONS WITHIN ZONES
+				$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
+						SELECT :ID_PROJECTS_NEW,:ID_ZONES_NEW,label,id_questions_types,possible_answers,\"order\",data FROM brigada.questions WHERE id_projects = :ID_PROJECTS AND id_zones = :ID_ZONES_OLD
+				";
+				// echo "sql: " . $sql . "\n";
+				// echo "old zone id: " . $id_zones_old . " => new zone id: " . $id_zones_new . "\n";
+				// echo "old project id: " . $params->id_projects . " => new project id: " . $id_projects_new . "\n\n";
+				$stmt = $this->database->prepare($sql);
+				$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+				$stmt->bindParam(':ID_PROJECTS_NEW', $id_projects_new);
+				$stmt->bindParam(':ID_ZONES_NEW', $id_zones_new);
+				$stmt->bindParam(':ID_ZONES_OLD', $id_zones_old);
+				$stmt->execute();
+				$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			}
 		}
-
+		// exit;
 		// QUESTIONS WITHOUT ZONES
 		$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
 				SELECT :ID_PROJECTS_NEW,null,label,id_questions_types,possible_answers,\"order\",data FROM brigada.questions WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL
@@ -352,8 +386,6 @@ class Projects
 		$stmt->bindParam(':ID_PROJECTS_NEW', $id_projects_new);
 		$stmt->execute();
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-
 
 		return $result;
 	}

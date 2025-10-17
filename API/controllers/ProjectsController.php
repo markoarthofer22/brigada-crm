@@ -370,6 +370,6 @@ class ProjectsController extends BaseController
 
 		$Projects->Copy($params);
 
-		return $response->withJson(array(), 200);
+		return $response->withJson([], 204);
 	}
 }
