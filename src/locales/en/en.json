@@ -53,6 +53,8 @@
 		"deselectAll": "Deselect all",
 		"detailedTrackingBreakdown": "Detailed analytics and breakdown of people per tracking",
 		"detailedView": "Distribution by sex",
+		"downloadImage": "Download image",
+		"downloadName": "Project_{{projectName}}_zone_{{name}}",
 		"duration": "Duration",
 		"durationSeconds": "Duration (sec)",
 		"end": "End",
@@ -143,7 +145,10 @@
 		"zoneId": "Zone ID"
 	},
 	"Dashboard": {
-		"active": ["Inactive", "Active"],
+		"active": [
+			"Inactive",
+			"Active"
+		],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -531,7 +536,10 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": ["Regular user", "Admin"],
+		"admin": [
+			"Regular user",
+			"Admin"
+		],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",

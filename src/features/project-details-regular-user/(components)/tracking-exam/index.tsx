@@ -57,6 +57,67 @@ interface TrackingExamProps {
 	trackingZoneId?: number
 }
 
+/** helpers to safely parse answer payloads coming back from API */
+function safeParseJson<T = unknown>(raw: unknown): T | unknown {
+	if (typeof raw !== 'string') return raw
+	try {
+		const once = JSON.parse(raw)
+		if (
+			typeof once === 'string' &&
+			(once.startsWith('{') || once.startsWith('['))
+		) {
+			try {
+				return JSON.parse(once)
+			} catch {
+				return once
+			}
+		}
+		return once
+	} catch {
+		return raw
+	}
+}
+function parseAnswerArray(raw: unknown): Array<Record<string, string>> {
+	const val = safeParseJson(raw)
+	if (Array.isArray(val)) return val as Array<Record<string, string>>
+	if (val && typeof val === 'object') return [val as Record<string, string>]
+	return []
+}
+
+/** Are all static questions (and required sub-questions) filled? */
+function areStaticQuestionsComplete(
+	allValues: Record<string, any>,
+	staticQuestions: StaticQuestionItem[],
+	trackingId: number
+) {
+	if (!staticQuestions || staticQuestions.length === 0) return true
+	for (const sq of staticQuestions) {
+		const mainFieldName = `q_${trackingId}_${sq.id_questions}`
+		const mainValue = allValues[mainFieldName]
+		const empty =
+			mainValue == null ||
+			(typeof mainValue === 'string' && mainValue.trim() === '') ||
+			(Array.isArray(mainValue) && mainValue.length === 0)
+		if (empty) return false
+
+		const count = Number(mainValue) || 0
+		if (sq.subquestions && count > 0) {
+			for (let i = 1; i <= count; i++) {
+				for (const sub of sq.subquestions) {
+					const subFieldName = `q_sub_${trackingId}_${sub.label}_${i}`
+					const v = allValues[subFieldName]
+					const missing =
+						v == null ||
+						(typeof v === 'string' && v.trim() === '') ||
+						(Array.isArray(v) && v.length === 0)
+					if (sub.data?.required && missing) return false
+				}
+			}
+		}
+	}
+	return true
+}
+
 export function TrackingExam({
 	questions,
 	examName,
@@ -70,13 +131,10 @@ export function TrackingExam({
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
 	const [isFullscreen, setIsFullscreen] = useState(false)
-	const [isStaticValid, setIsStaticValid] = useState(
-		staticQuestions.length === 0
-	)
 
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
 
-	// diff depends zone_id exist
+	// queries
 	const trackingAnswersQuery = useQuery({
 		...getAnswerForSpecificTracking(trackingId),
 		enabled: !!trackingId && !zoneId,
@@ -92,22 +150,20 @@ export function TrackingExam({
 		: trackingAnswersQuery
 
 	const answerQuestionMutation = useMutation({
-		mutationFn: (data: TrackingsAnswerUpsert) => {
-			return addTrackingAnswer(data)
-		},
+		mutationFn: (data: TrackingsAnswerUpsert) => addTrackingAnswer(data),
 		onSuccess: (data, req) => {
 			if (!req.isStatic) {
 				toast.success(
 					t(
-						`ProjectDetailsRegularUser.Exam.${data?.id_tracking_answers ? 'questionUpdated' : 'questionSaved'}`
+						`ProjectDetailsRegularUser.Exam.${
+							data?.id_tracking_answers ? 'questionUpdated' : 'questionSaved'
+						}`
 					)
 				)
 			}
 			activeQuestionAnswers.refetch()
 		},
-		onError: (err: unknown) => {
-			handleError(err)
-		},
+		onError: (err: unknown) => handleError(err),
 	})
 
 	const getQuestionType = useCallback(
@@ -123,6 +179,7 @@ export function TrackingExam({
 	const schema = useMemo(() => {
 		const shape: Record<string, z.ZodTypeAny> = {}
 
+		// static questions
 		for (const q of staticQuestions) {
 			const name = `q_${trackingId}_${q.id_questions}`
 			const qType = getQuestionType(q.id_questions_types)
@@ -130,7 +187,7 @@ export function TrackingExam({
 			const isOptional =
 				!q.data?.required || qType?.type === 'input' || qType?.type === 'text'
 
-			let schema: any = isCheckbox
+			let s: any = isCheckbox
 				? z.array(z.string(), {
 						required_error: t('Input.validation.required'),
 						invalid_type_error: t('Input.validation.invalid'),
@@ -140,17 +197,12 @@ export function TrackingExam({
 						invalid_type_error: t('Input.validation.invalid'),
 					})
 
-			if (!isOptional) {
-				schema = schema.min(1, { message: t('Input.validation.required') })
-			}
-
-			if (isOptional) {
-				schema = schema.optional()
-			}
-
-			shape[name] = schema
+			if (!isOptional) s = s.min(1, { message: t('Input.validation.required') })
+			if (isOptional) s = s.optional()
+			shape[name] = s
 		}
 
+		// dynamic questions
 		for (const q of questions) {
 			const name = `q_${trackingId}_${q.id_questions}`
 			const qType = getQuestionType(q.id_questions_types)
@@ -158,7 +210,7 @@ export function TrackingExam({
 			const isTriviallyOptional =
 				!q.required || qType?.type === 'input' || qType?.type === 'text'
 
-			let schema: any = isCheckbox
+			let s: any = isCheckbox
 				? z.array(z.string(), {
 						invalid_type_error: t('Input.validation.invalid'),
 					})
@@ -167,48 +219,39 @@ export function TrackingExam({
 					})
 
 			if (!isTriviallyOptional) {
-				if (isCheckbox) {
-					schema = schema.min(1, { message: t('Input.validation.required') })
-				} else {
-					schema = schema.min(1, { message: t('Input.validation.required') })
-				}
+				s = s.min(1, { message: t('Input.validation.required') })
 			}
+			if (isTriviallyOptional) s = s.optional()
 
-			if (isTriviallyOptional) {
-				schema = schema.optional()
-			}
-
-			shape[name] = schema
+			shape[name] = s
 		}
 
 		return z.object(shape)
-	}, [questions, trackingId, getQuestionType, t])
+	}, [questions, staticQuestions, trackingId, getQuestionType, t])
 
 	const answerMap = useMemo(() => {
 		const map = new Map<number, number>()
-
-		let arr
+		let arr: any[] | undefined
 
 		if (zoneId) {
 			arr = activeQuestionAnswers.data
 				?.find(
-					(entry) =>
+					(entry: any) =>
 						entry.id_zones === zoneId && entry.id_tracking === trackingId
 				)
-				// 	@ts-expect-error exist
-				?.answers?.filter((x) => x.id_tracking_zones === trackingZoneId)
+				// @ts-expect-error API shape
+				?.answers?.filter((x: any) => x.id_tracking_zones === trackingZoneId)
 		} else {
-			arr = activeQuestionAnswers.data
+			arr = activeQuestionAnswers.data as any[]
 		}
 
-		// @ts-expect-error exist
-		arr?.forEach((entry) => {
+		arr?.forEach((entry: any) => {
 			if (entry.id_tracking_answers) {
 				map.set(entry.id_questions, entry.id_tracking_answers)
 			}
 		})
 		return map
-	}, [activeQuestionAnswers.data])
+	}, [activeQuestionAnswers.data, zoneId, trackingId, trackingZoneId])
 
 	const form = useForm<z.infer<typeof schema>>({
 		resolver: zodResolver(schema),
@@ -224,12 +267,20 @@ export function TrackingExam({
 		formState: { isValid },
 	} = form
 
+	/** Derive static validity from current form values (no setState in render) */
+	const watchedAllValues = watch()
+	const isStaticValid = useMemo(
+		() =>
+			areStaticQuestionsComplete(watchedAllValues, staticQuestions, trackingId),
+		[watchedAllValues, staticQuestions, trackingId]
+	)
+
 	const handleBlurSubmit = async (
 		name: string,
 		id: number,
 		isStatic = false
 	) => {
-		const isValid = await trigger(name)
+		const ok = await trigger(name)
 		const value = getValues(name) as string | string[]
 
 		if (
@@ -239,86 +290,95 @@ export function TrackingExam({
 		) {
 			return
 		}
+		if (!ok) return
 
-		if (isValid) {
-			if (!isStatic) {
-				const activeQuestion = questions.find((q) => q.id_questions === id)
-				if (!activeQuestion) {
-					toast.error(t('ProjectDetailsRegularUser.Exam.questionNotFound'))
-					return
-				}
-				const data: TrackingsAnswerUpsert = {
-					id_questions: id,
-					id_tracking: trackingId,
-					id_projects: projectId,
-					order: activeQuestion?.order,
-					id_tracking_zones: trackingZoneId,
-					id_zones: zoneId,
-					id_tracking_answers: answerMap.get(id),
-					question: {
-						...activeQuestion,
-						data: activeQuestion?.data ?? {},
-					},
-					answer: {
-						answer: Array.isArray(value) ? value.join(',') : value,
-					},
-				}
-				answerQuestionMutation.mutate(data)
+		if (!isStatic) {
+			// NON-STATIC: keep plain string (checkbox -> comma-joined)
+			const activeQuestion = questions.find((q) => q.id_questions === id)
+			if (!activeQuestion) {
+				toast.error(t('ProjectDetailsRegularUser.Exam.questionNotFound'))
+				return
 			}
-
-			if (isStatic) {
-				const staticQuestion = staticQuestions.find(
-					(q) => q.id_questions === id
-				)
-				if (!staticQuestion) {
-					toast.error(t('ProjectDetailsRegularUser.Exam.questionNotFound'))
-					return
-				}
-
-				// Get all form values to process subquestions
-				const allFormValues = getValues()
-
-				const subAnswers: Array<Record<string, string>> = []
-
-				if (staticQuestion.subquestions && Number(value) > 0) {
-					for (let i = 1; i <= Number(value); i++) {
-						const subAnswerGroup: Record<string, string> = {}
-
-						staticQuestion.subquestions.forEach((subQuestion) => {
-							const subFieldName = `q_sub_${trackingId}_${subQuestion.label}_${i}`
-							const subValue = allFormValues[subFieldName]
-
-							if (subValue) {
-								subAnswerGroup[subQuestion.label] = Array.isArray(subValue)
-									? subValue.join(',')
-									: subValue
-							}
-						})
-
-						if (Object.keys(subAnswerGroup).length > 0) {
-							subAnswers.push(subAnswerGroup)
-						}
-					}
-				}
-
-				const data: TrackingsAnswerUpsert = {
-					isStatic,
-					id_questions: id,
-					id_tracking: trackingId,
-					id_projects: projectId,
-					order: 1,
-					id_tracking_zones: trackingZoneId,
-					id_zones: zoneId,
-					id_tracking_answers: answerMap.get(id),
-					question: {
-						...staticQuestion,
-						data: staticQuestion?.data ?? {},
-					},
-					answer: { answer: JSON.stringify(subAnswers) },
-				}
-				answerQuestionMutation.mutate(data)
+			const data: TrackingsAnswerUpsert = {
+				id_questions: id,
+				id_tracking: trackingId,
+				id_projects: projectId,
+				order: activeQuestion?.order,
+				id_tracking_zones: trackingZoneId,
+				id_zones: zoneId,
+				id_tracking_answers: answerMap.get(id),
+				question: {
+					...activeQuestion,
+					data: activeQuestion?.data ?? {},
+				},
+				answer: {
+					answer: Array.isArray(value) ? value.join(',') : value,
+				},
 			}
+			answerQuestionMutation.mutate(data)
+			return
 		}
+
+		// STATIC: always JSON.stringify an array of objects
+		const staticQuestion = staticQuestions.find((q) => q.id_questions === id)
+		if (!staticQuestion) {
+			toast.error(t('ProjectDetailsRegularUser.Exam.questionNotFound'))
+			return
+		}
+
+		const allFormValues = getValues()
+		const mainFieldName = `q_${trackingId}_${staticQuestion.id_questions}`
+		const mainVal = allFormValues[mainFieldName]
+
+		const subAnswers: Array<Record<string, string>> = []
+
+		if (
+			staticQuestion.subquestions &&
+			staticQuestion.subquestions.length > 0 &&
+			Number(mainVal) > 0
+		) {
+			// N groups; each group keyed by sub-question label
+			for (let i = 1; i <= Number(mainVal); i++) {
+				const group: Record<string, string> = {}
+				staticQuestion.subquestions.forEach((subQuestion) => {
+					const subFieldName = `q_sub_${trackingId}_${subQuestion.label}_${i}`
+					const subValue = allFormValues[subFieldName]
+					if (
+						subValue !== undefined &&
+						subValue !== null &&
+						String(subValue) !== ''
+					) {
+						group[subQuestion.label] = Array.isArray(subValue)
+							? subValue.map(String).join(',')
+							: String(subValue)
+					}
+				})
+				if (Object.keys(group).length > 0) subAnswers.push(group)
+			}
+		} else {
+			// No subquestions -> single object with the static question label as key
+			const val = allFormValues[mainFieldName]
+			subAnswers.push({
+				[staticQuestion.label]: Array.isArray(val)
+					? val.map(String).join(',')
+					: String(val ?? ''),
+			})
+		}
+
+		const data: TrackingsAnswerUpsert = {
+			isStatic: true,
+			id_questions: id,
+			id_tracking: trackingId,
+			id_projects: projectId,
+			order: 1,
+			id_tracking_zones: trackingZoneId,
+			id_zones: zoneId,
+			id_tracking_answers: answerMap.get(id),
+			question: { ...staticQuestion, data: staticQuestion?.data ?? {} },
+			// EXACT shape: {"answer": "[{...},{...}]"}
+			answer: { answer: JSON.stringify(subAnswers) },
+		}
+		answerQuestionMutation.mutate(data)
 	}
 
 	const renderStaticField = (
@@ -338,12 +398,10 @@ export function TrackingExam({
 
 		if (!qType) return null
 
-		// Check if all fields are filled
 		const checkAllFieldsFilled = () => {
 			const allFormValues = getValues()
 			const mainFieldName = `q_${trackingId}_${staticQuestion.id_questions}`
 			const mainValue = allFormValues[mainFieldName]
-
 			if (!mainValue) return false
 
 			if (staticQuestion.subquestions && Number(mainValue) > 0) {
@@ -351,7 +409,6 @@ export function TrackingExam({
 					for (const subQuestion of staticQuestion.subquestions) {
 						const subFieldName = `q_sub_${trackingId}_${subQuestion.label}_${i}`
 						const subValue = allFormValues[subFieldName]
-
 						if (
 							subQuestion.data?.required &&
 							(!subValue || (Array.isArray(subValue) && subValue.length === 0))
@@ -361,8 +418,7 @@ export function TrackingExam({
 					}
 				}
 			}
-
-			return false
+			return true
 		}
 
 		switch (qType.type) {
@@ -378,7 +434,6 @@ export function TrackingExam({
 									value={field.value || ''}
 									onValueChange={(val) => {
 										field.onChange(val)
-										//  ovo je ruzno da me sram kako izgleda, al nemam ideju kako drugacije napravit
 										if (recursive && parentQuestion) {
 											handleBlurSubmit(
 												`q_${trackingId}_${parentQuestion.id_questions}`,
@@ -388,7 +443,6 @@ export function TrackingExam({
 										} else if (checkAllFieldsFilled()) {
 											handleBlurSubmit(name, staticQuestion.id_questions, true)
 										}
-										// 	zavrsio komentar
 									}}
 								>
 									<FormControl>
@@ -404,7 +458,7 @@ export function TrackingExam({
 												key={i}
 												value={typeof a === 'string' ? a : String(a)}
 											>
-												{a}
+												{String(a)}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -435,7 +489,9 @@ export function TrackingExam({
 													value={typeof a === 'string' ? a : String(a)}
 													id={`${name}-${i}`}
 												/>
-												<FormLabel htmlFor={`${name}-${i}`}>{a}</FormLabel>
+												<FormLabel htmlFor={`${name}-${i}`}>
+													{String(a)}
+												</FormLabel>
 											</div>
 										))}
 									</RadioGroup>
@@ -458,9 +514,9 @@ export function TrackingExam({
 									<FormControl>
 										<div className='space-y-2'>
 											{possibleAnswers.map((answer, i) => {
-												const checked = selected.includes(
+												const val =
 													typeof answer === 'string' ? answer : String(answer)
-												)
+												const checked = selected.includes(val)
 												return (
 													<div key={i} className='flex items-center space-x-2'>
 														<Checkbox
@@ -468,15 +524,15 @@ export function TrackingExam({
 															checked={checked}
 															onCheckedChange={(isChecked) => {
 																const updated = isChecked
-																	? [...selected, answer]
-																	: selected.filter((x) => x !== answer)
+																	? [...selected, val]
+																	: selected.filter((x) => x !== val)
 																setValue(name, updated, {
 																	shouldValidate: true,
 																})
 															}}
 														/>
 														<FormLabel htmlFor={`${name}-${i}`}>
-															{answer}
+															{val}
 														</FormLabel>
 													</div>
 												)
@@ -497,14 +553,7 @@ export function TrackingExam({
 				break
 		}
 
-		if (recursive) {
-			return mainField
-		}
-
-		const allFieldsFilled = checkAllFieldsFilled()
-		if (isStaticValid !== allFieldsFilled) {
-			setIsStaticValid(allFieldsFilled)
-		}
+		if (recursive) return mainField
 
 		return (
 			<div className='flex flex-col gap-y-4'>
@@ -515,7 +564,7 @@ export function TrackingExam({
 						<div className='space-y-4'>
 							{Array.from({ length: Number(watchField) }, (_, i) => (
 								<div key={i} className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
-									{staticQuestion.subquestions.map((subQuestion, subIndex) => {
+									{staticQuestion.subquestions!.map((subQuestion, subIndex) => {
 										const subQuestionId =
 											staticQuestion.id_questions * 1000 + subIndex * 10 + i + 1
 										return (
@@ -573,7 +622,6 @@ export function TrackingExam({
 						)}
 					/>
 				)
-
 			case 'text':
 				return (
 					<FormField
@@ -594,7 +642,6 @@ export function TrackingExam({
 						)}
 					/>
 				)
-
 			case 'select':
 				return (
 					<FormField
@@ -619,8 +666,8 @@ export function TrackingExam({
 									</FormControl>
 									<SelectContent>
 										{possibleAnswers.map((a, i) => (
-											<SelectItem key={i} value={a}>
-												{a}
+											<SelectItem key={i} value={String(a)}>
+												{String(a)}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -630,7 +677,6 @@ export function TrackingExam({
 						)}
 					/>
 				)
-
 			case 'radio':
 				return (
 					<FormField
@@ -648,8 +694,10 @@ export function TrackingExam({
 									>
 										{possibleAnswers.map((a, i) => (
 											<div key={i} className='flex items-center space-x-2'>
-												<RadioGroupItem value={a} id={`${name}-${i}`} />
-												<FormLabel htmlFor={`${name}-${i}`}>{a}</FormLabel>
+												<RadioGroupItem value={String(a)} id={`${name}-${i}`} />
+												<FormLabel htmlFor={`${name}-${i}`}>
+													{String(a)}
+												</FormLabel>
 											</div>
 										))}
 									</RadioGroup>
@@ -659,7 +707,6 @@ export function TrackingExam({
 						)}
 					/>
 				)
-
 			case 'checkbox':
 				return (
 					<FormField
@@ -672,8 +719,8 @@ export function TrackingExam({
 									<FormControl>
 										<div className='space-y-2'>
 											{possibleAnswers.map((answer, i) => {
-												const checked = selected.includes(answer)
-
+												const val = String(answer)
+												const checked = selected.includes(val)
 												return (
 													<div key={i} className='flex items-center space-x-2'>
 														<Checkbox
@@ -681,9 +728,8 @@ export function TrackingExam({
 															checked={checked}
 															onCheckedChange={(isChecked) => {
 																const updated = isChecked
-																	? [...selected, answer]
-																	: selected.filter((x) => x !== answer)
-
+																	? [...selected, val]
+																	: selected.filter((x) => x !== val)
 																setValue(name, updated, {
 																	shouldValidate: true,
 																})
@@ -691,7 +737,7 @@ export function TrackingExam({
 															}}
 														/>
 														<FormLabel htmlFor={`${name}-${i}`}>
-															{answer}
+															{val}
 														</FormLabel>
 													</div>
 												)
@@ -704,7 +750,6 @@ export function TrackingExam({
 						}}
 					/>
 				)
-
 			default:
 				return <p className='text-sm text-red-500'>Unknown question type</p>
 		}
@@ -712,40 +757,45 @@ export function TrackingExam({
 
 	useEffect(() => {
 		if (!activeQuestionAnswers.data) return
-		if (activeQuestionAnswers.data.length === 0) {
+		if ((activeQuestionAnswers.data as any[]).length === 0) {
 			const values: Record<string, string | string[]> = {}
 
+			// dynamic questions
 			for (const entry of questions) {
 				const name = `q_${trackingId}_${entry.id_questions}`
 				const qType = getQuestionType(entry.id_questions_types)
-
 				values[name] = qType?.type === 'checkbox' ? [] : ''
 			}
+			// static main fields
+			for (const sq of staticQuestions) {
+				const name = `q_${trackingId}_${sq.id_questions}`
+				const qType = getQuestionType(sq.id_questions_types)
+				values[name] = qType?.type === 'checkbox' ? [] : ''
+			}
+
 			form.reset(values)
 			return
 		}
 
-		if (activeQuestionAnswers.data.length > 0) {
+		if ((activeQuestionAnswers.data as any[]).length > 0) {
 			const values: Record<string, string | string[]> = {}
-			let arr
+			let arr: any[] | undefined
 
 			if (zoneId && trackingZoneId) {
-				arr = activeQuestionAnswers.data
+				arr = (activeQuestionAnswers.data as any[])
 					.find(
-						(entry) =>
+						(entry: any) =>
 							entry.id_zones === zoneId && entry.id_tracking === trackingId
 					)
-					// 	@ts-expect-error exist
-					?.answers?.filter((x) => x.id_tracking_zones === trackingZoneId)
+					?.answers?.filter((x: any) => x.id_tracking_zones === trackingZoneId)
 			} else {
-				arr = activeQuestionAnswers.data
+				arr = activeQuestionAnswers.data as any[]
 			}
 			if (!arr) return
 
 			for (const entry of arr) {
-				// Check if it's a static question (id < 1000)
 				if (entry?.id_questions < 1000) {
-					// Static question handling
+					// STATIC
 					const staticQuestion = staticQuestions.find(
 						(q) => q.id_questions === entry.id_questions
 					)
@@ -753,64 +803,80 @@ export function TrackingExam({
 
 					const name = `q_${trackingId}_${entry.id_questions}`
 
-					try {
-						// Parse the stringified answer array
-						const answerArray = JSON.parse(entry.answer?.answer ?? '[]')
+					const answerArray = parseAnswerArray(entry?.answer?.answer)
+
+					if (
+						staticQuestion.subquestions &&
+						staticQuestion.subquestions.length > 0
+					) {
+						// main value = count of groups
 						const currentMainValue = getValues(name)
 						const mainValue =
 							currentMainValue && Number(currentMainValue) > answerArray.length
 								? currentMainValue
 								: answerArray.length
-						// Set main question value to the length of answers
 						const qType = getQuestionType(staticQuestion.id_questions_types)
 						values[name] =
 							qType?.type === 'checkbox'
 								? [String(mainValue)]
 								: String(mainValue)
 
-						// Set subquestion values
+						// set subquestion values per group
 						answerArray.forEach(
-							(answerGroup: Record<string, string>, index: number) => {
-								if (staticQuestion.subquestions) {
-									staticQuestion.subquestions.forEach((subQuestion) => {
-										const subFieldName = `q_sub_${trackingId}_${subQuestion.label}_${index + 1}`
-										const subValue = answerGroup[subQuestion.label]
-
-										if (subValue) {
-											const subQType = getQuestionType(
-												subQuestion.id_questions_types
-											)
-											values[subFieldName] =
-												subQType?.type === 'checkbox'
-													? subValue.split(',')
-													: subValue
-										}
-									})
-								}
+							(group: Record<string, string>, index: number) => {
+								staticQuestion.subquestions!.forEach((subQuestion) => {
+									const subFieldName = `q_sub_${trackingId}_${subQuestion.label}_${index + 1}`
+									const subValue = group[subQuestion.label]
+									if (subValue != null) {
+										const subQType = getQuestionType(
+											subQuestion.id_questions_types
+										)
+										values[subFieldName] =
+											subQType?.type === 'checkbox'
+												? String(subValue).split(',')
+												: String(subValue)
+									}
+								})
 							}
 						)
-					} catch (error) {
-						console.error('Error parsing static question answer:', error)
-						// Fallback to empty value
+					} else {
+						// NO subquestions: main control should show the single value under the static label
+						const first = answerArray[0] ?? {}
+						const rawVal = first[staticQuestion.label] ?? ''
 						const qType = getQuestionType(staticQuestion.id_questions_types)
-						values[name] = qType?.type === 'checkbox' ? [] : ''
+						values[name] =
+							qType?.type === 'checkbox' ? [String(rawVal)] : String(rawVal)
 					}
 				} else {
+					// DYNAMIC
 					const name = `q_${trackingId}_${entry.id_questions}`
 					const raw = entry.answer?.answer ?? ''
 					const qType = getQuestionType(entry.question?.id_questions_types)
-					values[name] = qType?.type === 'checkbox' ? raw.split(',') : raw
+					values[name] =
+						qType?.type === 'checkbox' ? String(raw).split(',') : String(raw)
 				}
 			}
 
 			Object.entries(values).forEach(([name, val]) => {
 				setValue(name, val, {
-					shouldDirty: true, // mark the field dirty if it changed
-					shouldTouch: true, // mark it as touched
+					shouldDirty: true,
+					shouldTouch: true,
 				})
 			})
 		}
-	}, [activeQuestionAnswers.data, questionTypes])
+	}, [
+		activeQuestionAnswers.data,
+		questionTypes,
+		zoneId,
+		trackingZoneId,
+		trackingId,
+		questions,
+		staticQuestions,
+		form,
+		getQuestionType,
+		setValue,
+		getValues,
+	])
 
 	useEffect(() => {
 		if (onValidityChange) {
@@ -830,7 +896,7 @@ export function TrackingExam({
 					: 'relative pb-4'
 			}`}
 		>
-			<div className='mx-auto max-w-4xl space-y-6'>
+			<div className='mx-auto max-w-4xl space-y-6 max-md:pr-3'>
 				<div className='flex items-center justify-between'>
 					{examName && (
 						<>
@@ -852,12 +918,12 @@ export function TrackingExam({
 
 				<Form {...form}>
 					<form
-						className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2', {
+						className={cn('grid grid-cols-1 gap-4 sm:grid-cols-3', {
 							'sm:grid-cols-1': questions.length === 1 || isFullscreen,
 						})}
 					>
 						{staticQuestions.map((q) => (
-							<Card key={q.id_questions} className='sm:col-span-2'>
+							<Card key={q.id_questions} className='sm:col-span-3'>
 								<CardHeader className='px-4 pb-1.5 pt-4'>
 									<CardTitle>
 										{q.label}{' '}

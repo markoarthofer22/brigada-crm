@@ -1,6 +1,9 @@
 import { ZodError } from 'zod'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { type ClassValue, clsx } from 'clsx'
+import { saveAs } from 'file-saver'
+import html2canvas from 'html2canvas'
+import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 import { isAxiosError } from '@/api/axios.ts'
 
@@ -166,3 +169,42 @@ export function isAndroid() {
 export const isInStandaloneMode = () =>
 	'standalone' in window.navigator &&
 	(window.navigator as any).standalone === true
+
+export const handleServerError = (error: unknown) => {
+	let errMsg = 'Something went wrong!'
+
+	if (
+		error &&
+		typeof error === 'object' &&
+		'status' in error &&
+		Number(error.status) === 204
+	) {
+		errMsg = 'Content not found.'
+	}
+
+	if (error instanceof AxiosError) {
+		errMsg = error.response?.data.title
+	}
+
+	toast.error(errMsg)
+}
+
+export const handleScreenshot = async (
+	div: HTMLElement | null,
+	exportName: string
+) => {
+	if (!div) return
+	const canvas = await html2canvas(div, {
+		useCORS: true,
+		backgroundColor: null,
+		scale: 3,
+		logging: false,
+	})
+	const blob: Blob = await new Promise((res, rej) =>
+		canvas.toBlob(
+			(b) => (b ? res(b) : rej(new Error('toBlob failed'))),
+			'image/png'
+		)
+	)
+	saveAs(blob, `${exportName}.png`)
+}

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
+import { handleScreenshot } from '@/lib/utils.ts'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -26,14 +28,20 @@ import {
 } from '@/components/ui/table'
 
 interface ZonesProps {
+	projectName: string
 	data: {
 		per_zone?: any[]
 		total?: any
 	}
 }
 
-export default function Zones({ data }: ZonesProps) {
+export default function Zones({ data, projectName }: ZonesProps) {
 	const { t } = useTranslation()
+	const { handleError } = useHandleGenericError()
+
+	const [isZoneImageDownloading, setIsZoneImageDownloading] =
+		useState<boolean>(false)
+
 	const [viewStates, setViewStates] = useState<{
 		[key: string]: 'table' | 'chart'
 	}>({})
@@ -45,7 +53,26 @@ export default function Zones({ data }: ZonesProps) {
 		}))
 	}
 
+	const handleScreenshotDownload = async (id: string, name: string) => {
+		setIsZoneImageDownloading(true)
+		try {
+			const translatedName = t('Analytics.downloadName', {
+				projectName,
+				name,
+			})
+
+			await handleScreenshot(document.getElementById(id), translatedName)
+		} catch (error: unknown) {
+			console.error(error)
+			handleError(error)
+		} finally {
+			setIsZoneImageDownloading(false)
+		}
+	}
+
 	const pastedTextData = data?.total?.data
+
+	console.log('data', data)
 
 	if (!data || !data.per_zone || data.per_zone.length === 0) {
 		return (
@@ -212,7 +239,7 @@ export default function Zones({ data }: ZonesProps) {
 			</Card>
 
 			{data.per_zone.map((zone: any) => (
-				<Card key={zone.id_zones}>
+				<Card key={zone.id_zones} id={`zone-${zone.id_zones}`}>
 					<CardHeader className='flex flex-row items-center justify-between'>
 						<div>
 							<CardTitle>{zone.name}</CardTitle>
@@ -220,14 +247,31 @@ export default function Zones({ data }: ZonesProps) {
 								{t('Analytics.zoneId')}: {zone.id_zones}
 							</CardDescription>
 						</div>
-						<Button
-							variant='outline'
-							onClick={() => toggleView(`zone-${zone.id_zones}`)}
-						>
-							{viewStates[`zone-${zone.id_zones}`] === 'chart'
-								? t('Analytics.showTable')
-								: t('Analytics.showGraphic')}
-						</Button>
+						<div className='flex items-center gap-2'>
+							{viewStates[`zone-${zone.id_zones}`] === 'chart' && (
+								<Button
+									disabled={isZoneImageDownloading}
+									onClick={async () => {
+										await handleScreenshotDownload(
+											`zone-${zone.id_zones}`,
+											zone.name
+										)
+									}}
+									variant='default'
+								>
+									{t('Analytics.downloadImage')}
+								</Button>
+							)}
+							<Button
+								disabled={isZoneImageDownloading}
+								variant='outline'
+								onClick={() => toggleView(`zone-${zone.id_zones}`)}
+							>
+								{viewStates[`zone-${zone.id_zones}`] === 'chart'
+									? t('Analytics.showTable')
+									: t('Analytics.showGraphic')}
+							</Button>
+						</div>
 					</CardHeader>
 					<CardContent>
 						<div className='mb-4 grid grid-cols-1 gap-4 md:grid-cols-3'>

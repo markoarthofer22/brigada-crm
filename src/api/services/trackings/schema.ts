@@ -29,9 +29,7 @@ export const TrackingAnswerUpsertSchema = z.object({
 	id_zones: z.number().optional().nullable(),
 	id_tracking_zones: z.number().optional().nullable(),
 	question: z.any(),
-	answer: z.object({
-		answer: z.string(),
-	}),
+	answer: z.any(),
 	order: z.number().optional(),
 	isStatic: z.boolean().optional(),
 })

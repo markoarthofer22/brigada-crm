@@ -412,7 +412,10 @@ export default function Analytics() {
 						</TabsContent>
 						<TabsContent value={AnalyticsTabs.Zones}>
 							{project && (
-								<Zones data={analyticsQuery.data?.total_data?.zones} />
+								<Zones
+									projectName={analyticsQuery.data.name}
+									data={analyticsQuery.data?.total_data?.zones}
+								/>
 							)}
 						</TabsContent>
 						<TabsContent value={AnalyticsTabs.Comments}>
