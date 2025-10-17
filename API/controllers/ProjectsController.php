@@ -58,7 +58,7 @@ class ProjectsController extends BaseController
 		$params = $Helper->ArrayToObject($vars);
 		$queryparams = $request->getQueryParams();
 
-		$params->type = false;
+		$params->type = 1;
 		if (isset($queryparams["type"]) && in_array($queryparams["type"], ['1', '2', 1, 2])) {
 			$params->type = $queryparams["type"];
 		}
@@ -341,5 +341,35 @@ class ProjectsController extends BaseController
 		$image = $Images->Delete($args->id_images);
 		$Projects->DisconnectProjectsImages((object)["id_projects" => $args->id, "id_images" => $args->id_images]);
 		return $response->withJson([], 204);;
+	}
+
+
+	/**
+	 * Copy function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Copy(Request $request, Response $response, array $args): Response
+	{
+
+		$Language = new Language($this->db);
+		$Projects = new Projects($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
+
+		if (!isset($params->id_projects) || $params->id_projects == "") {
+			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing projects ID"))), $response);
+		}
+
+		$Projects->Copy($params);
+
+		return $response->withJson(array(), 200);
 	}
 }

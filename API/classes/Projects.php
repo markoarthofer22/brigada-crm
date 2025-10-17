@@ -39,9 +39,9 @@ class Projects
 
 		$Helper = new Helper($this->database);
 
-		$where = "";
+		$where = " WHERE 1=1 ";
 		if (isset($params) && $params->type) {
-			$where = "WHERE p.type = :TYPE";
+			$where .= "AND p.type = :TYPE";
 		}
 
 		$sql = "SELECT 
@@ -228,5 +228,133 @@ class Projects
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Copy function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function Copy(object $params): array
+	{
+
+		// IMAGES
+		$sql = "SELECT * FROM brigada.projects_images WHERE id_projects = :ID_PROJECTS";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->execute();
+		$images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		$uploadedImages = [];
+		foreach ($images as $image) {
+			$sql = "SELECT * FROM brigada.images WHERE id_images = :ID_IMAGES";
+			$stmt = $this->database->prepare($sql);
+			$stmt->bindParam(':ID_IMAGES', $image["id_images"]);
+			$stmt->execute();
+			$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
+			$info = pathinfo($r['name']);
+
+			$fileExtension = $info['extension'];
+			$fileName = uniqid('', true) . '.' . $fileExtension;
+			$data = $r['data'];
+
+			$sql = "INSERT INTO {$_SESSION['SCHEMA']}.images (name, data) VALUES (:NAME, :DATA) RETURNING id_images";
+			$stmt = $this->database->prepare($sql);
+			$stmt->bindParam(':NAME', $fileName, PDO::PARAM_STR);
+			$stmt->bindParam(':DATA', $data, PDO::PARAM_STR); // JSONB is passed as string
+			$stmt->execute();
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+			$old_file = rtrim($this->folder, '/') . '/' . $r['name'];
+			$new_file = rtrim($this->folder, '/') . '/' . $fileName;
+			copy($old_file, $new_file);
+
+			$uploadedImages[] = ["id_images_new" => $result['id_images'], "id_images_old" => $image["id_images"]];
+		}
+
+		// echo "<pre>";
+		// print_r($uploadedImages);
+		// exit;
+
+		// PROJECTS
+		$sql = "INSERT INTO brigada.projects (data)
+				SELECT jsonb_set(
+						data, 
+						'{name}', 
+						to_jsonb((data->>'name') || ' copy')
+					)
+				FROM brigada.projects
+				WHERE id_projects = :ID_PROJECTS
+				RETURNING id_projects
+		";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->execute();
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$id_projects_new = $result['id_projects'];
+
+		// CONNECT IMAGES TO NEW PROJECT
+		foreach ($uploadedImages as $image) {
+			$this->ConnectProjectsImages((object)["id_projects" => $id_projects_new, "id_images" => $image["id_images_new"]]);
+
+			// ZONES
+			$sql = "WITH inserted AS (
+						INSERT INTO brigada.zones (id_projects, id_images, name, coordinates, data)
+						SELECT 
+							:ID_PROJECTS_NEW,
+							:ID_IMAGES_NEW,
+							name,
+							coordinates,
+							data
+						FROM brigada.zones
+						WHERE id_projects = :ID_PROJECTS AND id_images = :ID_IMAGES
+						RETURNING id_zones
+					)
+					SELECT 
+						inserted.id_zones AS id_zones_new,
+						z.id_zones AS id_zones_old
+					FROM inserted, brigada.zones z
+					WHERE z.id_projects = :ID_PROJECTS AND z.id_images = :ID_IMAGES;
+			";
+			$stmt = $this->database->prepare($sql);
+			$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+			$stmt->bindParam(':ID_PROJECTS_NEW', $id_projects_new);
+			$stmt->bindParam(':ID_IMAGES_NEW', $image["id_images_new"]);
+			$stmt->bindParam(':ID_IMAGES', $image["id_images_old"]);
+			$stmt->execute();
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			$id_zones_new = $result['id_zones_new'];
+			$id_zones_old = $result['id_zones_old'];
+
+			// QUESTIONS WITHIN ZONES
+			$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
+					SELECT :ID_PROJECTS_NEW,:ID_ZONES_NEW,label,id_questions_types,possible_answers,\"order\",data FROM brigada.questions WHERE id_projects = :ID_PROJECTS AND id_zones = :ID_ZONES_OLD
+					RETURNING id_zones
+			";
+			$stmt = $this->database->prepare($sql);
+			$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+			$stmt->bindParam(':ID_PROJECTS_NEW', $id_projects_new);
+			$stmt->bindParam(':ID_ZONES_NEW', $id_zones_new);
+			$stmt->bindParam(':ID_ZONES_OLD', $id_zones_old);
+			$stmt->execute();
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		}
+
+		// QUESTIONS WITHOUT ZONES
+		$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
+				SELECT :ID_PROJECTS_NEW,null,label,id_questions_types,possible_answers,\"order\",data FROM brigada.questions WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL
+		";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->bindParam(':ID_PROJECTS_NEW', $id_projects_new);
+		$stmt->execute();
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+
+
+		return $result;
 	}
 }

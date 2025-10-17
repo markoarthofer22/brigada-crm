@@ -146,6 +146,7 @@ $app->group('', function () use ($app) {
 		$app->get('/{id}', ProjectsController::class . ":Get");
 		$app->post('', ProjectsController::class . ":Add");
 		$app->put('/{id}', ProjectsController::class . ":Update");
+		$app->post('/copy', ProjectsController::class . ":Copy");
 		$app->post('/{id}/image', ProjectsController::class . ":UploadImage");
 		$app->delete('/{id}', ProjectsController::class . ":Delete");
 		$app->delete('/{id}/image/{id_images}', ProjectsController::class . ":DeleteImage");
