@@ -36,18 +36,17 @@ export default function TotalData({ data }: TotalDataProps) {
 	}
 
 	const formatSeconds = (sec: number) => {
-		if (!isFinite(sec) || sec <= 0) return '-';
+		if (!isFinite(sec) || sec <= 0) return '-'
 
-		const totalSeconds = Math.round(sec);
+		const totalSeconds = Math.round(sec)
+		const hours = Math.floor(totalSeconds / 3600)
+		const minutes = Math.floor((totalSeconds % 3600) / 60)
+		const seconds = totalSeconds % 60
 
-		const hours   = Math.floor(totalSeconds / 3600);
-		const minutes = Math.floor((totalSeconds % 3600) / 60);
-		const seconds = totalSeconds % 60;
-
-		if (hours && minutes) return `${hours}h ${minutes} min`;
-		if (hours && !minutes) return `${hours}h`;
-		return `${minutes ? `${minutes} min` : ''} ${seconds} sec`.trim();
-	};
+		if (hours && minutes) return `${hours}h ${minutes} min`
+		if (hours && !minutes) return `${hours}h`
+		return `${minutes ? `${minutes} min` : ''} ${seconds} sec`.trim()
+	}
 
 	const prepareAnswersChartData = (countPercentage: any) => {
 		return Object.entries(countPercentage).map(
