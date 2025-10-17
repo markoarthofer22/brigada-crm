@@ -70,7 +70,7 @@ class Analytics
 			$output[] = [
 				"from" => $p->params->from,
 				"to" => $p->params->to,
-				"data" => $callback->InternatGet($p->params)
+				"data" => $callback->InternalGet($p->params)
 			];
 		}
 

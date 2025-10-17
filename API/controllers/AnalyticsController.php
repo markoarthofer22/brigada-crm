@@ -69,7 +69,7 @@ class AnalyticsController extends BaseController
 			);
 		}
 
-		$result = $this->InternatGet($params);
+		$result = $this->InternalGet($params);
 
 
 
@@ -122,7 +122,7 @@ class AnalyticsController extends BaseController
 	}
 
 
-	public function InternatGet($params)
+	public function InternalGet($params)
 	{
 		$Helper = new Helper($this->db);
 		$Language = new Language($this->db);
@@ -410,7 +410,6 @@ class AnalyticsController extends BaseController
 
 		$result["total_data"]["dobna_skupina"] = $Analytics->PrepareDobnaSkupinaDataTotal($result["trackings"], $result_static_questions);
 		$result["total_data"]["zones"] = $Analytics->PrepareDataZones($result["trackings"]);
-
 
 		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
 
