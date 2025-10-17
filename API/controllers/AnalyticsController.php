@@ -69,7 +69,7 @@ class AnalyticsController extends BaseController
 			);
 		}
 
-		$result = $this->InternatGet($params);
+		$result = $this->InternalGet($params);
 
 
 
@@ -122,7 +122,7 @@ class AnalyticsController extends BaseController
 	}
 
 
-	public function InternatGet($params)
+	public function InternalGet($params)
 	{
 		$Helper = new Helper($this->db);
 		$Language = new Language($this->db);
