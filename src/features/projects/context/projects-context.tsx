@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Project } from '@/api/services/projects/schema.ts'
 import useDialogState from '@/hooks/use-dialog-state'
 
-type ProjectsDialogType = 'add' | 'edit' | 'delete'
+type ProjectsDialogType = 'add' | 'edit' | 'delete' | 'copy'
 
 interface ProjectsContextType {
 	open: ProjectsDialogType | null

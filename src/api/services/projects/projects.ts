@@ -93,6 +93,12 @@ export async function upsertProject(model: ProjectUpsert) {
 	}
 }
 
+export async function duplicateProjectById(id: number) {
+	await axios.post(`/projects/copy`, {
+		id_projects: id,
+	})
+}
+
 export async function deleteProject(id: number) {
 	await axios.delete(`/projects/${id}`)
 }

@@ -13,7 +13,7 @@ export const columns = [
 			<DataTableColumnHeader column={column} title='Table.header.name' />
 		),
 		cell: ({ getValue }) => (
-			<LongText className='max-w-36'>{getValue()}</LongText>
+			<LongText className='max-w-[500px]'>{getValue()}</LongText>
 		),
 	}),
 

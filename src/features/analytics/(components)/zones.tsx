@@ -35,6 +35,17 @@ interface ZonesProps {
 	}
 }
 
+const pieChartColors = [
+	'#0088FE',
+	'#00C49F',
+	'#FFBB28',
+	'#FF8042',
+	'#AF19FF',
+	'#FF4560',
+	'#00E396',
+	'#775DD0',
+]
+
 export default function Zones({ data, projectName }: ZonesProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
@@ -53,7 +64,11 @@ export default function Zones({ data, projectName }: ZonesProps) {
 		}))
 	}
 
-	const handleScreenshotDownload = async (id: string, name: string) => {
+	const handleScreenshotDownload = async (
+		id: string,
+		name: string,
+		buttonId: string
+	) => {
 		setIsZoneImageDownloading(true)
 		try {
 			const translatedName = t('Analytics.downloadName', {
@@ -61,7 +76,11 @@ export default function Zones({ data, projectName }: ZonesProps) {
 				name,
 			})
 
-			await handleScreenshot(document.getElementById(id), translatedName)
+			await handleScreenshot(
+				document.getElementById(id),
+				translatedName,
+				buttonId
+			)
 		} catch (error: unknown) {
 			console.error(error)
 			handleError(error)
@@ -241,18 +260,19 @@ export default function Zones({ data, projectName }: ZonesProps) {
 					<CardHeader className='flex flex-row items-center justify-between'>
 						<div>
 							<CardTitle>{zone.name}</CardTitle>
-							<CardDescription>
-								{t('Analytics.zoneId')}: {zone.id_zones}
-							</CardDescription>
 						</div>
-						<div className='flex items-center gap-2'>
+						<div
+							className='flex items-center gap-2'
+							id={`zone-${zone.id_zones}-buttons`}
+						>
 							{viewStates[`zone-${zone.id_zones}`] === 'chart' && (
 								<Button
 									disabled={isZoneImageDownloading}
 									onClick={async () => {
 										await handleScreenshotDownload(
 											`zone-${zone.id_zones}`,
-											zone.name
+											zone.name,
+											`zone-${zone.id_zones}-buttons`
 										)
 									}}
 									variant='default'
@@ -298,68 +318,175 @@ export default function Zones({ data, projectName }: ZonesProps) {
 						</div>
 
 						{viewStates[`zone-${zone.id_zones}`] === 'chart' ? (
-							<ChartContainer
-								config={{
-									males: { label: t('Analytics.males'), color: '#0088FE' },
-									females: { label: t('Analytics.females'), color: '#00C49F' },
-								}}
-								className='h-[300px]'
-							>
-								<PieChart>
-									<Pie
-										data={[
-											{
-												name: t('Analytics.males'),
-												value: zone.data.broj_muski,
-												fill: '#0088FE',
+							<div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+								<div className='relative'>
+									<h3 className='absolute left-1/2 top-3 -translate-x-1/2 pl-2 text-lg font-semibold'>
+										{t('Analytics.genderDistribution')}
+									</h3>
+									<ChartContainer
+										config={{
+											males: { label: t('Analytics.males'), color: '#0088FE' },
+											females: {
+												label: t('Analytics.females'),
+												color: '#00C49F',
 											},
-											{
-												name: t('Analytics.females'),
-												value: zone.data.broj_zenski,
-												fill: '#00C49F',
-											},
-										]}
-										cx='50%'
-										cy='50%'
-										outerRadius={100}
-										dataKey='value'
-										label={({ name, value }) => `${name}: ${value}`}
-									/>
-									<ChartTooltip content={<ChartTooltipContent />} />
-								</PieChart>
-							</ChartContainer>
+										}}
+										className='h-[300px] w-full'
+									>
+										<PieChart>
+											<Pie
+												data={[
+													{
+														name: t('Analytics.males'),
+														value: zone.data.broj_muski,
+														fill: '#0088FE',
+													},
+													{
+														name: t('Analytics.females'),
+														value: zone.data.broj_zenski,
+														fill: '#00C49F',
+													},
+												]}
+												cx='50%'
+												cy='50%'
+												outerRadius={80}
+												dataKey='value'
+												label={({ name, percent }) =>
+													`${name}: ${(percent * 100).toFixed(0)}%`
+												}
+											/>
+											<ChartTooltip
+												content={
+													<ChartTooltipContent
+														formatter={(value, name) =>
+															`${name}: ${(((value as number) / zone.data?.broj_ljudi) * 100).toFixed(2)}% (${value})`
+														}
+													/>
+												}
+											/>
+										</PieChart>
+									</ChartContainer>
+								</div>
+								{zone.questions_answers?.map((q: any, i: number) => (
+									<div key={i} className='relative'>
+										<h3 className='absolute left-1/2 top-3 -translate-x-1/2 pl-2 text-lg font-semibold'>
+											{t('Analytics.questions.question')} {q.label}
+										</h3>
+										<ChartContainer
+											config={q.possible_answers_count.reduce(
+												(acc: any, answer: any) => {
+													acc[answer.label] = {
+														label: answer.label,
+														color: pieChartColors[i],
+													}
+													return acc
+												},
+												{}
+											)}
+											className='h-[300px] w-full'
+										>
+											<PieChart>
+												<Pie
+													data={q.possible_answers_count.map(
+														(answer: any, k: number) => ({
+															name: answer.label,
+															value: answer.count,
+															percentage: answer.percentage,
+															fill: pieChartColors[k],
+														})
+													)}
+													cx='50%'
+													cy='50%'
+													outerRadius={80}
+													dataKey='value'
+													label={({ name, payload }) =>
+														`${name}: ${payload.payload.percentage}%`
+													}
+												/>
+												<ChartTooltip
+													content={
+														<ChartTooltipContent
+															formatter={(value, name, payload) =>
+																`${name}: ${payload.payload.percentage}% (${value})`
+															}
+														/>
+													}
+												/>
+											</PieChart>
+										</ChartContainer>
+									</div>
+								))}
+							</div>
 						) : (
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>{t('Analytics.metric')}</TableHead>
-										<TableHead>{t('Analytics.value')}</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									<TableRow>
-										<TableCell>{t('Analytics.males')}</TableCell>
-										<TableCell>{zone.data.broj_muski}</TableCell>
-									</TableRow>
-									<TableRow>
-										<TableCell>{t('Analytics.females')}</TableCell>
-										<TableCell>{zone.data.broj_zenski}</TableCell>
-									</TableRow>
-									<TableRow>
-										<TableCell>{t('Analytics.totalDuration')}</TableCell>
-										<TableCell>{zone.lasted.formatted}</TableCell>
-									</TableRow>
-									<TableRow>
-										<TableCell>{t('Analytics.avgPerPerson')}</TableCell>
-										<TableCell>
-											{Number.parseFloat(
-												zone.lasted.average.by_number_of_people_seconds
-											)?.toFixed(2)}{' '}
-											{t('Analytics.seconds')}
-										</TableCell>
-									</TableRow>
-								</TableBody>
-							</Table>
+							<>
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>{t('Analytics.metric')}</TableHead>
+											<TableHead>{t('Analytics.value')}</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										<TableRow>
+											<TableCell>{t('Analytics.males')}</TableCell>
+											<TableCell>{zone.data.broj_muski}</TableCell>
+										</TableRow>
+										<TableRow>
+											<TableCell>{t('Analytics.females')}</TableCell>
+											<TableCell>{zone.data.broj_zenski}</TableCell>
+										</TableRow>
+										<TableRow>
+											<TableCell>{t('Analytics.totalDuration')}</TableCell>
+											<TableCell>{zone.lasted.formatted}</TableCell>
+										</TableRow>
+										<TableRow>
+											<TableCell>{t('Analytics.avgPerPerson')}</TableCell>
+											<TableCell>
+												{Number.parseFloat(
+													zone.lasted.average.by_number_of_people_seconds
+												)?.toFixed(2)}{' '}
+												{t('Analytics.seconds')}
+											</TableCell>
+										</TableRow>
+									</TableBody>
+								</Table>
+
+								{zone?.questions_answers?.length > 0 && (
+									<div className='mt-6 space-y-4'>
+										{zone.questions_answers?.map((q: any, i: number) => (
+											<div className='space-y-2' key={i}>
+												<h3 className='pl-2 text-lg font-semibold'>
+													{t('Analytics.questions.question')} {q.label}
+												</h3>
+												<Table>
+													<TableHeader>
+														<TableRow>
+															<TableHead>
+																{t('Analytics.questions.answer')}
+															</TableHead>
+															<TableHead>
+																{t('Analytics.questions.count')}
+															</TableHead>
+															<TableHead>
+																{t('Analytics.questions.percentage')}
+															</TableHead>
+														</TableRow>
+													</TableHeader>
+													<TableBody>
+														{q.possible_answers_count.map((answer: any) => (
+															<TableRow key={answer.label}>
+																<TableCell>{answer.label}</TableCell>
+																<TableCell>{answer.count}</TableCell>
+																<TableCell>{answer.percentage}%</TableCell>
+															</TableRow>
+														))}
+													</TableBody>
+												</Table>
+											</div>
+										))}
+									</div>
+								)}
+							</>
 						)}
 					</CardContent>
 				</Card>

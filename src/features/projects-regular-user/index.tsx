@@ -25,7 +25,11 @@ const ProjectsRegularUser = () => {
 	}, [projectsQuery.isLoading])
 
 	const visibleProjects = projectsQuery.data?.filter(
-		(project) => project.active === ActiveStatus.ACTIVE
+		(project) =>
+			project.active === ActiveStatus.ACTIVE &&
+			project?.images &&
+			project.images.length > 0 &&
+			project.questions?.length > 0
 	)
 
 	return (

@@ -1,14 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { IconShare2 } from '@tabler/icons-react'
-import { Globe, Laptop, LogOut, Moon, Sun, User } from 'lucide-react'
+import { Globe, LogOut, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { logout } from '@/api/services/authorization/authorization.ts'
 import { Languages, useAuthStore } from '@/stores/authStore.ts'
 import { useMiscellaneousStore } from '@/stores/miscStore.ts'
 import { cn, getInitials, isIOS } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
-import { useTheme } from '@/context/theme-context.tsx'
+// import { useTheme } from '@/context/theme-context.tsx'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -33,7 +33,7 @@ export function Header({
 	className,
 	showSidebarToggle = true,
 }: HeaderProps) {
-	const { setTheme, theme } = useTheme()
+	// const { setTheme, theme } = useTheme()
 	const miscStore = useMiscellaneousStore((state) => state)
 	const setLanguage = useAuthStore((state) => state.auth.setLang)
 	const user = useAuthStore((state) => state.auth.user)
@@ -130,40 +130,40 @@ export function Header({
 						</DropdownMenuContent>
 					</DropdownMenu>
 
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								variant='ghost'
-								size='icon'
-								className='focus-visible:ring-0'
-							>
-								{theme === 'light' ? (
-									<Sun className='size-5' />
-								) : theme === 'dark' ? (
-									<Moon className='size-5' />
-								) : (
-									<Laptop className='size-5' />
-								)}
-								<span className='sr-only'>Toggle theme</span>
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align='end'>
-							<DropdownMenuLabel>{t('Header.theme.title')}</DropdownMenuLabel>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem onClick={() => setTheme('light')}>
-								<Sun className='mr-2 size-5' />
-								<span>{t('Header.theme.light')}</span>
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => setTheme('dark')}>
-								<Moon className='mr-2 size-5' />
-								<span>{t('Header.theme.dark')}</span>
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => setTheme('system')}>
-								<Laptop className='mr-2 size-5' />
-								<span>{t('Header.theme.system')}</span>
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+					{/*<DropdownMenu>*/}
+					{/*	<DropdownMenuTrigger asChild>*/}
+					{/*		<Button*/}
+					{/*			variant='ghost'*/}
+					{/*			size='icon'*/}
+					{/*			className='focus-visible:ring-0'*/}
+					{/*		>*/}
+					{/*			{theme === 'light' ? (*/}
+					{/*				<Sun className='size-5' />*/}
+					{/*			) : theme === 'dark' ? (*/}
+					{/*				<Moon className='size-5' />*/}
+					{/*			) : (*/}
+					{/*				<Laptop className='size-5' />*/}
+					{/*			)}*/}
+					{/*			<span className='sr-only'>Toggle theme</span>*/}
+					{/*		</Button>*/}
+					{/*	</DropdownMenuTrigger>*/}
+					{/*	<DropdownMenuContent align='end'>*/}
+					{/*		<DropdownMenuLabel>{t('Header.theme.title')}</DropdownMenuLabel>*/}
+					{/*		<DropdownMenuSeparator />*/}
+					{/*		<DropdownMenuItem onClick={() => setTheme('light')}>*/}
+					{/*			<Sun className='mr-2 size-5' />*/}
+					{/*			<span>{t('Header.theme.light')}</span>*/}
+					{/*		</DropdownMenuItem>*/}
+					{/*		<DropdownMenuItem onClick={() => setTheme('dark')}>*/}
+					{/*			<Moon className='mr-2 size-5' />*/}
+					{/*			<span>{t('Header.theme.dark')}</span>*/}
+					{/*		</DropdownMenuItem>*/}
+					{/*		<DropdownMenuItem onClick={() => setTheme('system')}>*/}
+					{/*			<Laptop className='mr-2 size-5' />*/}
+					{/*			<span>{t('Header.theme.system')}</span>*/}
+					{/*		</DropdownMenuItem>*/}
+					{/*	</DropdownMenuContent>*/}
+					{/*</DropdownMenu>*/}
 
 					{user && (
 						<DropdownMenu>

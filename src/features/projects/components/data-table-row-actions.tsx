@@ -1,7 +1,7 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { useRouter } from '@tanstack/react-router'
 import { Row } from '@tanstack/react-table'
-import { IconEdit, IconTrash } from '@tabler/icons-react'
+import { IconCopyCheck, IconEdit, IconTrash } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { Project } from '@/api/services/projects/schema.ts'
 import { Button } from '@/components/ui/button'
@@ -37,7 +37,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 						<span className='sr-only'>Open menu</span>
 					</Button>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent align='end' className='w-[160px]'>
+				<DropdownMenuContent align='end' className='w-[240px]'>
 					<DropdownMenuItem
 						onClick={(e) => {
 							e.stopPropagation()
@@ -49,6 +49,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 						{t('Actions.edit')}
 						<DropdownMenuShortcut>
 							<IconEdit size={16} />
+						</DropdownMenuShortcut>
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem
+						onClick={(e) => {
+							e.stopPropagation()
+							setCurrentRow(row.original)
+							setOpen('copy')
+						}}
+					>
+						{t('Actions.copyProject')}
+						<DropdownMenuShortcut>
+							<IconCopyCheck size={16} />
 						</DropdownMenuShortcut>
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />

@@ -6,6 +6,7 @@
 		"clearFilters": "Reset",
 		"close": "Zatvori",
 		"continue": "Nastavi",
+		"copyProject": "Dupliciraj projekt",
 		"delete": "Obriši",
 		"details": "Detalji",
 		"edit": "Uredi",
@@ -97,6 +98,12 @@
 		"people": "Posjete",
 		"peoplePerTracking": "ljudi po praćenju",
 		"percentage": "Postotak",
+		"questions": {
+			"answer": "Odgovor",
+			"count": "Broj odgovora",
+			"percentage": "Postotak",
+			"question": "Pitanje:"
+		},
 		"questionsAnswersAnalysis": "Analiza pitanja i odgovora",
 		"questionsAnswersDesc": "Detaljan prikaz odgovora ankete i demografske analize",
 		"responseDistribution": "Distribucija odgovora i analiza",
@@ -395,6 +402,9 @@
 	"Projects": {
 		"add": "Dodaj projekt",
 		"addDescription": "Ovdje kreirajte novi projekt.",
+		"copyProject": "Napravi kopiju projekta od {{value}}",
+		"copyProjectDesc": "Ovo će napraviti kopiju projekta {{value}} sa svim njegovim pitanjima, zonama, odgovorima itd. Jeste li sigurni da želite nastaviti?",
+		"copySuccess": "Projekt {{value}} uspješno dupliciran!",
 		"created": "Izrađeno",
 		"createSuccess": "Projekt {{value}} je uspješno kreiran.",
 		"delete": "Izbriši projekt",

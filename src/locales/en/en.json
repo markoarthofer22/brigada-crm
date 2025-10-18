@@ -6,6 +6,7 @@
 		"clearFilters": "Reset",
 		"close": "Close",
 		"continue": "Continue",
+		"copyProject": "Copy project",
 		"delete": "Delete",
 		"details": "Details",
 		"edit": "Edit",
@@ -97,6 +98,12 @@
 		"people": "Visits",
 		"peoplePerTracking": "people per tracking",
 		"percentage": "Percentage",
+		"questions": {
+			"answer": "Answer",
+			"count": "Answer count",
+			"percentage": "Percentage",
+			"question": "Question:"
+		},
 		"questionsAnswersAnalysis": "Questions & Answers Analysis",
 		"questionsAnswersDesc": "Detailed breakdown of survey responses and demographic analysis",
 		"responseDistribution": "Response distribution and analysis",
@@ -395,6 +402,9 @@
 	"Projects": {
 		"add": "Add project",
 		"addDescription": "Create new project here.",
+		"copyProject": "Copy project from {{value}}",
+		"copyProjectDesc": "This will make a copy of project {{value}} with all of its questions, zones, answers etc. Are you sure that you want to proceed?",
+		"copySuccess": "Project {{value}} copied successfully!",
 		"created": "Created",
 		"createSuccess": "Project {{value}} has been created successfully.",
 		"delete": "Delete Project",
