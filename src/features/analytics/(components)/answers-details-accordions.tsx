@@ -1,12 +1,16 @@
+import { useRef, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, XAxis, YAxis } from 'recharts'
-import { cn } from '@/lib/utils.ts'
+import { cn, handleScreenshot } from '@/lib/utils.ts'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion.tsx'
+import { buttonVariants } from '@/components/ui/button.tsx'
 import {
 	ChartContainer,
 	ChartTooltip,
@@ -23,14 +27,21 @@ interface Props {
 	data: any
 	filterOutZones?: boolean
 	className?: string
+	projectName: string
 }
 
 const AnswersDetailsAccordions = ({
 	data,
 	filterOutZones = true,
 	className,
+	projectName,
 }: Props) => {
 	const { t } = useTranslation()
+	const { handleError } = useHandleGenericError()
+	const activeTabNameRef = useRef<string | null>(null)
+
+	const [isZoneImageDownloading, setIsZoneImageDownloading] =
+		useState<boolean>(false)
 
 	const formatKey = (key: string) => {
 		return key
@@ -57,6 +68,33 @@ const AnswersDetailsAccordions = ({
 		}))
 	}
 
+	const handleScreenshotDownload = async (
+		id: string,
+		name: string,
+		buttonId: string
+	) => {
+		setIsZoneImageDownloading(true)
+		try {
+			const tabName = t(`Analytics.${activeTabNameRef.current}`)
+
+			const translatedName = `${projectName} ${name} ${tabName}`.replaceAll(
+				' ',
+				'_'
+			)
+
+			await handleScreenshot(
+				document.getElementById(id),
+				translatedName,
+				buttonId
+			)
+		} catch (error: unknown) {
+			console.error(error)
+			handleError(error)
+		} finally {
+			setIsZoneImageDownloading(false)
+		}
+	}
+
 	return (
 		<Accordion type='single' collapsible className={cn('w-full', className)}>
 			{data?.questions_answers
@@ -65,22 +103,60 @@ const AnswersDetailsAccordions = ({
 				)
 				.map((question: any, questionIndex: number) => (
 					<AccordionItem
-						className={
-							questionIndex < data.questions_answers.length - 1
-								? 'border-b'
-								: '!border-none'
-						}
+						className={cn('group', {
+							'border-b': questionIndex !== data.questions_answers.length - 1,
+							'!border-none':
+								questionIndex === data.questions_answers.length - 1,
+						})}
 						key={questionIndex}
 						value={`question-${questionIndex}`}
+						id={`question-${question.label}-${questionIndex}`}
 					>
-						<AccordionTrigger className='text-left'>
+						<AccordionTrigger
+							hideChevron
+							className='flex items-center justify-between'
+						>
 							<span className='text-lg font-semibold'>{question.label}</span>
+							<div
+								className={cn('flex items-center gap-x-4', {
+									'pointer-events-none opacity-50': isZoneImageDownloading,
+								})}
+								id={`question-btn-${question.label}-${questionIndex}`}
+							>
+								<span
+									className={cn(
+										'group-data-[state=closed]:hidden',
+										buttonVariants({ variant: 'default' })
+									)}
+									onClick={async (e) => {
+										e.preventDefault()
+										e.stopPropagation()
+										await handleScreenshotDownload(
+											`question-${question.label}-${questionIndex}`,
+											question.label,
+											`question-btn-${question.label}-${questionIndex}`
+										)
+									}}
+								>
+									{t('Analytics.downloadImage')}
+								</span>
+								<ChevronDown className='h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200' />
+							</div>
 						</AccordionTrigger>
 						<AccordionContent>
 							<div className='pt-4'>
-								<Tabs defaultValue='answers' className='w-full'>
+								<Tabs
+									onValueChange={(value) => {
+										activeTabNameRef.current = value
+									}}
+									defaultValue='answerDistribution'
+									className='w-full'
+								>
 									<TabsList className='mb-6 grid h-auto w-full grid-cols-2 lg:h-9 lg:grid-cols-5'>
-										<TabsTrigger value='answers' className='text-xs md:text-sm'>
+										<TabsTrigger
+											value='answerDistribution'
+											className='text-xs md:text-sm'
+										>
 											{t('Analytics.answerDistribution')}
 										</TabsTrigger>
 										<TabsTrigger
@@ -90,24 +166,27 @@ const AnswersDetailsAccordions = ({
 											{t('Analytics.demographics')}
 										</TabsTrigger>
 										<TabsTrigger
-											value='age-breakdown'
+											value='ageBreakdown'
 											className='text-xs md:text-sm'
 										>
 											{t('Analytics.ageBreakdown')}
 										</TabsTrigger>
 										<TabsTrigger
-											value='detailed'
+											value='detailedView'
 											className='text-xs md:text-sm'
 										>
 											{t('Analytics.detailedView')}
 										</TabsTrigger>
 
-										<TabsTrigger value='profile' className='text-xs md:text-sm'>
+										<TabsTrigger
+											value='profileView'
+											className='text-xs md:text-sm'
+										>
 											{t('Analytics.profileView')}
 										</TabsTrigger>
 									</TabsList>
 
-									<TabsContent value='answers' className='space-y-4'>
+									<TabsContent value='answerDistribution' className='space-y-4'>
 										<div className='grid grid-cols-1 gap-6 xl:grid-cols-2'>
 											<div className='w-full'>
 												<h4 className='mb-4 text-lg font-medium'>
@@ -287,7 +366,7 @@ const AnswersDetailsAccordions = ({
 										</div>
 									</TabsContent>
 
-									<TabsContent value='age-breakdown' className='space-y-4'>
+									<TabsContent value='ageBreakdown' className='space-y-4'>
 										<h4 className='mb-4 text-lg font-medium'>
 											{t('Analytics.ageBreakdownByAnswer')}
 										</h4>
@@ -350,7 +429,7 @@ const AnswersDetailsAccordions = ({
 										</div>
 									</TabsContent>
 
-									<TabsContent value='detailed' className='space-y-4'>
+									<TabsContent value='detailedView' className='space-y-4'>
 										<div className='space-y-6'>
 											<div>
 												<h4 className='mb-4 text-lg font-medium'>
@@ -421,7 +500,7 @@ const AnswersDetailsAccordions = ({
 										</div>
 									</TabsContent>
 
-									<TabsContent value='profile' className='space-y-4'>
+									<TabsContent value='profileView' className='space-y-4'>
 										<div className='space-y-6'>
 											<div>
 												<h4 className='mb-4 text-lg font-medium'>
