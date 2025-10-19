@@ -133,6 +133,7 @@ class AnalyticsController extends BaseController
 
 		$args = new \stdClass;
 		$args->id = $params->id_projects;
+		$args->include_zones = true;
 		$result = $Projects->Get($args);
 		$result_questions = $Questions->GetForProject($args);
 		$result_zones = $Zones->GetForProject($args);
@@ -310,6 +311,8 @@ class AnalyticsController extends BaseController
 
 			$item["data"]["dobna_skupina_raw"] = $Analytics->CountAgeGroup($item_answers);
 			$item["data"]["dobna_skupina"] = $Analytics->PrepareDobnaSkupinaData($item, $result_static_questions);
+			$item["data"]["profile_raw"] = $Analytics->CountProfileGroup($item_answers);
+			$item["data"]["profile"] = $Analytics->PrepareProfileData($item, $result_static_questions);
 
 			$zones = $Analytics->GetZones((object) array("id_tracking" => $item["id_tracking"], "from" => $params->from, "to" => $params->to));
 
@@ -330,9 +333,12 @@ class AnalyticsController extends BaseController
 					]
 				];
 
-				$zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
-				$zone["questions_answers_raw"] = $Analytics->GetAnswers((object) array("id_tracking" => $zone["id_tracking"], "id_zones" => $zone["id_zones"]));
-				$zone["questions_answers"] = $Analytics->PrepareQuestionsAnswersDataZones($zone, $item);
+				// $zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
+				// $zone["questions_answers_raw"] = $Analytics->GetAnswers((object) array("id_tracking" => $zone["id_tracking"], "id_zones" => $zone["id_zones"]));
+				// $zone["questions_answers"] = $Analytics->PrepareQuestionsAnswersDataZones($zone, $item);
+				$zone["questions"] = [];
+				$zone["questions_answers_raw"] = [];
+				$zone["questions_answers"] = [];
 
 				$zone["data"] = array(
 					"broj_ljudi" => $item["data"]["broj_ljudi"],
@@ -356,11 +362,25 @@ class AnalyticsController extends BaseController
 
 				$item["data"]["questions_answers_raw"][] = array(
 					"id_questions" => $q["id_questions"],
+					"id_zones" => $q["id_zones"] ?? null,
 					"label" => $q["label"],
 					"answer" => $r["answer"] ?? "",
 					"possible_answers" => $q["possible_answers"] ?? [],
 				);
 			}
+
+			// echo "<pre>";
+			// print_r($item["data"]["questions_answers_raw"]);
+			// print_r($item["zones"]);
+			// exit;
+
+			// foreach ($zones as &$zone) {
+			// 	$zoneId = $zone["id_zones"];
+			// 	$zone["questions_answers_raw"] = array_values(array_filter(
+			// 		$item["data"]["questions_answers_raw"],
+			// 		fn($qa) => $qa["id_zones"] == $zoneId
+			// 	));
+			// }
 
 			// if ($item["id_tracking"] == 130) {
 			// 	echo "<pre>";
@@ -368,10 +388,55 @@ class AnalyticsController extends BaseController
 			// 	print_r($item);
 			// 	exit;
 			// }
+			// echo "<pre>";
+			// print_r($item["data"]["questions_answers_raw"]);
+			// exit;
+
 			$item["data"]["questions_answers"] = $Analytics->PrepareQuestionsAnswersDataSingleTracking($item);
+
+			// echo "<pre>";
+			// print_r($item["data"]["questions_answers"]);
+
+			// print_r($zones[0]);
+			// exit;
+
+			// foreach ($item["zones"] as &$zone) {
+			// 	$zoneId = $zone["id_zones"];
+			// 	$zone["questions_answers_raw"] = array_values(array_filter(
+			// 		$item["data"]["questions_answers_raw"],
+			// 		fn($qa) => $qa["id_zones"] == $zoneId
+			// 	));
+			// }
+			// foreach ($item["zones"] as &$zone) {
+			// 	$zoneId = $zone["id_zones"];
+			// 	$zone["questions_answers"] = array_values(array_filter(
+			// 		$item["data"]["questions_answers"],
+			// 		fn($qa) => $qa["id_zones"] == $zoneId
+			// 	));
+			// }
 		}
 
+
+		// foreach ($zones as &$zone) {
+		// 	$zoneId = $zone["id_zones"];
+		// 	$zone["questions_answers"] = array_values(array_filter(
+		// 		$item["data"]["questions_answers"],
+		// 		fn($qa) => $qa["id_zones"] == $zoneId
+		// 	));
+		// }
+
+		// echo "<pre>";
+		// print_r($item["data"]["questions_answers"]);
+		// print_r($zones);
+		// echo json_encode($zones);
+		// echo json_encode($result["trackings"]);
+		// exit;
+
 		$result["trackings"] = array_values($result["trackings"]);
+
+
+		// echo json_encode($result["trackings"]);
+		// exit;
 
 		$broj_ljudi = 0;
 		$broj_muski = 0;
@@ -409,7 +474,33 @@ class AnalyticsController extends BaseController
 		// $result["total_data"]["questions_answers2"]["dobna_skupina"] = $Analytics->PrepareQuestionsAnswersDataDobnaSkupina($result["trackings"]);
 
 		$result["total_data"]["dobna_skupina"] = $Analytics->PrepareDobnaSkupinaDataTotal($result["trackings"], $result_static_questions);
-		$result["total_data"]["zones"] = $Analytics->PrepareDataZones($result["trackings"]);
+		$result["total_data"]["profile"] = $Analytics->PrepareProfileDataTotal($result["trackings"], $result_static_questions);
+		// $result["total_data"]["zones"] = $Analytics->PrepareDataZones($result["trackings"]);
+		// $result["total_data"]["zones"] = $Analytics->PrepareDataZones($result["trackings"]);
+		$result["total_data"]["zones"] = $Analytics->PrepareDataZones2($result["trackings"]);
+
+		// foreach ($result["total_data"]["zones"] as &$zone) {
+		// 	$zoneId = $zone["id_zones"];
+		// 	$zone["questions_answers_raw"] = array_values(array_filter(
+		// 		$result["total_data"]["questions_answers_raw"],
+		// 		fn($qa) => $qa["id_zones"] == $zoneId
+		// 	));
+		// }
+		// echo "<pre>";
+		// print_r($result["total_data"]["questions_answers"]);
+		// exit;
+
+		// echo json_encode($result["total_data"]["zones"]);
+		// exit;
+		foreach ($result["total_data"]["zones"]["per_zone"] as &$zone) {
+			// echo json_encode($result["total_data"]["questions_answers"]);
+			// exit;
+			$zoneId = $zone["id_zones"];
+			$zone["questions_answers"] = array_values(array_filter(
+				$result["total_data"]["questions_answers"],
+				fn($qa) => $qa["id_zones"] == $zoneId
+			));
+		}
 
 		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
 

@@ -3,6 +3,7 @@
 namespace PP\Classes;
 
 use Exception;
+use JsonException;
 use PDO;
 use stdClass;
 
@@ -108,7 +109,7 @@ class Analytics
 						*,
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
 					FROM brigada.tracking t
-					{$_where} AND t.ended_at IS NOT NULL -- AND id_tracking in (120)
+					{$_where} AND t.ended_at IS NOT NULL --AND id_tracking in (192)
 					ORDER BY t.started_at ASC
 				)
 				SELECT * FROM all_data
@@ -224,15 +225,17 @@ class Analytics
 		if ($params->id_tracking) {
 			$_where .= " AND ta.id_tracking = {$params->id_tracking} ";
 		}
-		if ($params->id_zones) {
-			$_where .= " AND ta.id_zones = {$params->id_zones} ";
-		}
+		// if ($params->id_zones) {
+		// 	$_where .= " AND ta.id_zones = {$params->id_zones} ";
+		// }
 
-		if ($params->id_tracking && !$params->id_zones) {
-			$_where .= " AND id_zones IS NULL ";
-		}
+		// if ($params->id_tracking && !$params->id_zones) {
+		// 	$_where .= " AND id_zones IS NULL ";
+		// }
 
 		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.tracking_answers ta {$_where} ORDER BY ta.order ASC";
+		// echo $sql;
+		// exit;
 		$stmt = $this->database->prepare($sql);
 
 		$stmt->execute();
@@ -364,11 +367,29 @@ class Analytics
 		foreach ($answers as $answer) {
 			if ($answer["id_questions"] == 1) {
 				foreach ($answer["answer"]["answer"] as $entry) {
-					$dobna = $entry["Dobna skupina"];
-					if (!isset($counts[$dobna])) {
-						$counts[$dobna] = 0;
+					$item = $entry["Dobna skupina"];
+					if (!isset($counts[$item])) {
+						$counts[$item] = 0;
 					}
-					$counts[$dobna]++;
+					$counts[$item]++;
+				}
+			}
+		}
+
+		return $counts;
+	}
+
+	public function CountProfileGroup(array $answers): array
+	{
+		$counts = [];
+		foreach ($answers as $answer) {
+			if ($answer["id_questions"] == 2) {
+				foreach ($answer["answer"]["answer"] as $entry) {
+					$item = $entry["Profil kupca"];
+					if (!isset($counts[$item])) {
+						$counts[$item] = 0;
+					}
+					$counts[$item]++;
 				}
 			}
 		}
@@ -408,6 +429,39 @@ class Analytics
 		return $dobna_skupina;
 	}
 
+	public function PrepareProfileData(array $item, array $result_static_questions): array
+	{
+
+		$ds = [];
+		foreach ($item["data"]["profile_raw"] as $key => $value) {
+			if (!isset($ds[$key])) {
+				$ds[$key] = 0;
+			}
+			$ds[$key] += $value;
+		}
+
+		$profile = array("possible_answers" => $result_static_questions[1]["possible_answers"]);
+
+		// Calculate total count for percentage calculation
+		$totalCount = 0;
+		foreach ($profile["possible_answers"] as $answer) {
+			$totalCount += isset($ds[$answer]) ? $ds[$answer] : 0;
+		}
+
+		foreach ($profile["possible_answers"] as $answer) {
+			$count = isset($ds[$answer]) ? $ds[$answer] : 0;
+			$percentage = $totalCount > 0 ? round(($count / $totalCount) * 100, 2) : 0;
+
+			$profile["data"][] = [
+				"label" => $answer,
+				"count" => $count,
+				"percentage" => $percentage
+			];
+		}
+
+		return $profile;
+	}
+
 	public function PrepareDobnaSkupinaDataTotal(array $trackings, array $result_static_questions): array
 	{
 		$ds = [];
@@ -442,8 +496,43 @@ class Analytics
 		return $dobna_skupina;
 	}
 
+	public function PrepareProfileDataTotal(array $trackings, array $result_static_questions): array
+	{
+		$ds = [];
+		foreach ($trackings as $item) {
+			foreach ($item["data"]["profile_raw"] as $key => $value) {
+				if (!isset($ds[$key])) {
+					$ds[$key] = 0;
+				}
+				$ds[$key] += $value;
+			}
+		}
+
+		$profile = array("possible_answers" => $result_static_questions[1]["possible_answers"]);
+
+		// Calculate total count for percentage calculation
+		$totalCount = 0;
+		foreach ($profile["possible_answers"] as $answer) {
+			$totalCount += isset($ds[$answer]) ? $ds[$answer] : 0;
+		}
+
+		foreach ($profile["possible_answers"] as $answer) {
+			$count = isset($ds[$answer]) ? $ds[$answer] : 0;
+			$percentage = $totalCount > 0 ? round(($count / $totalCount) * 100, 2) : 0;
+
+			$profile["data"][] = [
+				"label" => $answer,
+				"count" => $count,
+				"percentage" => $percentage
+			];
+		}
+
+		return $profile;
+	}
+
 	public function PrepareQuestionsAnswersDataSingleTracking(array $item): array
 	{
+
 		$labelCounts = [];
 		if ($item["data"]["questions_answers_raw"]) {
 			$broj_ljudi = $item["data"]["broj_ljudi"] ?? 0;
@@ -453,6 +542,7 @@ class Analytics
 			foreach ($item["data"]["questions_answers_raw"] as $qa) {
 				$label = $qa["label"] ?? null;
 				$answer = $qa["answer"] ?? null;
+				$id_zones = $qa["id_zones"] ?? null;
 				$possible_answers = $qa["possible_answers"] ?? [];
 
 				if ($label && $answer) {
@@ -461,12 +551,17 @@ class Analytics
 						$labelCounts[$label]["possible_answers"] = $possible_answers;
 					}
 
+					$labelCounts[$label]["id_zones"] = $id_zones;
 					$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
 					$labelCounts[$label]["for_question"]["people"]["broj_muski"] += $broj_muski;
 					$labelCounts[$label]["for_question"]["people"]["broj_zenski"] += $broj_zenski;
 
 					foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
 						$labelCounts[$label]["for_question"]["dobna_skupina"][$ds] += $v;
+					}
+
+					foreach ($item["data"]["profile_raw"] as $ds => $v) {
+						$labelCounts[$label]["for_question"]["profile"][$ds] += $v;
 					}
 
 					$answers = array_map('trim', explode(',', $answer));
@@ -483,12 +578,17 @@ class Analytics
 						foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
 							$labelCounts[$label]["for_answers"]["dobna_skupina"][$singleAnswer][$ds] += $v;
 						}
+
+						foreach ($item["data"]["profile_raw"] as $ds => $v) {
+							$labelCounts[$label]["for_answers"]["profile"][$singleAnswer][$ds] += $v;
+						}
 					}
 				}
 			}
 		}
 
 		// echo "<pre>";
+		// print_r($item["data"]["questions_answers_raw"]);
 		// print_r($labelCounts);
 		// exit;
 
@@ -501,6 +601,11 @@ class Analytics
 			$totalDobnaSkupinaQuestion = array_sum($data["for_question"]["dobna_skupina"]);
 			foreach ($data["for_answers"]["dobna_skupina"] as $key => $value) {
 				$totalDobnaSkupinaAnswers[$key] = array_sum($value);
+			}
+
+			$totalProfileQuestion = array_sum($data["for_question"]["profile"]);
+			foreach ($data["for_answers"]["profile"] as $key => $value) {
+				$totalProfileAnswers[$key] = array_sum($value);
 			}
 
 			$countWithPercentages = [];
@@ -544,6 +649,12 @@ class Analytics
 			$data["for_question"]["dobna_skupina"] = $temp;
 
 			$temp = array();
+			foreach ($item["data"]["profile"]["possible_answers"] as $ds => $v) {
+				$temp[] = array("label" => $v, "count" => $data["for_question"]["profile"][$v] ?? 0, "percentage" => $totalProfileQuestion > 0 ? round(($data["for_question"]["profile"][$v] / $totalProfileQuestion) * 100, 2) : 0);
+			}
+			$data["for_question"]["profile"] = $temp;
+
+			$temp = array();
 			foreach ($data["for_answers"]["people"] as $key => $it) {
 				$temp[] = array("label" => $key, "people" =>  array(
 					array("label" => "broj_ljudi", "count" => $it["broj_ljudi"], "percentage" => 100),
@@ -564,8 +675,20 @@ class Analytics
 			}
 			$data["for_answers"]["dobna_skupina"] = $temp;
 
+			$temp = array();
+			foreach ($data["for_answers"]["profile"] as $key => $it) {
+				$t[$key] = array("label" => $key);
+				foreach ($item["data"]["profile"]["possible_answers"] as $ds => $v) {
+					$count = $it[$v] ?? 0;
+					$t[$key]["profile"][] = array("label" => $v, "count" => $count, "percentage" => $totalProfileAnswers[$key] > 0 ? round(($count / $totalProfileAnswers[$key]) * 100, 2) : 0);
+				}
+				$temp[] = $t[$key];
+			}
+			$data["for_answers"]["profile"] = $temp;
+
 			$questions_answers[] = [
 				"label" => $label,
+				"id_zones" => $data["id_zones"],
 				"possible_answers" => $possible_answers[$label],
 				"count" => $data,
 				"count_percentage" => $countWithPercentages
@@ -612,6 +735,7 @@ class Analytics
 				foreach ($item["data"]["questions_answers_raw"] as $qa) {
 					$label = $qa["label"] ?? null;
 					$answer = $qa["answer"] ?? null;
+					$id_zones = $qa["id_zones"] ?? null;
 					$possible_answers = $qa["possible_answers"] ?? [];
 
 					if ($label && $answer) {
@@ -620,12 +744,17 @@ class Analytics
 							$labelCounts[$label]["possible_answers"] = $possible_answers;
 						}
 
+						$labelCounts[$label]["id_zones"] = $id_zones;
 						$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
 						$labelCounts[$label]["for_question"]["people"]["broj_muski"] += $broj_muski;
 						$labelCounts[$label]["for_question"]["people"]["broj_zenski"] += $broj_zenski;
 
 						foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
 							$labelCounts[$label]["for_question"]["dobna_skupina"][$ds] += $v;
+						}
+
+						foreach ($item["data"]["profile_raw"] as $ds => $v) {
+							$labelCounts[$label]["for_question"]["profile"][$ds] += $v;
 						}
 
 						$answers = array_map('trim', explode(',', $answer));
@@ -642,6 +771,9 @@ class Analytics
 
 							foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
 								$labelCounts[$label]["for_answers"]["dobna_skupina"][$singleAnswer][$ds] += $v;
+							}
+							foreach ($item["data"]["profile_raw"] as $ds => $v) {
+								$labelCounts[$label]["for_answers"]["profile"][$singleAnswer][$ds] += $v;
 							}
 						}
 					}
@@ -660,6 +792,11 @@ class Analytics
 			$totalDobnaSkupinaQuestion = array_sum($data["for_question"]["dobna_skupina"]);
 			foreach ($data["for_answers"]["dobna_skupina"] as $key => $value) {
 				$totalDobnaSkupinaAnswers[$key] = array_sum($value);
+			}
+
+			$totalProfileQuestion = array_sum($data["for_question"]["profile"]);
+			foreach ($data["for_answers"]["profile"] as $key => $value) {
+				$totalProfileAnswers[$key] = array_sum($value);
 			}
 
 			$countWithPercentages = [];
@@ -693,6 +830,12 @@ class Analytics
 			$data["for_question"]["dobna_skupina"] = $temp;
 
 			$temp = array();
+			foreach ($item["data"]["profile"]["possible_answers"] as $ds => $v) {
+				$temp[] = array("label" => $v, "count" => $data["for_question"]["profile"][$v] ?? 0, "percentage" => $totalProfileQuestion > 0 ? round(($data["for_question"]["profile"][$v] / $totalProfileQuestion) * 100, 2) : 0);
+			}
+			$data["for_question"]["profile"] = $temp;
+
+			$temp = array();
 			foreach ($data["for_answers"]["people"] as $key => $it) {
 				$temp[] = array("label" => $key, "people" =>  array(
 					array("label" => "broj_ljudi", "count" => $it["broj_ljudi"], "percentage" => 100),
@@ -714,8 +857,21 @@ class Analytics
 			}
 			$data["for_answers"]["dobna_skupina"] = $temp;
 
+			$temp = array();
+			foreach ($data["for_answers"]["profile"] as $key => $it) {
+				$t = array();
+				$t[$key] = array("label" => $key);
+				foreach ($item["data"]["profile"]["possible_answers"] as $ds => $v) {
+					$count = $it[$v] ?? 0;
+					$t[$key]["profile"][] = array("label" => $v, "count" => $count, "percentage" => $totalProfileAnswers[$key] > 0 ? round(($count / $totalProfileAnswers[$key]) * 100, 2) : 0);
+				}
+				$temp[] = $t[$key];
+			}
+			$data["for_answers"]["profile"] = $temp;
+
 			$questions_answers[] = [
 				"label" => $label,
+				"id_zones" => $data["id_zones"],
 				"possible_answers" => $possible_answers[$label],
 				"count" => $data,
 				"count_percentage" => $countWithPercentages
@@ -1125,6 +1281,365 @@ class Analytics
 		// exit;
 
 		$total["data"]["questions_answers"] = $questions_answers;
+		$total["data"]["dobna_skupina"] = $dobna_skupina;
+		// print_r($questions_answers);
+		// exit;
+		// echo json_encode($result[0]["questions_answers"]);
+		// echo "<br>";
+		// echo "<br>";
+		// echo "<br>";
+		// echo json_encode($total["data"]["questions_answers"]);
+		// exit;
+
+		// print_R($dobna_skupina);
+		// exit;
+
+		$output = array("per_zone" => $result, "total" => $total);
+
+		return $output;
+	}
+
+	public function PrepareDataZones2(array $trackings): array
+	{
+		$zones = [];
+		$zoneDurations = []; // Track durations separately for summing
+
+		// echo "<pre>";
+		// print_r($trackings);
+		// exit;
+		foreach ($trackings as $item) {
+
+			foreach ($item["zones"] as $zone) {
+				// echo "<pre>";
+				// print_r($zone);
+				// exit;
+				$zoneId = $zone["id_zones"];
+				$start = new \DateTime($zone["started_at"]);
+				$end = new \DateTime($zone["ended_at"]);
+				$diff = $start->diff($end);
+				$durationInSeconds = ($diff->h * 3600) + ($diff->i * 60) + $diff->s;
+
+				// echo $zoneId;
+				// echo "<br>";
+				// print_r($zones);
+
+				if (isset($zones[$zoneId])) {
+					// echo "<hr>";
+					// echo $zoneId;
+					// echo "<br>";
+					// print_r($zone["questions_answers"]);
+					// print_r($zones[$zoneId]["questions_answers"]);
+					// exit;
+
+					// $zones[$zoneId]["questions_answers_raw"] = $item["data"]["questions_answers_raw"];
+					// $zones[$zoneId]["questions_answers"] = $item["data"]["questions_answers"];
+					$zones[$zoneId]["data"]["id_zones"] = $item["data"]["id_zones"];
+					$zones[$zoneId]["data"]["broj_ljudi"] += $item["data"]["broj_ljudi"];
+					$zones[$zoneId]["data"]["broj_muski"] += $item["data"]["broj_muski"];
+					$zones[$zoneId]["data"]["broj_zenski"] += $item["data"]["broj_zenski"];
+
+					foreach ($zone["data"]["dobna_skupina"]["data"] as $index => $ageGroupData) {
+						$zones[$zoneId]["data"]["dobna_skupina"]["data"][$index]["count"] += $ageGroupData["count"];
+					}
+
+
+					// foreach ($zones[$zoneId]["questions_answers"] as &$zqa) {
+					// 	foreach ($zone["questions_answers"] as $zq) {
+					// 		if ($zq["label"] === $zqa["label"]) {
+					// 			// print_r($zq["possible_answers_count"]);
+					// 			// print_r($zqa["possible_answers_count"]);
+					// 			foreach ($zqa["possible_answers_count"] as &$zqa_pa) {
+					// 				foreach ($zq["possible_answers_count"] as $zq_pa) {
+					// 					if ($zqa_pa["label"] == $zq_pa["label"]) {
+					// 						$zqa_pa["count"] += $zq_pa["count"];
+					// 					}
+					// 				}
+					// 			}
+					// 		}
+					// 	}
+					// 	// print_r($zqa);
+					// }
+
+
+					// foreach ($zone["questions_answers"] as $questionIndex => $questionData) {
+					// 	// Ensure base structure exists
+					// 	if (!isset($zones[$zoneId]["questions_answers"][$questionIndex]["possible_answers_count"])) {
+					// 		$zones[$zoneId]["questions_answers"][$questionIndex]["possible_answers_count"] = [];
+					// 	}
+
+					// 	foreach ($questionData["possible_answers_count"] as $answerData) {
+					// 		$label = $answerData["label"];
+
+					// 		// Initialize if not already
+					// 		if (!isset($zones[$zoneId]["questions_answers"][$questionIndex]["possible_answers_count"][$label])) {
+					// 			$zones[$zoneId]["questions_answers"][$questionIndex]["possible_answers_count"][$label] = [
+					// 				"label" => $label,
+					// 				"count" => 0,
+					// 				"percentage" => 0 // Will calculate later
+					// 			];
+					// 		}
+
+					// 		// Add count
+					// 		$zones[$zoneId]["questions_answers"][$questionIndex]["possible_answers_count"][$label]["count"] += $answerData["count"];
+					// 	}
+
+					// 	// Calculate total for percentage
+					// 	$totalCount = 0;
+					// 	foreach ($zones[$zoneId]["questions_answers"][$questionIndex]["possible_answers_count"] as $data) {
+					// 		$totalCount += $data["count"];
+					// 	}
+
+					// 	// Now calculate percentage
+					// 	foreach ($zones[$zoneId]["questions_answers"][$questionIndex]["possible_answers_count"] as &$data) {
+					// 		$data["percentage"] = $totalCount > 0 ? round(($data["count"] / $totalCount) * 100, 2) : 0;
+					// 	}
+					// 	unset($data);
+					// }
+
+
+					// foreach ($zone["questions_answers"] as $i => &$questions_answers) {
+					// 	// unset($questions_answers["answer"]);
+					// 	// echo "<hr>";
+					// 	// print_r($zone["questions_answers"][$i]);
+					// 	$find_array = array_filter(
+					// 		$zones[$zoneId]["questions_answers"],
+					// 		function ($qa) use ($questions_answers) {
+					// 			return isset($qa["label"]) && $qa["label"] === $questions_answers["label"];
+					// 		}
+					// 	);
+					// 	echo "<hr>";
+					// 	echo "<hr>";
+					// 	echo "<hr>";
+					// 	print_r($questions_answers);
+					// 	echo "<hr>";
+					// 	print_r($find_array);
+
+					// 	exit;
+
+					// 	foreach ($questions_answers["possible_answers_count"] as $pac) {
+					// 		// print_r($pac);
+					// 		// print_r($zones[$zoneId]["questions_answers"][$i]["possible_answers_count"]);
+					// 	}
+					// }
+
+					// // print_r($zone);
+					// // exit;
+					// // unset($questions_answers);
+
+					// // $zones[$zoneId]["questions_answers"] = $zone["questions_answers"];
+
+					// // print_r($zones[$zoneId]);
+					// // exit;
+				} else {
+					$zones[$zoneId] = [
+						"id_zones" => $zoneId,
+						"name" => $zone["name"],
+						"data" => [
+							"broj_ljudi" => $item["data"]["broj_ljudi"],
+							"broj_muski" => $item["data"]["broj_muski"],
+							"broj_zenski" => $item["data"]["broj_zenski"],
+							"dobna_skupina" => $zone["data"]["dobna_skupina"], // Copy the entire structure
+						],
+						"questions_answers" => $zone["questions_answers"], // Copy the entire structure
+					];
+					$zoneDurations[$zoneId] = $durationInSeconds;
+					// print_r($zones);
+					// exit;
+				}
+				// print_r($zones);
+			}
+		}
+
+		// header('Content-Type: application/json');
+
+		// echo json_encode($zones);
+		// print_r($zones);
+
+		// exit;
+
+		// foreach ($trackings as &$item) {
+		// 	foreach ($item["zones"] as $zone) {
+
+		// 		// echo "<pre>";
+		// 		// print_r($zone);
+		// 		// exit;
+
+		// 		$zoneId = $zone["id_zones"];
+
+		// 		$start = new \DateTime($zone["started_at"]);
+		// 		$end = new \DateTime($zone["ended_at"]);
+		// 		$diff = $start->diff($end);
+
+		// 		// Convert duration to seconds for easier summing
+		// 		$durationInSeconds = ($diff->h * 3600) + ($diff->i * 60) + $diff->s;
+
+		// 		if (isset($zones[$zoneId])) {
+		// 			// Zone already exists, sum the data
+		// 			$zones[$zoneId]["data"]["broj_ljudi"] += $item["data"]["broj_ljudi"];
+		// 			$zones[$zoneId]["data"]["broj_muski"] += $item["data"]["broj_muski"];
+		// 			$zones[$zoneId]["data"]["broj_zenski"] += $item["data"]["broj_zenski"];
+		// 			$zones[$zoneId]["questions_answers"] = array_values($zone["questions_answers"]);
+
+		// 			// For age groups, merge the data array and sum counts
+		// 			foreach ($zone["data"]["dobna_skupina"]["data"] as $index => $ageGroupData) {
+		// 				$zones[$zoneId]["data"]["dobna_skupina"]["data"][$index]["count"] += $ageGroupData["count"];
+		// 			}
+
+		// 			// echo "<pre>";
+
+		// 			// print_r()
+
+		// 			foreach ($zone["questions_answers"] as $i => $questions_answers) {
+
+		// 				// print_R($questions_answers);
+
+		// 				foreach ($questions_answers["possible_answers_count"] as $j => $qa) {
+
+		// 					// print_r($qa);
+		// 					// print_r($qa["possible_answers_count"]);
+		// 					$zones[$zoneId]["questions_answers"][$i]["possible_answers_count"][$j]["count"] += $qa["count"];
+		// 					// print_r($zones[$zoneId]["questions_answers"][$i]["possible_answers_count"][$j]["count"]);
+
+		// 					// echo "<hr>";
+		// 				}
+
+		// 				// exit;
+		// 				// print_R($zq["possible_answers_count"]);
+		// 				// foreach ($zq["possible_answers_count"] as $index => $paData) {
+		// 				// 	print_r($zones[$zoneId]["questions_answers"]);
+		// 				// 	print_r($paData);
+		// 				// 	exit;
+		// 				// 	$zones[$zoneId]["questions_answers"]["possible_answers_count"][$index]["count"] += $paData["count"];
+		// 				// }
+		// 			}
+
+		// 			// Add duration
+		// 			$zoneDurations[$zoneId] += $durationInSeconds;
+		// 		} else {
+		// 			// First occurrence of this zone
+		// 			$zones[$zoneId] = [
+		// 				"id_zones" => $zoneId,
+		// 				"name" => $zone["name"],
+		// 				"data" => [
+		// 					"broj_ljudi" => $item["data"]["broj_ljudi"],
+		// 					"broj_muski" => $item["data"]["broj_muski"],
+		// 					"broj_zenski" => $item["data"]["broj_zenski"],
+		// 					"dobna_skupina" => $zone["data"]["dobna_skupina"], // Copy the entire structure
+		// 				],
+		// 				"questions_answers" => $zone["questions_answers"], // Copy the entire structure
+		// 			];
+		// 			$zoneDurations[$zoneId] = $durationInSeconds;
+		// 		}
+		// 	}
+		// }
+
+		// header('Content-Type: application/json');
+		// echo json_encode($zones);
+		// exit;
+		// echo "<pre>";
+		// print_r($zones);
+		// exit;
+
+		// Convert durations back to H:i:s format and add to final array
+		$result = [];
+		foreach ($zones as $zoneId => $zone) {
+			$totalSeconds = $zoneDurations[$zoneId];
+			$hours = floor($totalSeconds / 3600);
+			$minutes = floor(($totalSeconds % 3600) / 60);
+			$seconds = $totalSeconds % 60;
+			$totalDuration = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+
+			// Calculate average lasted time per person
+			$numberOfPeople = $zone["data"]["broj_ljudi"];
+
+			// Convert lasted from string to array structure
+			$zone["lasted"] = [
+				"formatted" => $totalDuration,
+				"seconds" => $totalSeconds,
+				"average" => [
+					"by_number_of_people" => $this->getLastingAverageByNumberOfPeople($totalSeconds, $numberOfPeople, true),
+					"by_number_of_people_seconds" => $this->getLastingAverageByNumberOfPeople($totalSeconds, $numberOfPeople, false)
+				]
+			];
+
+			$result[] = $zone;
+		}
+
+		// echo "<pre>";
+		$total = [];
+		foreach ($result as $r) {
+
+
+			// if (!isset($questions_answers)) {
+			// 	$questions_answers = $r["questions_answers"];
+			// } else {
+			// 	foreach ($r["questions_answers"] as $rqa) {
+			// 		// print_r($rqa);
+			// 		foreach ($questions_answers as &$qa) {
+			// 			// print_r($rqa["label"]);
+			// 			// print_r($qa["label"]);
+			// 			// exit;
+			// 			if ($qa["label"] === $rqa["label"]) {
+			// 				// echo $rqa["label"];
+			// 				// print_r($rqa["possible_answers_count"]);
+			// 				// print_r($qa["possible_answers_count"]);
+			// 				// exit;
+			// 				foreach ($rqa["possible_answers_count"] as $rqa_pa) {
+			// 					foreach ($qa["possible_answers_count"] as &$qa_pa) {
+			// 						if ($qa_pa["label"] == $rqa_pa["label"]) {
+			// 							$qa_pa["count"] += $rqa_pa["count"];
+			// 						}
+			// 					}
+			// 				}
+
+			// 				// print_r($rqa);
+			// 				// exit;
+			// 				// print_r($questions_answers);
+			// 			}
+			// 		}
+			// 		// print_r($questions_answers);
+			// 	}
+			// }
+
+
+
+			// print_r($questions_answers);
+			// exit;
+
+			if (!isset($dobna_skupina)) {
+				$dobna_skupina = $r["data"]["dobna_skupina"];
+			} else {
+				foreach ($r["data"]["dobna_skupina"]["data"] as $i => $ds) {
+					$dobna_skupina["data"][$i]["count"] += $ds["count"];
+				}
+			}
+			$total["data"] = array(
+				"broj_ljudi" => $total["data"]["broj_ljudi"] + $r["data"]["broj_ljudi"],
+				"broj_muski" => $total["data"]["broj_muski"] + $r["data"]["broj_muski"],
+				"broj_zenski" => $total["data"]["broj_zenski"] + $r["data"]["broj_zenski"],
+				"percentage_muski" =>  $total["data"]["broj_ljudi"] > 0 ? round($total["data"]["broj_muski"] / $total["data"]["broj_ljudi"] * 100, 2) : 0,
+				"percentage_zenski" =>  $total["data"]["broj_ljudi"] > 0 ? round($total["data"]["broj_zenski"] / $total["data"]["broj_ljudi"] * 100, 2) : 0,
+			);
+		}
+
+
+		// echo "<pre>";
+		// foreach ($questions_answers as &$q) {
+		// 	$pac_total_count = is_array($q['possible_answers_count'] ?? null) ? array_sum(array_column($q['possible_answers_count'], 'count')) : 0;
+		// 	foreach ($q["possible_answers_count"] as &$pac) {
+		// 		$pac["percentage"] = $pac_total_count > 0 ? round($pac["count"] / $pac_total_count * 100, 2) : 0;
+		// 	}
+		// }
+
+		// $ds_total_count = is_array($dobna_skupina['data'] ?? null) ? array_sum(array_column($dobna_skupina['data'], 'count')) : 0;
+		// foreach ($dobna_skupina['data'] as &$item) {
+		// 	$item['percentage'] = $ds_total_count > 0 ? round(($item['count'] / $ds_total_count) * 100) : 0;
+		// }
+
+		// print_r($questions_answers);
+		// exit;
+
+		$total["data"]["questions_answers"] = [];
 		$total["data"]["dobna_skupina"] = $dobna_skupina;
 		// print_r($questions_answers);
 		// exit;
