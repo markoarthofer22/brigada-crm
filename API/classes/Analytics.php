@@ -1692,14 +1692,17 @@ class Analytics
 
 		// echo json_encode($dobna_skupina);
 		// exit;
-
-		$t = array_sum(array_column($dobna_skupina['data'], 'count'));
-		foreach ($dobna_skupina['data'] as &$item) {
-			$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+		if (isset($dobna_skupina['data']) && is_array($dobna_skupina['data'])) {
+			$t = array_sum(array_column($dobna_skupina['data'], 'count'));
+			foreach ($dobna_skupina['data'] as &$item) {
+				$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+			}
 		}
-		$t = array_sum(array_column($profile['data'], 'count'));
-		foreach ($profile['data'] as &$item) {
-			$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+		if (isset($profile['data']) || is_array($profile['data'])) {
+			$t = array_sum(array_column($profile['data'], 'count'));
+			foreach ($profile['data'] as &$item) {
+				$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+			}
 		}
 
 		// echo json_encode($dobna_skupina);
