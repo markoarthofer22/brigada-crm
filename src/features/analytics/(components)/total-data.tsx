@@ -226,8 +226,9 @@ export default function TotalData({ data }: TotalDataProps) {
 					</CardHeader>
 					<CardContent>
 						<Accordion type='single' collapsible className='w-full'>
-							{data?.questions_answers.map(
-								(question: any, questionIndex: number) => (
+							{data?.questions_answers
+								?.filter((question: any) => question.id_zones === null)
+								.map((question: any, questionIndex: number) => (
 									<AccordionItem
 										className={
 											questionIndex < data.questions_answers.length - 1
@@ -245,7 +246,7 @@ export default function TotalData({ data }: TotalDataProps) {
 										<AccordionContent>
 											<div className='pt-4'>
 												<Tabs defaultValue='answers' className='w-full'>
-													<TabsList className='mb-6 grid h-auto w-full grid-cols-2 lg:h-9 lg:grid-cols-4'>
+													<TabsList className='mb-6 grid h-auto w-full grid-cols-2 lg:h-9 lg:grid-cols-5'>
 														<TabsTrigger
 															value='answers'
 															className='text-xs md:text-sm'
@@ -269,6 +270,13 @@ export default function TotalData({ data }: TotalDataProps) {
 															className='text-xs md:text-sm'
 														>
 															{t('Analytics.detailedView')}
+														</TabsTrigger>
+
+														<TabsTrigger
+															value='profile'
+															className='text-xs md:text-sm'
+														>
+															{t('Analytics.profileView')}
 														</TabsTrigger>
 													</TabsList>
 
@@ -577,12 +585,56 @@ export default function TotalData({ data }: TotalDataProps) {
 															</div>
 														</div>
 													</TabsContent>
+
+													<TabsContent value='profile' className='space-y-4'>
+														<div className='space-y-6'>
+															<div>
+																<h4 className='mb-4 text-lg font-medium'>
+																	{t('Analytics.genderBreakdownByAnswer')}
+																</h4>
+																<div className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
+																	{question.count.for_answers.profile.map(
+																		(answerData: any, index: number) => (
+																			<div
+																				key={index}
+																				className='rounded-lg border p-4'
+																			>
+																				<h5 className='mb-3 font-semibold'>
+																					{answerData.label}
+																				</h5>
+																				<div className='space-y-2'>
+																					{answerData.profile.map(
+																						(
+																							demographic: any,
+																							dIndex: number
+																						) => (
+																							<div
+																								key={dIndex}
+																								className='flex items-center justify-between rounded bg-gray-50 p-2'
+																							>
+																								<span className='text-sm capitalize'>
+																									{formatKey(demographic.label)}
+																								</span>
+																								<span className='text-sm font-bold'>
+																									{demographic.count} (
+																									{demographic.percentage}%)
+																								</span>
+																							</div>
+																						)
+																					)}
+																				</div>
+																			</div>
+																		)
+																	)}
+																</div>
+															</div>
+														</div>
+													</TabsContent>
 												</Tabs>
 											</div>
 										</AccordionContent>
 									</AccordionItem>
-								)
-							)}
+								))}
 						</Accordion>
 					</CardContent>
 				</Card>

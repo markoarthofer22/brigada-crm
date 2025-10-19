@@ -98,6 +98,7 @@
 		"people": "Visits",
 		"peoplePerTracking": "people per tracking",
 		"percentage": "Percentage",
+		"profileView": "Profile view",
 		"questions": {
 			"answer": "Answer",
 			"count": "Answer count",
@@ -126,7 +127,7 @@
 			"general": "General",
 			"heatmap": "Heatmap",
 			"questions": "Questions and Answers",
-			"total": "Total",
+			"total": "Total / Questions and Answers",
 			"zones": "Zones"
 		},
 		"teenagers": "Teenagers",

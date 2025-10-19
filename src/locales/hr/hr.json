@@ -98,6 +98,7 @@
 		"people": "Posjete",
 		"peoplePerTracking": "ljudi po praćenju",
 		"percentage": "Postotak",
+		"profileView": "Razdioba po profilu",
 		"questions": {
 			"answer": "Odgovor",
 			"count": "Broj odgovora",
@@ -126,7 +127,7 @@
 			"general": "General",
 			"heatmap": "Heatmap",
 			"questions": "Pitanja i odgovori",
-			"total": "Ukupno",
+			"total": "Ukupno / Pitanja i odgovori",
 			"zones": "Zone"
 		},
 		"teenagers": "Tinejdžeri",

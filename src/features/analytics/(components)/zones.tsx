@@ -373,7 +373,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 											{t('Analytics.questions.question')} {q.label}
 										</h3>
 										<ChartContainer
-											config={q.possible_answers_count.reduce(
+											config={q?.possible_answers_count?.reduce(
 												(acc: any, answer: any) => {
 													acc[answer.label] = {
 														label: answer.label,
@@ -387,7 +387,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 										>
 											<PieChart>
 												<Pie
-													data={q.possible_answers_count.map(
+													data={q?.possible_answers_count?.map(
 														(answer: any, k: number) => ({
 															name: answer.label,
 															value: answer.count,
@@ -473,7 +473,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 														</TableRow>
 													</TableHeader>
 													<TableBody>
-														{q.possible_answers_count.map((answer: any) => (
+														{q?.possible_answers_count?.map((answer: any) => (
 															<TableRow key={answer.label}>
 																<TableCell>{answer.label}</TableCell>
 																<TableCell>{answer.count}</TableCell>
