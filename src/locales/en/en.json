@@ -70,6 +70,7 @@
 		"genderBalance": "Gender Balance",
 		"genderBreakdown": "Gender breakdown",
 		"genderBreakdownByAnswer": "Gender Breakdown by Answer",
+		"profileBreakdownByAnswer": "Profile breakdown by Answer",
 		"genderDistribution": "Gender Distribution",
 		"genderDistributionDesc": "Equal distribution of males and females",
 		"group": "Group",
@@ -154,10 +155,7 @@
 		"zoneId": "Zone ID"
 	},
 	"Dashboard": {
-		"active": [
-			"Inactive",
-			"Active"
-		],
+		"active": ["Inactive", "Active"],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -548,10 +546,7 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": [
-			"Regular user",
-			"Admin"
-		],
+		"admin": ["Regular user", "Admin"],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",

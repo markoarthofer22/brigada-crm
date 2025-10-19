@@ -70,6 +70,7 @@
 		"genderBalance": "Ravnoteža Spola",
 		"genderBreakdown": "Pregled po spolovima",
 		"genderBreakdownByAnswer": "Razdioba po spolu prema odgovoru",
+		"profileBreakdownByAnswer": "Razdioba po profilu prema odgovoru",
 		"genderDistribution": "Distribucija Spola",
 		"genderDistributionDesc": "Jednaka distribucija muškaraca i žena",
 		"group": "Društvo",
@@ -154,10 +155,7 @@
 		"zoneId": "ID Zone"
 	},
 	"Dashboard": {
-		"active": [
-			"Neaktivan",
-			"Aktivan"
-		],
+		"active": ["Neaktivan", "Aktivan"],
 		"analytics": "Analitika",
 		"lastAdded": "Zadnje dodano - {{value}}",
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
@@ -548,10 +546,7 @@
 	},
 	"Users": {
 		"add": "Dodaj korisnika",
-		"admin": [
-			"Korisnik",
-			"Administrator"
-		],
+		"admin": ["Korisnik", "Administrator"],
 		"createSuccess": "Korisnik {{value}} je uspješno kreiran.",
 		"delete": "Izbriši korisnika",
 		"deletePlaceholder": "Unesite email za potvrdu brisanja",
