@@ -69,26 +69,6 @@ const getPossibleAnswersForQuestion = (
 	return Array.from(allAnswers)
 }
 
-const getPossibleAnswersForZoneQuestion = (
-	data: any[],
-	zoneName: string,
-	questionLabel: string
-): string[] => {
-	const allAnswers = new Set<string>()
-	data.forEach((tracking: any) => {
-		const zone = tracking.zones?.find((z: any) => z.name === zoneName)
-		const question = zone?.questions_answers?.find(
-			(q: any) => q.label === questionLabel
-		)
-		if (question?.count_percentage) {
-			Object.keys(question.count_percentage).forEach((answer) => {
-				allAnswers.add(answer)
-			})
-		}
-	})
-	return Array.from(allAnswers)
-}
-
 const getProfileOptions = (data: any[]): string[] => {
 	const allProfiles = new Set<string>()
 	data.forEach((tracking: any) => {
@@ -213,10 +193,10 @@ export const exportToExcel = async ({
 		data.forEach((tracking: any) => {
 			if (tracking.zones) {
 				const zone = tracking.zones.find((z: any) => z.name === zoneName)
-				if (zone?.questions_answers) {
-					zone.questions_answers.forEach((q: any) => {
-						if (q.label) {
-							allZoneQuestions.add(q.label)
+				if (zone?.questions_answers_raw) {
+					zone.questions_answers_raw.forEach((q: any) => {
+						if (q?.question?.label) {
+							allZoneQuestions.add(q?.question?.label)
 						}
 					})
 				}
@@ -240,14 +220,7 @@ export const exportToExcel = async ({
 
 	const zoneQuestionsCols = zones.reduce((total: number, zoneName: string) => {
 		const zoneQuestions = getZoneQuestions(zoneName)
-		const zoneAnswerCols = zoneQuestions.reduce((sum, questionLabel) => {
-			const possibleAnswers = getPossibleAnswersForZoneQuestion(
-				data,
-				zoneName,
-				questionLabel
-			)
-			return sum + possibleAnswers.length * 2 // *2 for count and percentage
-		}, 0)
+		const zoneAnswerCols = zoneQuestions.length
 		return total + 1 + zoneAnswerCols // +1 for duration column
 	}, 0)
 
@@ -423,14 +396,7 @@ export const exportToExcel = async ({
 	// Zones
 	zones.forEach((zoneName: string, index: number) => {
 		const zoneQuestions = getZoneQuestions(zoneName)
-		const zoneAnswerCols = zoneQuestions.reduce((sum, questionLabel) => {
-			const possibleAnswers = getPossibleAnswersForZoneQuestion(
-				data,
-				zoneName,
-				questionLabel
-			)
-			return sum + possibleAnswers.length * 2
-		}, 0)
+		const zoneAnswerCols = zoneQuestions.length
 		const zoneColSpan = 1 + zoneAnswerCols // +1 for duration column
 
 		if (zoneColSpan > 1) {
@@ -495,17 +461,7 @@ export const exportToExcel = async ({
 		headers.push(`${zoneName}: ${t('Analytics.duration')}`)
 		const zoneQuestions = getZoneQuestions(zoneName)
 		zoneQuestions.forEach((questionLabel: string) => {
-			const possibleAnswers = getPossibleAnswersForZoneQuestion(
-				data,
-				zoneName,
-				questionLabel
-			)
-			possibleAnswers.forEach((answer: string) => {
-				headers.push(
-					`${zoneName}: ${questionLabel}: ${answer} (${t('Analytics.count')})`
-				)
-				headers.push(`${zoneName}: ${questionLabel}: ${answer} (%)`)
-			})
+			headers.push(`${zoneName}: ${questionLabel}`)
 		})
 	})
 
@@ -601,21 +557,11 @@ export const exportToExcel = async ({
 
 			const zoneQuestions = getZoneQuestions(zoneName)
 			zoneQuestions.forEach((questionLabel: string) => {
-				const possibleAnswers = getPossibleAnswersForZoneQuestion(
-					data,
-					zoneName,
-					questionLabel
+				const question = zone?.questions_answers_raw?.find(
+					(q: any) => q?.question?.label === questionLabel
 				)
-				const question = zone?.questions_answers?.find(
-					(q: any) => q.label === questionLabel
-				)
-
-				possibleAnswers.forEach((answer: string) => {
-					const answerData = question?.count_percentage?.[answer]
-					worksheet.getCell(rowIndex, colIndex++).value = answerData?.count || 0
-					worksheet.getCell(rowIndex, colIndex++).value =
-						(answerData?.percentage || 0) + '%'
-				})
+				const selectedAnswer = question?.answer?.answer || '-'
+				worksheet.getCell(rowIndex, colIndex++).value = selectedAnswer
 			})
 		})
 
@@ -712,7 +658,7 @@ export const exportToExcel = async ({
 			// Zone columns
 			if (col >= currentColCheck) {
 				const zoneIndex = Math.floor(
-					(col - currentColCheck) / (zoneQuestionsCols / zones.length)
+					(col - currentColCheck) / Math.ceil(zoneQuestionsCols / zones.length)
 				)
 				cell.style.fill = {
 					type: 'pattern',

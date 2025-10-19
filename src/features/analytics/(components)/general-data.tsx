@@ -219,10 +219,10 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 		data.forEach((tracking: any) => {
 			if (tracking.zones) {
 				const zone = tracking.zones.find((z: any) => z.name === zoneName)
-				if (zone?.questions_answers) {
-					zone.questions_answers.forEach((q: any) => {
-						if (q.label) {
-							allZoneQuestions.add(q.label)
+				if (zone?.questions_answers_raw) {
+					zone.questions_answers_raw.forEach((q: any) => {
+						if (q?.question?.label) {
+							allZoneQuestions.add(q?.question?.label)
 						}
 					})
 				}
@@ -309,13 +309,13 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 		for (const tracking of data) {
 			if (tracking.zones) {
 				const zone = tracking.zones.find((z: any) => z.name === zoneName)
-				if (zone?.questions_answers) {
-					const question = zone.questions_answers.find(
-						(q: any) => q.label === questionLabel
+				if (zone?.questions_answers_raw) {
+					const question = zone.questions_answers_raw.find(
+						(q: any) => q?.question?.label === questionLabel
 					)
-					if (question?.count_percentage) {
-						// Add all answer keys from this tracking's count_percentage
-						Object.keys(question.count_percentage).forEach((answer) =>
+
+					if (question?.question?.possible_answers) {
+						question?.question?.possible_answers.forEach((answer: any) =>
 							allAnswers.add(answer)
 						)
 					}
@@ -647,39 +647,21 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 												{t('Analytics.duration')}
 											</TableHead>
 
-											{zoneQuestions.map(
-												(questionLabel: any, qIndex: number) => {
-													const possibleAnswers =
-														getPossibleAnswersForZoneQuestion(
-															zoneName,
-															questionLabel
-														)
-													const isLastQuestion =
-														qIndex === zoneQuestions.length - 1
-													const isLastZone = zoneIndex === zones.length - 1
-
-													return possibleAnswers.map(
-														(answer: any, answerIndex: number) => {
-															const isLastAnswer =
-																answerIndex === possibleAnswers.length - 1
-															const shouldHaveBorder = !(
-																isLastQuestion &&
-																isLastAnswer &&
-																isLastZone
-															)
-
-															return (
-																<TableHead
-																	key={`${zoneName}-${questionLabel}-${answer}`}
-																	className={`text-center text-xs font-semibold ${shouldHaveBorder ? 'border-r' : ''} whitespace-nowrap ${zoneColor.bg}`}
-																>
-																	{answer}
-																</TableHead>
-															)
-														}
+											{zoneQuestions.map((questionLabel: any) => {
+												const possibleAnswers =
+													getPossibleAnswersForZoneQuestion(
+														zoneName,
+														questionLabel
 													)
-												}
-											)}
+
+												return (
+													<TableHead
+														colSpan={possibleAnswers.length ?? 1}
+														key={`${zoneName}-${questionLabel}`}
+														className={`border-r ${zoneColor.bg}`}
+													></TableHead>
+												)
+											})}
 										</React.Fragment>
 									)
 								})}
@@ -889,58 +871,41 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 													</Badge>
 												</TableCell>
 
-												{zoneQuestions.map(
-													(questionLabel: any, qIndex: number) => {
-														const possibleAnswers =
-															getPossibleAnswersForZoneQuestion(
-																zoneName,
-																questionLabel
-															)
-														const zone = record.zones?.find(
-															(z: any) => z.name === zoneName
+												{zoneQuestions.map((questionLabel: any) => {
+													const possibleAnswers =
+														getPossibleAnswersForZoneQuestion(
+															zoneName,
+															questionLabel
 														)
-														const zoneQuestion = zone?.questions_answers?.find(
-															(q: any) => q.label === questionLabel
+													const zone = record.zones?.find(
+														(z: any) => z.name === zoneName
+													)
+
+													const zoneQuestion =
+														zone?.questions_answers_raw?.find(
+															(q: any) => q?.question?.label === questionLabel
 														)
 
-														return possibleAnswers.map(
-															(answer: any, answerIndex: number) => {
-																const isLastQuestion =
-																	qIndex === zoneQuestions.length - 1
-																const isLastZone =
-																	zoneIndex === zones.length - 1
-																const isLastAnswer =
-																	answerIndex === possibleAnswers.length - 1
-																const shouldHaveBorder = !(
-																	isLastQuestion &&
-																	isLastAnswer &&
-																	isLastZone
-																)
-
-																const answerData =
-																	zoneQuestion?.count_percentage?.[answer]
-																const count = answerData?.count || 0
-																const percentage = answerData?.percentage || 0
-
-																return (
-																	<TableCell
-																		key={`${zoneName}-${questionLabel}-${answer}`}
-																		className={`text-center ${shouldHaveBorder ? 'border-r' : ''} ${zoneColor.bg}/30 whitespace-nowrap p-2`}
-																	>
-																		<div className='flex flex-row items-center justify-start gap-2'>
-																			<span className='basis-1/2 items-center justify-center text-xs font-medium text-black'>
-																				{count}
-																			</span>
-																			<span className='basis-1/2 items-center justify-center text-xs text-green-600'>
-																				({percentage}%)
-																			</span>
-																		</div>
-																	</TableCell>
-																)
-															}
-														)
-													}
-												)}
+													return (
+														<TableCell
+															colSpan={possibleAnswers?.length ?? 1}
+															key={`${zoneName}-${questionLabel}}`}
+															className={`border-r text-center ${zoneColor.bg}/30 whitespace-nowrap p-2`}
+														>
+															<Badge
+																variant={
+																	zoneQuestion?.answer?.answer
+																		? 'default'
+																		: 'outline'
+																}
+															>
+																{zoneQuestion?.answer?.answer
+																	? zoneQuestion?.answer?.answer
+																	: '-'}
+															</Badge>
+														</TableCell>
+													)
+												})}
 											</React.Fragment>
 										)
 									})}
