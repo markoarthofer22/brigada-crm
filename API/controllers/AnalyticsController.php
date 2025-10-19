@@ -336,12 +336,15 @@ class AnalyticsController extends BaseController
 					]
 				];
 
-				// $zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
-				// $zone["questions_answers_raw"] = $Analytics->GetAnswers((object) array("id_tracking" => $zone["id_tracking"], "id_zones" => $zone["id_zones"]));
+				$zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
+				$zone["questions_answers_raw"] = $Analytics->GetAnswers((object) array("id_tracking" => $zone["id_tracking"], "id_zones" => $zone["id_zones"]));
 				// $zone["questions_answers"] = $Analytics->PrepareQuestionsAnswersDataZones($zone, $item);
-				$zone["questions"] = [];
-				$zone["questions_answers_raw"] = [];
+				// $zone["questions"] = [];
+				// $zone["questions_answers_raw"] = [];
 				$zone["questions_answers"] = [];
+
+				// echo json_encode($zone["questions_answers"]);
+				// exit;
 
 				$zone["data"] = array(
 					"broj_ljudi" => $item["data"]["broj_ljudi"],
@@ -496,24 +499,14 @@ class AnalyticsController extends BaseController
 		$result["total_data"]["profile"] = $Analytics->PrepareProfileDataTotal($result["trackings"], $result_static_questions);
 		// $result["total_data"]["zones"] = $Analytics->PrepareDataZones($result["trackings"]);
 		// $result["total_data"]["zones"] = $Analytics->PrepareDataZones($result["trackings"]);
+
 		$result["total_data"]["zones"] = $Analytics->PrepareDataZones2($result["trackings"]);
 
-		// foreach ($result["total_data"]["zones"] as &$zone) {
-		// 	$zoneId = $zone["id_zones"];
-		// 	$zone["questions_answers_raw"] = array_values(array_filter(
-		// 		$result["total_data"]["questions_answers_raw"],
-		// 		fn($qa) => $qa["id_zones"] == $zoneId
-		// 	));
-		// }
-		// echo "<pre>";
-		// print_r($result["total_data"]["questions_answers"]);
-		// exit;
 
-		// echo json_encode($result["total_data"]["zones"]);
-		// exit;
+
+
+		// Assign questions_answers to each zone
 		foreach ($result["total_data"]["zones"]["per_zone"] as &$zone) {
-			// echo json_encode($result["total_data"]["questions_answers"]);
-			// exit;
 			$zoneId = $zone["id_zones"];
 			$zone["questions_answers"] = array_values(array_filter(
 				$result["total_data"]["questions_answers"],
@@ -521,11 +514,14 @@ class AnalyticsController extends BaseController
 			));
 		}
 
+		// echo json_encode($result["trackings"]);
+		// echo json_encode($result["total_data"]["questions_answers"]);
+		// exit;
+
 		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
 
 		$result["result_static_questions"] = $result_static_questions;
 		$result["filters"] = $filters;
-
 
 		return $result;
 	}

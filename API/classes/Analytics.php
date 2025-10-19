@@ -221,13 +221,16 @@ class Analytics
 	public function GetAnswers(object $params): array
 	{
 
+		// echo json_encode($params);
+		// exit;
+
 		$_where = " WHERE 1=1 ";
 		if ($params->id_tracking) {
 			$_where .= " AND ta.id_tracking = {$params->id_tracking} ";
 		}
-		// if ($params->id_zones) {
-		// 	$_where .= " AND ta.id_zones = {$params->id_zones} ";
-		// }
+		if ($params->id_zones) {
+			$_where .= " AND ta.id_zones = {$params->id_zones} ";
+		}
 
 		// if ($params->id_tracking && !$params->id_zones) {
 		// 	$_where .= " AND id_zones IS NULL ";
