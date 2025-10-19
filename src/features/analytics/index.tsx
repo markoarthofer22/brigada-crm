@@ -37,7 +37,6 @@ import { Main } from '@/components/layout/main'
 import CommentsList from '@/features/analytics/(components)/comments-list.tsx'
 import GeneralData from '@/features/analytics/(components)/general-data.tsx'
 import HeatmapWrapper from '@/features/analytics/(components)/heatmap-wrapper.tsx'
-import QuestionsAndAnswers from '@/features/analytics/(components)/questions-and-answers.tsx'
 import TotalData from '@/features/analytics/(components)/total-data.tsx'
 import Zones from '@/features/analytics/(components)/zones.tsx'
 import { exportToExcel } from '@/features/analytics/services/export-to-excel.ts'
@@ -357,12 +356,12 @@ export default function Analytics() {
 								<TabsTrigger disabled={!project} value={AnalyticsTabs.Total}>
 									{t('Analytics.tabs.total')}
 								</TabsTrigger>
-								<TabsTrigger
-									disabled={!project}
-									value={AnalyticsTabs.Questions}
-								>
-									{t('Analytics.tabs.questions')}
-								</TabsTrigger>
+								{/*<TabsTrigger*/}
+								{/*	disabled={!project}*/}
+								{/*	value={AnalyticsTabs.Questions}*/}
+								{/*>*/}
+								{/*	{t('Analytics.tabs.questions')}*/}
+								{/*</TabsTrigger>*/}
 								<TabsTrigger disabled={!project} value={AnalyticsTabs.Zones}>
 									{t('Analytics.tabs.zones')}
 								</TabsTrigger>
@@ -403,13 +402,13 @@ export default function Analytics() {
 						<TabsContent value={AnalyticsTabs.Total}>
 							{project && <TotalData data={analyticsQuery.data?.total_data} />}
 						</TabsContent>
-						<TabsContent value={AnalyticsTabs.Questions}>
-							{project && (
-								<QuestionsAndAnswers
-									data={analyticsQuery.data?.total_data?.questions_answers}
-								/>
-							)}
-						</TabsContent>
+						{/*<TabsContent value={AnalyticsTabs.Questions}>*/}
+						{/*	{project && (*/}
+						{/*		<QuestionsAndAnswers*/}
+						{/*			data={analyticsQuery.data?.total_data?.questions_answers}*/}
+						{/*		/>*/}
+						{/*	)}*/}
+						{/*</TabsContent>*/}
 						<TabsContent value={AnalyticsTabs.Zones}>
 							{project && (
 								<Zones
