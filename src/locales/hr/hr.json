@@ -1,6 +1,7 @@
 {
 	"Actions": {
 		"actions": "Akcije",
+		"applyFilters": "Primjeni filtere",
 		"backToHome": "Nazad na početnu",
 		"cancel": "Otkaži",
 		"clearFilters": "Reset",
@@ -14,6 +15,7 @@
 		"newComment": "Dodaj novi",
 		"reset": "Resetiraj",
 		"resetComment": "Ukloni komentar",
+		"resetFilters": "Resetiraj filtere",
 		"submit": "Spremi",
 		"undo": "Poništi",
 		"updatePref": "Ažurirajte postavke",
@@ -70,9 +72,9 @@
 		"genderBalance": "Ravnoteža Spola",
 		"genderBreakdown": "Pregled po spolovima",
 		"genderBreakdownByAnswer": "Razdioba po spolu prema odgovoru",
-		"profileBreakdownByAnswer": "Razdioba po profilu prema odgovoru",
 		"genderDistribution": "Distribucija Spola",
 		"genderDistributionDesc": "Jednaka distribucija muškaraca i žena",
+		"globalFilters": "Pretraživanje po pojmovima",
 		"group": "Društvo",
 		"heatmap": {
 			"avgHeat": "Avg. Heat:",
@@ -99,6 +101,7 @@
 		"people": "Posjete",
 		"peoplePerTracking": "ljudi po praćenju",
 		"percentage": "Postotak",
+		"profileBreakdownByAnswer": "Razdioba po profilu prema odgovoru",
 		"profileView": "Razdioba po profilu",
 		"questions": {
 			"answer": "Odgovor",
@@ -155,7 +158,10 @@
 		"zoneId": "ID Zone"
 	},
 	"Dashboard": {
-		"active": ["Neaktivan", "Aktivan"],
+		"active": [
+			"Neaktivan",
+			"Aktivan"
+		],
 		"analytics": "Analitika",
 		"lastAdded": "Zadnje dodano - {{value}}",
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
@@ -546,7 +552,10 @@
 	},
 	"Users": {
 		"add": "Dodaj korisnika",
-		"admin": ["Korisnik", "Administrator"],
+		"admin": [
+			"Korisnik",
+			"Administrator"
+		],
 		"createSuccess": "Korisnik {{value}} je uspješno kreiran.",
 		"delete": "Izbriši korisnika",
 		"deletePlaceholder": "Unesite email za potvrdu brisanja",

@@ -36,6 +36,10 @@ import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import CommentsList from '@/features/analytics/(components)/comments-list.tsx'
 import GeneralData from '@/features/analytics/(components)/general-data.tsx'
+import {
+	type FilterSelection,
+	GlobalFilters,
+} from '@/features/analytics/(components)/global-filters.tsx'
 import HeatmapWrapper from '@/features/analytics/(components)/heatmap-wrapper.tsx'
 import TotalData from '@/features/analytics/(components)/total-data.tsx'
 import Zones from '@/features/analytics/(components)/zones.tsx'
@@ -55,6 +59,9 @@ export default function Analytics() {
 	const { t } = useTranslation()
 	const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false)
 	const { showLoader, hideLoader } = useLoader()
+
+	const [selectedFilters, setSelectedFilters] =
+		useState<FilterSelection | null>(null)
 
 	const [{ tabs, project, interval, dateFrom, dateTo }, setFilters] =
 		useQueryStates({
@@ -78,6 +85,7 @@ export default function Analytics() {
 			xfrom: dateFrom ?? undefined,
 			xto: dateTo ?? undefined,
 			interval: interval ? Number(interval) : undefined,
+			extraQuery: selectedFilters,
 		}),
 		enabled: !!project,
 		refetchOnWindowFocus: false,
@@ -130,7 +138,7 @@ export default function Analytics() {
 	}
 
 	const setProjectCallback = async (value: string) => {
-		const projectId = parseInt(value, 10)
+		const projectId = Number.parseInt(value, 10)
 		await setFilters({
 			project: projectId,
 			tabs,
@@ -165,6 +173,11 @@ export default function Analytics() {
 		} finally {
 			hideLoader()
 		}
+	}
+
+	const handleFilterChange = async (filters: FilterSelection | null) => {
+		setSelectedFilters(filters)
+		await analyticsQuery.refetch()
 	}
 
 	const activeProject = useMemo(() => {
@@ -345,7 +358,13 @@ export default function Analytics() {
 							</PopoverContent>
 						</Popover>
 					</div>
+					<GlobalFilters
+						filters={analyticsQuery?.data.filters}
+						value={selectedFilters}
+						onFilterChange={handleFilterChange}
+					/>
 				</div>
+
 				<div className='mb-6 flex flex-col gap-4'>
 					<Tabs value={tabs} onValueChange={setTab} className='w-full'>
 						<div className='flex flex-wrap items-center justify-between'>
@@ -356,12 +375,6 @@ export default function Analytics() {
 								<TabsTrigger disabled={!project} value={AnalyticsTabs.Total}>
 									{t('Analytics.tabs.total')}
 								</TabsTrigger>
-								{/*<TabsTrigger*/}
-								{/*	disabled={!project}*/}
-								{/*	value={AnalyticsTabs.Questions}*/}
-								{/*>*/}
-								{/*	{t('Analytics.tabs.questions')}*/}
-								{/*</TabsTrigger>*/}
 								<TabsTrigger disabled={!project} value={AnalyticsTabs.Zones}>
 									{t('Analytics.tabs.zones')}
 								</TabsTrigger>
@@ -407,13 +420,6 @@ export default function Analytics() {
 								/>
 							)}
 						</TabsContent>
-						{/*<TabsContent value={AnalyticsTabs.Questions}>*/}
-						{/*	{project && (*/}
-						{/*		<QuestionsAndAnswers*/}
-						{/*			data={analyticsQuery.data?.total_data?.questions_answers}*/}
-						{/*		/>*/}
-						{/*	)}*/}
-						{/*</TabsContent>*/}
 						<TabsContent value={AnalyticsTabs.Zones}>
 							{project && (
 								<Zones

@@ -1,6 +1,7 @@
 {
 	"Actions": {
 		"actions": "Actions",
+		"applyFilters": "Apply filters",
 		"backToHome": "Back to Home",
 		"cancel": "Cancel",
 		"clearFilters": "Reset",
@@ -14,6 +15,7 @@
 		"newComment": "Add new",
 		"reset": "Reset",
 		"resetComment": "Reset comment",
+		"resetFilters": "Reset filters",
 		"submit": "Save",
 		"undo": "Undo",
 		"updatePref": "Update preferences",
@@ -70,9 +72,9 @@
 		"genderBalance": "Gender Balance",
 		"genderBreakdown": "Gender breakdown",
 		"genderBreakdownByAnswer": "Gender Breakdown by Answer",
-		"profileBreakdownByAnswer": "Profile breakdown by Answer",
 		"genderDistribution": "Gender Distribution",
 		"genderDistributionDesc": "Equal distribution of males and females",
+		"globalFilters": "Global filters",
 		"group": "Group",
 		"heatmap": {
 			"avgHeat": "Avg. Heat:",
@@ -99,6 +101,7 @@
 		"people": "Visits",
 		"peoplePerTracking": "people per tracking",
 		"percentage": "Percentage",
+		"profileBreakdownByAnswer": "Profile breakdown by Answer",
 		"profileView": "Profile view",
 		"questions": {
 			"answer": "Answer",
@@ -155,7 +158,10 @@
 		"zoneId": "Zone ID"
 	},
 	"Dashboard": {
-		"active": ["Inactive", "Active"],
+		"active": [
+			"Inactive",
+			"Active"
+		],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -546,7 +552,10 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": ["Regular user", "Admin"],
+		"admin": [
+			"Regular user",
+			"Admin"
+		],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",

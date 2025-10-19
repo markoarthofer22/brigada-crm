@@ -5,6 +5,7 @@ export const AnalyticsPayloadSchema = z.object({
 	xfrom: z.string().datetime().optional(),
 	xto: z.string().datetime().optional(),
 	interval: z.number().optional(),
+	extraQuery: z.record(z.string(), z.array(z.string())).nullable(),
 })
 
 export type AnalyticsPayload = z.infer<typeof AnalyticsPayloadSchema>

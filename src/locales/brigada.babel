@@ -38,6 +38,21 @@
 								</translations>
 							</concept_node>
 							<concept_node>
+								<name>applyFilters</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>backToHome</name>
 								<description/>
 								<comment/>
@@ -219,6 +234,21 @@
 							</concept_node>
 							<concept_node>
 								<name>resetComment</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>resetFilters</name>
 								<description/>
 								<comment/>
 								<translations>
@@ -1053,6 +1083,21 @@
 								</translations>
 							</concept_node>
 							<concept_node>
+								<name>globalFilters</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>group</name>
 								<description/>
 								<comment/>
@@ -1404,6 +1449,21 @@
 							</concept_node>
 							<concept_node>
 								<name>percentage</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>profileBreakdownByAnswer</name>
 								<description/>
 								<comment/>
 								<translations>
