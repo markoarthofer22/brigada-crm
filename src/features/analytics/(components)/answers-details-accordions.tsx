@@ -363,9 +363,38 @@ const AnswersDetailsAccordions = ({
 																key={index}
 																className='rounded-lg border p-4'
 															>
-																<h5 className='mb-3 font-semibold'>
+																<h5 className='mb-4 font-semibold'>
 																	{answerData.label}
 																</h5>
+																<div className='w-full overflow-hidden'>
+																	<ChartContainer
+																		config={{
+																			count: {
+																				label: t('Analytics.count'),
+																				color: '#10b981',
+																			},
+																		}}
+																		className='h-[250px] w-full md:h-[300px]'
+																	>
+																		<BarChart
+																			data={prepareDemographicChartData(
+																				answerData.people
+																			)}
+																			margin={{
+																				bottom: 40,
+																				left: 20,
+																				right: 20,
+																			}}
+																		>
+																			<XAxis dataKey='label' fontSize={12} />
+																			<YAxis fontSize={12} />
+																			<ChartTooltip
+																				content={<ChartTooltipContent />}
+																			/>
+																			<Bar dataKey='count' fill='#10b981' />
+																		</BarChart>
+																	</ChartContainer>
+																</div>
 																<div className='space-y-2'>
 																	{answerData.people.map(
 																		(demographic: any, dIndex: number) => (
@@ -405,9 +434,38 @@ const AnswersDetailsAccordions = ({
 																key={index}
 																className='rounded-lg border p-4'
 															>
-																<h5 className='mb-3 font-semibold'>
+																<h5 className='mb-4 font-semibold'>
 																	{answerData.label}
 																</h5>
+																<div className='w-full overflow-hidden'>
+																	<ChartContainer
+																		config={{
+																			count: {
+																				label: t('Analytics.count'),
+																				color: '#8b5cf6',
+																			},
+																		}}
+																		className='h-[250px] w-full md:h-[300px]'
+																	>
+																		<BarChart
+																			data={prepareDemographicChartData(
+																				answerData.profile
+																			)}
+																			margin={{
+																				bottom: 40,
+																				left: 20,
+																				right: 20,
+																			}}
+																		>
+																			<XAxis dataKey='label' fontSize={12} />
+																			<YAxis fontSize={12} />
+																			<ChartTooltip
+																				content={<ChartTooltipContent />}
+																			/>
+																			<Bar dataKey='count' fill='#8b5cf6' />
+																		</BarChart>
+																	</ChartContainer>
+																</div>
 																<div className='space-y-2'>
 																	{answerData.profile.map(
 																		(demographic: any, dIndex: number) => (
