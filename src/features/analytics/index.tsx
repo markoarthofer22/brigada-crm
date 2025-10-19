@@ -400,7 +400,12 @@ export default function Analytics() {
 							)}
 						</TabsContent>
 						<TabsContent value={AnalyticsTabs.Total}>
-							{project && <TotalData data={analyticsQuery.data?.total_data} />}
+							{project && (
+								<TotalData
+									data={analyticsQuery.data?.total_data}
+									projectName={analyticsQuery.data.name}
+								/>
+							)}
 						</TabsContent>
 						{/*<TabsContent value={AnalyticsTabs.Questions}>*/}
 						{/*	{project && (*/}

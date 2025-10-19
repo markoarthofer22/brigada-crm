@@ -199,6 +199,12 @@ export const handleScreenshot = async (
 	const buttons = document.getElementById(buttonId)
 	if (buttons) buttons.style.visibility = 'hidden'
 
+	const style = document.createElement('style')
+	document.head.appendChild(style)
+	style.sheet?.insertRule(
+		'body > div:last-child img { display: inline-block; }'
+	)
+
 	try {
 		const canvas = await html2canvas(div, {
 			useCORS: true,
@@ -218,5 +224,6 @@ export const handleScreenshot = async (
 		console.error('Screenshot failed:', err)
 	} finally {
 		if (buttons) buttons.style.visibility = 'visible'
+		document.head.removeChild(style)
 	}
 }

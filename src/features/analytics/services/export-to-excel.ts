@@ -51,6 +51,58 @@ const getAgeGroupCount = (ageGroupsData: any[], ageLabel: string) => {
 	return ageGroup ? ageGroup.count : 0
 }
 
+const getPossibleAnswersForQuestion = (
+	data: any[],
+	questionLabel: string
+): string[] => {
+	const allAnswers = new Set<string>()
+	data.forEach((tracking: any) => {
+		const question = tracking.data?.questions_answers?.find(
+			(q: any) => q.label === questionLabel
+		)
+		if (question?.count_percentage) {
+			Object.keys(question.count_percentage).forEach((answer) => {
+				allAnswers.add(answer)
+			})
+		}
+	})
+	return Array.from(allAnswers)
+}
+
+const getPossibleAnswersForZoneQuestion = (
+	data: any[],
+	zoneName: string,
+	questionLabel: string
+): string[] => {
+	const allAnswers = new Set<string>()
+	data.forEach((tracking: any) => {
+		const zone = tracking.zones?.find((z: any) => z.name === zoneName)
+		const question = zone?.questions_answers?.find(
+			(q: any) => q.label === questionLabel
+		)
+		if (question?.count_percentage) {
+			Object.keys(question.count_percentage).forEach((answer) => {
+				allAnswers.add(answer)
+			})
+		}
+	})
+	return Array.from(allAnswers)
+}
+
+const getProfileOptions = (data: any[]): string[] => {
+	const allProfiles = new Set<string>()
+	data.forEach((tracking: any) => {
+		if (tracking.data?.profile?.data) {
+			tracking.data.profile.data.forEach((profile: any) => {
+				if (profile.label) {
+					allProfiles.add(profile.label)
+				}
+			})
+		}
+	})
+	return Array.from(allProfiles)
+}
+
 export const exportToExcel = async ({
 	data,
 	timespan,
@@ -86,6 +138,7 @@ export const exportToExcel = async ({
 							broj_zenski_percentage: 0,
 							dobna_skupina: { data: [] },
 							questions_answers: [],
+							profile: { data: [] },
 						},
 						zones: [],
 						comments: [],
@@ -175,27 +228,27 @@ export const exportToExcel = async ({
 	const ageGroups = getAgeGroups()
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
+	const profileOptions = getProfileOptions(data)
 
 	const questionsCols = mainQuestions.reduce(
 		(total: number, questionLabel: string) => {
-			const sampleQuestion = data
-				.find((tracking) =>
-					tracking.data?.questions_answers?.find(
-						(q: any) => q.label === questionLabel
-					)
-				)
-				?.data?.questions_answers?.find((q: any) => q.label === questionLabel)
-
-			const possibleAnswers = sampleQuestion?.possible_answers
-				? Object.values(sampleQuestion.possible_answers)
-				: []
-			return total + possibleAnswers.length
+			const possibleAnswers = getPossibleAnswersForQuestion(data, questionLabel)
+			return total + possibleAnswers.length * 2 // *2 for count and percentage columns
 		},
 		0
 	)
 
 	const zoneQuestionsCols = zones.reduce((total: number, zoneName: string) => {
-		return total + getZoneQuestions(zoneName).length
+		const zoneQuestions = getZoneQuestions(zoneName)
+		const zoneAnswerCols = zoneQuestions.reduce((sum, questionLabel) => {
+			const possibleAnswers = getPossibleAnswersForZoneQuestion(
+				data,
+				zoneName,
+				questionLabel
+			)
+			return sum + possibleAnswers.length * 2 // *2 for count and percentage
+		}, 0)
+		return total + 1 + zoneAnswerCols // +1 for duration column
 	}, 0)
 
 	const workbook = new ExcelJS.Workbook()
@@ -217,10 +270,10 @@ export const exportToExcel = async ({
 			},
 			alignment: { horizontal: 'center', vertical: 'middle' },
 			border: {
-				top: { style: 'thick' },
-				bottom: { style: 'thick' },
-				left: { style: 'thick' },
-				right: { style: 'thick' },
+				top: { style: 'thin' },
+				bottom: { style: 'thin' },
+				left: { style: 'thin' },
+				right: { style: 'thin' },
 			},
 		}
 		currentCol += 1
@@ -242,10 +295,10 @@ export const exportToExcel = async ({
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
-			top: { style: 'thick' },
-			bottom: { style: 'thick' },
-			left: { style: 'thick' },
-			right: { style: 'thick' },
+			top: { style: 'thin' },
+			bottom: { style: 'thin' },
+			left: { style: 'thin' },
+			right: { style: 'thin' },
 		},
 	}
 	currentCol += basicInfoCols
@@ -258,7 +311,7 @@ export const exportToExcel = async ({
 	const timeInfo = worksheet.getCell(1, currentCol)
 	timeInfo.value = t('Analytics.time')
 	timeInfo.style = {
-		font: { bold: true, color: { argb: '7C3AED' } }, // purple-600
+		font: { bold: true, color: { argb: '7C3AED' } },
 		fill: {
 			type: 'pattern',
 			pattern: 'solid',
@@ -266,10 +319,10 @@ export const exportToExcel = async ({
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
-			top: { style: 'thick' },
-			bottom: { style: 'thick' },
-			left: { style: 'thick' },
-			right: { style: 'thick' },
+			top: { style: 'thin' },
+			bottom: { style: 'thin' },
+			left: { style: 'thin' },
+			right: { style: 'thin' },
 		},
 	}
 	currentCol += timeCols
@@ -282,7 +335,7 @@ export const exportToExcel = async ({
 	const demographics = worksheet.getCell(1, currentCol)
 	demographics.value = t('Analytics.demographics')
 	demographics.style = {
-		font: { bold: true, color: { argb: '2563EB' } }, // blue-600
+		font: { bold: true, color: { argb: '2563EB' } },
 		fill: {
 			type: 'pattern',
 			pattern: 'solid',
@@ -290,10 +343,10 @@ export const exportToExcel = async ({
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
-			top: { style: 'thick' },
-			bottom: { style: 'thick' },
-			left: { style: 'thick' },
-			right: { style: 'thick' },
+			top: { style: 'thin' },
+			bottom: { style: 'thin' },
+			left: { style: 'thin' },
+			right: { style: 'thin' },
 		},
 	}
 	currentCol += demographicsCols
@@ -305,7 +358,7 @@ export const exportToExcel = async ({
 	const ageGroupsHeader = worksheet.getCell(1, currentCol)
 	ageGroupsHeader.value = t('Analytics.years')
 	ageGroupsHeader.style = {
-		font: { bold: true, color: { argb: '16A34A' } }, // green-600
+		font: { bold: true, color: { argb: '16A34A' } },
 		fill: {
 			type: 'pattern',
 			pattern: 'solid',
@@ -313,13 +366,36 @@ export const exportToExcel = async ({
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
-			top: { style: 'thick' },
-			bottom: { style: 'thick' },
-			left: { style: 'thick' },
-			right: { style: 'thick' },
+			top: { style: 'thin' },
+			bottom: { style: 'thin' },
+			left: { style: 'thin' },
+			right: { style: 'thin' },
 		},
 	}
 	currentCol += ageGroups.length
+
+	const profileCols = profileOptions.length * 2 // *2 for count and percentage
+	if (profileCols > 1) {
+		worksheet.mergeCells(1, currentCol, 1, currentCol + profileCols - 1)
+	}
+	const profileHeader = worksheet.getCell(1, currentCol)
+	profileHeader.value = 'Profil kupca'
+	profileHeader.style = {
+		font: { bold: true, color: { argb: '7C3AED' } },
+		fill: {
+			type: 'pattern',
+			pattern: 'solid',
+			fgColor: { argb: 'FAF5FF' }, // purple-50
+		},
+		alignment: { horizontal: 'center', vertical: 'middle' },
+		border: {
+			top: { style: 'thin' },
+			bottom: { style: 'thin' },
+			left: { style: 'thin' },
+			right: { style: 'thin' },
+		},
+	}
+	currentCol += profileCols
 
 	// Questions
 	if (questionsCols > 1) {
@@ -336,10 +412,10 @@ export const exportToExcel = async ({
 		},
 		alignment: { horizontal: 'center', vertical: 'middle' },
 		border: {
-			top: { style: 'thick' },
-			bottom: { style: 'thick' },
-			left: { style: 'thick' },
-			right: { style: 'thick' },
+			top: { style: 'thin' },
+			bottom: { style: 'thin' },
+			left: { style: 'thin' },
+			right: { style: 'thin' },
 		},
 	}
 	currentCol += questionsCols
@@ -347,7 +423,15 @@ export const exportToExcel = async ({
 	// Zones
 	zones.forEach((zoneName: string, index: number) => {
 		const zoneQuestions = getZoneQuestions(zoneName)
-		const zoneColSpan = zoneQuestions.length + 1 // +1 for duration column
+		const zoneAnswerCols = zoneQuestions.reduce((sum, questionLabel) => {
+			const possibleAnswers = getPossibleAnswersForZoneQuestion(
+				data,
+				zoneName,
+				questionLabel
+			)
+			return sum + possibleAnswers.length * 2
+		}, 0)
+		const zoneColSpan = 1 + zoneAnswerCols // +1 for duration column
 
 		if (zoneColSpan > 1) {
 			worksheet.mergeCells(1, currentCol, 1, currentCol + zoneColSpan - 1)
@@ -364,10 +448,10 @@ export const exportToExcel = async ({
 			},
 			alignment: { horizontal: 'center', vertical: 'middle' },
 			border: {
-				top: { style: 'thick' },
-				bottom: { style: 'thick' },
-				left: { style: 'thick' },
-				right: { style: 'thick' },
+				top: { style: 'thin' },
+				bottom: { style: 'thin' },
+				left: { style: 'thin' },
+				right: { style: 'thin' },
 			},
 		}
 		currentCol += zoneColSpan
@@ -394,29 +478,34 @@ export const exportToExcel = async ({
 		...ageGroups
 	)
 
-	// Add question headers with individual answer columns
-	mainQuestions.forEach((questionLabel: any) => {
-		const sampleQuestion = data
-			.find((tracking) =>
-				tracking.data?.questions_answers?.find(
-					(q: any) => q.label === questionLabel
-				)
-			)
-			?.data?.questions_answers?.find((q: any) => q.label === questionLabel)
+	profileOptions.forEach((profileLabel: string) => {
+		headers.push(`${profileLabel} (${t('Analytics.count')})`)
+		headers.push(`${profileLabel} (%)`)
+	})
 
-		const possibleAnswers = sampleQuestion?.possible_answers
-			? Object.values(sampleQuestion.possible_answers)
-			: []
-		possibleAnswers.forEach((answer: any) => {
-			headers.push(`${questionLabel}: ${answer}`)
+	mainQuestions.forEach((questionLabel: string) => {
+		const possibleAnswers = getPossibleAnswersForQuestion(data, questionLabel)
+		possibleAnswers.forEach((answer: string) => {
+			headers.push(`${questionLabel}: ${answer} (${t('Analytics.count')})`)
+			headers.push(`${questionLabel}: ${answer} (%)`)
 		})
 	})
 
 	zones.forEach((zoneName: string) => {
-		headers.push(`${zoneName}: ${t('Analytics.duration')}`) // Add duration column
+		headers.push(`${zoneName}: ${t('Analytics.duration')}`)
 		const zoneQuestions = getZoneQuestions(zoneName)
-		zoneQuestions.forEach((question: any) => {
-			headers.push(`${zoneName}: ${question}`)
+		zoneQuestions.forEach((questionLabel: string) => {
+			const possibleAnswers = getPossibleAnswersForZoneQuestion(
+				data,
+				zoneName,
+				questionLabel
+			)
+			possibleAnswers.forEach((answer: string) => {
+				headers.push(
+					`${zoneName}: ${questionLabel}: ${answer} (${t('Analytics.count')})`
+				)
+				headers.push(`${zoneName}: ${questionLabel}: ${answer} (%)`)
+			})
 		})
 	})
 
@@ -482,47 +571,51 @@ export const exportToExcel = async ({
 			)
 		})
 
-		// Questions - individual answer columns
-		mainQuestions.forEach((questionLabel: any) => {
-			const sampleQuestion = data
-				.find((tracking) =>
-					tracking.data?.questions_answers?.find(
-						(q: any) => q.label === questionLabel
-					)
-				)
-				?.data?.questions_answers?.find((q: any) => q.label === questionLabel)
+		profileOptions.forEach((profileLabel: string) => {
+			const profileData = record.data.profile?.data?.find(
+				(p: any) => p.label === profileLabel
+			)
+			worksheet.getCell(rowIndex, colIndex++).value = profileData?.count || 0
+			worksheet.getCell(rowIndex, colIndex++).value =
+				(profileData?.percentage || 0) + '%'
+		})
 
-			const possibleAnswers = sampleQuestion?.possible_answers
-				? Object.values(sampleQuestion.possible_answers)
-				: []
+		mainQuestions.forEach((questionLabel: string) => {
+			const possibleAnswers = getPossibleAnswersForQuestion(data, questionLabel)
+			const recordQuestion = record.data.questions_answers?.find(
+				(q: any) => q.label === questionLabel
+			)
 
-			possibleAnswers.forEach((answer: any) => {
-				const recordQuestion = record.data.questions_answers?.find(
-					(q: any) => q.label === questionLabel
-				)
+			possibleAnswers.forEach((answer: string) => {
 				const answerData = recordQuestion?.count_percentage?.[answer]
-				const count = answerData?.count || 0
-				const percentage = answerData?.percentage || 0
+				worksheet.getCell(rowIndex, colIndex++).value = answerData?.count || 0
 				worksheet.getCell(rowIndex, colIndex++).value =
-					`${count} (${percentage}%)`
+					(answerData?.percentage || 0) + '%'
 			})
 		})
 
-		// Zones
 		zones.forEach((zoneName: string) => {
-			// Add duration first
 			const zone = record.zones?.find((z: any) => z.name === zoneName)
 			const duration = zone?.lasted?.formatted || '-'
 			worksheet.getCell(rowIndex, colIndex++).value = duration
 
-			// Then add zone questions
 			const zoneQuestions = getZoneQuestions(zoneName)
 			zoneQuestions.forEach((questionLabel: string) => {
+				const possibleAnswers = getPossibleAnswersForZoneQuestion(
+					data,
+					zoneName,
+					questionLabel
+				)
 				const question = zone?.questions_answers?.find(
 					(q: any) => q.label === questionLabel
 				)
-				const answer = question?.answer || '-'
-				worksheet.getCell(rowIndex, colIndex++).value = answer
+
+				possibleAnswers.forEach((answer: string) => {
+					const answerData = question?.count_percentage?.[answer]
+					worksheet.getCell(rowIndex, colIndex++).value = answerData?.count || 0
+					worksheet.getCell(rowIndex, colIndex++).value =
+						(answerData?.percentage || 0) + '%'
+				})
 			})
 		})
 
@@ -555,34 +648,34 @@ export const exportToExcel = async ({
 			}
 
 			// Basic info columns
-			if (col >= currentColCheck && col < currentColCheck + basicInfoCols) {
+			if (col >= currentColCheck && col < currentColCheck + 2) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.basicBg },
 				}
 			}
-			currentColCheck += basicInfoCols
+			currentColCheck += 2
 
 			// Time columns
-			if (col >= currentColCheck && col < currentColCheck + timeCols) {
+			if (col >= currentColCheck && col < currentColCheck + 3) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.timeBg },
 				}
 			}
-			currentColCheck += timeCols
+			currentColCheck += 3
 
 			// Demographics columns
-			if (col >= currentColCheck && col < currentColCheck + demographicsCols) {
+			if (col >= currentColCheck && col < currentColCheck + 5) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.demographicsBg },
 				}
 			}
-			currentColCheck += demographicsCols
+			currentColCheck += 5
 
 			// Age groups columns
 			if (col >= currentColCheck && col < currentColCheck + ageGroups.length) {
@@ -593,6 +686,18 @@ export const exportToExcel = async ({
 				}
 			}
 			currentColCheck += ageGroups.length
+
+			if (
+				col >= currentColCheck &&
+				col < currentColCheck + profileOptions.length * 2
+			) {
+				cell.style.fill = {
+					type: 'pattern',
+					pattern: 'solid',
+					fgColor: { argb: 'FAF5FF' }, // purple-50
+				}
+			}
+			currentColCheck += profileOptions.length * 2
 
 			// Questions columns
 			if (col >= currentColCheck && col < currentColCheck + questionsCols) {
@@ -607,7 +712,7 @@ export const exportToExcel = async ({
 			// Zone columns
 			if (col >= currentColCheck) {
 				const zoneIndex = Math.floor(
-					(col - currentColCheck) / (zoneQuestionsCols / zones.length + 1)
+					(col - currentColCheck) / (zoneQuestionsCols / zones.length)
 				)
 				cell.style.fill = {
 					type: 'pattern',
@@ -620,9 +725,37 @@ export const exportToExcel = async ({
 		}
 	})
 
-	worksheet.columns.forEach((column: any) => {
-		column.width = 15
+	const columnWidths: number[] = []
+
+	// Calculate max width for each column
+	for (let col = 1; col <= headers.length; col++) {
+		let maxWidth = 10 // minimum width
+
+		// Check header width
+		const headerCell = worksheet.getCell(2, col)
+		if (headerCell.value) {
+			const headerLength = String(headerCell.value).length
+			maxWidth = Math.max(maxWidth, headerLength + 2)
+		}
+
+		// Check data rows
+		tableData.forEach((_, rowIndex) => {
+			const cell = worksheet.getCell(rowIndex + 3, col)
+			if (cell.value) {
+				const cellLength = String(cell.value).length
+				maxWidth = Math.max(maxWidth, cellLength + 2)
+			}
+		})
+
+		// Cap maximum width at 50 characters
+		columnWidths[col - 1] = Math.min(maxWidth, 50)
+	}
+
+	// Apply calculated widths
+	worksheet.columns.forEach((column: any, index: number) => {
+		column.width = columnWidths[index] || 15
 	})
+
 	// Save the Excel file
 	const buffer = await workbook.xlsx.writeBuffer()
 	const fileType =

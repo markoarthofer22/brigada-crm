@@ -472,6 +472,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 											</CardDescription>
 										</div>
 										<AnswersDetailsAccordions
+											projectName={projectName}
 											filterOutZones={false}
 											data={zone}
 										/>

@@ -126,6 +126,7 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 							broj_zenski: 0,
 							broj_zenski_percentage: 0,
 							dobna_skupina: { data: [] },
+							profile: { data: [] },
 							questions_answers: [],
 						},
 						zones: [],
@@ -158,6 +159,23 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 		})
 
 		return Array.from(allAgeGroups)
+	}
+
+	const getProfileOptions = () => {
+		if (data?.length === 0) return []
+
+		const allProfiles = new Set<string>()
+		data.forEach((tracking: any) => {
+			if (tracking.data?.profile?.data) {
+				tracking.data.profile.data.forEach((profile: any) => {
+					if (profile.label) {
+						allProfiles.add(profile.label)
+					}
+				})
+			}
+		})
+
+		return Array.from(allProfiles)
 	}
 
 	const getMainQuestions = () => {
@@ -257,18 +275,55 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 		return ageGroup ? ageGroup.count : 0
 	}
 
-	const getZoneAnswer = (
-		zones: any[],
+	const getProfileData = (profileData: any[], profileLabel: string) => {
+		const profile = profileData?.find((p: any) => p.label === profileLabel)
+		return profile
+			? { count: profile.count, percentage: profile.percentage }
+			: { count: 0, percentage: 0 }
+	}
+
+	const getPossibleAnswersForQuestion = (questionLabel: string) => {
+		const allAnswers = new Set<string>()
+
+		for (const tracking of data) {
+			const question = tracking.data?.questions_answers?.find(
+				(q: any) => q.label === questionLabel
+			)
+			if (question?.count_percentage) {
+				// Add all answer keys from this tracking's count_percentage
+				Object.keys(question.count_percentage).forEach((answer) =>
+					allAnswers.add(answer)
+				)
+			}
+		}
+
+		return Array.from(allAnswers)
+	}
+
+	const getPossibleAnswersForZoneQuestion = (
 		zoneName: string,
 		questionLabel: string
 	) => {
-		const zone = zones.find((z: any) => z.name === zoneName)
-		if (!zone) return '-'
+		const allAnswers = new Set<string>()
 
-		const question = zone.questions_answers.find(
-			(q: any) => q.label === questionLabel
-		)
-		return question ? question.answer || '-' : '-'
+		for (const tracking of data) {
+			if (tracking.zones) {
+				const zone = tracking.zones.find((z: any) => z.name === zoneName)
+				if (zone?.questions_answers) {
+					const question = zone.questions_answers.find(
+						(q: any) => q.label === questionLabel
+					)
+					if (question?.count_percentage) {
+						// Add all answer keys from this tracking's count_percentage
+						Object.keys(question.count_percentage).forEach((answer) =>
+							allAnswers.add(answer)
+						)
+					}
+				}
+			}
+		}
+
+		return Array.from(allAnswers)
 	}
 
 	const getZoneDuration = (zones: any[], zoneName: string) => {
@@ -277,6 +332,7 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	}
 
 	const ageGroups = getAgeGroups()
+	const profileOptions = getProfileOptions() // Get profile options
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
 
@@ -284,26 +340,29 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	const timeCols = 3
 	const demographicsCols = 5
 	const ageGroupsCols = ageGroups.length
+	const profileCols = profileOptions.length // Calculate profile columns
+
 	const questionsCols = mainQuestions.reduce(
 		(total: number, questionLabel: string) => {
-			const sampleQuestion = data
-				.find((tracking) =>
-					tracking.data?.questions_answers?.find(
-						(q: any) => q.label === questionLabel
-					)
-				)
-				?.data?.questions_answers?.find((q: any) => q.label === questionLabel)
-
-			const possibleAnswers = sampleQuestion?.possible_answers
-				? Object.values(sampleQuestion.possible_answers)
-				: []
-
+			const possibleAnswers = getPossibleAnswersForQuestion(questionLabel)
 			return total + possibleAnswers.length
 		},
 		0
 	)
+
 	const totalZoneCols = zones.reduce((total: number, zoneName: any) => {
-		return total + 1 + getZoneQuestions(zoneName).length
+		const zoneQuestions = getZoneQuestions(zoneName)
+		const zoneQuestionCols = zoneQuestions.reduce(
+			(sum: number, questionLabel: string) => {
+				const possibleAnswers = getPossibleAnswersForZoneQuestion(
+					zoneName,
+					questionLabel
+				)
+				return sum + possibleAnswers.length
+			},
+			0
+		)
+		return total + 1 + zoneQuestionCols
 	}, 0)
 
 	if (!tableData || tableData.length === 0) {
@@ -348,10 +407,16 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 									{t('Analytics.demographics')}
 								</TableHead>
 								<TableHead
-									className='border-r-2 text-center font-semibold text-black'
+									className='border-r-2 text-center font-semibold text-green-600'
 									colSpan={ageGroupsCols}
 								>
 									{t('Analytics.years')}
+								</TableHead>
+								<TableHead
+									className='border-r-2 text-center font-semibold text-indigo-600'
+									colSpan={profileCols}
+								>
+									Profil kupca
 								</TableHead>
 								<TableHead
 									className='border-r text-center font-semibold text-yellow-600'
@@ -386,19 +451,33 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 									colSpan={ageGroupsCols}
 								></TableHead>
 								<TableHead
+									className='border-r text-center font-semibold text-indigo-600'
+									colSpan={profileCols}
+								></TableHead>
+								<TableHead
 									className='border-r text-center font-semibold text-yellow-600'
 									colSpan={questionsCols}
 								></TableHead>
 
 								{zones.map((zoneName: any, index: number) => {
-									const zoneQuestionCount = getZoneQuestions(zoneName).length
+									const zoneQuestions = getZoneQuestions(zoneName)
+									const zoneQuestionCols = zoneQuestions.reduce(
+										(sum: number, questionLabel: string) => {
+											const possibleAnswers = getPossibleAnswersForZoneQuestion(
+												zoneName,
+												questionLabel
+											)
+											return sum + possibleAnswers.length
+										},
+										0
+									)
 									const isLast = index === zones.length - 1
 									const zoneColor = getZoneColor(index)
 									return (
 										<TableHead
 											key={zoneName}
 											className={`text-center font-semibold text-orange-600 ${!isLast ? 'border-r' : ''} ${zoneColor.bgIntense}`}
-											colSpan={1 + zoneQuestionCount}
+											colSpan={1 + zoneQuestionCols}
 										>
 											{zoneName}
 										</TableHead>
@@ -426,21 +505,16 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 									></TableHead>
 								))}
 
-								{mainQuestions.map((questionLabel: any, index: number) => {
-									// Get the first tracking that has this question to determine answer structure
-									const sampleQuestion = data
-										.find((tracking) =>
-											tracking.data?.questions_answers?.find(
-												(q: any) => q.label === questionLabel
-											)
-										)
-										?.data?.questions_answers?.find(
-											(q: any) => q.label === questionLabel
-										)
+								{profileOptions.map((profileLabel: any) => (
+									<TableHead
+										key={profileLabel}
+										className={`border-r bg-indigo-50`}
+									></TableHead>
+								))}
 
-									const possibleAnswers = sampleQuestion?.possible_answers
-										? Object.values(sampleQuestion.possible_answers)
-										: []
+								{mainQuestions.map((questionLabel: any, index: number) => {
+									const possibleAnswers =
+										getPossibleAnswersForQuestion(questionLabel)
 
 									return (
 										<TableHead
@@ -466,6 +540,11 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 											></TableHead>
 											{zoneQuestions.map(
 												(questionLabel: any, qIndex: number) => {
+													const possibleAnswers =
+														getPossibleAnswersForZoneQuestion(
+															zoneName,
+															questionLabel
+														)
 													const isLastQuestion =
 														qIndex === zoneQuestions.length - 1
 													const isLastZone = zoneIndex === zones.length - 1
@@ -475,8 +554,13 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 													return (
 														<TableHead
 															key={`${zoneName}-${questionLabel}`}
-															className={`${shouldHaveBorder ? 'border-r' : ''} ${zoneColor.bg}`}
-														></TableHead>
+															className={`text-center ${shouldHaveBorder ? 'border-r' : ''} whitespace-nowrap bg-yellow-50 p-1 ${zoneColor.bg}`}
+															colSpan={possibleAnswers.length}
+														>
+															<div className='text-xs font-semibold text-yellow-800'>
+																{questionLabel}
+															</div>
+														</TableHead>
 													)
 												}
 											)}
@@ -528,20 +612,18 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 									</TableHead>
 								))}
 
-								{mainQuestions.map((questionLabel: any) => {
-									const sampleQuestion = data
-										.find((tracking) =>
-											tracking.data?.questions_answers?.find(
-												(q: any) => q.label === questionLabel
-											)
-										)
-										?.data?.questions_answers?.find(
-											(q: any) => q.label === questionLabel
-										)
+								{profileOptions.map((profileLabel: any, index: number) => (
+									<TableHead
+										key={profileLabel}
+										className={`text-center text-xs font-semibold ${index < profileOptions.length - 1 ? 'border-r' : 'border-r'} whitespace-nowrap bg-indigo-50`}
+									>
+										{profileLabel}
+									</TableHead>
+								))}
 
-									const possibleAnswers = sampleQuestion?.possible_answers
-										? Object.values(sampleQuestion.possible_answers)
-										: []
+								{mainQuestions.map((questionLabel: any) => {
+									const possibleAnswers =
+										getPossibleAnswersForQuestion(questionLabel)
 
 									return possibleAnswers.map((answer: any) => (
 										<TableHead
@@ -567,19 +649,34 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 
 											{zoneQuestions.map(
 												(questionLabel: any, qIndex: number) => {
+													const possibleAnswers =
+														getPossibleAnswersForZoneQuestion(
+															zoneName,
+															questionLabel
+														)
 													const isLastQuestion =
 														qIndex === zoneQuestions.length - 1
 													const isLastZone = zoneIndex === zones.length - 1
-													const shouldHaveBorder =
-														!isLastQuestion || !isLastZone
 
-													return (
-														<TableHead
-															key={`${zoneName}-${questionLabel}`}
-															className={`text-center text-xs font-semibold ${shouldHaveBorder ? 'border-r' : ''} whitespace-nowrap ${zoneColor.bg}`}
-														>
-															{questionLabel}
-														</TableHead>
+													return possibleAnswers.map(
+														(answer: any, answerIndex: number) => {
+															const isLastAnswer =
+																answerIndex === possibleAnswers.length - 1
+															const shouldHaveBorder = !(
+																isLastQuestion &&
+																isLastAnswer &&
+																isLastZone
+															)
+
+															return (
+																<TableHead
+																	key={`${zoneName}-${questionLabel}-${answer}`}
+																	className={`text-center text-xs font-semibold ${shouldHaveBorder ? 'border-r' : ''} whitespace-nowrap ${zoneColor.bg}`}
+																>
+																	{answer}
+																</TableHead>
+															)
+														}
 													)
 												}
 											)}
@@ -719,20 +816,31 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 										</TableCell>
 									))}
 
-									{mainQuestions.map((questionLabel: any) => {
-										const sampleQuestion = data
-											.find((tracking) =>
-												tracking.data?.questions_answers?.find(
-													(q: any) => q.label === questionLabel
-												)
-											)
-											?.data?.questions_answers?.find(
-												(q: any) => q.label === questionLabel
-											)
+									{profileOptions.map((profileLabel: any, index: number) => {
+										const profileData = getProfileData(
+											record.data.profile?.data,
+											profileLabel
+										)
+										return (
+											<TableCell
+												key={profileLabel}
+												className={`text-center ${index < profileOptions.length - 1 ? 'border-r' : 'border-r'} whitespace-nowrap bg-indigo-50/30 p-2`}
+											>
+												<div className='flex flex-row items-center justify-start gap-2'>
+													<span className='basis-1/2 items-center justify-center text-xs font-medium text-black'>
+														{profileData.count}
+													</span>
+													<span className='basis-1/2 items-center justify-center text-xs text-indigo-600'>
+														({profileData.percentage}%)
+													</span>
+												</div>
+											</TableCell>
+										)
+									})}
 
-										const possibleAnswers = sampleQuestion?.possible_answers
-											? Object.values(sampleQuestion.possible_answers)
-											: []
+									{mainQuestions.map((questionLabel: any) => {
+										const possibleAnswers =
+											getPossibleAnswersForQuestion(questionLabel)
 
 										return possibleAnswers.map((answer: any) => {
 											const recordQuestion =
@@ -740,7 +848,7 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 													(q: any) => q.label === questionLabel
 												)
 
-											// Get count and percentage for this specific answer
+											// Get count and percentage for this specific answer from count_percentage
 											const answerData =
 												recordQuestion?.count_percentage?.[answer]
 											const count = answerData?.count || 0
@@ -783,25 +891,53 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 
 												{zoneQuestions.map(
 													(questionLabel: any, qIndex: number) => {
-														const isLastQuestion =
-															qIndex === zoneQuestions.length - 1
-														const isLastZone = zoneIndex === zones.length - 1
-														const shouldHaveBorder =
-															!isLastQuestion || !isLastZone
+														const possibleAnswers =
+															getPossibleAnswersForZoneQuestion(
+																zoneName,
+																questionLabel
+															)
+														const zone = record.zones?.find(
+															(z: any) => z.name === zoneName
+														)
+														const zoneQuestion = zone?.questions_answers?.find(
+															(q: any) => q.label === questionLabel
+														)
 
-														return (
-															<TableCell
-																key={`${zoneName}-${questionLabel}`}
-																className={`text-center ${shouldHaveBorder ? 'border-r' : ''} ${zoneColor.bg}/30 whitespace-nowrap`}
-															>
-																<Badge variant='outline' className='text-xs'>
-																	{getZoneAnswer(
-																		record.zones,
-																		zoneName,
-																		questionLabel
-																	)}
-																</Badge>
-															</TableCell>
+														return possibleAnswers.map(
+															(answer: any, answerIndex: number) => {
+																const isLastQuestion =
+																	qIndex === zoneQuestions.length - 1
+																const isLastZone =
+																	zoneIndex === zones.length - 1
+																const isLastAnswer =
+																	answerIndex === possibleAnswers.length - 1
+																const shouldHaveBorder = !(
+																	isLastQuestion &&
+																	isLastAnswer &&
+																	isLastZone
+																)
+
+																const answerData =
+																	zoneQuestion?.count_percentage?.[answer]
+																const count = answerData?.count || 0
+																const percentage = answerData?.percentage || 0
+
+																return (
+																	<TableCell
+																		key={`${zoneName}-${questionLabel}-${answer}`}
+																		className={`text-center ${shouldHaveBorder ? 'border-r' : ''} ${zoneColor.bg}/30 whitespace-nowrap p-2`}
+																	>
+																		<div className='flex flex-row items-center justify-start gap-2'>
+																			<span className='basis-1/2 items-center justify-center text-xs font-medium text-black'>
+																				{count}
+																			</span>
+																			<span className='basis-1/2 items-center justify-center text-xs text-green-600'>
+																				({percentage}%)
+																			</span>
+																		</div>
+																	</TableCell>
+																)
+															}
 														)
 													}
 												)}

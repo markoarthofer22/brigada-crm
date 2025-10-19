@@ -29,9 +29,10 @@ import AnswersDetailsAccordions from '@/features/analytics/(components)/answers-
 
 interface TotalDataProps {
 	data: any
+	projectName: string
 }
 
-export default function TotalData({ data }: TotalDataProps) {
+export default function TotalData({ data, projectName }: TotalDataProps) {
 	const { t } = useTranslation()
 	const [viewStates, setViewStates] = useState<{
 		[key: string]: 'table' | 'chart'
@@ -194,7 +195,7 @@ export default function TotalData({ data }: TotalDataProps) {
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<AnswersDetailsAccordions data={data} />
+						<AnswersDetailsAccordions data={data} projectName={projectName} />
 					</CardContent>
 				</Card>
 			)}
