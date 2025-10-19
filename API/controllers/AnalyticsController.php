@@ -518,6 +518,32 @@ class AnalyticsController extends BaseController
 		// echo json_encode($result["total_data"]["questions_answers"]);
 		// exit;
 
+		// grouping answers in zones
+		foreach ($result["trackings"] as &$tracking) {
+			foreach ($tracking["zones"] as &$zone) {
+				$grouped = [];
+				foreach ($zone['questions_answers_raw'] as &$item) {
+					$id = $item['id_questions'];
+					// store the first occurrence as base
+					if (!isset($grouped[$id])) {
+						$grouped[$id] = $item;
+						$grouped[$id]['answers_combined'] = [];
+					}
+					// collect answers
+					$answer = $item['answer']['answer'] ?? null;
+					if ($answer !== null && $answer !== '') {
+						$grouped[$id]['answers_combined'][] = $answer;
+					}
+				}
+				// convert collected answers to comma-separated string
+				foreach ($grouped as &$g) {
+					$g['answer']['answer'] = implode(',', $g['answers_combined']);
+					unset($g['answers_combined']);
+				}
+				$zone['questions_answers_raw'] = array_values($grouped);
+			}
+		}
+
 		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
 
 		$result["result_static_questions"] = $result_static_questions;
