@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { handleScreenshot } from '@/lib/utils.ts'
@@ -90,6 +90,15 @@ export default function Zones({ data, projectName }: ZonesProps) {
 		}
 	}
 
+	const numberOfAnsweredQuestions = useMemo(
+		() =>
+			data?.per_zone?.reduce(
+				(sum: any, zone: any) => sum + (zone.questions_answers?.length || 0),
+				0
+			),
+		[data]
+	)
+
 	const pastedTextData = data?.total?.data
 
 	if (!data || !data.per_zone || data.per_zone.length === 0) {
@@ -124,7 +133,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 								</div>
 								<div className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'>
 									<div className='text-3xl font-bold text-green-600'>
-										{pastedTextData.questions_answers?.length || 0}
+										{numberOfAnsweredQuestions || 0}
 									</div>
 									<div className='text-sm text-primary'>
 										{t('Analytics.surveyQuestions')}
