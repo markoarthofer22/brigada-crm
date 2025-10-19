@@ -348,12 +348,16 @@ class AnalyticsController extends BaseController
 					"broj_muski" => $item["data"]["broj_muski"],
 					"broj_zenski" => $item["data"]["broj_zenski"],
 					"dobna_skupina" => $item["data"]["dobna_skupina"],
+					"profile" => $item["data"]["profile"],
 				);
 			}
 
 			// $item["zones"] = $zones;
 			$item["zones"] = $Analytics->groupZonesByIdZones($zones);
 			// $item["zones2"] = $Analytics->groupZonesByIdZones($zones);
+
+			// echo json_encode($item["zones"]);
+			// exit;
 
 			foreach ($result_questions as $q) {
 				$r = array_values(array_filter(array_map(function ($a) use ($q) {
