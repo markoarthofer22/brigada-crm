@@ -41,7 +41,7 @@ export const GlobalFilters = ({
 		if (value) return value
 
 		const selection: FilterSelection = {}
-		filters.forEach((filter) => {
+		filters?.forEach((filter) => {
 			selection[filter.label] = [...filter.possible_answers]
 		})
 		return selection
@@ -54,7 +54,7 @@ export const GlobalFilters = ({
 	const selectedFilters = value || initialSelection
 
 	const isAllSelected = useMemo(() => {
-		return filters.every(
+		return filters?.every(
 			(filter) =>
 				selectedFilters[filter.label]?.length === filter.possible_answers.length
 		)
@@ -68,7 +68,7 @@ export const GlobalFilters = ({
 	}, [selectedFilters])
 
 	const totalCount = useMemo(() => {
-		return filters.reduce(
+		return filters?.reduce(
 			(acc, filter) => acc + filter.possible_answers.length,
 			0
 		)
@@ -160,7 +160,7 @@ export const GlobalFilters = ({
 
 					<div className='max-h-[400px] overflow-y-auto p-4'>
 						<div className='space-y-6'>
-							{filters.map((filter) => (
+							{filters?.map((filter) => (
 								<div key={filter.label} className='space-y-3'>
 									<div className='flex items-center justify-between'>
 										<h4 className='text-sm font-medium capitalize'>

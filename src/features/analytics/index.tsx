@@ -359,7 +359,7 @@ export default function Analytics() {
 						</Popover>
 					</div>
 					<GlobalFilters
-						filters={analyticsQuery?.data.filters}
+						filters={analyticsQuery?.data?.filters}
 						value={selectedFilters}
 						onFilterChange={handleFilterChange}
 					/>
