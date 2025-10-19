@@ -235,10 +235,17 @@ class Questions
 	 */
 	public function GetForProject(object $params): array
 	{
+
+
+		$where_zones = "AND q.id_zones IS NULL";
+		if (isset($params->include_zones) && $params->include_zones === true) {
+			$where_zones = "";
+		}
+
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.questions q 
-				WHERE q.id_projects = :ID AND q.id_zones IS NULL
+				WHERE q.id_projects = :ID {$where_zones}
 				ORDER BY q.order ASC, q.label ASC";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
