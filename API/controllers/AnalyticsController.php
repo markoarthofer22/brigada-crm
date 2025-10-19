@@ -261,6 +261,9 @@ class AnalyticsController extends BaseController
 			// $item["answers"] = $Analytics->GetAnswers((object) array("id_tracking" => $item["id_tracking"]));
 			$item_answers = $Analytics->GetAnswers((object) array("id_tracking" => $item["id_tracking"]));
 
+			// echo json_encode($item_answers);
+			// exit;
+
 			// Check if $item_answers has at least one non-empty question with id_questions = 1
 			$hasQ1 = false;
 			$hasQ2 = false;
@@ -358,17 +361,29 @@ class AnalyticsController extends BaseController
 						return $a['answer'];
 					}
 					return false;
-				}, $item_answers)))[0];
+				}, $item_answers)));
 
-				$item["data"]["questions_answers_raw"][] = array(
-					"id_questions" => $q["id_questions"],
-					"id_zones" => $q["id_zones"] ?? null,
-					"label" => $q["label"],
-					"answer" => $r["answer"] ?? "",
-					"possible_answers" => $q["possible_answers"] ?? [],
-				);
+				// echo json_encode($r);
+				// echo "\n---\n";
+				// continue;
+
+				foreach ($r as $value) {
+					// echo $value["answer"];
+					// echo "\n---\n";
+					$item["data"]["questions_answers_raw"][] = array(
+						"id_questions" => $q["id_questions"],
+						"id_zones" => $q["id_zones"] ?? null,
+						"label" => $q["label"],
+						"answer" => $value["answer"] ?? "",
+						"possible_answers" => $value["possible_answers"] ?? [],
+					);
+				}
 			}
 
+			// echo json_encode($item_answers);
+			// echo json_encode($result_questions);
+			// echo json_encode($item["data"]["questions_answers_raw"]);
+			// exit;
 			// echo "<pre>";
 			// print_r($item["data"]["questions_answers_raw"]);
 			// print_r($item["zones"]);

@@ -587,6 +587,11 @@ class Analytics
 			}
 		}
 
+
+		// echo json_encode($item);
+		// echo json_encode($labelCounts);
+		// exit;
+
 		// echo "<pre>";
 		// print_r($item["data"]["questions_answers_raw"]);
 		// print_r($labelCounts);
