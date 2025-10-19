@@ -26,6 +26,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
+import AnswersDetailsAccordions from '@/features/analytics/(components)/answers-details-accordions.tsx'
 
 interface ZonesProps {
 	projectName: string
@@ -373,10 +374,10 @@ export default function Zones({ data, projectName }: ZonesProps) {
 											{t('Analytics.questions.question')} {q.label}
 										</h3>
 										<ChartContainer
-											config={q?.possible_answers_count?.reduce(
-												(acc: any, answer: any) => {
-													acc[answer.label] = {
-														label: answer.label,
+											config={Object.entries(q?.count_percentage ?? {}).reduce(
+												(acc: any, [label, _]: [string, any], i: number) => {
+													acc[label] = {
+														label,
 														color: pieChartColors[i],
 													}
 													return acc
@@ -387,11 +388,11 @@ export default function Zones({ data, projectName }: ZonesProps) {
 										>
 											<PieChart>
 												<Pie
-													data={q?.possible_answers_count?.map(
-														(answer: any, k: number) => ({
-															name: answer.label,
-															value: answer.count,
-															percentage: answer.percentage,
+													data={Object.entries(q?.count_percentage ?? {}).map(
+														([label, value]: [string, any], k: number) => ({
+															name: label,
+															value: value.count,
+															percentage: value.percentage,
 															fill: pieChartColors[k],
 														})
 													)}
@@ -452,38 +453,19 @@ export default function Zones({ data, projectName }: ZonesProps) {
 								</Table>
 
 								{zone?.questions_answers?.length > 0 && (
-									<div className='mt-6 space-y-4'>
-										{zone.questions_answers?.map((q: any, i: number) => (
-											<div className='space-y-2' key={i}>
-												<h3 className='pl-2 text-lg font-semibold'>
-													{t('Analytics.questions.question')} {q.label}
-												</h3>
-												<Table>
-													<TableHeader>
-														<TableRow>
-															<TableHead>
-																{t('Analytics.questions.answer')}
-															</TableHead>
-															<TableHead>
-																{t('Analytics.questions.count')}
-															</TableHead>
-															<TableHead>
-																{t('Analytics.questions.percentage')}
-															</TableHead>
-														</TableRow>
-													</TableHeader>
-													<TableBody>
-														{q?.possible_answers_count?.map((answer: any) => (
-															<TableRow key={answer.label}>
-																<TableCell>{answer.label}</TableCell>
-																<TableCell>{answer.count}</TableCell>
-																<TableCell>{answer.percentage}%</TableCell>
-															</TableRow>
-														))}
-													</TableBody>
-												</Table>
-											</div>
-										))}
+									<div className='mt-6 flex flex-col border-t border-t-primary/25 px-2 pt-2'>
+										<div className='flex flex-col'>
+											<CardTitle className='text-lg font-semibold'>
+												{t('Analytics.questionsAnswersAnalysis')}
+											</CardTitle>
+											<CardDescription>
+												{t('Analytics.questionsAnswersDesc')}
+											</CardDescription>
+										</div>
+										<AnswersDetailsAccordions
+											filterOutZones={false}
+											data={zone}
+										/>
 									</div>
 								)}
 							</>
