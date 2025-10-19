@@ -435,7 +435,7 @@ const AnswersDetailsAccordions = ({
 												<h4 className='mb-4 text-lg font-medium'>
 													{t('Analytics.genderBreakdownByAnswer')}
 												</h4>
-												<div className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
+												<div className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2'>
 													{question.count.for_answers.people.map(
 														(answerData: any, index: number) => (
 															<div
@@ -504,9 +504,9 @@ const AnswersDetailsAccordions = ({
 										<div className='space-y-6'>
 											<div>
 												<h4 className='mb-4 text-lg font-medium'>
-													{t('Analytics.genderBreakdownByAnswer')}
+													{t('Analytics.profileBreakdownByAnswer')}
 												</h4>
-												<div className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
+												<div className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2'>
 													{question.count.for_answers.profile.map(
 														(answerData: any, index: number) => (
 															<div

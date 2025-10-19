@@ -1314,6 +1314,9 @@ class Analytics
 		// exit;
 		foreach ($trackings as $item) {
 
+			// echo json_encode($item);
+			// exit;
+
 			foreach ($item["zones"] as $zone) {
 				// echo "<pre>";
 				// print_r($zone);
@@ -1343,10 +1346,19 @@ class Analytics
 					$zones[$zoneId]["data"]["broj_muski"] += $item["data"]["broj_muski"];
 					$zones[$zoneId]["data"]["broj_zenski"] += $item["data"]["broj_zenski"];
 
-					foreach ($zone["data"]["dobna_skupina"]["data"] as $index => $ageGroupData) {
-						$zones[$zoneId]["data"]["dobna_skupina"]["data"][$index]["count"] += $ageGroupData["count"];
+					foreach ($zone["data"]["dobna_skupina"]["data"] as $index => $value) {
+						$zones[$zoneId]["data"]["dobna_skupina"]["data"][$index]["count"] += $value["count"];
+					}
+					foreach ($zone["data"]["profile"]["data"] as $index => $value) {
+						$zones[$zoneId]["data"]["profile"]["data"][$index]["count"] += $value["count"];
 					}
 
+
+					// echo json_encode($zones);
+					// exit;
+					// echo json_encode($zone["data"]["dobna_skupina"]);
+					// echo "<br>";
+					// continue;
 
 					// foreach ($zones[$zoneId]["questions_answers"] as &$zqa) {
 					// 	foreach ($zone["questions_answers"] as $zq) {
@@ -1444,6 +1456,7 @@ class Analytics
 							"broj_muski" => $item["data"]["broj_muski"],
 							"broj_zenski" => $item["data"]["broj_zenski"],
 							"dobna_skupina" => $zone["data"]["dobna_skupina"], // Copy the entire structure
+							"profile" => $zone["data"]["profile"], // Copy the entire structure
 						],
 						"questions_answers" => $zone["questions_answers"], // Copy the entire structure
 					];
@@ -1570,9 +1583,13 @@ class Analytics
 			$result[] = $zone;
 		}
 
+
+		// echo json_encode($result);
+		// exit;
+
 		// echo "<pre>";
 		$total = [];
-		foreach ($result as $r) {
+		foreach ($result as &$r) {
 
 
 			// if (!isset($questions_answers)) {
@@ -1618,6 +1635,18 @@ class Analytics
 					$dobna_skupina["data"][$i]["count"] += $ds["count"];
 				}
 			}
+
+			// echo json_encode($r["data"]["dobna_skupina"]["data"]);
+			// exit;
+
+			if (!isset($profile)) {
+				$profile = $r["data"]["profile"];
+			} else {
+				foreach ($r["data"]["profile"]["data"] as $i => $ds) {
+					$profile["data"][$i]["count"] += $ds["count"];
+				}
+			}
+
 			$total["data"] = array(
 				"broj_ljudi" => $total["data"]["broj_ljudi"] + $r["data"]["broj_ljudi"],
 				"broj_muski" => $total["data"]["broj_muski"] + $r["data"]["broj_muski"],
@@ -1625,6 +1654,19 @@ class Analytics
 				"percentage_muski" =>  $total["data"]["broj_ljudi"] > 0 ? round($total["data"]["broj_muski"] / $total["data"]["broj_ljudi"] * 100, 2) : 0,
 				"percentage_zenski" =>  $total["data"]["broj_ljudi"] > 0 ? round($total["data"]["broj_zenski"] / $total["data"]["broj_ljudi"] * 100, 2) : 0,
 			);
+
+
+			$t = array_sum(array_column($r['data']["dobna_skupina"]["data"], 'count'));
+			foreach ($r['data']["dobna_skupina"]["data"] as &$item) {
+				$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+			}
+			$t = array_sum(array_column($r['data']["profile"]["data"], 'count'));
+			foreach ($r['data']["profile"]["data"] as &$item) {
+				$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+			}
+
+			// echo json_encode($r);
+			// exit;
 		}
 
 
@@ -1644,8 +1686,25 @@ class Analytics
 		// print_r($questions_answers);
 		// exit;
 
+
+		// echo json_encode($dobna_skupina);
+		// exit;
+
+		$t = array_sum(array_column($dobna_skupina['data'], 'count'));
+		foreach ($dobna_skupina['data'] as &$item) {
+			$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+		}
+		$t = array_sum(array_column($profile['data'], 'count'));
+		foreach ($profile['data'] as &$item) {
+			$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+		}
+
+		// echo json_encode($dobna_skupina);
+		// exit;
+
 		$total["data"]["questions_answers"] = [];
 		$total["data"]["dobna_skupina"] = $dobna_skupina;
+		$total["data"]["profile"] = $profile;
 		// print_r($questions_answers);
 		// exit;
 		// echo json_encode($result[0]["questions_answers"]);
