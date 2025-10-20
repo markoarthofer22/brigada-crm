@@ -198,7 +198,7 @@ export const GlobalFilters = ({
 													)}
 												>
 													{option}
-													{isSelected && <X className='ml-1.5 h-3 w-3' />}
+													{/* {isSelected && <X className='ml-1.5 h-3 w-3' />} */}
 												</Button>
 											)
 										})}

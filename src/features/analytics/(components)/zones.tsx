@@ -462,7 +462,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 								</Table>
 
 								{zone?.questions_answers?.length > 0 && (
-									<div className='mt-6 flex flex-col border-t border-t-primary/25 px-2 pt-2'>
+									<div className='mt-12 flex flex-col border-t border-t-primary/25 px-2 pt-6'>
 										<div className='flex flex-col'>
 											<CardTitle className='text-lg font-semibold'>
 												{t('Analytics.questionsAnswersAnalysis')}
