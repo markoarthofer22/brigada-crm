@@ -23,7 +23,7 @@ export interface FilterSelection {
 }
 
 interface GlobalFiltersProps {
-	filters: FilterConfig[]
+	filters?: FilterConfig[]
 	value: FilterSelection | null
 	onFilterChange?: (filters: FilterSelection | null) => void
 	className?: string
@@ -98,7 +98,7 @@ export const GlobalFilters = ({
 	}
 
 	const handleApply = () => {
-		const allSelected = filters.every(
+		const allSelected = filters?.every(
 			(filter) =>
 				tempFilters[filter.label]?.length === filter.possible_answers.length
 		)
@@ -109,7 +109,7 @@ export const GlobalFilters = ({
 
 	const handleReset = () => {
 		const resetSelection: FilterSelection = {}
-		filters.forEach((filter) => {
+		filters?.forEach((filter) => {
 			resetSelection[filter.label] = [...filter.possible_answers]
 		})
 		setTempFilters(resetSelection)
@@ -121,6 +121,10 @@ export const GlobalFilters = ({
 			setTempFilters(selectedFilters)
 		}
 		setIsOpen(open)
+	}
+
+	if (!filters || filters.length === 0) {
+		return null
 	}
 
 	return (
