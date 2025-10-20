@@ -544,7 +544,16 @@ class AnalyticsController extends BaseController
 			}
 		}
 
+
+		// heatmap zones filtering only to those who have trackings 
+		// that are in the current result set
+		// this is to avoid showing zones for trackings that are not part of the filtered data
 		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
+		$all_tracking_ids = array_column($result["trackings"], 'id_tracking');
+		$result["zones_heatmap"] = array_filter($result["zones_heatmap"], function ($zone) use ($all_tracking_ids) {
+			return in_array($zone["id_tracking"], $all_tracking_ids);
+		});
+		$result["zones_heatmap"] = array_values($result["zones_heatmap"]);
 
 		$result["result_static_questions"] = $result_static_questions;
 		$result["filters"] = $filters;
