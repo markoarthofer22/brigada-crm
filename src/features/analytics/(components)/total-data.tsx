@@ -254,6 +254,64 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 			</Card>
 
 			<Card>
+				<CardHeader className='flex flex-row items-center justify-between'>
+					<div>
+						<CardTitle>{t('Analytics.profileGroups')}</CardTitle>
+						<CardDescription>
+							{t('Analytics.profileGroupsDesc')}
+						</CardDescription>
+					</div>
+					<Button
+						variant='outline'
+						onClick={() => toggleView('profile-groups')}
+					>
+						{viewStates['profile-groups'] === 'chart'
+							? t('Analytics.showTable')
+							: t('Analytics.showGraphic')}
+					</Button>
+				</CardHeader>
+				<CardContent>
+					{viewStates['profile-groups'] === 'chart' ? (
+						<ChartContainer
+							config={{
+								count: { label: t('Analytics.count'), color: '#8884D8' },
+							}}
+							className='h-[400px]'
+						>
+							<BarChart
+								data={data.profile.data}
+								margin={{ bottom: 40, left: 20, right: 20 }}
+							>
+								<XAxis dataKey='label' />
+								<YAxis />
+								<ChartTooltip content={<ChartTooltipContent />} />
+								<Bar dataKey='count' fill='#8884D8' />
+							</BarChart>
+						</ChartContainer>
+					) : (
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>{t('Analytics.profileGroup')}</TableHead>
+									<TableHead>{t('Analytics.count')}</TableHead>
+									<TableHead>{t('Analytics.percentage')}</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{data.profile.data.map((item: any) => (
+									<TableRow key={item.label}>
+										<TableCell className='font-medium'>{item.label}</TableCell>
+										<TableCell>{item.count}</TableCell>
+										<TableCell>{item.percentage.toFixed(2)}%</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					)}
+				</CardContent>
+			</Card>
+
+			<Card>
 				<CardHeader>
 					<CardTitle>{t('Analytics.trackingStatistics')}</CardTitle>
 					<CardDescription>

@@ -29,6 +29,9 @@
 		"ageGroup": "Age Group",
 		"ageGroups": "Age Group Distribution",
 		"ageGroupsDesc": "Breakdown by age categories",
+		"profileGroup": "Profile Group",
+		"profileGroups": "Profile Group Distribution",
+		"profileGroupsDesc": "Breakdown by profile categories",
 		"analyticsTitle": "Analytics_{{value}}",
 		"answer": "Answer",
 		"answerDistribution": "Answer Distribution",
@@ -158,10 +161,7 @@
 		"zoneId": "Zone ID"
 	},
 	"Dashboard": {
-		"active": [
-			"Inactive",
-			"Active"
-		],
+		"active": ["Inactive", "Active"],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -552,10 +552,7 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": [
-			"Regular user",
-			"Admin"
-		],
+		"admin": ["Regular user", "Admin"],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",

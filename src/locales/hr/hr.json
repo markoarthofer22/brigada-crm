@@ -29,6 +29,9 @@
 		"ageGroup": "Dobna Skupina",
 		"ageGroups": "Distribucija Dobnih Skupina",
 		"ageGroupsDesc": "Razdioba po dobnim kategorijama",
+		"profileGroup": "Profil",
+		"profileGroups": "Distribucija profila",
+		"profileGroupsDesc": "Razdioba po profilnim kategorijama",
 		"analyticsTitle": "Statistika_za_projekt_{{value}}",
 		"answer": "Odgovor",
 		"answerDistribution": "Distribucija odgovora",
@@ -158,10 +161,7 @@
 		"zoneId": "ID Zone"
 	},
 	"Dashboard": {
-		"active": [
-			"Neaktivan",
-			"Aktivan"
-		],
+		"active": ["Neaktivan", "Aktivan"],
 		"analytics": "Analitika",
 		"lastAdded": "Zadnje dodano - {{value}}",
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
@@ -552,10 +552,7 @@
 	},
 	"Users": {
 		"add": "Dodaj korisnika",
-		"admin": [
-			"Korisnik",
-			"Administrator"
-		],
+		"admin": ["Korisnik", "Administrator"],
 		"createSuccess": "Korisnik {{value}} je uspješno kreiran.",
 		"delete": "Izbriši korisnika",
 		"deletePlaceholder": "Unesite email za potvrdu brisanja",
