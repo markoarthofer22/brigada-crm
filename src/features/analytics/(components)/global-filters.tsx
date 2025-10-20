@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Filter, X } from 'lucide-react'
+// import { Filter, X } from 'lucide-react'
+import { Filter } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
