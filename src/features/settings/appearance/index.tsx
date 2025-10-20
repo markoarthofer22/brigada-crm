@@ -9,7 +9,7 @@ export default function SettingsAppearance() {
 			title={t('Settings.appearance.title')}
 			desc={t('Settings.appearance.description')}
 		>
-			<AppearanceForm />
+			<AppearanceForm hideThemeOptions />
 		</ContentSection>
 	)
 }

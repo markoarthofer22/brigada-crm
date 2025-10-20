@@ -3,6 +3,7 @@ import { Link, useRouter } from '@tanstack/react-router'
 import { IconShare2 } from '@tabler/icons-react'
 import { Globe, LogOut, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import BrigadaLogo from '@/assets/logo.png'
 import { logout } from '@/api/services/authorization/authorization.ts'
 import { Languages, useAuthStore } from '@/stores/authStore.ts'
 import { useMiscellaneousStore } from '@/stores/miscStore.ts'
@@ -25,13 +26,17 @@ import { SidebarTrigger } from '@/components/ui/sidebar.tsx'
 interface HeaderProps {
 	small?: boolean
 	showSidebarToggle?: boolean
+	hideBrandName?: boolean
 	className?: string
+	showLogo?: boolean
 }
 
 export function Header({
 	small = false,
 	className,
 	showSidebarToggle = true,
+	hideBrandName = true,
+	showLogo = false,
 }: HeaderProps) {
 	// const { setTheme, theme } = useTheme()
 	const miscStore = useMiscellaneousStore((state) => state)
@@ -87,9 +92,17 @@ export function Header({
 		>
 			<div
 				className={cn('flex h-16 items-center justify-between px-4', {
-					'justify-end': small,
+					'justify-end': small && !showLogo,
 				})}
 			>
+				{showLogo && (
+					<img
+						src={BrigadaLogo}
+						alt={import.meta.env.VITE_BRAND}
+						className='h-14 w-32 object-contain'
+					/>
+				)}
+
 				<div className='flex items-center gap-x-4'>
 					{showSidebarToggle && (
 						<SidebarTrigger
@@ -98,7 +111,7 @@ export function Header({
 						/>
 					)}
 
-					{!small && (
+					{!small && !hideBrandName && (
 						<div className='flex items-center gap-2'>
 							<Link to='/' className='font-bold'>
 								{brandName}

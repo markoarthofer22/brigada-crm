@@ -1,22 +1,21 @@
 import { Outlet } from '@tanstack/react-router'
 import { IconPalette, IconTool } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import { Separator } from '@/components/ui/separator'
 import { Main } from '@/components/layout/main'
 import SidebarNav from './components/sidebar-nav'
 
 export default function Settings() {
+	const { t } = useTranslation()
+
 	return (
 		<>
-			{/* ===== Top Heading ===== */}
-
 			<Main fixed>
 				<div className='space-y-0.5'>
 					<h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
-						Settings
+						{t('Settings.title')}
 					</h1>
-					<p className='text-muted-foreground'>
-						Manage your account settings and set e-mail preferences.
-					</p>
+					<p className='text-muted-foreground'>{t('Settings.description')}</p>
 				</div>
 				<Separator className='my-4 lg:my-6' />
 				<div className='flex flex-1 flex-col space-y-2 overflow-hidden md:space-y-2 lg:flex-row lg:space-x-12 lg:space-y-0'>
@@ -34,12 +33,14 @@ export default function Settings() {
 
 const sidebarNavItems = [
 	{
-		title: 'Account',
+		title: 'Settings.account.title',
 		icon: <IconTool size={18} />,
+		isKey: true,
 		href: '/settings/account',
 	},
 	{
-		title: 'Appearance',
+		title: 'Settings.appearance.title',
+		isKey: true,
 		icon: <IconPalette size={18} />,
 		href: '/settings/appearance',
 	},
