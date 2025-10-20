@@ -2,7 +2,7 @@ import { HTMLAttributes } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link, useRouter } from '@tanstack/react-router'
+import { useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { login } from '@/api/services/authorization/authorization.ts'
 import { MIN_PASSWORD_LENGTH } from '@/api/services/authorization/const.ts'
@@ -25,9 +25,15 @@ import {
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 
-type UserAuthFormProps = HTMLAttributes<HTMLDivElement>
+type UserAuthFormProps = HTMLAttributes<HTMLDivElement> & {
+	submitClassName?: string
+}
 
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+export function UserAuthForm({
+	className,
+	submitClassName,
+	...props
+}: UserAuthFormProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
 	const queryClient = useQueryClient()
@@ -99,13 +105,13 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 								<FormItem className='space-y-1'>
 									<div className='flex items-center justify-between'>
 										<FormLabel>{t('Input.label.password')}</FormLabel>
-										<Link
-											disabled
-											to='/forgot-password'
-											className='text-sm font-medium text-muted-foreground transition-opacity duration-200 hover:opacity-75'
-										>
-											{t('Login.forgotPassword')}
-										</Link>
+										{/*<Link*/}
+										{/*	disabled*/}
+										{/*	to='/forgot-password'*/}
+										{/*	className='text-sm font-medium text-muted-foreground transition-opacity duration-200 hover:opacity-75'*/}
+										{/*>*/}
+										{/*	{t('Login.forgotPassword')}*/}
+										{/*</Link>*/}
 									</div>
 									<FormControl>
 										<PasswordInput
@@ -126,7 +132,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 						<Button
 							disabled={loginMutation.isPending}
 							type='submit'
-							className='mt-2'
+							className={cn('mt-2', submitClassName)}
 						>
 							{t('Login.submit')}
 						</Button>

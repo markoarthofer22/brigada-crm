@@ -29,9 +29,6 @@
 		"ageGroup": "Age Group",
 		"ageGroups": "Age Group Distribution",
 		"ageGroupsDesc": "Breakdown by age categories",
-		"profileGroup": "Profile Group",
-		"profileGroups": "Profile Group Distribution",
-		"profileGroupsDesc": "Breakdown by profile categories",
 		"analyticsTitle": "Analytics_{{value}}",
 		"answer": "Answer",
 		"answerDistribution": "Answer Distribution",
@@ -105,6 +102,9 @@
 		"peoplePerTracking": "people per tracking",
 		"percentage": "Percentage",
 		"profileBreakdownByAnswer": "Profile breakdown by Answer",
+		"profileGroup": "Profile Group",
+		"profileGroups": "Profile Group Distribution",
+		"profileGroupsDesc": "Breakdown by profile categories",
 		"profileView": "Profile view",
 		"questions": {
 			"answer": "Answer",
@@ -161,7 +161,10 @@
 		"zoneId": "Zone ID"
 	},
 	"Dashboard": {
-		"active": ["Inactive", "Active"],
+		"active": [
+			"Inactive",
+			"Active"
+		],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -435,8 +438,10 @@
 		},
 		"appearance": {
 			"description": "Customize the appearance of the app. Automatically switch between day and night themes.",
-			"title": "Set the font you want to use in the dashboard."
-		}
+			"title": "Set the font "
+		},
+		"description": "Manage your account settings.",
+		"title": "Settings"
 	},
 	"Sidebar": {
 		"nav": {
@@ -552,7 +557,10 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": ["Regular user", "Admin"],
+		"admin": [
+			"Regular user",
+			"Admin"
+		],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Command } from 'lucide-react'
+import BrigadaLogo from '@/assets/logo.png'
 import {
 	SidebarMenu,
 	SidebarMenuButton,
@@ -12,14 +12,11 @@ export function TeamSwitcher() {
 			<SidebarMenuItem>
 				<SidebarMenuButton size='lg' asChild>
 					<Link to='/'>
-						<div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground'>
-							<Command className='size-4' />
-						</div>
-						<div className='grid flex-1 text-left text-sm leading-tight'>
-							<span className='truncate font-semibold'>
-								{import.meta.env.VITE_BRAND}
-							</span>
-						</div>
+						<img
+							src={BrigadaLogo}
+							alt={import.meta.env.VITE_BRAND}
+							className='h-14 w-32 object-contain'
+						/>
 					</Link>
 				</SidebarMenuButton>
 			</SidebarMenuItem>
