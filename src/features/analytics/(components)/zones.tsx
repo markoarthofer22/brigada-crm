@@ -103,11 +103,13 @@ export default function Zones({ data, projectName }: ZonesProps) {
 
 	if (!data || !data.per_zone || data.per_zone.length === 0) {
 		return (
-			<div className='p-4 text-center'>
-				<p className='text-lg text-muted-foreground'>
-					{t('Analytics.noDataAvailable')}
-				</p>
-			</div>
+			<Card className='mt-8'>
+				<CardContent className='py-2'>
+					<p className='text-center text-base font-medium text-black'>
+						{t('Analytics.noDataAvailable')}
+					</p>
+				</CardContent>
+			</Card>
 		)
 	}
 
