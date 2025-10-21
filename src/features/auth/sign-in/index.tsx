@@ -14,6 +14,8 @@ export default function SignIn() {
 	const router = useRouter()
 
 	useEffect(() => {
+		console.log('Vite env vars:', import.meta.env)
+
 		if (authToken) {
 			router.navigate({
 				to: '/',
