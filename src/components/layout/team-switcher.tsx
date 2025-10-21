@@ -12,7 +12,7 @@ export function TeamSwitcher() {
 				<SidebarMenuButton size='lg' asChild>
 					<Link to='/'>
 						<p className='text-[40px] font-semibold uppercase text-destructive'>
-							{import.meta.env.VITE_TITLE}
+							{import.meta.env.VITE_APP_TITLE}
 						</p>
 					</Link>
 				</SidebarMenuButton>

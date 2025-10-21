@@ -14,8 +14,6 @@ export default function SignIn() {
 	const router = useRouter()
 
 	useEffect(() => {
-		console.log('Vite env vars:', import.meta.env)
-
 		if (authToken) {
 			router.navigate({
 				to: '/',
@@ -34,7 +32,7 @@ export default function SignIn() {
 			<div className='container flex h-full flex-col justify-center lg:max-w-none lg:px-0'>
 				<div className='flex min-w-0 flex-col items-center'>
 					<h1 className='mb-20 text-[60px] font-semibold uppercase text-destructive'>
-						{import.meta.env.VITE_TITLE}
+						{import.meta.env.VITE_APP_TITLE}
 					</h1>
 					<div className='flex flex-1 items-center justify-center lg:p-8'>
 						<div className='mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[350px]'>
