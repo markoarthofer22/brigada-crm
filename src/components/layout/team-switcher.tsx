@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router'
-import BrigadaLogo from '@/assets/logo.png'
 import {
 	SidebarMenu,
 	SidebarMenuButton,
@@ -12,11 +11,9 @@ export function TeamSwitcher() {
 			<SidebarMenuItem>
 				<SidebarMenuButton size='lg' asChild>
 					<Link to='/'>
-						<img
-							src={BrigadaLogo}
-							alt={import.meta.env.VITE_BRAND}
-							className='h-14 w-32 object-contain'
-						/>
+						<p className='text-[40px] font-semibold uppercase text-destructive'>
+							{import.meta.env.VITE_TITLE}
+						</p>
 					</Link>
 				</SidebarMenuButton>
 			</SidebarMenuItem>
