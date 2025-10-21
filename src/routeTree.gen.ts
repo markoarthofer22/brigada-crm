@@ -10,189 +10,161 @@
 
 import { createFileRoute } from '@tanstack/react-router'
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as errorsNoConnectionRouteImport } from './routes/(errors)/no-connection'
+import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as authOtpRouteImport } from './routes/(auth)/otp'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
-import { Route as errorsNoConnectionImport } from './routes/(errors)/no-connection'
-import { Route as authSignInImport } from './routes/(auth)/sign-in'
-import { Route as authOtpImport } from './routes/(auth)/otp'
-import { Route as auth500Import } from './routes/(auth)/500'
-import { Route as AuthenticatedAdminIndexImport } from './routes/_authenticated/admin/index'
-
-// Create Virtual Routes
-
-const errors503LazyImport = createFileRoute('/(errors)/503')()
-const errors500LazyImport = createFileRoute('/(errors)/500')()
-const errors404LazyImport = createFileRoute('/(errors)/404')()
-const errors403LazyImport = createFileRoute('/(errors)/403')()
-const errors401LazyImport = createFileRoute('/(errors)/401')()
-const authSignUpLazyImport = createFileRoute('/(auth)/sign-up')()
-const authForgotPasswordLazyImport = createFileRoute(
+const errors503LazyRouteImport = createFileRoute('/(errors)/503')()
+const errors500LazyRouteImport = createFileRoute('/(errors)/500')()
+const errors404LazyRouteImport = createFileRoute('/(errors)/404')()
+const errors403LazyRouteImport = createFileRoute('/(errors)/403')()
+const errors401LazyRouteImport = createFileRoute('/(errors)/401')()
+const authSignUpLazyRouteImport = createFileRoute('/(auth)/sign-up')()
+const authForgotPasswordLazyRouteImport = createFileRoute(
   '/(auth)/forgot-password',
 )()
-const AuthenticatedSettingsRouteLazyImport = createFileRoute(
+const AuthenticatedSettingsRouteLazyRouteImport = createFileRoute(
   '/_authenticated/settings',
 )()
-const AuthenticatedProjectsIndexLazyImport = createFileRoute(
+const AuthenticatedProjectsIndexLazyRouteImport = createFileRoute(
   '/_authenticated/projects/',
 )()
-const AuthenticatedSettingsAppearanceLazyImport = createFileRoute(
+const AuthenticatedSettingsAppearanceLazyRouteImport = createFileRoute(
   '/_authenticated/settings/appearance',
 )()
-const AuthenticatedSettingsAccountLazyImport = createFileRoute(
+const AuthenticatedSettingsAccountLazyRouteImport = createFileRoute(
   '/_authenticated/settings/account',
 )()
-const AuthenticatedProjectsIdIndexLazyImport = createFileRoute(
+const AuthenticatedProjectsIdIndexLazyRouteImport = createFileRoute(
   '/_authenticated/projects/$id/',
 )()
-const AuthenticatedAdminUsersIndexLazyImport = createFileRoute(
+const AuthenticatedAdminUsersIndexLazyRouteImport = createFileRoute(
   '/_authenticated/admin/users/',
 )()
-const AuthenticatedAdminTemplatesIndexLazyImport = createFileRoute(
+const AuthenticatedAdminTemplatesIndexLazyRouteImport = createFileRoute(
   '/_authenticated/admin/templates/',
 )()
-const AuthenticatedAdminProjectsIndexLazyImport = createFileRoute(
+const AuthenticatedAdminProjectsIndexLazyRouteImport = createFileRoute(
   '/_authenticated/admin/projects/',
 )()
-const AuthenticatedAdminAnalyticsIndexLazyImport = createFileRoute(
+const AuthenticatedAdminAnalyticsIndexLazyRouteImport = createFileRoute(
   '/_authenticated/admin/analytics/',
 )()
-const AuthenticatedAdminUsersAddLazyImport = createFileRoute(
+const AuthenticatedAdminUsersAddLazyRouteImport = createFileRoute(
   '/_authenticated/admin/users/add',
 )()
-const AuthenticatedAdminUsersIdIndexLazyImport = createFileRoute(
+const AuthenticatedAdminUsersIdIndexLazyRouteImport = createFileRoute(
   '/_authenticated/admin/users/$id/',
 )()
-const AuthenticatedAdminTemplatesIdIndexLazyImport = createFileRoute(
+const AuthenticatedAdminTemplatesIdIndexLazyRouteImport = createFileRoute(
   '/_authenticated/admin/templates/$id/',
 )()
-const AuthenticatedAdminProjectsIdIndexLazyImport = createFileRoute(
+const AuthenticatedAdminProjectsIdIndexLazyRouteImport = createFileRoute(
   '/_authenticated/admin/projects/$id/',
 )()
 
-// Create/Update Routes
-
-const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-
-const errors503LazyRoute = errors503LazyImport
+const errors503LazyRoute = errors503LazyRouteImport
   .update({
     id: '/(errors)/503',
     path: '/503',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
   .lazy(() => import('./routes/(errors)/503.lazy').then((d) => d.Route))
-
-const errors500LazyRoute = errors500LazyImport
+const errors500LazyRoute = errors500LazyRouteImport
   .update({
     id: '/(errors)/500',
     path: '/500',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
   .lazy(() => import('./routes/(errors)/500.lazy').then((d) => d.Route))
-
-const errors404LazyRoute = errors404LazyImport
+const errors404LazyRoute = errors404LazyRouteImport
   .update({
     id: '/(errors)/404',
     path: '/404',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
   .lazy(() => import('./routes/(errors)/404.lazy').then((d) => d.Route))
-
-const errors403LazyRoute = errors403LazyImport
+const errors403LazyRoute = errors403LazyRouteImport
   .update({
     id: '/(errors)/403',
     path: '/403',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
   .lazy(() => import('./routes/(errors)/403.lazy').then((d) => d.Route))
-
-const errors401LazyRoute = errors401LazyImport
+const errors401LazyRoute = errors401LazyRouteImport
   .update({
     id: '/(errors)/401',
     path: '/401',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
   .lazy(() => import('./routes/(errors)/401.lazy').then((d) => d.Route))
-
-const authSignUpLazyRoute = authSignUpLazyImport
+const authSignUpLazyRoute = authSignUpLazyRouteImport
   .update({
     id: '/(auth)/sign-up',
     path: '/sign-up',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
   .lazy(() => import('./routes/(auth)/sign-up.lazy').then((d) => d.Route))
-
-const authForgotPasswordLazyRoute = authForgotPasswordLazyImport
+const authForgotPasswordLazyRoute = authForgotPasswordLazyRouteImport
   .update({
     id: '/(auth)/forgot-password',
     path: '/forgot-password',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
   .lazy(() =>
     import('./routes/(auth)/forgot-password.lazy').then((d) => d.Route),
   )
-
 const AuthenticatedSettingsRouteLazyRoute =
-  AuthenticatedSettingsRouteLazyImport.update({
+  AuthenticatedSettingsRouteLazyRouteImport.update({
     id: '/settings',
     path: '/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/settings/route.lazy').then((d) => d.Route),
   )
-
-const errorsNoConnectionRoute = errorsNoConnectionImport.update({
+const errorsNoConnectionRoute = errorsNoConnectionRouteImport.update({
   id: '/(errors)/no-connection',
   path: '/no-connection',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const authSignInRoute = authSignInImport.update({
+const authSignInRoute = authSignInRouteImport.update({
   id: '/(auth)/sign-in',
   path: '/sign-in',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const authOtpRoute = authOtpImport.update({
+const authOtpRoute = authOtpRouteImport.update({
   id: '/(auth)/otp',
   path: '/otp',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const auth500Route = auth500Import.update({
-  id: '/(auth)/500',
-  path: '/500',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const AuthenticatedProjectsIndexLazyRoute =
-  AuthenticatedProjectsIndexLazyImport.update({
+  AuthenticatedProjectsIndexLazyRouteImport.update({
     id: '/projects/',
     path: '/projects/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/projects/index.lazy').then((d) => d.Route),
   )
-
-const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexImport.update({
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-
 const AuthenticatedSettingsAppearanceLazyRoute =
-  AuthenticatedSettingsAppearanceLazyImport.update({
+  AuthenticatedSettingsAppearanceLazyRouteImport.update({
     id: '/appearance',
     path: '/appearance',
     getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
@@ -201,9 +173,8 @@ const AuthenticatedSettingsAppearanceLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedSettingsAccountLazyRoute =
-  AuthenticatedSettingsAccountLazyImport.update({
+  AuthenticatedSettingsAccountLazyRouteImport.update({
     id: '/account',
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
@@ -212,9 +183,8 @@ const AuthenticatedSettingsAccountLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedProjectsIdIndexLazyRoute =
-  AuthenticatedProjectsIdIndexLazyImport.update({
+  AuthenticatedProjectsIdIndexLazyRouteImport.update({
     id: '/projects/$id/',
     path: '/projects/$id/',
     getParentRoute: () => AuthenticatedRouteRoute,
@@ -223,9 +193,8 @@ const AuthenticatedProjectsIdIndexLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedAdminUsersIndexLazyRoute =
-  AuthenticatedAdminUsersIndexLazyImport.update({
+  AuthenticatedAdminUsersIndexLazyRouteImport.update({
     id: '/admin/users/',
     path: '/admin/users/',
     getParentRoute: () => AuthenticatedRouteRoute,
@@ -234,9 +203,8 @@ const AuthenticatedAdminUsersIndexLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedAdminTemplatesIndexLazyRoute =
-  AuthenticatedAdminTemplatesIndexLazyImport.update({
+  AuthenticatedAdminTemplatesIndexLazyRouteImport.update({
     id: '/admin/templates/',
     path: '/admin/templates/',
     getParentRoute: () => AuthenticatedRouteRoute,
@@ -245,9 +213,8 @@ const AuthenticatedAdminTemplatesIndexLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedAdminProjectsIndexLazyRoute =
-  AuthenticatedAdminProjectsIndexLazyImport.update({
+  AuthenticatedAdminProjectsIndexLazyRouteImport.update({
     id: '/admin/projects/',
     path: '/admin/projects/',
     getParentRoute: () => AuthenticatedRouteRoute,
@@ -256,9 +223,8 @@ const AuthenticatedAdminProjectsIndexLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedAdminAnalyticsIndexLazyRoute =
-  AuthenticatedAdminAnalyticsIndexLazyImport.update({
+  AuthenticatedAdminAnalyticsIndexLazyRouteImport.update({
     id: '/admin/analytics/',
     path: '/admin/analytics/',
     getParentRoute: () => AuthenticatedRouteRoute,
@@ -267,18 +233,16 @@ const AuthenticatedAdminAnalyticsIndexLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedAdminUsersAddLazyRoute =
-  AuthenticatedAdminUsersAddLazyImport.update({
+  AuthenticatedAdminUsersAddLazyRouteImport.update({
     id: '/admin/users/add',
     path: '/admin/users/add',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/admin/users/add.lazy').then((d) => d.Route),
   )
-
 const AuthenticatedAdminUsersIdIndexLazyRoute =
-  AuthenticatedAdminUsersIdIndexLazyImport.update({
+  AuthenticatedAdminUsersIdIndexLazyRouteImport.update({
     id: '/admin/users/$id/',
     path: '/admin/users/$id/',
     getParentRoute: () => AuthenticatedRouteRoute,
@@ -287,9 +251,8 @@ const AuthenticatedAdminUsersIdIndexLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedAdminTemplatesIdIndexLazyRoute =
-  AuthenticatedAdminTemplatesIdIndexLazyImport.update({
+  AuthenticatedAdminTemplatesIdIndexLazyRouteImport.update({
     id: '/admin/templates/$id/',
     path: '/admin/templates/$id/',
     getParentRoute: () => AuthenticatedRouteRoute,
@@ -298,9 +261,8 @@ const AuthenticatedAdminTemplatesIdIndexLazyRoute =
       (d) => d.Route,
     ),
   )
-
 const AuthenticatedAdminProjectsIdIndexLazyRoute =
-  AuthenticatedAdminProjectsIdIndexLazyImport.update({
+  AuthenticatedAdminProjectsIdIndexLazyRouteImport.update({
     id: '/admin/projects/$id/',
     path: '/admin/projects/$id/',
     getParentRoute: () => AuthenticatedRouteRoute,
@@ -310,7 +272,187 @@ const AuthenticatedAdminProjectsIdIndexLazyRoute =
     ),
   )
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/otp': typeof authOtpRoute
+  '/sign-in': typeof authSignInRoute
+  '/no-connection': typeof errorsNoConnectionRoute
+  '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
+  '/forgot-password': typeof authForgotPasswordLazyRoute
+  '/sign-up': typeof authSignUpLazyRoute
+  '/401': typeof errors401LazyRoute
+  '/403': typeof errors403LazyRoute
+  '/404': typeof errors404LazyRoute
+  '/500': typeof errors500LazyRoute
+  '/503': typeof errors503LazyRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
+  '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/projects': typeof AuthenticatedProjectsIndexLazyRoute
+  '/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsIndexLazyRoute
+  '/admin/projects': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/admin/templates': typeof AuthenticatedAdminTemplatesIndexLazyRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexLazyRoute
+  '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
+  '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/admin/templates/$id': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
+  '/admin/users/$id': typeof AuthenticatedAdminUsersIdIndexLazyRoute
+}
+export interface FileRoutesByTo {
+  '/otp': typeof authOtpRoute
+  '/sign-in': typeof authSignInRoute
+  '/no-connection': typeof errorsNoConnectionRoute
+  '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
+  '/forgot-password': typeof authForgotPasswordLazyRoute
+  '/sign-up': typeof authSignUpLazyRoute
+  '/401': typeof errors401LazyRoute
+  '/403': typeof errors403LazyRoute
+  '/404': typeof errors404LazyRoute
+  '/500': typeof errors500LazyRoute
+  '/503': typeof errors503LazyRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
+  '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/projects': typeof AuthenticatedProjectsIndexLazyRoute
+  '/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsIndexLazyRoute
+  '/admin/projects': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/admin/templates': typeof AuthenticatedAdminTemplatesIndexLazyRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexLazyRoute
+  '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
+  '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/admin/templates/$id': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
+  '/admin/users/$id': typeof AuthenticatedAdminUsersIdIndexLazyRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/(auth)/otp': typeof authOtpRoute
+  '/(auth)/sign-in': typeof authSignInRoute
+  '/(errors)/no-connection': typeof errorsNoConnectionRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
+  '/(auth)/forgot-password': typeof authForgotPasswordLazyRoute
+  '/(auth)/sign-up': typeof authSignUpLazyRoute
+  '/(errors)/401': typeof errors401LazyRoute
+  '/(errors)/403': typeof errors403LazyRoute
+  '/(errors)/404': typeof errors404LazyRoute
+  '/(errors)/500': typeof errors500LazyRoute
+  '/(errors)/503': typeof errors503LazyRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
+  '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/projects/': typeof AuthenticatedProjectsIndexLazyRoute
+  '/_authenticated/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
+  '/_authenticated/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexLazyRoute
+  '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexLazyRoute
+  '/_authenticated/admin/templates/': typeof AuthenticatedAdminTemplatesIndexLazyRoute
+  '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexLazyRoute
+  '/_authenticated/projects/$id/': typeof AuthenticatedProjectsIdIndexLazyRoute
+  '/_authenticated/admin/projects/$id/': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
+  '/_authenticated/admin/templates/$id/': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
+  '/_authenticated/admin/users/$id/': typeof AuthenticatedAdminUsersIdIndexLazyRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/otp'
+    | '/sign-in'
+    | '/no-connection'
+    | '/settings'
+    | '/forgot-password'
+    | '/sign-up'
+    | '/401'
+    | '/403'
+    | '/404'
+    | '/500'
+    | '/503'
+    | '/'
+    | '/settings/account'
+    | '/settings/appearance'
+    | '/admin'
+    | '/projects'
+    | '/admin/users/add'
+    | '/admin/analytics'
+    | '/admin/projects'
+    | '/admin/templates'
+    | '/admin/users'
+    | '/projects/$id'
+    | '/admin/projects/$id'
+    | '/admin/templates/$id'
+    | '/admin/users/$id'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/otp'
+    | '/sign-in'
+    | '/no-connection'
+    | '/settings'
+    | '/forgot-password'
+    | '/sign-up'
+    | '/401'
+    | '/403'
+    | '/404'
+    | '/500'
+    | '/503'
+    | '/'
+    | '/settings/account'
+    | '/settings/appearance'
+    | '/admin'
+    | '/projects'
+    | '/admin/users/add'
+    | '/admin/analytics'
+    | '/admin/projects'
+    | '/admin/templates'
+    | '/admin/users'
+    | '/projects/$id'
+    | '/admin/projects/$id'
+    | '/admin/templates/$id'
+    | '/admin/users/$id'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/(auth)/otp'
+    | '/(auth)/sign-in'
+    | '/(errors)/no-connection'
+    | '/_authenticated/settings'
+    | '/(auth)/forgot-password'
+    | '/(auth)/sign-up'
+    | '/(errors)/401'
+    | '/(errors)/403'
+    | '/(errors)/404'
+    | '/(errors)/500'
+    | '/(errors)/503'
+    | '/_authenticated/'
+    | '/_authenticated/settings/account'
+    | '/_authenticated/settings/appearance'
+    | '/_authenticated/admin/'
+    | '/_authenticated/projects/'
+    | '/_authenticated/admin/users/add'
+    | '/_authenticated/admin/analytics/'
+    | '/_authenticated/admin/projects/'
+    | '/_authenticated/admin/templates/'
+    | '/_authenticated/admin/users/'
+    | '/_authenticated/projects/$id/'
+    | '/_authenticated/admin/projects/$id/'
+    | '/_authenticated/admin/templates/$id/'
+    | '/_authenticated/admin/users/$id/'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  authOtpRoute: typeof authOtpRoute
+  authSignInRoute: typeof authSignInRoute
+  errorsNoConnectionRoute: typeof errorsNoConnectionRoute
+  authForgotPasswordLazyRoute: typeof authForgotPasswordLazyRoute
+  authSignUpLazyRoute: typeof authSignUpLazyRoute
+  errors401LazyRoute: typeof errors401LazyRoute
+  errors403LazyRoute: typeof errors403LazyRoute
+  errors404LazyRoute: typeof errors404LazyRoute
+  errors500LazyRoute: typeof errors500LazyRoute
+  errors503LazyRoute: typeof errors503LazyRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
@@ -318,195 +460,186 @@ declare module '@tanstack/react-router' {
       id: '/_authenticated'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/500': {
-      id: '/(auth)/500'
-      path: '/500'
-      fullPath: '/500'
-      preLoaderRoute: typeof auth500Import
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/otp': {
-      id: '/(auth)/otp'
-      path: '/otp'
-      fullPath: '/otp'
-      preLoaderRoute: typeof authOtpImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/sign-in': {
-      id: '/(auth)/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof authSignInImport
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/no-connection': {
-      id: '/(errors)/no-connection'
-      path: '/no-connection'
-      fullPath: '/no-connection'
-      preLoaderRoute: typeof errorsNoConnectionImport
-      parentRoute: typeof rootRoute
-    }
-    '/_authenticated/settings': {
-      id: '/_authenticated/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthenticatedSettingsRouteLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/(auth)/forgot-password': {
-      id: '/(auth)/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof authForgotPasswordLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/sign-up': {
-      id: '/(auth)/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof authSignUpLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/401': {
-      id: '/(errors)/401'
-      path: '/401'
-      fullPath: '/401'
-      preLoaderRoute: typeof errors401LazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/403': {
-      id: '/(errors)/403'
-      path: '/403'
-      fullPath: '/403'
-      preLoaderRoute: typeof errors403LazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/404': {
-      id: '/(errors)/404'
-      path: '/404'
-      fullPath: '/404'
-      preLoaderRoute: typeof errors404LazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/500': {
-      id: '/(errors)/500'
-      path: '/500'
-      fullPath: '/500'
-      preLoaderRoute: typeof errors500LazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/503': {
-      id: '/(errors)/503'
-      path: '/503'
-      fullPath: '/503'
-      preLoaderRoute: typeof errors503LazyImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/': {
       id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/settings/account': {
-      id: '/_authenticated/settings/account'
-      path: '/account'
-      fullPath: '/settings/account'
-      preLoaderRoute: typeof AuthenticatedSettingsAccountLazyImport
-      parentRoute: typeof AuthenticatedSettingsRouteLazyImport
+    '/(errors)/503': {
+      id: '/(errors)/503'
+      path: '/503'
+      fullPath: '/503'
+      preLoaderRoute: typeof errors503LazyRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/settings/appearance': {
-      id: '/_authenticated/settings/appearance'
-      path: '/appearance'
-      fullPath: '/settings/appearance'
-      preLoaderRoute: typeof AuthenticatedSettingsAppearanceLazyImport
-      parentRoute: typeof AuthenticatedSettingsRouteLazyImport
+    '/(errors)/500': {
+      id: '/(errors)/500'
+      path: '/500'
+      fullPath: '/500'
+      preLoaderRoute: typeof errors500LazyRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin/': {
-      id: '/_authenticated/admin/'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
+    '/(errors)/404': {
+      id: '/(errors)/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof errors404LazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/403': {
+      id: '/(errors)/403'
+      path: '/403'
+      fullPath: '/403'
+      preLoaderRoute: typeof errors403LazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/401': {
+      id: '/(errors)/401'
+      path: '/401'
+      fullPath: '/401'
+      preLoaderRoute: typeof errors401LazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/sign-up': {
+      id: '/(auth)/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof authSignUpLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/forgot-password': {
+      id: '/(auth)/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof authForgotPasswordLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/(errors)/no-connection': {
+      id: '/(errors)/no-connection'
+      path: '/no-connection'
+      fullPath: '/no-connection'
+      preLoaderRoute: typeof errorsNoConnectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/sign-in': {
+      id: '/(auth)/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof authSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/otp': {
+      id: '/(auth)/otp'
+      path: '/otp'
+      fullPath: '/otp'
+      preLoaderRoute: typeof authOtpRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/projects/': {
       id: '/_authenticated/projects/'
       path: '/projects'
       fullPath: '/projects'
-      preLoaderRoute: typeof AuthenticatedProjectsIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+      preLoaderRoute: typeof AuthenticatedProjectsIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/users/add': {
-      id: '/_authenticated/admin/users/add'
-      path: '/admin/users/add'
-      fullPath: '/admin/users/add'
-      preLoaderRoute: typeof AuthenticatedAdminUsersAddLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/analytics/': {
-      id: '/_authenticated/admin/analytics/'
-      path: '/admin/analytics'
-      fullPath: '/admin/analytics'
-      preLoaderRoute: typeof AuthenticatedAdminAnalyticsIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+    '/_authenticated/settings/appearance': {
+      id: '/_authenticated/settings/appearance'
+      path: '/appearance'
+      fullPath: '/settings/appearance'
+      preLoaderRoute: typeof AuthenticatedSettingsAppearanceLazyRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteLazyRoute
     }
-    '/_authenticated/admin/projects/': {
-      id: '/_authenticated/admin/projects/'
-      path: '/admin/projects'
-      fullPath: '/admin/projects'
-      preLoaderRoute: typeof AuthenticatedAdminProjectsIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/admin/templates/': {
-      id: '/_authenticated/admin/templates/'
-      path: '/admin/templates'
-      fullPath: '/admin/templates'
-      preLoaderRoute: typeof AuthenticatedAdminTemplatesIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/admin/users/': {
-      id: '/_authenticated/admin/users/'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthenticatedAdminUsersIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+    '/_authenticated/settings/account': {
+      id: '/_authenticated/settings/account'
+      path: '/account'
+      fullPath: '/settings/account'
+      preLoaderRoute: typeof AuthenticatedSettingsAccountLazyRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteLazyRoute
     }
     '/_authenticated/projects/$id/': {
       id: '/_authenticated/projects/$id/'
       path: '/projects/$id'
       fullPath: '/projects/$id'
-      preLoaderRoute: typeof AuthenticatedProjectsIdIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+      preLoaderRoute: typeof AuthenticatedProjectsIdIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/projects/$id/': {
-      id: '/_authenticated/admin/projects/$id/'
-      path: '/admin/projects/$id'
-      fullPath: '/admin/projects/$id'
-      preLoaderRoute: typeof AuthenticatedAdminProjectsIdIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+    '/_authenticated/admin/users/': {
+      id: '/_authenticated/admin/users/'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/templates/$id/': {
-      id: '/_authenticated/admin/templates/$id/'
-      path: '/admin/templates/$id'
-      fullPath: '/admin/templates/$id'
-      preLoaderRoute: typeof AuthenticatedAdminTemplatesIdIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+    '/_authenticated/admin/templates/': {
+      id: '/_authenticated/admin/templates/'
+      path: '/admin/templates'
+      fullPath: '/admin/templates'
+      preLoaderRoute: typeof AuthenticatedAdminTemplatesIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/projects/': {
+      id: '/_authenticated/admin/projects/'
+      path: '/admin/projects'
+      fullPath: '/admin/projects'
+      preLoaderRoute: typeof AuthenticatedAdminProjectsIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/analytics/': {
+      id: '/_authenticated/admin/analytics/'
+      path: '/admin/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/users/add': {
+      id: '/_authenticated/admin/users/add'
+      path: '/admin/users/add'
+      fullPath: '/admin/users/add'
+      preLoaderRoute: typeof AuthenticatedAdminUsersAddLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/users/$id/': {
       id: '/_authenticated/admin/users/$id/'
       path: '/admin/users/$id'
       fullPath: '/admin/users/$id'
-      preLoaderRoute: typeof AuthenticatedAdminUsersIdIndexLazyImport
-      parentRoute: typeof AuthenticatedRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminUsersIdIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/templates/$id/': {
+      id: '/_authenticated/admin/templates/$id/'
+      path: '/admin/templates/$id'
+      fullPath: '/admin/templates/$id'
+      preLoaderRoute: typeof AuthenticatedAdminTemplatesIdIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/projects/$id/': {
+      id: '/_authenticated/admin/projects/$id/'
+      path: '/admin/projects/$id'
+      fullPath: '/admin/projects/$id'
+      preLoaderRoute: typeof AuthenticatedAdminProjectsIdIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
-
-// Create and export the route tree
 
 interface AuthenticatedSettingsRouteLazyRouteChildren {
   AuthenticatedSettingsAccountLazyRoute: typeof AuthenticatedSettingsAccountLazyRoute
@@ -568,200 +701,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-export interface FileRoutesByFullPath {
-  '': typeof AuthenticatedRouteRouteWithChildren
-  '/500': typeof errors500LazyRoute
-  '/otp': typeof authOtpRoute
-  '/sign-in': typeof authSignInRoute
-  '/no-connection': typeof errorsNoConnectionRoute
-  '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
-  '/forgot-password': typeof authForgotPasswordLazyRoute
-  '/sign-up': typeof authSignUpLazyRoute
-  '/401': typeof errors401LazyRoute
-  '/403': typeof errors403LazyRoute
-  '/404': typeof errors404LazyRoute
-  '/503': typeof errors503LazyRoute
-  '/': typeof AuthenticatedIndexRoute
-  '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
-  '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
-  '/admin': typeof AuthenticatedAdminIndexRoute
-  '/projects': typeof AuthenticatedProjectsIndexLazyRoute
-  '/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
-  '/admin/analytics': typeof AuthenticatedAdminAnalyticsIndexLazyRoute
-  '/admin/projects': typeof AuthenticatedAdminProjectsIndexLazyRoute
-  '/admin/templates': typeof AuthenticatedAdminTemplatesIndexLazyRoute
-  '/admin/users': typeof AuthenticatedAdminUsersIndexLazyRoute
-  '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
-  '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
-  '/admin/templates/$id': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
-  '/admin/users/$id': typeof AuthenticatedAdminUsersIdIndexLazyRoute
-}
-
-export interface FileRoutesByTo {
-  '/500': typeof errors500LazyRoute
-  '/otp': typeof authOtpRoute
-  '/sign-in': typeof authSignInRoute
-  '/no-connection': typeof errorsNoConnectionRoute
-  '/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
-  '/forgot-password': typeof authForgotPasswordLazyRoute
-  '/sign-up': typeof authSignUpLazyRoute
-  '/401': typeof errors401LazyRoute
-  '/403': typeof errors403LazyRoute
-  '/404': typeof errors404LazyRoute
-  '/503': typeof errors503LazyRoute
-  '/': typeof AuthenticatedIndexRoute
-  '/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
-  '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
-  '/admin': typeof AuthenticatedAdminIndexRoute
-  '/projects': typeof AuthenticatedProjectsIndexLazyRoute
-  '/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
-  '/admin/analytics': typeof AuthenticatedAdminAnalyticsIndexLazyRoute
-  '/admin/projects': typeof AuthenticatedAdminProjectsIndexLazyRoute
-  '/admin/templates': typeof AuthenticatedAdminTemplatesIndexLazyRoute
-  '/admin/users': typeof AuthenticatedAdminUsersIndexLazyRoute
-  '/projects/$id': typeof AuthenticatedProjectsIdIndexLazyRoute
-  '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
-  '/admin/templates/$id': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
-  '/admin/users/$id': typeof AuthenticatedAdminUsersIdIndexLazyRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/(auth)/500': typeof auth500Route
-  '/(auth)/otp': typeof authOtpRoute
-  '/(auth)/sign-in': typeof authSignInRoute
-  '/(errors)/no-connection': typeof errorsNoConnectionRoute
-  '/_authenticated/settings': typeof AuthenticatedSettingsRouteLazyRouteWithChildren
-  '/(auth)/forgot-password': typeof authForgotPasswordLazyRoute
-  '/(auth)/sign-up': typeof authSignUpLazyRoute
-  '/(errors)/401': typeof errors401LazyRoute
-  '/(errors)/403': typeof errors403LazyRoute
-  '/(errors)/404': typeof errors404LazyRoute
-  '/(errors)/500': typeof errors500LazyRoute
-  '/(errors)/503': typeof errors503LazyRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountLazyRoute
-  '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
-  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
-  '/_authenticated/projects/': typeof AuthenticatedProjectsIndexLazyRoute
-  '/_authenticated/admin/users/add': typeof AuthenticatedAdminUsersAddLazyRoute
-  '/_authenticated/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexLazyRoute
-  '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexLazyRoute
-  '/_authenticated/admin/templates/': typeof AuthenticatedAdminTemplatesIndexLazyRoute
-  '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexLazyRoute
-  '/_authenticated/projects/$id/': typeof AuthenticatedProjectsIdIndexLazyRoute
-  '/_authenticated/admin/projects/$id/': typeof AuthenticatedAdminProjectsIdIndexLazyRoute
-  '/_authenticated/admin/templates/$id/': typeof AuthenticatedAdminTemplatesIdIndexLazyRoute
-  '/_authenticated/admin/users/$id/': typeof AuthenticatedAdminUsersIdIndexLazyRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | ''
-    | '/500'
-    | '/otp'
-    | '/sign-in'
-    | '/no-connection'
-    | '/settings'
-    | '/forgot-password'
-    | '/sign-up'
-    | '/401'
-    | '/403'
-    | '/404'
-    | '/503'
-    | '/'
-    | '/settings/account'
-    | '/settings/appearance'
-    | '/admin'
-    | '/projects'
-    | '/admin/users/add'
-    | '/admin/analytics'
-    | '/admin/projects'
-    | '/admin/templates'
-    | '/admin/users'
-    | '/projects/$id'
-    | '/admin/projects/$id'
-    | '/admin/templates/$id'
-    | '/admin/users/$id'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/500'
-    | '/otp'
-    | '/sign-in'
-    | '/no-connection'
-    | '/settings'
-    | '/forgot-password'
-    | '/sign-up'
-    | '/401'
-    | '/403'
-    | '/404'
-    | '/503'
-    | '/'
-    | '/settings/account'
-    | '/settings/appearance'
-    | '/admin'
-    | '/projects'
-    | '/admin/users/add'
-    | '/admin/analytics'
-    | '/admin/projects'
-    | '/admin/templates'
-    | '/admin/users'
-    | '/projects/$id'
-    | '/admin/projects/$id'
-    | '/admin/templates/$id'
-    | '/admin/users/$id'
-  id:
-    | '__root__'
-    | '/_authenticated'
-    | '/(auth)/500'
-    | '/(auth)/otp'
-    | '/(auth)/sign-in'
-    | '/(errors)/no-connection'
-    | '/_authenticated/settings'
-    | '/(auth)/forgot-password'
-    | '/(auth)/sign-up'
-    | '/(errors)/401'
-    | '/(errors)/403'
-    | '/(errors)/404'
-    | '/(errors)/500'
-    | '/(errors)/503'
-    | '/_authenticated/'
-    | '/_authenticated/settings/account'
-    | '/_authenticated/settings/appearance'
-    | '/_authenticated/admin/'
-    | '/_authenticated/projects/'
-    | '/_authenticated/admin/users/add'
-    | '/_authenticated/admin/analytics/'
-    | '/_authenticated/admin/projects/'
-    | '/_authenticated/admin/templates/'
-    | '/_authenticated/admin/users/'
-    | '/_authenticated/projects/$id/'
-    | '/_authenticated/admin/projects/$id/'
-    | '/_authenticated/admin/templates/$id/'
-    | '/_authenticated/admin/users/$id/'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  auth500Route: typeof auth500Route
-  authOtpRoute: typeof authOtpRoute
-  authSignInRoute: typeof authSignInRoute
-  errorsNoConnectionRoute: typeof errorsNoConnectionRoute
-  authForgotPasswordLazyRoute: typeof authForgotPasswordLazyRoute
-  authSignUpLazyRoute: typeof authSignUpLazyRoute
-  errors401LazyRoute: typeof errors401LazyRoute
-  errors403LazyRoute: typeof errors403LazyRoute
-  errors404LazyRoute: typeof errors404LazyRoute
-  errors500LazyRoute: typeof errors500LazyRoute
-  errors503LazyRoute: typeof errors503LazyRoute
-}
-
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  auth500Route: auth500Route,
   authOtpRoute: authOtpRoute,
   authSignInRoute: authSignInRoute,
   errorsNoConnectionRoute: errorsNoConnectionRoute,
@@ -773,146 +714,6 @@ const rootRouteChildren: RootRouteChildren = {
   errors500LazyRoute: errors500LazyRoute,
   errors503LazyRoute: errors503LazyRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_authenticated",
-        "/(auth)/500",
-        "/(auth)/otp",
-        "/(auth)/sign-in",
-        "/(errors)/no-connection",
-        "/(auth)/forgot-password",
-        "/(auth)/sign-up",
-        "/(errors)/401",
-        "/(errors)/403",
-        "/(errors)/404",
-        "/(errors)/500",
-        "/(errors)/503"
-      ]
-    },
-    "/_authenticated": {
-      "filePath": "_authenticated/route.tsx",
-      "children": [
-        "/_authenticated/settings",
-        "/_authenticated/",
-        "/_authenticated/admin/",
-        "/_authenticated/projects/",
-        "/_authenticated/admin/users/add",
-        "/_authenticated/admin/analytics/",
-        "/_authenticated/admin/projects/",
-        "/_authenticated/admin/templates/",
-        "/_authenticated/admin/users/",
-        "/_authenticated/projects/$id/",
-        "/_authenticated/admin/projects/$id/",
-        "/_authenticated/admin/templates/$id/",
-        "/_authenticated/admin/users/$id/"
-      ]
-    },
-    "/(auth)/500": {
-      "filePath": "(auth)/500.tsx"
-    },
-    "/(auth)/otp": {
-      "filePath": "(auth)/otp.tsx"
-    },
-    "/(auth)/sign-in": {
-      "filePath": "(auth)/sign-in.tsx"
-    },
-    "/(errors)/no-connection": {
-      "filePath": "(errors)/no-connection.tsx"
-    },
-    "/_authenticated/settings": {
-      "filePath": "_authenticated/settings/route.lazy.tsx",
-      "parent": "/_authenticated",
-      "children": [
-        "/_authenticated/settings/account",
-        "/_authenticated/settings/appearance"
-      ]
-    },
-    "/(auth)/forgot-password": {
-      "filePath": "(auth)/forgot-password.lazy.tsx"
-    },
-    "/(auth)/sign-up": {
-      "filePath": "(auth)/sign-up.lazy.tsx"
-    },
-    "/(errors)/401": {
-      "filePath": "(errors)/401.lazy.tsx"
-    },
-    "/(errors)/403": {
-      "filePath": "(errors)/403.lazy.tsx"
-    },
-    "/(errors)/404": {
-      "filePath": "(errors)/404.lazy.tsx"
-    },
-    "/(errors)/500": {
-      "filePath": "(errors)/500.lazy.tsx"
-    },
-    "/(errors)/503": {
-      "filePath": "(errors)/503.lazy.tsx"
-    },
-    "/_authenticated/": {
-      "filePath": "_authenticated/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/settings/account": {
-      "filePath": "_authenticated/settings/account.lazy.tsx",
-      "parent": "/_authenticated/settings"
-    },
-    "/_authenticated/settings/appearance": {
-      "filePath": "_authenticated/settings/appearance.lazy.tsx",
-      "parent": "/_authenticated/settings"
-    },
-    "/_authenticated/admin/": {
-      "filePath": "_authenticated/admin/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/projects/": {
-      "filePath": "_authenticated/projects/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/admin/users/add": {
-      "filePath": "_authenticated/admin/users/add.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/admin/analytics/": {
-      "filePath": "_authenticated/admin/analytics/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/admin/projects/": {
-      "filePath": "_authenticated/admin/projects/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/admin/templates/": {
-      "filePath": "_authenticated/admin/templates/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/admin/users/": {
-      "filePath": "_authenticated/admin/users/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/projects/$id/": {
-      "filePath": "_authenticated/projects/$id/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/admin/projects/$id/": {
-      "filePath": "_authenticated/admin/projects/$id/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/admin/templates/$id/": {
-      "filePath": "_authenticated/admin/templates/$id/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/admin/users/$id/": {
-      "filePath": "_authenticated/admin/users/$id/index.lazy.tsx",
-      "parent": "/_authenticated"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

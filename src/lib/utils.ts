@@ -195,6 +195,8 @@ export const handleScreenshot = async (
 	buttonId: string
 ) => {
 	if (!div) return
+	div.style.padding = '2em'
+	div.style.backgroundColor = '#ffffff'
 
 	const buttons = document.getElementById(buttonId)
 	if (buttons) buttons.style.visibility = 'hidden'
@@ -204,6 +206,9 @@ export const handleScreenshot = async (
 	style.sheet?.insertRule(
 		'body > div:last-child img { display: inline-block; }'
 	)
+
+	const tablist = div.querySelector('[role="tablist"]') as HTMLElement
+	if (tablist) tablist.style.display = 'none'
 
 	try {
 		const canvas = await html2canvas(div, {
@@ -223,7 +228,10 @@ export const handleScreenshot = async (
 	} catch (err) {
 		console.error('Screenshot failed:', err)
 	} finally {
+		div.style.padding = ''
+		div.style.backgroundColor = ''
 		if (buttons) buttons.style.visibility = 'visible'
 		document.head.removeChild(style)
+		if (tablist) tablist.style.display = 'block'
 	}
 }
