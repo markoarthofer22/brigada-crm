@@ -97,7 +97,7 @@ if (!rootElement.innerHTML) {
 		<I18nextProvider i18n={i18n}>
 			<LoaderProvider>
 				<QueryClientProvider client={queryClient}>
-					<ThemeProvider defaultTheme='system' storageKey='vite-ui-theme'>
+					<ThemeProvider defaultTheme='light' storageKey='vite-ui-theme'>
 						<FontProvider>
 							<NuqsAdapter>
 								<RouterProvider router={router} />
