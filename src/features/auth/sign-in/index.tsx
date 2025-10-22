@@ -31,7 +31,7 @@ export default function SignIn() {
 			<Header small showSidebarToggle={false} showLogo />
 			<div className='container flex h-full flex-col justify-center lg:max-w-none lg:px-0'>
 				<div className='flex min-w-0 flex-col items-center'>
-					<h1 className='mb-20 text-[60px] font-semibold uppercase text-destructive'>
+					<h1 className='mb-20 text-[100px] font-semibold uppercase text-destructive'>
 						{import.meta.env.VITE_APP_TITLE}
 					</h1>
 					<div className='flex flex-1 items-center justify-center lg:p-8'>
