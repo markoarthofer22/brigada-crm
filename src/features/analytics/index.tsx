@@ -222,12 +222,12 @@ export default function Analytics() {
 						{t('Analytics.title')}
 					</h1>
 				</div>
-				<div className='mb-4 flex items-center gap-2'>
+				<div className='mb-4 flex flex-wrap items-center gap-2'>
 					<Select
 						value={project ? String(project) : undefined}
 						onValueChange={setProjectCallback}
 					>
-						<SelectTrigger className='w-full max-w-44'>
+						<SelectTrigger className='w-full md:max-w-44'>
 							<SelectValue placeholder={t('Input.placeholder.project')} />
 						</SelectTrigger>
 						<SelectContent>
@@ -243,7 +243,7 @@ export default function Analytics() {
 							))}
 						</SelectContent>
 					</Select>
-					<div className='relative w-full max-w-xs'>
+					<div className='relative w-full md:max-w-xs'>
 						<Select
 							value={interval ? String(interval) : undefined}
 							onValueChange={setInterval}
@@ -276,7 +276,7 @@ export default function Analytics() {
 							</div>
 						)}
 					</div>
-					<div className='flex flex-col gap-y-2'>
+					<div className='flex flex-col gap-y-2 max-sm:w-full'>
 						<Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
 							<PopoverTrigger asChild>
 								<Button
@@ -359,6 +359,7 @@ export default function Analytics() {
 						</Popover>
 					</div>
 					<GlobalFilters
+						className='max-md:w-full'
 						filters={analyticsQuery?.data?.filters}
 						value={selectedFilters}
 						onFilterChange={handleFilterChange}
@@ -366,9 +367,13 @@ export default function Analytics() {
 				</div>
 
 				<div className='mb-6 flex flex-col gap-4'>
-					<Tabs value={tabs} onValueChange={setTab} className='w-full'>
+					<Tabs
+						value={tabs}
+						onValueChange={setTab}
+						className='w-full max-sm:overflow-x-auto'
+					>
 						<div className='flex flex-wrap items-center justify-between'>
-							<TabsList>
+							<TabsList className='flex h-auto flex-wrap items-center justify-start space-y-1'>
 								<TabsTrigger disabled={!project} value={AnalyticsTabs.General}>
 									{t('Analytics.tabs.general')}
 								</TabsTrigger>
@@ -397,7 +402,7 @@ export default function Analytics() {
 										!analyticsQuery.data.trackings?.length
 									}
 									onClick={handleExportToExcel}
-									className='ml-auto flex items-center gap-2'
+									className='flex items-center gap-2 max-sm:mt-4 md:ml-auto'
 								>
 									<Download size={16} />
 									{t('Analytics.exportToExcel')}
