@@ -203,7 +203,7 @@ class Analytics
 				FROM {$_SESSION["SCHEMA"]}.tracking_zones tz 
 				LEFT JOIN {$_SESSION["SCHEMA"]}.zones z ON tz.id_zones = z.id_zones
 				LEFT JOIN brigada.tracking_answers ta ON ta.id_tracking = tz.id_tracking AND ta.id_questions = 1
-				{$_where} 
+				{$_where} -- and tz.id_tracking in (206,207)
 				ORDER BY tz.started_at ASC
 		";
 		$stmt = $this->database->prepare($sql);
@@ -214,10 +214,15 @@ class Analytics
 		foreach ($results as &$result) {
 			if ($result && $result["coordinates"]) {
 				$result["coordinates"] = json_decode($result["coordinates"], true);
-				// $result["heat"] = $this->getPolygonCentroid($result["coordinates"]["points"]);
+
 				$result["heat"] = $this->getRandomPointInPolygon($result["coordinates"]["points"]);
-				unset($result["coordinates"]);
 				$result["heat"]["value"] = (float) $result["duration_seconds"];
+				$result["heat"]["number_of_people"] = (float) $result["number_of_people"];
+
+				$result["heat_centroid"] = $this->getPolygonCentroid($result["coordinates"]["points"]);
+				$result["heat_centroid"]["number_of_people"] = (float) $result["number_of_people"];
+
+				unset($result["coordinates"]);
 			}
 			unset($result["duration_seconds"]);
 		}

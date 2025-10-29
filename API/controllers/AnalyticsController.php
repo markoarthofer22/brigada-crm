@@ -17,6 +17,7 @@ use stdClass;
 
 use PP\Controller\ProjectsController;
 
+use function Dom\import_simplexml;
 use function PHPSTORM_META\type;
 
 /**
@@ -577,25 +578,84 @@ class AnalyticsController extends BaseController
 				return strtotime($a['started_at']) - strtotime($b['started_at']);
 			});
 
-			// Extract ordered zone names
-			$pathNames = array_column($zones, 'name');
-			$pathString = implode(' → ', $pathNames);
+			// Build detailed path (with name + coordinates)
+			$path = [];
 
-			if (!isset($_paths[$pathString])) {
-				$_paths[$pathString] = 0;
+			foreach ($zones as $z) {
+				$path[] = [
+					'name' => $z['name'],
+					'coordinates' => $z['heat_centroid'] ?? null,
+				];
 			}
-			$_paths[$pathString]++;
+
+			// Create a hash to identify identical paths
+			$pathNames = array_map(fn($z) => $z['name'], $zones);
+			$pathKey = md5(json_encode($pathNames));
+
+			// Calculate number_of_people (average per tracking)
+			$totalPeople = array_sum(array_column($zones, 'number_of_people'));
+			$avgPeople = $totalPeople / count($zones);
+
+			// echo "<pre>";
+			if (!isset($_paths[$pathKey])) {
+				// print_r($path);
+				$_paths[$pathKey] = [
+					'path' => $path,
+					'count' => 0,
+					'total_people' => 0,
+					'avg_people' => 0,
+					'_set' => false
+				];
+			} else {
+				$__result = [];
+				foreach ($_paths[$pathKey]["path"] as $index => $item1) {
+					$item2 = $path[$index];
+
+					$merged = $item1; // start from first
+					$merged['coordinates']['number_of_people'] =
+						$item1['coordinates']['number_of_people'] + $item2['coordinates']['number_of_people'];
+
+					$__result[] = $merged;
+				}
+				// print_r($__result);
+				// exit;
+
+				$_paths[$pathKey]['_set'] = true;
+				$_paths[$pathKey]['path'] = $__result;
+
+				// echo "<hr>";
+				// echo json_encode($_paths) . "<hr>";
+				// echo "<hr>";
+			}
+
+			// echo $pathKey . "<br>";
+			// echo json_encode($_paths) . "<hr>";
+
+			$_paths[$pathKey]['count']++;
+			$_paths[$pathKey]['total_people'] += $totalPeople;
+			$_paths[$pathKey]['avg_people'] += $avgPeople; // sum for later averaging
 		}
 
+		// exit;
+
 		// Compute percentages
-		$totalPaths = array_sum($_paths);
+		$totalPaths = array_sum(array_column($_paths, 'count'));
 		$_results = [];
 
-		foreach ($_paths as $path => $count) {
+		foreach ($_paths as $data) {
+			$pathNames = array_map(fn($z) => $z['name'], $data['path']);
+			$pathString = implode(' → ', $pathNames);
+			$pathCSV = implode(',', $pathNames);
+
 			$_results[] = [
-				'path' => $path,
-				'count' => $count,
-				'percentage' => round(($count / $totalPaths) * 100, 1) . '%'
+				'pathstring' => $pathString,
+				'pathcsv' => $pathCSV,
+				'path' => $data['path'],
+				'count' => $data['count'],
+				'percentage' => round(($data['count'] / $totalPaths) * 100, 2),
+				'total_people' => $data['total_people'],
+				'avg_people' => round($data['avg_people'] / $data['count'], 2),
+				'total_visits' => $data['total_people'] * $data['count']
 			];
 		}
 
