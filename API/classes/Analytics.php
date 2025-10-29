@@ -191,7 +191,21 @@ class Analytics
 			$_where .= " AND tz.started_at >= '{$params->from}'";
 		}
 
-		$sql = "SELECT tz.*, z.name, EXTRACT(EPOCH FROM (tz.ended_at - tz.started_at)) AS duration_seconds, z.coordinates FROM {$_SESSION["SCHEMA"]}.tracking_zones tz LEFT JOIN {$_SESSION["SCHEMA"]}.zones z ON tz.id_zones = z.id_zones {$_where} ORDER BY tz.started_at ASC";
+		$sql = "SELECT 
+					tz.*, 
+					z.name, 
+					EXTRACT(EPOCH FROM (tz.ended_at - tz.started_at)) AS duration_seconds, 
+					z.coordinates,
+					COALESCE(
+						jsonb_array_length(ta.answer -> 'answer'),
+						0
+					) AS number_of_people
+				FROM {$_SESSION["SCHEMA"]}.tracking_zones tz 
+				LEFT JOIN {$_SESSION["SCHEMA"]}.zones z ON tz.id_zones = z.id_zones
+				LEFT JOIN brigada.tracking_answers ta ON ta.id_tracking = tz.id_tracking AND ta.id_questions = 1
+				{$_where} 
+				ORDER BY tz.started_at ASC
+		";
 		$stmt = $this->database->prepare($sql);
 
 		$stmt->execute();

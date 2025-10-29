@@ -233,6 +233,8 @@ class AnalyticsController extends BaseController
 		);
 
 		$result["trackings"] = $Analytics->GetTrackings($params);
+		// echo json_encode($result["trackings"]);
+		// exit;
 
 		foreach ($result["trackings"] as $key => &$item) {
 
@@ -554,6 +556,58 @@ class AnalyticsController extends BaseController
 			return in_array($zone["id_tracking"], $all_tracking_ids);
 		});
 		$result["zones_heatmap"] = array_values($result["zones_heatmap"]);
+
+		///////////////////////////////////////////
+		///////////////////////////////////////////
+		///////////////////////////////////////////
+		///////////////////////////////////////////
+		///////////////////////////////////////////
+
+		// Group by tracking
+		$_trackings = [];
+		foreach ($result["zones_heatmap"] as $row) {
+			$_trackings[$row['id_tracking']][] = $row;
+		}
+
+		$_paths = [];
+
+		// Build full ordered path for each tracking
+		foreach ($_trackings as $trackingId => $zones) {
+			usort($zones, function ($a, $b) {
+				return strtotime($a['started_at']) - strtotime($b['started_at']);
+			});
+
+			// Extract ordered zone names
+			$pathNames = array_column($zones, 'name');
+			$pathString = implode(' → ', $pathNames);
+
+			if (!isset($_paths[$pathString])) {
+				$_paths[$pathString] = 0;
+			}
+			$_paths[$pathString]++;
+		}
+
+		// Compute percentages
+		$totalPaths = array_sum($_paths);
+		$_results = [];
+
+		foreach ($_paths as $path => $count) {
+			$_results[] = [
+				'path' => $path,
+				'count' => $count,
+				'percentage' => round(($count / $totalPaths) * 100, 1) . '%'
+			];
+		}
+
+		// Sort by count descending
+		usort($_results, fn($a, $b) => $b['count'] <=> $a['count']);
+
+		$result["zones_paths"] = $_results;
+
+		///////////////////////////////////////////
+		///////////////////////////////////////////
+		///////////////////////////////////////////
+		///////////////////////////////////////////
 
 		$result["result_static_questions"] = $result_static_questions;
 		$result["filters"] = $filters;
