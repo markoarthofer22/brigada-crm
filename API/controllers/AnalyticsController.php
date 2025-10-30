@@ -226,6 +226,7 @@ class AnalyticsController extends BaseController
 		$filters = $Helper->extractFilters($result_static_questions);
 
 		$result["trackings"] = $Analytics->GetTrackings($params);
+		$result["trackings_not_valid"] = $Analytics->GetTrackings((object) array_merge((array) $params, ['return_not_valid' => true]));
 		// echo json_encode($result["trackings"]);
 		// exit;
 

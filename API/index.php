@@ -184,6 +184,7 @@ $app->group('', function () use ($app) {
 			$app->get('/{id}', TrackingController::class . ":GetZone");
 		});
 
+		$app->post('/invalidate/{id}', TrackingController::class . ":InvalidateTracking");
 		$app->post('/end/{id}', TrackingController::class . ":EndTracking");
 		$app->get('', TrackingController::class);
 		$app->get('/{id}', TrackingController::class . ":Get");

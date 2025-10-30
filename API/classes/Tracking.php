@@ -195,6 +195,32 @@ class Tracking
 	}
 
 
+	/* InvalidateTracking function
+	 *
+	 * @param object $params
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function InvalidateTracking(object $params): int
+	{
+		$sql = "UPDATE {$_SESSION["SCHEMA"]}.tracking
+				SET data = jsonb_set(
+					COALESCE(data, '{}'::jsonb),
+					'{valid}',
+					'false'::jsonb,
+					true
+				)
+				WHERE id_tracking = :ID_TRACKING;
+		";
+
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_TRACKING', $params->id, PDO::PARAM_INT);
+		$stmt->execute();
+
+		return true;
+	}
+
+
 	/**
 	 * GetAnswers function
 	 *

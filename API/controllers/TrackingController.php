@@ -127,7 +127,7 @@ class TrackingController extends BaseController
 		) {
 			return Message::WriteMessage(422, array("Message" => $Language->Translate(array("phrase" => "Missing projects id"))), $response);
 		}
-		$params->data = $params->data ?? [];
+		$params->data = $params->data ?? new stdClass;
 
 
 		$id = $Tracking->Add($params);
@@ -411,6 +411,32 @@ class TrackingController extends BaseController
 		}
 
 		$Tracking->AddComment($params);
+		return $response->withStatus(204);
+	}
+
+	/**
+	 * InvalidateTracking function
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function InvalidateTracking(Request $request, Response $response, array $args): Response
+	{
+
+		$Language = new Language($this->db);
+		$Tracking = new Tracking($this->db);
+		$Helper = new Helper($this->db);
+
+		$vars = $request->getParsedBody();
+		$params = $Helper->ArrayToObject($vars);
+		$args = $Helper->ArrayToObject($args);
+
+		$params->id = $args->id;
+
+		$Tracking->InvalidateTracking($params);
 		return $response->withStatus(204);
 	}
 
