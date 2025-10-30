@@ -115,7 +115,8 @@ class Analytics
 		$sql = "WITH all_data AS (
 					SELECT 
 						*,
-						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
+						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count,
+						(SELECT email FROM brigada.users WHERE id_users = t.id_users) as email
 					FROM brigada.tracking t
 					{$_where} {$_ended}--AND id_tracking in (192)
 					ORDER BY t.started_at ASC
