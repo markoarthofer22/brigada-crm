@@ -654,7 +654,7 @@ class AnalyticsController extends BaseController
 				'count' => $data['count'],
 				'percentage' => round(($data['count'] / $totalPaths) * 100, 2),
 				'total_people' => $data['total_people'],
-				'avg_people' => round($data['avg_people'] / $data['count'], 2),
+				// 'avg_people' => round($data['avg_people'] / $data['count'], 2),
 				'total_visits' => $data['total_people'] * $data['count']
 			];
 		}
