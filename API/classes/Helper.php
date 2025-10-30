@@ -102,4 +102,31 @@ class Helper
 
 		return round($bytes, $precision) . ' ' . $units[$pow];
 	}
+
+	/**
+	 * getPossibleAnswersByFilter function
+	 *
+	 * @param array $questions
+	 * @param string $filter
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function getPossibleAnswersByFilter(array $questions, string $filter): ?array
+	{
+		foreach ($questions as $question) {
+			// Check if this question has the target filter
+			if (isset($question['data']->filter) && $question['data']->filter === $filter) {
+				return $question['possible_answers'];
+			}
+
+			// If there are subquestions, search recursively
+			if (!empty($question['subquestions'])) {
+				$result = $this->getPossibleAnswersByFilter($question['subquestions'], $filter);
+				if ($result !== null) {
+					return $result;
+				}
+			}
+		}
+		return null;
+	}
 }

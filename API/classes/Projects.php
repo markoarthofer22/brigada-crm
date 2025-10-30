@@ -5,6 +5,8 @@ namespace PP\Classes;
 use Exception;
 use PDO;
 use stdClass;
+use PP\Classes\Settings;
+use PP\Classes\Questions;
 
 /**
  * Projects class
@@ -100,6 +102,9 @@ class Projects
 	public function Add(object $params): int
 	{
 
+		$Settings = new Settings($this->database);
+		$Questions = new Questions($this->database);
+
 		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.projects
 					(data)
 				VALUES 
@@ -110,9 +115,35 @@ class Projects
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':DATA', json_encode($params->data));
 		$stmt->execute();
-
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
-		return (int)$result['id_projects'];
+
+		$id_projects = (int)$result['id_projects'];
+
+		/// ADD DEFAULT STATIC QUESTIONS TO PROJECT
+		$default_static_questions = $Settings->Get((object)array("key" => "static_questions"));
+		foreach ($default_static_questions["value"] as $key => $value) {
+			$params = new stdClass;
+			$params->id_projects = $id_projects;
+			$params->id_zones = null;
+			$params->label = $value->label;
+			$params->id_questions_types = $value->id_questions_types;
+			$params->possible_answers = $value->possible_answers;
+			$params->data = array("static" => true, "required" => true, "true_id" => $value->id_questions, "filter" => $value->filter);
+			$parent_id = $Questions->Add($params);
+
+			foreach ($value->subquestions as $k => $v) {
+				$params = new stdClass;
+				$params->id_projects = $id_projects;
+				$params->id_zones = null;
+				$params->label = $v->label;
+				$params->id_questions_types = $v->id_questions_types;
+				$params->possible_answers = $v->possible_answers;
+				$params->data = array("static" => true, "required" => true, "parent_id" => $parent_id, "filter" => $v->filter);
+				$Questions->Add($params);
+			}
+		}
+
+		return $id_projects;
 	}
 
 	/**
@@ -234,10 +265,10 @@ class Projects
 	 * Copy function
 	 *
 	 * @param object $params
-	 * @return array
+	 * @return bool
 	 * @author Ivan Gudelj <gudeljiv@gmail.com>
 	 */
-	public function Copy(object $params): array
+	public function Copy(object $params): bool
 	{
 
 		// IMAGES
@@ -377,9 +408,14 @@ class Projects
 			}
 		}
 		// exit;
+
+
 		// QUESTIONS WITHOUT ZONES
+		// NON STATIC QUESTIONS
 		$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
-				SELECT :ID_PROJECTS_NEW,null,label,id_questions_types,possible_answers,\"order\",data FROM brigada.questions WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL
+				SELECT :ID_PROJECTS_NEW,null,label,id_questions_types,possible_answers,\"order\",data 
+				FROM brigada.questions 
+				WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL AND NOT jsonb_exists(data, 'static')
 		";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
@@ -387,6 +423,61 @@ class Projects
 		$stmt->execute();
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-		return $result;
+		// STATIC QUESTIONS
+		$sql = "SELECT *
+				FROM brigada.questions 
+				WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL AND jsonb_exists(data, 'static')
+		";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
+		$stmt->execute();
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+		foreach ($results as $r) {
+			$r["data"] = json_decode($r["data"]);
+			$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
+						VALUES
+						(:ID_PROJECTS_NEW,null,:LABEL,:ID_QUESTIONS_TYPES,:POSSIBLE_ANSWERS,:ORDER,:DATA)
+						RETURNING id_questions
+			";
+			$r["data"]->old_id = $r["id_questions"];
+			$stmt = $this->database->prepare($sql);
+			$stmt->bindParam(':ID_PROJECTS_NEW', $id_projects_new);
+			$stmt->bindParam(':LABEL', $r["label"]);
+			$stmt->bindParam(':ID_QUESTIONS_TYPES', $r["id_questions_types"]);
+			$stmt->bindParam(':POSSIBLE_ANSWERS', $r["possible_answers"]);
+			$stmt->bindParam(':ORDER', $r["order"]);
+			$stmt->bindParam(':DATA', json_encode($r["data"]));
+			$stmt->execute();
+		}
+
+		$sql = "UPDATE brigada.questions AS q1
+				SET data = jsonb_set(
+							q1.data - 'old_id',
+							'{parent_id}',
+							to_jsonb(q2.id_questions)
+						)
+				FROM brigada.questions AS q2
+				WHERE q1.data->>'parent_id' = q2.data->>'old_id'
+				AND q1.id_projects = :ID_PROJECTS_NEW_1
+				AND q2.id_projects = :ID_PROJECTS_NEW_2
+				AND q2.id_questions = (
+					SELECT q3.id_questions
+					FROM brigada.questions AS q3
+					WHERE q3.data->>'old_id' = q1.data->>'parent_id'
+						AND q3.id_projects = :ID_PROJECTS_NEW_3
+					ORDER BY q3.id_questions
+					LIMIT 1
+				);
+		";
+		$stmt = $this->database->prepare($sql);
+		$stmt->bindParam(':ID_PROJECTS_NEW_1', $id_projects_new);
+		$stmt->bindParam(':ID_PROJECTS_NEW_2', $id_projects_new);
+		$stmt->bindParam(':ID_PROJECTS_NEW_3', $id_projects_new);
+		$stmt->execute();
+
+		return true;
 	}
 }

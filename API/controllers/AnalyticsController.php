@@ -219,34 +219,42 @@ class AnalyticsController extends BaseController
 			)
 		);
 
+		// echo "<pre>";
+		// print_r($result_static_questions);
+		// exit;
+
+		/// TODO
 		$filters = array(
 			array(
 				"label" => "f_dobna",
-				"possible_answers" => array(
-					0 => "0-18",
-					1 => "19-30",
-					2 => "31-45",
-					3 => "46-60",
-					4 => "61-75",
-					5 => "76+",
-				)
+				// "possible_answers" => array(
+				// 	0 => "0-18",
+				// 	1 => "19-30",
+				// 	2 => "31-45",
+				// 	3 => "46-60",
+				// 	4 => "61-75",
+				// 	5 => "76+",
+				// ),
+				"possible_answers" => $Helper->getPossibleAnswersByFilter($result_static_questions, "f_dobna")
 			),
 			array(
 				"label" => "f_spol",
-				"possible_answers" => array(
-					0 => "Muški",
-					1 => "Ženski",
-				)
+				"possible_answers" => $Helper->getPossibleAnswersByFilter($result_static_questions, "f_spol")
+				// "possible_answers" => array(
+				// 	0 => "Muški",
+				// 	1 => "Ženski",
+				// )
 			),
 			array(
 				"label" => "f_profil",
-				"possible_answers" => array(
-					0 => "Obitelj",
-					1 => "Pojedinac",
-					2 => "Par",
-					3 => "Teens",
-					4 => "Grupa prijatelja",
-				)
+				"possible_answers" => $Helper->getPossibleAnswersByFilter($result_static_questions, "f_profil")
+				// "possible_answers" => array(
+				// 	0 => "Obitelj",
+				// 	1 => "Pojedinac",
+				// 	2 => "Par",
+				// 	3 => "Teens",
+				// 	4 => "Grupa prijatelja",
+				// )
 			)
 		);
 
