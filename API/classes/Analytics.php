@@ -89,6 +89,7 @@ class Analytics
 	{
 
 		$_where = " WHERE 1=1 ";
+		$_ended = " AND t.ended_at IS NOT NULL ";
 		if ($params->id_projects) {
 			$_where .= " AND t.id_projects = {$params->id_projects} ";
 		}
@@ -104,12 +105,19 @@ class Analytics
 			$_where .= " AND t.started_at >= '{$params->from}'";
 		}
 
+		if ($params->return_not_valid) {
+			$_where .= " AND (t.data->>'valid')::boolean IS FALSE ";
+			$_ended = "";
+		} else {
+			$_where .= " AND (t.data->>'valid')::boolean IS NOT FALSE ";
+		}
+
 		$sql = "WITH all_data AS (
 					SELECT 
 						*,
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
 					FROM brigada.tracking t
-					{$_where} AND t.ended_at IS NOT NULL --AND id_tracking in (192)
+					{$_where} {$_ended}--AND id_tracking in (192)
 					ORDER BY t.started_at ASC
 				)
 				SELECT * FROM all_data
