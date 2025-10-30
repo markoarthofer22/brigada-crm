@@ -67,6 +67,10 @@
 		"family": "Obitelj",
 		"females": "Žene",
 		"femalesCount": "Broj ženskih posjeta",
+		"flow": {
+			"title": "Smjer kretanja",
+			"totalPeopleLabel": "{{value}} ljudi"
+		},
 		"foodConsumption": "Konzumiranje Hrane",
 		"foodType": "Vrsta Hrane",
 		"genderBalance": "Ravnoteža Spola",
@@ -123,6 +127,7 @@
 		"selected": "odabrano",
 		"showGraphic": "Vizualni prikaz",
 		"showTable": "Tablični prikaz",
+		"singlePeople": "ljudi",
 		"singlePerson": "Jedna Osoba",
 		"start": "Početak",
 		"summaryStats": "Sažetak Statistika",

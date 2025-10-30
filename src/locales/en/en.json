@@ -67,6 +67,10 @@
 		"family": "Family",
 		"females": "Females",
 		"femalesCount": "Females visit count",
+		"flow": {
+			"title": "Flow data",
+			"totalPeopleLabel": "{{value}} people"
+		},
 		"foodConsumption": "Food Consumption",
 		"foodType": "Food Type",
 		"genderBalance": "Gender Balance",
@@ -123,6 +127,7 @@
 		"selected": "selected",
 		"showGraphic": "Visual View",
 		"showTable": "Table View",
+		"singlePeople": "people",
 		"singlePerson": "Single Person",
 		"start": "Start",
 		"summaryStats": "Summary Statistics",

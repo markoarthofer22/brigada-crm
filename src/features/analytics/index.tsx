@@ -458,6 +458,7 @@ export default function Analytics() {
 										height={lastAddedFloorPlan.height}
 										radius={150}
 										blur={0.85}
+										flowData={analyticsQuery.data.zones_paths}
 									/>
 								)}
 						</TabsContent>

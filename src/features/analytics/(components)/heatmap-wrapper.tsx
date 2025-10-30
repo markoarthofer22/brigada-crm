@@ -30,6 +30,7 @@ const HeatmapWrapper = ({
 	blur = 0.6,
 	zones = [],
 	exportName,
+	flowData = [],
 }: Props) => {
 	const { t } = useTranslation()
 
@@ -96,6 +97,7 @@ const HeatmapWrapper = ({
 					height={height}
 					radius={radius}
 					blur={blur}
+					flowData={flowData}
 				/>
 			)}
 		</div>
