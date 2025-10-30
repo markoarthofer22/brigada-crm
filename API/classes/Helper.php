@@ -129,4 +129,34 @@ class Helper
 		}
 		return [];
 	}
+
+	/**
+	 * extractFilters function
+	 *
+	 * @param array $questions
+	 * @return array
+	 * @author Ivan Gudelj <gudeljiv@gmail.com>
+	 */
+	public function extractFilters(array $questions): array
+	{
+		$result = [];
+
+		foreach ($questions as $question) {
+			// Check if this question has a filter
+			if (isset($question['data']->filter)) {
+				$result[] = [
+					'label' => $question['data']->filter,
+					'possible_answers' => $question['possible_answers'] ?? [],
+				];
+			}
+
+			// Recursively check for subquestions
+			if (!empty($question['subquestions'])) {
+				$subFilters = $this->extractFilters($question['subquestions']);
+				$result = array_merge($result, $subFilters);
+			}
+		}
+
+		return $result;
+	}
 }

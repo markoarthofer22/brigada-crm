@@ -162,101 +162,68 @@ class AnalyticsController extends BaseController
 
 		$result_static_questions = $result["static_questions_new"];
 
-		$__result_static_questions = array(
-			array(
-				"id_projects" => (int)$args->id,
-				"id_questions" => 1,
-				"id_questions_types" => 4,
-				"label" => "Broj ljudi",
-				"data" => array("required" => true),
-				"possible_answers" => array(
-					0 => 1,
-					1 => 2,
-					2 => 3,
-					3 => 4,
-					4 => 5,
-					5 => 6,
-				),
-				"subquestions" => array(
-					array(
-						"id_questions_types" => 4,
-						"label" => "Dobna skupina",
-						"data" => array("required" => true),
-						"possible_answers" => array(
-							0 => "0-18",
-							1 => "19-30",
-							2 => "31-45",
-							3 => "46-60",
-							4 => "61-75",
-							5 => "76+",
-						)
-					),
-					array(
-						"id_questions_types" => 4,
-						"label" => "Spol",
-						"data" => array("required" => true),
-						"possible_answers" => array(
-							0 => "Muški",
-							1 => "Ženski",
-						)
-					)
-				)
-			),
-			array(
-				"id_projects" => (int)$args->id,
-				"id_questions" => 2,
-				"id_questions_types" => 4,
-				"label" => "Profil kupca",
-				"data" => array("required" => true),
-				"possible_answers" => array(
-					0 => "Obitelj",
-					1 => "Pojedinac",
-					2 => "Par",
-					3 => "Teens",
-					4 => "Grupa prijatelja",
-				),
-				"subquestions" => array()
-			)
-		);
+		// $__result_static_questions = array(
+		// 	array(
+		// 		"id_projects" => (int)$args->id,
+		// 		"id_questions" => 1,
+		// 		"id_questions_types" => 4,
+		// 		"label" => "Broj ljudi",
+		// 		"data" => array("required" => true),
+		// 		"possible_answers" => array(
+		// 			0 => 1,
+		// 			1 => 2,
+		// 			2 => 3,
+		// 			3 => 4,
+		// 			4 => 5,
+		// 			5 => 6,
+		// 		),
+		// 		"subquestions" => array(
+		// 			array(
+		// 				"id_questions_types" => 4,
+		// 				"label" => "Dobna skupina",
+		// 				"data" => array("required" => true),
+		// 				"possible_answers" => array(
+		// 					0 => "0-18",
+		// 					1 => "19-30",
+		// 					2 => "31-45",
+		// 					3 => "46-60",
+		// 					4 => "61-75",
+		// 					5 => "76+",
+		// 				)
+		// 			),
+		// 			array(
+		// 				"id_questions_types" => 4,
+		// 				"label" => "Spol",
+		// 				"data" => array("required" => true),
+		// 				"possible_answers" => array(
+		// 					0 => "Muški",
+		// 					1 => "Ženski",
+		// 				)
+		// 			)
+		// 		)
+		// 	),
+		// 	array(
+		// 		"id_projects" => (int)$args->id,
+		// 		"id_questions" => 2,
+		// 		"id_questions_types" => 4,
+		// 		"label" => "Profil kupca",
+		// 		"data" => array("required" => true),
+		// 		"possible_answers" => array(
+		// 			0 => "Obitelj",
+		// 			1 => "Pojedinac",
+		// 			2 => "Par",
+		// 			3 => "Teens",
+		// 			4 => "Grupa prijatelja",
+		// 		),
+		// 		"subquestions" => array()
+		// 	)
+		// );
 
 		// echo "<pre>";
 		// print_r($result_static_questions);
 		// exit;
 
-		/// TODO
-		$filters = array(
-			array(
-				"label" => "f_dobna",
-				// "possible_answers" => array(
-				// 	0 => "0-18",
-				// 	1 => "19-30",
-				// 	2 => "31-45",
-				// 	3 => "46-60",
-				// 	4 => "61-75",
-				// 	5 => "76+",
-				// ),
-				"possible_answers" => $Helper->getPossibleAnswersByFilter($result_static_questions, "f_dobna")
-			),
-			array(
-				"label" => "f_spol",
-				"possible_answers" => $Helper->getPossibleAnswersByFilter($result_static_questions, "f_spol")
-				// "possible_answers" => array(
-				// 	0 => "Muški",
-				// 	1 => "Ženski",
-				// )
-			),
-			array(
-				"label" => "f_profil",
-				"possible_answers" => $Helper->getPossibleAnswersByFilter($result_static_questions, "f_profil")
-				// "possible_answers" => array(
-				// 	0 => "Obitelj",
-				// 	1 => "Pojedinac",
-				// 	2 => "Par",
-				// 	3 => "Teens",
-				// 	4 => "Grupa prijatelja",
-				// )
-			)
-		);
+		$filters = $Helper->extractFilters($result_static_questions);
 
 		$result["trackings"] = $Analytics->GetTrackings($params);
 		// echo json_encode($result["trackings"]);
