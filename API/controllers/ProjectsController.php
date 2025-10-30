@@ -110,6 +110,7 @@ class ProjectsController extends BaseController
 		$args->static = true;
 		$result["static_questions"] = $Questions->GetForProject($args);
 		foreach ($result["static_questions"] as &$sq) {
+			$result["questions"][] = $sq;
 			$sq["possible_answers"] = json_decode(json_encode($sq["possible_answers"]), true);
 
 			$args->parent_id = $sq["id_questions"];
@@ -117,6 +118,7 @@ class ProjectsController extends BaseController
 
 			$sq["id_questions"] = $sq["data"]->true_id;
 			foreach ($sq["subquestions"] as &$v) {
+				$result["questions"][] = $v;
 				$v["possible_answers"] = json_decode(json_encode($v["possible_answers"]), true);
 			}
 		}
