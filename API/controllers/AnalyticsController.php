@@ -144,8 +144,25 @@ class AnalyticsController extends BaseController
 		}
 		$result_images = $Projects->GetImages($args);
 
-		// $result["static_questions"] = array(
-		$result_static_questions = array(
+
+		$args->static = true;
+		$result["static_questions_new"] = $Questions->GetForProject($args);
+		foreach ($result["static_questions_new"] as &$sq) {
+			$sq["possible_answers"] = json_decode(json_encode($sq["possible_answers"]), true);
+
+			$args->parent_id = $sq["id_questions"];
+			$sq["subquestions"] = $Questions->GetForProject($args);
+
+			$sq["id_questions"] = $sq["data"]->true_id;
+			foreach ($sq["subquestions"] as &$v) {
+				$v["possible_answers"] = json_decode(json_encode($v["possible_answers"]), true);
+			}
+		}
+		$args->static = false;
+
+		$result_static_questions = $result["static_questions_new"];
+
+		$__result_static_questions = array(
 			array(
 				"id_projects" => (int)$args->id,
 				"id_questions" => 1,
@@ -671,6 +688,8 @@ class AnalyticsController extends BaseController
 
 		$result["result_static_questions"] = $result_static_questions;
 		$result["filters"] = $filters;
+
+
 
 		return $result;
 	}

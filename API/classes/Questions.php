@@ -37,6 +37,7 @@ class Questions
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.questions q
+				WHERE (NOT jsonb_exists(q.data, 'static') OR q.data->>'static' = 'false')
 				ORDER BY q.order ASC, q.label ASC
 		";
 
@@ -235,20 +236,33 @@ class Questions
 	 */
 	public function GetForProject(object $params): array
 	{
-
-
-		$where_zones = "AND q.id_zones IS NULL";
+		$where_zones = " AND q.id_zones IS NULL ";
 		if (isset($params->include_zones) && $params->include_zones === true) {
 			$where_zones = "";
+		}
+
+		$where = " AND NOT jsonb_exists(q.data, 'static') AND NOT jsonb_exists(q.data, 'parent_id') ";
+		if (isset($params->static) && $params->static === true) {
+			$where = " AND jsonb_exists(q.data, 'static') AND q.data->>'static' = 'true' ";
+
+			if (isset($params->parent_id)) {
+				$where .= " AND jsonb_exists(q.data, 'parent_id') AND q.data->>'parent_id' = :PARENT_ID ";
+			} else {
+				$where .= " AND NOT jsonb_exists(q.data, 'parent_id') ";
+			}
 		}
 
 		$sql = "SELECT 
 					* 
 				FROM {$_SESSION["SCHEMA"]}.questions q 
-				WHERE q.id_projects = :ID {$where_zones}
-				ORDER BY q.order ASC, q.label ASC";
+				WHERE q.id_projects = :ID {$where_zones} {$where}
+				ORDER BY q.order ASC, q.label ASC
+		";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID', $params->id, PDO::PARAM_INT);
+		if (isset($params->parent_id)) {
+			$stmt->bindParam(':PARENT_ID', $params->parent_id, PDO::PARAM_STR);
+		}
 
 		$stmt->execute();
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);

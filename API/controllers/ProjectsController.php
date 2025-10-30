@@ -107,7 +107,23 @@ class ProjectsController extends BaseController
 		$result["images"] = $Projects->GetImages($args);
 		$result["path"] = $_ENV["DOMAIN"] . $this->folder;
 
-		$result["static_questions"] = array(
+		$args->static = true;
+		$result["static_questions"] = $Questions->GetForProject($args);
+		foreach ($result["static_questions"] as &$sq) {
+			$sq["possible_answers"] = json_decode(json_encode($sq["possible_answers"]), true);
+
+			$args->parent_id = $sq["id_questions"];
+			$sq["subquestions"] = $Questions->GetForProject($args);
+
+			$sq["id_questions"] = $sq["data"]->true_id;
+			foreach ($sq["subquestions"] as &$v) {
+				$v["possible_answers"] = json_decode(json_encode($v["possible_answers"]), true);
+			}
+		}
+		$args->static = false;
+
+
+		$result["__static_questions"] = array(
 			array(
 				"id_projects" => (int)$args->id,
 				"id_questions" => 1,
