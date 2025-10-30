@@ -127,6 +127,6 @@ class Helper
 				}
 			}
 		}
-		return null;
+		return [];
 	}
 }
