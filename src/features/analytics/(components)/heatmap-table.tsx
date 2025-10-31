@@ -184,6 +184,21 @@ const HeatmapTable = ({
 					return <LongText className='max-w-36'>{val.toFixed(4)}</LongText>
 				},
 			}),
+			columnHelper.accessor('heat.number_of_people', {
+				header: ({ column }) => (
+					<DataTableColumnHeader
+						column={column}
+						title='Table.header.number_of_people'
+					/>
+				),
+				cell: ({ row }) => {
+					const val = row?.original?.heat?.number_of_people
+						? parseFloat(String(row.original.heat.number_of_people))
+						: 0
+
+					return <LongText className='max-w-36'>{val}</LongText>
+				},
+			}),
 		]
 	}, [columnHelper, diffValue, formatDuration, t])
 

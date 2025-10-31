@@ -1,6 +1,7 @@
 {
 	"Actions": {
 		"actions": "Akcije",
+		"apply": "Primjeni",
 		"applyFilters": "Primjeni filtere",
 		"backToHome": "Nazad na početnu",
 		"cancel": "Otkaži",
@@ -52,6 +53,8 @@
 		"count": "Broj",
 		"couple": "Par",
 		"customerProfile": "Profil Kupca",
+		"dateFrom": "Datum od",
+		"dateTo": "Datum do",
 		"demographics": "Demografski podaci",
 		"description": "Pregledajte statistiku i analitiku za svoje projekte.",
 		"deselectAll": "Odznači sve",
@@ -60,7 +63,7 @@
 		"downloadImage": "Preuzmi sliku",
 		"downloadName": "Projekt_{{projectName}}_zona_{{name}}",
 		"duration": "Trajanje",
-		"durationSeconds": "Trajanje (sec)",
+		"durationSeconds": "Trajanje (min)",
 		"end": "Kraj",
 		"exportError": "Izvoz nije uspio. Pokušajte ponovno.",
 		"exportToExcel": "Izvezi u Excel",
@@ -68,6 +71,9 @@
 		"females": "Žene",
 		"femalesCount": "Broj ženskih posjeta",
 		"flow": {
+			"excel": "Preuzmi excel",
+			"excelTitle": "Podaci o smjeru kretanja",
+			"filename": "Podaci_o_smjeru_kretanja_{{time}}.xlsx",
 			"title": "Smjer kretanja",
 			"totalPeopleLabel": "{{value}} ljudi"
 		},
@@ -85,8 +91,13 @@
 			"data": "Ukupno točaka:",
 			"excel": "Izvezi tablicu",
 			"export": "Preuzmi sliku",
+			"flowData": "Smjer kretanja",
 			"heatmap": "Heatmap",
+			"people": "Broju ljudi",
+			"showBy": "Prikaži po",
+			"showFlow": "Prikaži smjer kreatanja",
 			"table": "Tablični prikaz",
+			"time": "Broju posjeta",
 			"totalHeat": "Total Heat:"
 		},
 		"image": "Slika #{{value}}",
@@ -225,6 +236,8 @@
 			"day_many": "Prije {{count}} dana",
 			"day_one": "Jučer",
 			"day_plural": " Prije {{value}} dana",
+			"hours": "Sati:",
+			"min": "Minute:",
 			"minutes": " prije {{value}} minuta"
 		},
 		"today": "Danas",
@@ -477,6 +490,7 @@
 			"actions": "Akcije",
 			"active": "Aktivan",
 			"admin": "Pristup",
+			"count": "Broj",
 			"created_at": "Kreirano",
 			"duration": "Trajanje",
 			"email": "E-mail",
@@ -487,6 +501,10 @@
 			"id_tracking": "Praćenje",
 			"lastname": "Prezime",
 			"name": "Naziv",
+			"number_of_people": "Broj ljudi",
+			"pathLength": "Ukupni pređeno zona",
+			"pathString": "Smjer kretanja",
+			"percentage": "Postotak",
 			"questions": "Broj pitanja",
 			"sort": {
 				"asc": "Asc",
@@ -495,6 +513,8 @@
 			},
 			"started_at": "Započeto",
 			"status": "Status",
+			"totalPeople": "Ukupno ljudi",
+			"totalVisits": "Ukupno posjeta",
 			"zoneName": "Naziv zone",
 			"zones": "Zone"
 		},

@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Flame, Table2 } from 'lucide-react'
+import { Flame, Route, Table2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button'
+import FlowTable from '@/features/analytics/(components)/flowdata-table.tsx'
 import HeatmapTable from '@/features/analytics/(components)/heatmap-table.tsx'
 import {
 	HeatmapViewer,
@@ -37,7 +38,7 @@ const HeatmapWrapper = ({
 	const [selectedTrackingId, setSelectedTrackingId] = useState<number | null>(
 		null
 	)
-	const [view, setView] = useState<'table' | 'heatmap'>('table')
+	const [view, setView] = useState<'table' | 'heatmap' | 'flowData'>('table')
 
 	const filteredHeatmaps = useMemo(() => {
 		if (!heatmaps) return []
@@ -64,6 +65,18 @@ const HeatmapWrapper = ({
 					{t('Analytics.heatmap.table')}
 				</Button>
 				<Button
+					variant={view === 'flowData' ? 'default' : 'ghost'}
+					size='sm'
+					onClick={() => setView('flowData')}
+					className={cn(
+						'gap-2',
+						view === 'flowData' ? '' : 'hover:bg-transparent'
+					)}
+				>
+					<Route className='h-4 w-4' />
+					{t('Analytics.heatmap.flowData')}
+				</Button>
+				<Button
 					variant={view === 'heatmap' ? 'default' : 'ghost'}
 					size='sm'
 					onClick={() => setView('heatmap')}
@@ -84,6 +97,8 @@ const HeatmapWrapper = ({
 					trackings={trackings}
 					heatmaps={filteredHeatmaps}
 				/>
+			) : view === 'flowData' ? (
+				<FlowTable flows={flowData} />
 			) : (
 				<HeatmapViewer
 					exportName={exportName}

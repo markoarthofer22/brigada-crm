@@ -57,6 +57,7 @@ export function QuestionDialog({
 	zoneId,
 }: QuestionDialogProps) {
 	const { t } = useTranslation()
+
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes) ?? []
 	const form = useForm<QuestionUpsertType>({
 		resolver: zodResolver(QuestionUpsertSchema),
@@ -115,14 +116,14 @@ export function QuestionDialog({
 		form.reset()
 	}
 
-	useEffect(() => {
-		if (!open) {
-			form.reset()
-		}
-	}, [form, open])
+	// useEffect(() => {
+	// 	if (!open) {
+	// 		form.reset()
+	// 	}
+	// }, [form, open])
 
 	useEffect(() => {
-		if (defaultValues && zoneId && projectId) {
+		if (defaultValues && open && zoneId && projectId) {
 			form.reset({
 				id_questions: defaultValues.id_questions,
 				id_projects: projectId,
@@ -137,7 +138,7 @@ export function QuestionDialog({
 					0,
 			})
 		}
-	}, [defaultValues, zoneId, projectId])
+	}, [defaultValues, zoneId, projectId, form, questionTypes, open])
 
 	return (
 		<Dialog open={open} onOpenChange={handleDialogOpenChange}>

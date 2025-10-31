@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
-import { IconX } from '@tabler/icons-react'
 import { hr } from 'date-fns/locale/hr'
 import { Download } from 'lucide-react'
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs'
@@ -10,15 +11,8 @@ import { toast } from 'sonner'
 import { getAnalyticsForProject } from '@/api/services/analytics/options.ts'
 import { getAllProjects } from '@/api/services/projects/options.ts'
 import { ProjectType } from '@/api/services/projects/schema.ts'
-import { formatDate } from '@/lib/utils.ts'
 import { useLoader } from '@/context/loader-provider.tsx'
 import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar.tsx'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
 import {
 	Select,
 	SelectContent,
@@ -32,6 +26,7 @@ import {
 	TabsList,
 	TabsTrigger,
 } from '@/components/ui/tabs.tsx'
+import { DateTimePicker } from '@/components/date-time-picker'
 import { Header } from '@/components/header.tsx'
 import { Main } from '@/components/layout/main'
 import CommentsList from '@/features/analytics/(components)/comments-list.tsx'
@@ -57,7 +52,8 @@ enum AnalyticsTabs {
 
 export default function Analytics() {
 	const { t } = useTranslation()
-	const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false)
+	const [pendingStartDate, setPendingStartDate] = useState<Date | undefined>()
+	const [pendingEndDate, setPendingEndDate] = useState<Date | undefined>()
 	const { showLoader, hideLoader } = useLoader()
 
 	const [selectedFilters, setSelectedFilters] =
@@ -91,16 +87,6 @@ export default function Analytics() {
 		refetchOnWindowFocus: false,
 	})
 
-	const resetDate = async () => {
-		await setFilters({
-			project,
-			interval,
-			tabs,
-			dateFrom: '',
-			dateTo: '',
-		})
-	}
-
 	const setTab = async (value: string) => {
 		await setFilters({
 			project,
@@ -111,48 +97,12 @@ export default function Analytics() {
 		})
 	}
 
-	const setDateToPastMonth = async () => {
-		const d = new Date()
-		const from = new Date(d.getFullYear(), d.getMonth() - 1, 1)
-		const to = new Date(d.getFullYear(), d.getMonth(), 0, 23, 59, 59, 999)
-
-		await setFilters({
-			project,
-			tabs,
-			interval,
-			dateFrom: from.toISOString(),
-			dateTo: to.toISOString(),
-		})
-	}
-
-	const setDateToActiveMonth = async () => {
-		const now = new Date()
-		const from = new Date(now.getFullYear(), now.getMonth(), 1)
-		await setFilters({
-			project,
-			tabs,
-			interval,
-			dateFrom: from.toISOString(),
-			dateTo: now.toISOString(),
-		})
-	}
-
 	const setProjectCallback = async (value: string) => {
 		const projectId = Number.parseInt(value, 10)
 		await setFilters({
 			project: projectId,
 			tabs,
 			interval,
-			dateFrom,
-			dateTo,
-		})
-	}
-
-	const setInterval = async (value: string) => {
-		await setFilters({
-			project,
-			tabs,
-			interval: value,
 			dateFrom,
 			dateTo,
 		})
@@ -179,6 +129,21 @@ export default function Analytics() {
 		setSelectedFilters(filters)
 		await analyticsQuery.refetch()
 	}
+
+	const handleApplyDateRange = async () => {
+		await setFilters({
+			project,
+			tabs,
+			interval,
+			dateFrom: pendingStartDate?.toISOString() ?? '',
+			dateTo: pendingEndDate?.toISOString() ?? '',
+		})
+	}
+
+	useEffect(() => {
+		if (dateFrom) setPendingStartDate(new Date(dateFrom))
+		if (dateTo) setPendingEndDate(new Date(dateTo))
+	}, [dateFrom, dateTo])
 
 	const activeProject = useMemo(() => {
 		return projectsQuery.data?.find((p) => p.id_projects === project)
@@ -243,120 +208,17 @@ export default function Analytics() {
 							))}
 						</SelectContent>
 					</Select>
-					<div className='relative w-full md:max-w-xs'>
-						<Select
-							value={interval ? String(interval) : undefined}
-							onValueChange={setInterval}
-						>
-							<SelectTrigger className='w-full'>
-								<SelectValue placeholder={t('Input.placeholder.interval')} />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value={String(15)}>
-									15 {t('Analytics.min')}
-								</SelectItem>
-								<SelectItem value={String(30)}>
-									30 {t('Analytics.min')}
-								</SelectItem>
-								<SelectItem value={String(60)}>
-									60 {t('Analytics.min')}
-								</SelectItem>
-							</SelectContent>
-						</Select>
-						{interval && (
-							<div
-								className='absolute right-2 top-1/2 z-50 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md bg-destructive text-muted-foreground transition-colors duration-300 hover:bg-destructive/80'
-								onClick={async (e) => {
-									e.preventDefault()
-									e.stopPropagation()
-									await setInterval('')
-								}}
-							>
-								<IconX className='size-4 text-white' />
-							</div>
-						)}
-					</div>
-					<div className='flex flex-col gap-y-2 max-sm:w-full'>
-						<Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-							<PopoverTrigger asChild>
-								<Button
-									variant='outline'
-									id='date'
-									className='relative justify-between px-3 font-normal hover:bg-transparent hover:text-muted-foreground md:w-[220px]'
-								>
-									{dateFrom
-										? formatDate(dateFrom, {
-												day: '2-digit',
-												month: '2-digit',
-												year: 'numeric',
-											})
-										: t('Input.placeholder.selectDate')}{' '}
-									{dateTo
-										? `- ${formatDate(dateTo, {
-												day: '2-digit',
-												month: '2-digit',
-												year: 'numeric',
-											})}`
-										: ''}
-									{(dateTo || dateFrom) && (
-										<span
-											onClick={resetDate}
-											className='absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-md bg-destructive text-white'
-										>
-											<IconX />
-										</span>
-									)}
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent
-								className='w-auto overflow-hidden p-0'
-								align='start'
-							>
-								<div className='flex w-full flex-col items-center gap-2 px-2 py-1 sm:flex-row'>
-									<Button
-										className='flex-1 border-primary text-primary hover:text-accent-foreground dark:border-chart-5 dark:text-chart-5 max-sm:w-full'
-										variant='outline'
-										onClick={setDateToPastMonth}
-									>
-										{t('Input.placeholder.lastMonth')}
-									</Button>
-									<Button
-										className='flex-1 border-primary text-primary hover:text-accent-foreground dark:border-chart-5 dark:text-chart-5 max-sm:w-full'
-										variant='outline'
-										onClick={setDateToActiveMonth}
-									>
-										{t('Input.placeholder.activeMonth')}
-									</Button>
-								</div>
-								<Calendar
-									formatters={{
-										formatMonthDropdown: (month: Date) =>
-											format(month, 'LLLL', { locale: hr }),
-									}}
-									locale={hr}
-									mode='range'
-									min={1}
-									navLayout='after'
-									numberOfMonths={2}
-									className='rounded-lg border shadow-sm'
-									showOutsideDays
-									selected={{
-										from: dateFrom ? new Date(dateFrom) : undefined,
-										to: dateTo ? new Date(dateTo) : undefined,
-									}}
-									captionLayout='dropdown'
-									onSelect={async (date) => {
-										await setFilters({
-											project,
-											tabs,
-											interval,
-											dateFrom: date?.from ? date.from.toISOString() : '',
-											dateTo: date?.to ? date.to.toISOString() : '',
-										})
-									}}
-								/>
-							</PopoverContent>
-						</Popover>
+					<div className='flex flex-col gap-y-2 max-sm:w-full md:flex-row md:gap-x-2'>
+						<DateTimePicker
+							placeholder={t('Analytics.dateFrom')}
+							date={pendingStartDate}
+							onDateChange={setPendingStartDate}
+						/>
+						<DateTimePicker
+							placeholder={t('Analytics.dateTo')}
+							date={pendingEndDate}
+							onDateChange={setPendingEndDate}
+						/>
 					</div>
 					<GlobalFilters
 						className='max-md:w-full'
@@ -364,6 +226,9 @@ export default function Analytics() {
 						value={selectedFilters}
 						onFilterChange={handleFilterChange}
 					/>
+					<div className='flex gap-2'>
+						<Button onClick={handleApplyDateRange}>{t('Actions.apply')}</Button>
+					</div>
 				</div>
 
 				<div className='mb-6 flex flex-col gap-4'>
@@ -421,14 +286,14 @@ export default function Analytics() {
 							{project && (
 								<TotalData
 									data={analyticsQuery.data?.total_data}
-									projectName={analyticsQuery.data.name}
+									projectName={analyticsQuery.data?.name}
 								/>
 							)}
 						</TabsContent>
 						<TabsContent value={AnalyticsTabs.Zones}>
 							{project && (
 								<Zones
-									projectName={analyticsQuery.data.name}
+									projectName={analyticsQuery.data?.name}
 									data={analyticsQuery.data?.total_data?.zones}
 								/>
 							)}

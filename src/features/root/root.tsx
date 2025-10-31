@@ -123,7 +123,7 @@ const Root = () => {
 			/>
 			{import.meta.env.MODE === 'development' && (
 				<>
-					<ReactQueryDevtools buttonPosition='bottom-left' />
+					<ReactQueryDevtools buttonPosition='bottom-right' />
 					<TanStackRouterDevtools position='bottom-right' />
 				</>
 			)}

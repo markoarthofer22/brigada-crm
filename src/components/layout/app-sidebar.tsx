@@ -29,7 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<img
 					src={BrigadaLogo}
 					alt={import.meta.env.VITE_BRAND}
-					className='h-14 w-32 object-contain'
+					className='ml-2 h-14 w-32 object-contain'
 				/>
 				{/*<NavUser />*/}
 			</SidebarFooter>

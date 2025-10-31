@@ -1,40 +1,18 @@
-import { format } from 'date-fns'
-import { hr } from 'date-fns/locale'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
-import { HeatmapData } from '@/features/analytics/(components)/heatmap.tsx'
+import { FlowData } from '@/features/analytics/(components)/heatmap.tsx'
 
 interface ExportOptions {
-	data: HeatmapData[]
+	data: FlowData[]
 	t: (key: string, options?: Record<string, unknown>) => string
 	filename?: string
 	title?: string
 }
 
-const calculateDuration = (
-	start: Date | string,
-	end: Date | string
-): string => {
-	const startDate = typeof start === 'string' ? new Date(start) : start
-	const endDate = typeof end === 'string' ? new Date(end) : end
-
-	const totalSeconds = Math.ceil(
-		(endDate.getTime() - startDate.getTime()) / 1000
-	)
-
-	if (totalSeconds < 0) return '0 h 0 min 0 sec'
-
-	const hours = Math.floor(totalSeconds / 3600)
-	const minutes = Math.floor((totalSeconds % 3600) / 60)
-	const seconds = totalSeconds % 60
-
-	return `${hours} h ${minutes} min ${seconds} sec`
-}
-
-export const exportHeatmapToExcel = async ({
+export const exportFlowDataToExcel = async ({
 	data,
-	filename = 'heatmap-export.xlsx',
-	title = 'Heatmap Data',
+	filename = 'flow-data-export.xlsx',
+	title = 'Flow Data',
 	t,
 }: ExportOptions) => {
 	if (!data || data.length === 0) {
@@ -47,13 +25,12 @@ export const exportHeatmapToExcel = async ({
 
 	// Define headers
 	const headers = [
-		t('Table.header.id_tracking'),
-		t('Table.header.zoneName') || 'Zone Name',
-		t('Table.header.started_at'),
-		t('Table.header.ended_at'),
-		t('Table.header.duration'),
-		t('Table.header.heat_value'),
-		t('Table.header.number_of_people'),
+		t('Table.header.pathString'),
+		t('Table.header.pathLength'),
+		t('Table.header.count'),
+		t('Table.header.percentage'),
+		t('Table.header.totalPeople'),
+		t('Table.header.totalVisits'),
 	]
 
 	// Add header row
@@ -81,13 +58,12 @@ export const exportHeatmapToExcel = async ({
 	// Add data rows
 	data.forEach((record, index) => {
 		const row = worksheet.addRow([
-			record.id_tracking,
-			record.name,
-			format(record.started_at, 'dd.MM.yyyy HH:mm:ss', { locale: hr }),
-			format(record.ended_at, 'dd.MM.yyyy HH:mm:ss', { locale: hr }),
-			calculateDuration(record.started_at, record.ended_at),
-			Number.parseFloat(String(record.heat.value)).toFixed(4),
-			Number.parseInt(String(record.heat.number_of_people), 10),
+			record.pathstring,
+			record.path.length,
+			record.count,
+			`${Number.parseFloat(String(record.percentage)).toFixed(2)}%`,
+			record.total_people,
+			record.total_visits,
 		])
 
 		// Style data rows with alternating colors
@@ -109,8 +85,23 @@ export const exportHeatmapToExcel = async ({
 		})
 	})
 
-	worksheet.columns.forEach((column) => {
-		column.width = 25
+	worksheet.columns.forEach((column, index) => {
+		let maxLength = 0
+
+		// Check header length
+		const header = headers[index]
+		if (header) {
+			maxLength = header.length
+		}
+
+		// Check all cell values in this column
+		column.eachCell?.({ includeEmpty: false }, (cell) => {
+			const cellValue = cell.value?.toString() || ''
+			maxLength = Math.max(maxLength, cellValue.length)
+		})
+
+		// Set width with some padding (add 2 for padding, minimum 10)
+		column.width = Math.max(10, maxLength + 2)
 	})
 
 	const buffer = await workbook.xlsx.writeBuffer()

@@ -121,7 +121,7 @@ export function Header({
 				</div>
 
 				<div className='flex items-center gap-4'>
-					<DropdownMenu>
+					<DropdownMenu modal={false}>
 						<DropdownMenuTrigger asChild>
 							<Button variant='ghost' size='icon'>
 								<Globe className='h-5 w-5' />
@@ -135,7 +135,11 @@ export function Header({
 								<DropdownMenuItem
 									key={lang}
 									className={activeLang === lang ? 'bg-muted' : ''}
-									onClick={() => handleLocaleChange(lang)}
+									onClick={(e) => {
+										e.preventDefault()
+										e.stopPropagation()
+										handleLocaleChange(lang)
+									}}
 								>
 									{t('Languages.' + lang)}
 								</DropdownMenuItem>
@@ -179,7 +183,7 @@ export function Header({
 					{/*</DropdownMenu>*/}
 
 					{user && (
-						<DropdownMenu>
+						<DropdownMenu modal={false}>
 							<DropdownMenuTrigger asChild>
 								<Avatar className='size-10 cursor-pointer'>
 									<AvatarFallback className='text-sm font-semibold uppercase'>

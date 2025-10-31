@@ -12,6 +12,8 @@ import h337 from 'heatmap.js'
 import { useTranslation } from 'react-i18next'
 import { hexToRgba } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 import {
 	Select,
 	SelectContent,
@@ -42,6 +44,7 @@ export interface HeatmapData {
 		x: number
 		y: number
 		value: number
+		number_of_people: number
 	}
 }
 
@@ -125,6 +128,8 @@ export function HeatmapViewer({
 	const heatmapInstanceRef = useRef<any>(null) // Store heatmap instance in ref to reuse
 	const initialZoomRef = useRef<number | null>(null)
 	const [zoomLevel, setZoomLevel] = useState<number>(INITIAL_ZOOM_LEVEL)
+	const [heatmapMode, setHeatmapMode] = useState<'time' | 'people'>('time')
+	const [showFlowData, setShowFlowData] = useState<boolean>(true)
 	const [hoveredZone, setHoveredZone] = useState<{
 		name: string
 		x: number
@@ -458,22 +463,6 @@ export function HeatmapViewer({
 	)
 
 	useEffect(() => {
-		if (!flowData.length || !flowCanvasRef.current) return
-
-		const canvas = flowCanvasRef.current
-		const ctx = canvas.getContext('2d')
-		if (!ctx) return
-
-		canvas.width = width * zoomLevel
-		canvas.height = height * zoomLevel
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height)
-		ctx.scale(zoomLevel, zoomLevel)
-
-		drawFlowArrows(ctx, 1)
-	}, [flowData, width, height, zoomLevel, drawFlowArrows])
-
-	useEffect(() => {
 		if (!heatmapContainerRef.current || heatmaps.length === 0) return
 
 		const container = heatmapContainerRef.current
@@ -506,11 +495,21 @@ export function HeatmapViewer({
 				},
 			})
 
-			const max = maxValue || Math.max(...heatmaps.map((h) => h.heat.value), 1)
+			const max =
+				maxValue ||
+				Math.max(
+					...heatmaps.map((h) =>
+						heatmapMode === 'people' ? h.heat.number_of_people : h.heat.value
+					),
+					1
+				)
 			const data = heatmaps.map((item) => ({
 				x: Math.round(item.heat.x * zoomLevel),
 				y: Math.round(item.heat.y * zoomLevel),
-				value: item.heat.value,
+				value:
+					heatmapMode === 'people'
+						? item.heat.number_of_people
+						: item.heat.value,
 			}))
 
 			if (data.length > 0) {
@@ -529,7 +528,24 @@ export function HeatmapViewer({
 				heatmapInstanceRef.current = null
 			}
 		}
-	}, [heatmaps, maxValue, radius, blur, width, height, zoomLevel])
+	}, [heatmaps, maxValue, radius, blur, width, height, zoomLevel, heatmapMode])
+
+	useEffect(() => {
+		if (!showFlowData || !flowData.length || !flowCanvasRef.current) return
+
+		const canvas = flowCanvasRef.current
+		const ctx = canvas.getContext('2d')
+		if (!ctx) return
+
+		canvas.width = width * zoomLevel
+		canvas.height = height * zoomLevel
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		ctx.save()
+		ctx.scale(zoomLevel, zoomLevel)
+		drawFlowArrows(ctx, 1)
+		ctx.restore()
+	}, [showFlowData, flowData, width, height, zoomLevel, drawFlowArrows])
 
 	const handleZoom = (direction: 'in' | 'out') => {
 		setZoomLevel((prev) => {
@@ -706,7 +722,7 @@ export function HeatmapViewer({
 					})
 				}
 
-				if (flowData.length > 0) {
+				if (showFlowData && flowData.length > 0) {
 					drawFlowArrows(ctx, 1)
 				}
 
@@ -729,6 +745,7 @@ export function HeatmapViewer({
 		exportName,
 		flowData,
 		drawFlowArrows,
+		showFlowData,
 	])
 
 	return (
@@ -755,6 +772,35 @@ export function HeatmapViewer({
 							))}
 						</SelectContent>
 					</Select>
+					<Select
+						value={heatmapMode}
+						onValueChange={(value: 'time' | 'people') => setHeatmapMode(value)}
+					>
+						<SelectTrigger className='h-8 w-[150px] text-xs font-medium'>
+							<SelectValue placeholder={t('Analytics.heatmap.showBy')} />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='time'>
+								{t('Analytics.heatmap.time')}
+							</SelectItem>
+							<SelectItem value='people'>
+								{t('Analytics.heatmap.people')}
+							</SelectItem>
+						</SelectContent>
+					</Select>
+					<div className='flex items-center gap-2'>
+						<Checkbox
+							id='show-flow'
+							checked={showFlowData}
+							onCheckedChange={(checked) => setShowFlowData(checked === true)}
+						/>
+						<Label
+							htmlFor='show-flow'
+							className='cursor-pointer text-xs font-medium'
+						>
+							{t('Analytics.heatmap.showFlow')}
+						</Label>
+					</div>
 					<Button
 						variant='outline'
 						size='sm'
@@ -788,7 +834,7 @@ export function HeatmapViewer({
 							className='pointer-events-none absolute inset-0'
 						/>
 					)}
-					{flowData.length > 0 && (
+					{showFlowData && flowData.length > 0 && (
 						<canvas
 							ref={flowCanvasRef}
 							className='pointer-events-none absolute inset-0 z-30'
@@ -863,7 +909,7 @@ export function HeatmapViewer({
 				</div>
 			</div>
 
-			{flowData.length > 0 && (
+			{showFlowData && flowData.length > 0 && (
 				<div className='mt-8'>
 					<h3 className='mb-4 text-xl font-semibold'>
 						{t('Analytics.flow.title')}

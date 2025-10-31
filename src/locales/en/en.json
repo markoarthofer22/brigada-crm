@@ -1,6 +1,7 @@
 {
 	"Actions": {
 		"actions": "Actions",
+		"apply": "Apply",
 		"applyFilters": "Apply filters",
 		"backToHome": "Back to Home",
 		"cancel": "Cancel",
@@ -52,6 +53,8 @@
 		"count": "Count",
 		"couple": "Couple",
 		"customerProfile": "Customer Profile",
+		"dateFrom": "Date from",
+		"dateTo": "Date to",
 		"demographics": "Demographics",
 		"description": "View statistics and analytics for your projects.",
 		"deselectAll": "Deselect all",
@@ -60,7 +63,7 @@
 		"downloadImage": "Download image",
 		"downloadName": "Project_{{projectName}}_zone_{{name}}",
 		"duration": "Duration",
-		"durationSeconds": "Duration (sec)",
+		"durationSeconds": "Duration (min)",
 		"end": "End",
 		"exportError": "Export failed. Please try again.",
 		"exportToExcel": "Export to excel",
@@ -68,6 +71,9 @@
 		"females": "Females",
 		"femalesCount": "Females visit count",
 		"flow": {
+			"excel": "Export ",
+			"excelTitle": "Flow data",
+			"filename": "Flow_data_{{time}}.xlsx",
 			"title": "Flow data",
 			"totalPeopleLabel": "{{value}} people"
 		},
@@ -85,8 +91,13 @@
 			"data": "Data points:",
 			"excel": "Generate excel",
 			"export": "Download image",
+			"flowData": "Flow data",
 			"heatmap": "Heatmap",
+			"people": "People",
+			"showBy": "Show by",
+			"showFlow": "Flow data",
 			"table": "Table",
+			"time": "Visits",
 			"totalHeat": "Total Heat:"
 		},
 		"image": "Image #{{value}}",
@@ -225,6 +236,8 @@
 			"day_many": "",
 			"day_one": "Yesterday",
 			"day_plural": "{{value}} days ago",
+			"hours": "Hours:",
+			"min": "Minutes:",
 			"minutes": "{{value}} minutes ago"
 		},
 		"today": "Today",
@@ -477,6 +490,7 @@
 			"actions": "Actions",
 			"active": "Active",
 			"admin": "Role",
+			"count": "Count",
 			"created_at": "Created at",
 			"duration": "Duration",
 			"email": "Email",
@@ -487,6 +501,10 @@
 			"id_tracking": "Tracking",
 			"lastname": "Lastname",
 			"name": "Name",
+			"number_of_people": "Nbr. of people",
+			"pathLength": "Total visit to zones",
+			"pathString": "Path",
+			"percentage": "Percentage",
 			"questions": "Quesitons",
 			"sort": {
 				"asc": "Asc",
@@ -495,6 +513,8 @@
 			},
 			"started_at": "Started at",
 			"status": "Status",
+			"totalPeople": "Total people",
+			"totalVisits": "Total visits",
 			"zoneName": "Zone name",
 			"zones": "Zones"
 		},

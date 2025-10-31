@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { intervalToDuration } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { handleScreenshot } from '@/lib/utils.ts'
@@ -46,6 +47,54 @@ const pieChartColors = [
 	'#00E396',
 	'#775DD0',
 ]
+
+const CustomTooltipContent = ({ active, payload, label }: any) => {
+	if (!active || !payload) return null
+
+	const formatSeconds = (seconds: number) => {
+		const duration = intervalToDuration({ start: 0, end: seconds * 1000 })
+
+		const hours = duration.hours || 0
+		const minutes = duration.minutes || 0
+		const secs = duration.seconds || 0
+
+		if (hours > 0) {
+			return `${hours}h ${minutes}m ${secs}s`
+		}
+
+		if (minutes > 0) {
+			return `${minutes}m ${secs}s`
+		}
+
+		return `0m ${secs}s`
+	}
+
+	return (
+		<div className='rounded-lg border bg-background p-2 shadow-sm'>
+			<div className='grid gap-2'>
+				<div className='font-medium'>{label}</div>
+				{payload.map((entry: any, index: number) => {
+					const value = entry.value
+					const displayValue =
+						entry.dataKey === 'duration' ? formatSeconds(value) : value
+
+					return (
+						<div key={index} className='flex items-center gap-2'>
+							<div
+								className='h-2.5 w-2.5 rounded-full'
+								style={{ backgroundColor: entry.color }}
+							/>
+							<span className='text-sm text-muted-foreground'>
+								{entry.name}:
+							</span>
+							<span className='font-medium'>{displayValue}</span>
+						</div>
+					)
+				})}
+			</div>
+		</div>
+	)
+}
 
 export default function Zones({ data, projectName }: ZonesProps) {
 	const { t } = useTranslation()
@@ -259,7 +308,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 						>
 							<XAxis dataKey='name' />
 							<YAxis />
-							<ChartTooltip content={<ChartTooltipContent />} />
+							<ChartTooltip content={<CustomTooltipContent />} />
 							<Bar dataKey='people' fill='#8884D8' />
 							<Bar dataKey='duration' fill='#82CA9D' />
 						</BarChart>

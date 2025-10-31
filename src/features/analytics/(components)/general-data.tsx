@@ -100,7 +100,7 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	})
 
 	const tableData = useMemo(() => {
-		if (!timespan || !timespan.data || timespan.data.length === 0) {
+		if (!timespan || !timespan.data || timespan.data?.length === 0) {
 			return data
 		}
 
@@ -148,9 +148,9 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 		if (data?.length === 0) return []
 
 		const allAgeGroups = new Set<string>()
-		data.forEach((tracking: any) => {
+		data?.forEach((tracking: any) => {
 			if (tracking.data?.dobna_skupina?.data) {
-				tracking.data.dobna_skupina.data.forEach((age: any) => {
+				tracking.data.dobna_skupina.data?.forEach((age: any) => {
 					if (age.label) {
 						allAgeGroups.add(age.label)
 					}
@@ -165,9 +165,9 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 		if (data?.length === 0) return []
 
 		const allProfiles = new Set<string>()
-		data.forEach((tracking: any) => {
+		data?.forEach((tracking: any) => {
 			if (tracking.data?.profile?.data) {
-				tracking.data.profile.data.forEach((profile: any) => {
+				tracking.data.profile.data?.forEach((profile: any) => {
 					if (profile.label) {
 						allProfiles.add(profile.label)
 					}
@@ -179,10 +179,10 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	}
 
 	const getMainQuestions = () => {
-		if (data.length === 0) return []
+		if (data?.length === 0) return []
 
 		const allQuestions = new Set<string>()
-		data.forEach((tracking: any) => {
+		data?.forEach((tracking: any) => {
 			if (tracking.data?.questions_answers) {
 				tracking.data.questions_answers.forEach((q: any) => {
 					if (q.label) {
@@ -196,10 +196,10 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	}
 
 	const getZones = () => {
-		if (data.length === 0) return []
+		if (data?.length === 0) return []
 
 		const allZones = new Set<string>()
-		data.forEach((tracking: any) => {
+		data?.forEach((tracking: any) => {
 			if (tracking.zones) {
 				tracking.zones.forEach((zone: any) => {
 					if (zone.name) {
@@ -213,10 +213,10 @@ export default function GeneralData({ data, timespan }: GeneralDataProps) {
 	}
 
 	const getZoneQuestions = (zoneName: string) => {
-		if (data.length === 0) return []
+		if (data?.length === 0) return []
 
 		const allZoneQuestions = new Set<string>()
-		data.forEach((tracking: any) => {
+		data?.forEach((tracking: any) => {
 			if (tracking.zones) {
 				const zone = tracking.zones.find((z: any) => z.name === zoneName)
 				if (zone?.questions_answers_raw) {
