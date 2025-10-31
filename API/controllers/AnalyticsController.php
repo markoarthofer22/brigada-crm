@@ -62,6 +62,18 @@ class AnalyticsController extends BaseController
 		$params = $Helper->ArrayToObject($vars);
 		$args = $Helper->ArrayToObject($args);
 
+		$localTZ = new \DateTimeZone('Europe/Zagreb');
+		if ($params->from) {
+			$fromUTC = new \DateTime($params->from, new \DateTimeZone('UTC'));
+			$fromUTC->setTimezone($localTZ);
+			$params->from = $fromUTC->format('Y-m-d H:i:s');
+		}
+		if ($params->to) {
+			$fromUTC = new \DateTime($params->to, new \DateTimeZone('UTC'));
+			$fromUTC->setTimezone($localTZ);
+			$params->to = $fromUTC->format('Y-m-d H:i:s');
+		}
+
 		if (!isset($params->id_projects) || $params->id_projects == "") {
 			return Message::WriteMessage(
 				400,
@@ -71,8 +83,6 @@ class AnalyticsController extends BaseController
 		}
 
 		$result = $this->InternalGet($params);
-
-
 
 		if (isset($params->interval) && in_array((int)$params->interval, [15, 30, 60], true)) {
 			$result["timespan"] = $Analytics->GetTimespan($params);
