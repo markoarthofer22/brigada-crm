@@ -550,6 +550,7 @@
 			"confirmDelete": "Confirm delete",
 			"confirmDeleteDescription": "Are you sure you want to delete this? This action cannot be undone.",
 			"deleteSuccess": "Question deleted successfully!",
+			"dynamic": "Dynamic question",
 			"editQuestion": "Edit question",
 			"editQuestionDescription": "Update the question details below.",
 			"editSuccess": "Question successfully updated.",
@@ -557,7 +558,8 @@
 			"freeInput": "This is a simple text field",
 			"freeTextArea": "This is a multi-line text input",
 			"noOption": "No options added yet. Click \"{{value}}\" to add possible answers.",
-			"orderUpdated": "Question order updated!"
+			"orderUpdated": "Question order updated!",
+			"static": "Default questions"
 		},
 		"title": "Template"
 	},

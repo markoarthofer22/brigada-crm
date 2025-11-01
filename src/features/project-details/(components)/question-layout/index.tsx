@@ -53,8 +53,14 @@ const QuestionLayout = ({
 	const { showLoader, hideLoader } = useLoader()
 	const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false)
 
+	const staticQuestions = questions?.filter((question) => question.data?.static)
+
+	const nonStaticQuestions = questions?.filter(
+		(question) => !question.data?.static
+	)
+
 	const [draggableQuestions, setQuestions] = useState(
-		questions.map((x) => ({ ...x, id: x.order }))
+		nonStaticQuestions.map((x) => ({ ...x, id: x.order }))
 	)
 
 	const sensors = useSensors(
@@ -166,7 +172,10 @@ const QuestionLayout = ({
 	}
 
 	useEffect(() => {
-		setQuestions(questions.map((x) => ({ ...x, id: x.order })))
+		const nonStaticQuestions = questions?.filter(
+			(question) => !question.data?.static
+		)
+		setQuestions(nonStaticQuestions.map((x) => ({ ...x, id: x.order })))
 	}, [questions])
 
 	return (
@@ -186,6 +195,24 @@ const QuestionLayout = ({
 					{t('TemplateDetails.questions.addQuestion')}
 				</Button>
 			</div>
+			<div className='flex flex-col space-y-4'>
+				<h4 className='px-1 font-semibold'>
+					{t('TemplateDetails.questions.static')}
+				</h4>
+				<div className='mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+					{staticQuestions?.map((question) => (
+						<QuestionItem
+							zoneId={zoneId}
+							question={question}
+							key={question.id_questions}
+							onEdit={handleUpsert}
+						/>
+					))}
+				</div>
+			</div>
+
+			<hr className='my-6 border-dashed opacity-50' />
+
 			{questions.length === 0 && (
 				<Card>
 					<CardContent className='p-6 text-center text-muted-foreground'>
@@ -196,37 +223,42 @@ const QuestionLayout = ({
 				</Card>
 			)}
 			{questions.length > 0 && (
-				<DndContext
-					sensors={sensors}
-					collisionDetection={closestCorners}
-					onDragEnd={handleDragEnd}
-				>
-					<div
-						className={cn(
-							'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3',
-							{
-								'lg:grid-cols-2': zoneId,
-							}
-						)}
+				<div className='flex flex-col space-y-4'>
+					<h4 className='px-1 font-semibold'>
+						{t('TemplateDetails.questions.dynamic')}
+					</h4>
+					<DndContext
+						sensors={sensors}
+						collisionDetection={closestCorners}
+						onDragEnd={handleDragEnd}
 					>
-						<SortableContext items={draggableQuestions}>
-							{draggableQuestions?.map((question, index) => (
-								<QuestionItem
-									zoneId={zoneId}
-									question={question}
-									orderLabel={index + 1}
-									key={question.id_questions}
-									isLoading={
-										upsertQuestionMutation.isPending ||
-										deleteQuestionMutation.isPending
-									}
-									onEdit={handleUpsert}
-									onDelete={handleDelete}
-								/>
-							))}
-						</SortableContext>
-					</div>
-				</DndContext>
+						<div
+							className={cn(
+								'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3',
+								{
+									'lg:grid-cols-2': zoneId,
+								}
+							)}
+						>
+							<SortableContext items={draggableQuestions}>
+								{draggableQuestions?.map((question, index) => (
+									<QuestionItem
+										zoneId={zoneId}
+										question={question}
+										orderLabel={index + 1}
+										key={question.id_questions}
+										isLoading={
+											upsertQuestionMutation.isPending ||
+											deleteQuestionMutation.isPending
+										}
+										onEdit={handleUpsert}
+										onDelete={handleDelete}
+									/>
+								))}
+							</SortableContext>
+						</div>
+					</DndContext>
+				</div>
 			)}
 
 			<QuestionDialog

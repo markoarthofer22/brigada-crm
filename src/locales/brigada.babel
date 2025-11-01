@@ -6961,6 +6961,21 @@
 										</translations>
 									</concept_node>
 									<concept_node>
+										<name>dynamic</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
 										<name>editQuestion</name>
 										<description/>
 										<comment/>
@@ -7067,6 +7082,21 @@
 									</concept_node>
 									<concept_node>
 										<name>orderUpdated</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>hr-HR</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+									<concept_node>
+										<name>static</name>
 										<description/>
 										<comment/>
 										<translations>

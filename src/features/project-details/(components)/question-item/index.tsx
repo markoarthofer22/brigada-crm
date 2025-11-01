@@ -121,6 +121,7 @@ export function QuestionItem({
 
 	const handleEditSubmit = (data: QuestionUpsertType) => {
 		if (onEdit) {
+			console.log('tu sam', data)
 			onEdit({ ...data, id_zones: zoneId ?? undefined })
 		}
 
@@ -297,6 +298,7 @@ export function QuestionItem({
 					id_questions: question.id_questions,
 					id_projects: question.id_projects,
 					label: question.label,
+					data: question.data || {},
 					required: question.required,
 					id_questions_types: question.id_questions_types,
 					possible_answers:
@@ -304,6 +306,7 @@ export function QuestionItem({
 				}}
 				projectId={question.id_projects}
 				isEditing={true}
+				isStatic={question?.data?.static}
 			/>
 		</>
 	)

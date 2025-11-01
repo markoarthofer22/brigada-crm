@@ -8,6 +8,7 @@ import {
 	QuestionUpsertType,
 } from '@/api/services/questions/schema.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
+import { cn } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -44,6 +45,7 @@ interface QuestionDialogProps {
 	isEditing?: boolean
 	isLoading?: boolean
 	zoneId?: number
+	isStatic?: boolean
 }
 
 export function QuestionDialog({
@@ -55,6 +57,7 @@ export function QuestionDialog({
 	isEditing = false,
 	isLoading,
 	zoneId,
+	isStatic = false,
 }: QuestionDialogProps) {
 	const { t } = useTranslation()
 
@@ -67,6 +70,7 @@ export function QuestionDialog({
 			id_zones: zoneId ?? null,
 			possible_answers: defaultValues?.possible_answers ?? [],
 			required: defaultValues?.required ?? false,
+			data: defaultValues?.data ?? {},
 			label: defaultValues?.label ?? '',
 			order: defaultValues?.order ?? undefined,
 			id_questions_types:
@@ -97,6 +101,7 @@ export function QuestionDialog({
 		onSubmit({
 			...data,
 			data: {
+				...data.data,
 				required:
 					data.id_questions_types === 1 || data.id_questions_types === 2
 						? false
@@ -116,12 +121,6 @@ export function QuestionDialog({
 		form.reset()
 	}
 
-	// useEffect(() => {
-	// 	if (!open) {
-	// 		form.reset()
-	// 	}
-	// }, [form, open])
-
 	useEffect(() => {
 		if (defaultValues && open && zoneId && projectId) {
 			form.reset({
@@ -131,6 +130,7 @@ export function QuestionDialog({
 				possible_answers: defaultValues.possible_answers ?? [],
 				required: defaultValues.required ?? false,
 				label: defaultValues.label ?? '',
+				data: defaultValues?.data ?? {},
 				order: defaultValues.order ?? undefined,
 				id_questions_types:
 					defaultValues.id_questions_types ??
@@ -169,7 +169,7 @@ export function QuestionDialog({
 									<FormLabel>{t('Input.label.questionTitle')}</FormLabel>
 									<FormControl>
 										<Input
-											disabled={isLoading}
+											disabled={isLoading || isStatic}
 											placeholder={t('Input.placeholder.questionTitle')}
 											{...field}
 										/>
@@ -186,7 +186,7 @@ export function QuestionDialog({
 								<FormItem>
 									<FormLabel>{t('Input.label.questionType')}</FormLabel>
 									<Select
-										disabled={isLoading}
+										disabled={isLoading || isStatic}
 										onValueChange={(value) =>
 											field.onChange(Number.parseInt(value))
 										}
@@ -220,10 +220,18 @@ export function QuestionDialog({
 								control={form.control}
 								name='required'
 								render={({ field }) => (
-									<FormItem className='flex h-9 flex-row items-center justify-between rounded-lg border px-3 shadow-sm'>
+									<FormItem
+										className={cn(
+											'flex h-9 flex-row items-center justify-between rounded-lg border px-3 shadow-sm',
+											{
+												'opacity-50': isStatic,
+											}
+										)}
+									>
 										<FormLabel>{t('Input.label.required')}</FormLabel>
 										<FormControl>
 											<Switch
+												disabled={isLoading || isStatic}
 												className='!mt-0'
 												checked={field.value}
 												onCheckedChange={field.onChange}

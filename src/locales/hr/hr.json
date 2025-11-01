@@ -550,6 +550,7 @@
 			"confirmDelete": "Potvrdite brisanje",
 			"confirmDeleteDescription": "Jeste li sigurni da želite ovo izbrisati? Ova se radnja ne može poništiti.",
 			"deleteSuccess": "Pitanje izbrisano!",
+			"dynamic": "Dodatna pitanja",
 			"editQuestion": "Uredi pitanje",
 			"editQuestionDescription": "Ažurirajte detalje pitanja u nastavku.",
 			"editSuccess": "Pitanje je uspješno ažurirano.",
@@ -557,7 +558,8 @@
 			"freeInput": "Ovo je jednostavno tekstualno polje",
 			"freeTextArea": "Ovo je višeredni unos teksta",
 			"noOption": "Još nema dodanih opcija. Kliknite \"{{value}}\" za dodavanje mogućih odgovora.",
-			"orderUpdated": "Redoslijed pitanja ažuriran!"
+			"orderUpdated": "Redoslijed pitanja ažuriran!",
+			"static": "Zadana pitanja"
 		},
 		"title": "Predložak"
 	},

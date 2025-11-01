@@ -194,7 +194,7 @@ export const GlobalFilters = ({
 													onClick={() => toggleOption(filter.label, option)}
 													disabled={isLastSelected}
 													className={cn(
-														'h-8 rounded-full px-3 text-xs font-medium transition-all',
+														'h-8 rounded-full !border !border-border px-3 text-xs font-medium transition-all',
 														isSelected
 															? 'bg-primary text-primary-foreground hover:bg-primary/90'
 															: 'border-border/60 bg-background hover:bg-accent/50',
