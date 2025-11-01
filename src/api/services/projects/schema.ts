@@ -60,6 +60,7 @@ export const QuestionItemResponseSchema = z.object({
 	id_questions: z.number(),
 	id_projects: z.number(),
 	id_zones: z.number().optional().nullable(),
+	created_at: z.string(),
 	id_questions_types: z.number(),
 	order: z.number(),
 	label: z.string(),
@@ -68,6 +69,9 @@ export const QuestionItemResponseSchema = z.object({
 	data: z
 		.object({
 			required: z.boolean().optional(),
+			filter: z.any(),
+			static: z.any(),
+			true_id: z.any(),
 		})
 		.optional()
 		.nullable(),

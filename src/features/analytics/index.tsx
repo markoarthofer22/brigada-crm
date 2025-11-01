@@ -56,6 +56,9 @@ export default function Analytics() {
 	const [pendingEndDate, setPendingEndDate] = useState<Date | undefined>()
 	const { showLoader, hideLoader } = useLoader()
 
+	const [tempSelectedFilters, setTempSelectedFilters] =
+		useState<FilterSelection | null>(null)
+
 	const [selectedFilters, setSelectedFilters] =
 		useState<FilterSelection | null>(null)
 
@@ -78,8 +81,8 @@ export default function Analytics() {
 	const analyticsQuery = useQuery({
 		...getAnalyticsForProject({
 			id_projects: project!,
-			xfrom: dateFrom ?? undefined,
-			xto: dateTo ?? undefined,
+			from: dateFrom ?? undefined,
+			to: dateTo ?? undefined,
 			interval: interval ? Number(interval) : undefined,
 			extraQuery: selectedFilters,
 		}),
@@ -126,23 +129,26 @@ export default function Analytics() {
 	}
 
 	const handleFilterChange = async (filters: FilterSelection | null) => {
-		setSelectedFilters(filters)
-		await analyticsQuery.refetch()
+		setTempSelectedFilters(filters)
+		// await analyticsQuery.refetch()
 	}
 
 	const handleApplyDateRange = async () => {
+		setSelectedFilters(tempSelectedFilters)
 		await setFilters({
 			project,
 			tabs,
 			interval,
-			dateFrom: pendingStartDate?.toISOString() ?? '',
-			dateTo: pendingEndDate?.toISOString() ?? '',
+			dateFrom: pendingStartDate ? pendingStartDate?.toISOString() : null,
+			dateTo: pendingEndDate ? pendingEndDate?.toISOString() : null,
 		})
 	}
 
 	useEffect(() => {
 		if (dateFrom) setPendingStartDate(new Date(dateFrom))
-		if (dateTo) setPendingEndDate(new Date(dateTo))
+		if (dateTo) {
+			setPendingEndDate(new Date(dateTo))
+		}
 	}, [dateFrom, dateTo])
 
 	const activeProject = useMemo(() => {
@@ -223,7 +229,7 @@ export default function Analytics() {
 					<GlobalFilters
 						className='max-md:w-full'
 						filters={analyticsQuery?.data?.filters}
-						value={selectedFilters}
+						value={tempSelectedFilters}
 						onFilterChange={handleFilterChange}
 					/>
 					<div className='flex gap-2'>
@@ -277,8 +283,10 @@ export default function Analytics() {
 						<TabsContent value={AnalyticsTabs.General}>
 							{project && (
 								<GeneralData
+									projectName={analyticsQuery.data?.name}
 									timespan={analyticsQuery.data?.timespan}
 									data={analyticsQuery.data?.trackings}
+									invalidData={analyticsQuery.data?.trackings_not_valid}
 								/>
 							)}
 						</TabsContent>

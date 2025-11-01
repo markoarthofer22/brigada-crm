@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { IconAlertTriangle } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
@@ -14,7 +15,10 @@ import {
 	getAnswerForSpecificZoneInTracking,
 } from '@/api/services/trackings/options.ts'
 import { TrackingsAnswerUpsert } from '@/api/services/trackings/schema.ts'
-import { addTrackingAnswer } from '@/api/services/trackings/trackings.ts'
+import {
+	addTrackingAnswer,
+	invalidateTracking,
+} from '@/api/services/trackings/trackings.ts'
 import { useAuthStore } from '@/stores/authStore.ts'
 import { cn } from '@/lib/utils.ts'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
@@ -44,6 +48,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx'
 import { Textarea } from '@/components/ui/textarea.tsx'
+import { ConfirmDialog } from '@/components/confirm-dialog.tsx'
 import { GlobalLoader } from '@/components/global-loader.tsx'
 
 interface TrackingExamProps {
@@ -130,7 +135,10 @@ export function TrackingExam({
 }: TrackingExamProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
-	const [isFullscreen, setIsFullscreen] = useState(false)
+	const queryClient = useQueryClient()
+	const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
+	const [isInvalidateDialogOpen, setIsInvalidateDialogOpen] =
+		useState<boolean>(false)
 
 	const questionTypes = useAuthStore((state) => state.auth.questionTypes)
 
@@ -162,6 +170,17 @@ export function TrackingExam({
 				)
 			}
 			activeQuestionAnswers.refetch()
+		},
+		onError: (err: unknown) => handleError(err),
+	})
+
+	const invalidateTrackingMutation = useMutation({
+		mutationFn: (id: number) => invalidateTracking(id),
+		onSuccess: async () => {
+			toast.success(t('ProjectDetailsRegularUser.trackingInvalidated'))
+			await queryClient.invalidateQueries({
+				queryKey: ['trackings', projectId],
+			})
 		},
 		onError: (err: unknown) => handleError(err),
 	})
@@ -889,71 +908,106 @@ export function TrackingExam({
 	}
 
 	return (
-		<div
-			className={`${
-				isFullscreen
-					? 'fixed inset-0 z-50 overflow-y-auto bg-background p-6'
-					: 'relative pb-4'
-			}`}
-		>
-			<div className='mx-auto max-w-4xl space-y-6 max-md:pr-3'>
-				<div className='flex items-center justify-between'>
-					{examName && (
-						<>
-							<h2 className='w-fit text-2xl font-bold'>
-								{t('ProjectDetails.title')} {examName}
-							</h2>
-							<Button
-								variant='outline'
-								size='sm'
-								onClick={() => setIsFullscreen((v) => !v)}
-							>
-								{isFullscreen
-									? t('ProjectDetailsRegularUser.Exam.minimize')
-									: t('ProjectDetailsRegularUser.Exam.fullscreen')}
-							</Button>
-						</>
-					)}
+		<>
+			<div
+				className={`${
+					isFullscreen
+						? 'fixed inset-0 z-50 overflow-y-auto bg-background p-6'
+						: 'relative pb-4'
+				}`}
+			>
+				<div className='mx-auto max-w-4xl space-y-6 max-md:pr-3'>
+					<div className='flex items-center justify-between'>
+						{examName && (
+							<>
+								<h2 className='w-fit text-2xl font-bold'>
+									{t('ProjectDetails.title')} {examName}
+								</h2>
+								<div className='flex items-center gap-2'>
+									<Button
+										variant='outline'
+										size='sm'
+										onClick={() => setIsFullscreen((v) => !v)}
+									>
+										{isFullscreen
+											? t('ProjectDetailsRegularUser.Exam.minimize')
+											: t('ProjectDetailsRegularUser.Exam.fullscreen')}
+									</Button>
+									<Button
+										variant='destructive'
+										size='sm'
+										onClick={() => setIsInvalidateDialogOpen(true)}
+									>
+										{t('ProjectDetailsRegularUser.invalidateTracking')}
+									</Button>
+								</div>
+							</>
+						)}
+					</div>
+
+					<Form {...form}>
+						<form
+							className={cn('grid grid-cols-1 gap-4 sm:grid-cols-3', {
+								'sm:grid-cols-1': questions.length === 1 || isFullscreen,
+							})}
+						>
+							{staticQuestions.map((q) => (
+								<Card key={q.id_questions} className='sm:col-span-3'>
+									<CardHeader className='px-4 pb-1.5 pt-4'>
+										<CardTitle>
+											{q.label}{' '}
+											{q.data?.required && (
+												<sup className='text-destructive'>*</sup>
+											)}
+										</CardTitle>
+									</CardHeader>
+									<CardContent className='px-4 py-3'>
+										{renderStaticField(q)}
+									</CardContent>
+								</Card>
+							))}
+
+							{questions.map((q) => (
+								<Card key={q.id_questions}>
+									<CardHeader className='px-4 pb-1.5 pt-4'>
+										<CardTitle>
+											{q.label}{' '}
+											{q.required && <sup className='text-destructive'>*</sup>}
+										</CardTitle>
+									</CardHeader>
+									<CardContent className='px-4 py-3'>
+										{renderField(q)}
+									</CardContent>
+								</Card>
+							))}
+						</form>
+					</Form>
 				</div>
-
-				<Form {...form}>
-					<form
-						className={cn('grid grid-cols-1 gap-4 sm:grid-cols-3', {
-							'sm:grid-cols-1': questions.length === 1 || isFullscreen,
-						})}
-					>
-						{staticQuestions.map((q) => (
-							<Card key={q.id_questions} className='sm:col-span-3'>
-								<CardHeader className='px-4 pb-1.5 pt-4'>
-									<CardTitle>
-										{q.label}{' '}
-										{q.data?.required && (
-											<sup className='text-destructive'>*</sup>
-										)}
-									</CardTitle>
-								</CardHeader>
-								<CardContent className='px-4 py-3'>
-									{renderStaticField(q)}
-								</CardContent>
-							</Card>
-						))}
-
-						{questions.map((q) => (
-							<Card key={q.id_questions}>
-								<CardHeader className='px-4 pb-1.5 pt-4'>
-									<CardTitle>
-										{q.label}{' '}
-										{q.required && <sup className='text-destructive'>*</sup>}
-									</CardTitle>
-								</CardHeader>
-								<CardContent className='px-4 py-3'>
-									{renderField(q)}
-								</CardContent>
-							</Card>
-						))}
-					</form>
-				</Form>
 			</div>
-		</div>
+
+			<ConfirmDialog
+				open={isInvalidateDialogOpen}
+				onOpenChange={setIsInvalidateDialogOpen}
+				handleConfirm={() => {
+					invalidateTrackingMutation.mutate(trackingId)
+				}}
+				isLoading={invalidateTrackingMutation.isPending}
+				title={
+					<span className='flex items-center gap-2'>
+						<IconAlertTriangle size={18} />
+						{t('ProjectDetailsRegularUser.invalidateTracking')}
+					</span>
+				}
+				desc={
+					<div className='flex flex-col space-y-2'>
+						<p className='font-semibold text-red-600'>
+							{t('ProjectDetailsRegularUser.invalidateTrackingDescription')}
+						</p>
+					</div>
+				}
+				confirmText={t('Actions.delete')}
+				destructive
+			/>
+		</>
 	)
 }

@@ -3,12 +3,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import { handleScreenshot } from '@/lib/utils.ts'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion'
+import { Button } from '@/components/ui/button.tsx'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
 	type ChartConfig,
@@ -30,13 +33,20 @@ import {
 
 interface AnalyticsChartProps {
 	data: any[]
+	projectName: string
 }
 
-export default function AnalyticsChart({ data }: AnalyticsChartProps) {
+export default function AnalyticsChart({
+	data,
+	projectName,
+}: AnalyticsChartProps) {
 	const { t } = useTranslation()
+	const { handleError } = useHandleGenericError()
 	const [selectedMetric, setSelectedMetric] = useState('ageGroups')
 	const [selectedTrackings, setSelectedTrackings] = useState<number[]>([])
 	const [selectedDataPoints, setSelectedDataPoints] = useState<string[]>([])
+	const [isZoneImageDownloading, setIsZoneImageDownloading] =
+		useState<boolean>(false)
 
 	const chartOptions = [
 		{ value: 'ageGroups', label: t('Analytics.years') },
@@ -173,6 +183,36 @@ export default function AnalyticsChart({ data }: AnalyticsChartProps) {
 		'#e377c2',
 	]
 
+	const handleScreenshotDownload = async (
+		id: string,
+		name: string,
+		buttonId: string
+	) => {
+		setIsZoneImageDownloading(true)
+
+		const findSelectedMetricLabel = chartOptions.find(
+			(option) => option.value === name
+		)?.label
+
+		try {
+			const translatedName = t('Analytics.downloadName', {
+				projectName,
+				name: findSelectedMetricLabel,
+			})
+
+			await handleScreenshot(
+				document.getElementById(id),
+				translatedName,
+				buttonId
+			)
+		} catch (error: unknown) {
+			console.error(error)
+			handleError(error)
+		} finally {
+			setIsZoneImageDownloading(false)
+		}
+	}
+
 	// Create chart config dynamically
 	const chartConfig = useMemo(() => {
 		const config: ChartConfig = {}
@@ -183,7 +223,7 @@ export default function AnalyticsChart({ data }: AnalyticsChartProps) {
 			}
 		})
 		return config
-	}, [getChartKeys()])
+	}, [contrastColors, getChartKeys])
 
 	const handleTrackingToggle = (trackingId: number) => {
 		setSelectedTrackings((prev) =>
@@ -240,7 +280,7 @@ export default function AnalyticsChart({ data }: AnalyticsChartProps) {
 					<Card>
 						<CardHeader>
 							<div className='flex flex-col gap-4'>
-								<div className='flex items-center gap-4'>
+								<div className='flex items-center justify-between gap-4'>
 									<Select
 										value={selectedMetric}
 										onValueChange={setSelectedMetric}
@@ -256,94 +296,110 @@ export default function AnalyticsChart({ data }: AnalyticsChartProps) {
 											))}
 										</SelectContent>
 									</Select>
-								</div>
-								<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-									<div className='flex flex-col gap-2'>
-										<div className='flex gap-2'>
-											<button
-												onClick={handleSelectAll}
-												className='text-xs text-blue-600 hover:text-blue-800'
-											>
-												{t('Analytics.selectAll')}
-											</button>
-											<button
-												onClick={handleDeselectAll}
-												className='text-xs text-red-600 hover:text-red-800'
-											>
-												{t('Analytics.deselectAll')}
-											</button>
-										</div>
-										<ScrollArea className='h-32 w-full rounded border p-2'>
-											<div className='space-y-2'>
-												{data.map((record) => (
-													<div
-														key={record.id_tracking}
-														className='flex items-center space-x-2'
-													>
-														<Checkbox
-															id={`tracking-${record.id_tracking}`}
-															checked={selectedTrackings.includes(
-																record.id_tracking
-															)}
-															onCheckedChange={() =>
-																handleTrackingToggle(record.id_tracking)
-															}
-														/>
-														<label
-															htmlFor={`tracking-${record.id_tracking}`}
-															className='text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
-														>
-															{t('Analytics.tracking')} #{record.id_tracking}
-														</label>
-													</div>
-												))}
-											</div>
-										</ScrollArea>
-									</div>
-									<div className='flex flex-col gap-2'>
-										<div className='flex gap-2'>
-											<button
-												onClick={handleSelectAllDataPoints}
-												className='text-xs text-blue-600 hover:text-blue-800'
-											>
-												{t('Analytics.selectAll')}
-											</button>
-											<button
-												onClick={handleDeselectAllDataPoints}
-												className='text-xs text-red-600 hover:text-red-800'
-											>
-												{t('Analytics.deselectAll')}
-											</button>
-										</div>
-										<ScrollArea className='h-32 w-full rounded border p-2'>
-											<div className='space-y-2'>
-												{availableDataPoints.map((point: any) => (
-													<div
-														key={point.key}
-														className='flex items-center space-x-2'
-													>
-														<Checkbox
-															id={`datapoint-${point.key}`}
-															checked={selectedDataPoints.includes(point.key)}
-															onCheckedChange={() =>
-																handleDataPointToggle(point.key)
-															}
-														/>
-														<label
-															htmlFor={`datapoint-${point.key}`}
-															className='text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
-														>
-															{point.name}
-														</label>
-													</div>
-												))}
-											</div>
-										</ScrollArea>
+
+									<div id='general-data-buttons'>
+										<Button
+											disabled={isZoneImageDownloading}
+											onClick={async () => {
+												await handleScreenshotDownload(
+													'general-data-chart',
+													selectedMetric,
+													'general-data-buttons'
+												)
+											}}
+											variant='default'
+										>
+											{t('Analytics.downloadImage')}
+										</Button>
 									</div>
 								</div>
 							</div>
 						</CardHeader>
-						<CardContent>
+						<CardContent id='general-data-chart'>
+							<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+								<div className='flex flex-col gap-2'>
+									<div className='flex gap-2'>
+										<button
+											onClick={handleSelectAll}
+											className='text-xs text-blue-600 hover:text-blue-800'
+										>
+											{t('Analytics.selectAll')}
+										</button>
+										<button
+											onClick={handleDeselectAll}
+											className='text-xs text-red-600 hover:text-red-800'
+										>
+											{t('Analytics.deselectAll')}
+										</button>
+									</div>
+									<ScrollArea className='h-32 w-full rounded border p-2'>
+										<div className='space-y-2'>
+											{data.map((record) => (
+												<div
+													key={record.id_tracking}
+													className='flex items-center space-x-2'
+												>
+													<Checkbox
+														id={`tracking-${record.id_tracking}`}
+														checked={selectedTrackings.includes(
+															record.id_tracking
+														)}
+														onCheckedChange={() =>
+															handleTrackingToggle(record.id_tracking)
+														}
+													/>
+													<label
+														htmlFor={`tracking-${record.id_tracking}`}
+														className='text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+													>
+														{t('Analytics.tracking')} #{record.id_tracking}
+													</label>
+												</div>
+											))}
+										</div>
+									</ScrollArea>
+								</div>
+								<div className='flex flex-col gap-2'>
+									<div className='flex gap-2'>
+										<button
+											onClick={handleSelectAllDataPoints}
+											className='text-xs text-blue-600 hover:text-blue-800'
+										>
+											{t('Analytics.selectAll')}
+										</button>
+										<button
+											onClick={handleDeselectAllDataPoints}
+											className='text-xs text-red-600 hover:text-red-800'
+										>
+											{t('Analytics.deselectAll')}
+										</button>
+									</div>
+									<ScrollArea className='h-32 w-full rounded border p-2'>
+										<div className='space-y-2'>
+											{availableDataPoints.map((point: any) => (
+												<div
+													key={point.key}
+													className='flex items-center space-x-2'
+												>
+													<Checkbox
+														id={`datapoint-${point.key}`}
+														checked={selectedDataPoints.includes(point.key)}
+														onCheckedChange={() =>
+															handleDataPointToggle(point.key)
+														}
+													/>
+													<label
+														htmlFor={`datapoint-${point.key}`}
+														className='text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+													>
+														{point.name}
+													</label>
+												</div>
+											))}
+										</div>
+									</ScrollArea>
+								</div>
+							</div>
 							<ChartContainer config={chartConfig} className='h-96 w-full'>
 								<AreaChart
 									stackOffset='expand'

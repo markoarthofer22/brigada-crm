@@ -1,5 +1,3 @@
-'use client'
-
 import { useMemo, useState } from 'react'
 import { intervalToDuration } from 'date-fns'
 import { useTranslation } from 'react-i18next'
@@ -283,10 +281,28 @@ export default function Zones({ data, projectName }: ZonesProps) {
 				</Card>
 			)}
 
-			<Card>
-				<CardHeader>
-					<CardTitle>{t('Analytics.zoneActivityOverview')}</CardTitle>
-					<CardDescription>{t('Analytics.zoneActivityDesc')}</CardDescription>
+			<Card id='zone-activity-overview'>
+				<CardHeader className='flex flex-row items-center justify-between'>
+					<div>
+						<CardTitle>{t('Analytics.zoneActivityOverview')}</CardTitle>
+						<CardDescription>{t('Analytics.zoneActivityDesc')}</CardDescription>
+					</div>
+					<div id='zone-activity-overview-buttons'>
+						<Button
+							disabled={isZoneImageDownloading}
+							onClick={async () => {
+								await handleScreenshotDownload(
+									'zone-activity-overview',
+									t('Analytics.zoneActivityOverview'),
+									'zone-activity-overview-buttons'
+								)
+							}}
+							variant='default'
+							id='zone-activity-overview-buttons'
+						>
+							{t('Analytics.downloadImage')}
+						</Button>
+					</div>
 				</CardHeader>
 				<CardContent>
 					<ChartContainer

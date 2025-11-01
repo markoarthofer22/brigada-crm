@@ -1833,6 +1833,21 @@
 								</translations>
 							</concept_node>
 							<concept_node>
+								<name>records</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>responseDistribution</name>
 								<description/>
 								<comment/>
@@ -1939,6 +1954,21 @@
 							</concept_node>
 							<concept_node>
 								<name>showGraphic</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>showInvalidData</name>
 								<description/>
 								<comment/>
 								<translations>
@@ -5358,6 +5388,36 @@
 								</children>
 							</folder_node>
 							<concept_node>
+								<name>invalidateTracking</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>invalidateTrackingDescription</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
 								<name>startTrackingSuccess</name>
 								<description/>
 								<comment/>
@@ -5374,6 +5434,21 @@
 							</concept_node>
 							<concept_node>
 								<name>startZoneSuccess</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>hr-HR</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<concept_node>
+								<name>trackingInvalidated</name>
 								<description/>
 								<comment/>
 								<translations>

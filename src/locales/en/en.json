@@ -129,6 +129,7 @@
 		},
 		"questionsAnswersAnalysis": "Questions & Answers Analysis",
 		"questionsAnswersDesc": "Detailed breakdown of survey responses and demographic analysis",
+		"records": "{{value}} records",
 		"responseDistribution": "Response distribution and analysis",
 		"responses": "Responses",
 		"responseSummary": "Response Summary",
@@ -137,6 +138,7 @@
 		"selectAll": "Select all",
 		"selected": "selected",
 		"showGraphic": "Visual View",
+		"showInvalidData": "Show invalid data",
 		"showTable": "Table View",
 		"singlePeople": "people",
 		"singlePerson": "Single Person",
@@ -419,8 +421,11 @@
 			"questionUpdated": "Question updated",
 			"save": "Save answers"
 		},
+		"invalidateTracking": "Invalidate tracking",
+		"invalidateTrackingDescription": "Are you sure that you want to invalidate this tracking? This action can't be undone!",
 		"startTrackingSuccess": "Tracking started!",
 		"startZoneSuccess": "Zone tracking started",
+		"trackingInvalidated": "Tracking invalidated successfully",
 		"trackingQuestionsNotValid": "Before closing this tracking, you need to answer on all required questions!",
 		"zoneQuestions": "Zone {{value}} questions ",
 		"zoneQuestionsNotValid": "Before closing this zone, you have to answer on all mandatory question!"

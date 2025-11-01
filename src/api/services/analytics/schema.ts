@@ -2,8 +2,8 @@ import { z } from 'zod'
 
 export const AnalyticsPayloadSchema = z.object({
 	id_projects: z.number(),
-	xfrom: z.string().datetime().optional(),
-	xto: z.string().datetime().optional(),
+	from: z.string().datetime().optional(),
+	to: z.string().datetime().optional(),
 	interval: z.number().optional(),
 	extraQuery: z.record(z.string(), z.array(z.string())).nullable(),
 })

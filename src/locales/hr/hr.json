@@ -129,6 +129,7 @@
 		},
 		"questionsAnswersAnalysis": "Analiza pitanja i odgovora",
 		"questionsAnswersDesc": "Detaljan prikaz odgovora ankete i demografske analize",
+		"records": "{{value}} zapisa",
 		"responseDistribution": "Distribucija odgovora i analiza",
 		"responses": "Odgovori",
 		"responseSummary": "Sažetak odgovora",
@@ -137,6 +138,7 @@
 		"selectAll": "Odaberi sve",
 		"selected": "odabrano",
 		"showGraphic": "Vizualni prikaz",
+		"showInvalidData": "Prikaži neispravna praćenja",
 		"showTable": "Tablični prikaz",
 		"singlePeople": "ljudi",
 		"singlePerson": "Jedna Osoba",
@@ -419,8 +421,11 @@
 			"questionUpdated": "Odgovor promijenjen",
 			"save": "Spremi odgovore"
 		},
+		"invalidateTracking": "Poništi praćenje",
+		"invalidateTrackingDescription": "Da li ste sigurni da zelite pobrisati ovaj tracking? Ova akcija se ne može poništiti!",
 		"startTrackingSuccess": "Praćenje je započeto!",
 		"startZoneSuccess": "Započeto praćenje za zonu",
+		"trackingInvalidated": "Praćenje je uspješno poništeno",
 		"trackingQuestionsNotValid": "Prije zatvaranja ovog praćenja morate odgovoriti na sva potrebna pitanja!",
 		"zoneQuestions": "Pitanja za zonu {{value}}",
 		"zoneQuestionsNotValid": "Prije zatvaranja ove zone morate odgovoriti na sva obavezna pitanja!"

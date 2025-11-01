@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 // import { Filter, X } from 'lucide-react'
 import { Filter } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -98,6 +98,9 @@ export const GlobalFilters = ({
 		})
 	}
 
+	useEffect(() => {
+		handleApply()
+	}, [tempFilters])
 	const handleApply = () => {
 		const allSelected = filters?.every(
 			(filter) =>
@@ -105,7 +108,7 @@ export const GlobalFilters = ({
 		)
 
 		onFilterChange?.(allSelected ? null : tempFilters)
-		setIsOpen(false)
+		// setIsOpen(false)
 	}
 
 	const handleReset = () => {
@@ -209,23 +212,23 @@ export const GlobalFilters = ({
 						</div>
 					</div>
 
-					<div className='flex items-center gap-2 border-t border-border/60 p-4'>
-						<Button
-							variant='outline'
-							size='sm'
-							onClick={() => setIsOpen(false)}
-							className='flex-1'
-						>
-							{t('Actions.cancel')}
-						</Button>
-						<Button
-							size='sm'
-							onClick={handleApply}
-							className='flex-1 bg-primary text-primary-foreground hover:bg-primary/90'
-						>
-							{t('Actions.applyFilters')}
-						</Button>
-					</div>
+					{/*<div className='flex items-center gap-2 border-t border-border/60 p-4'>*/}
+					{/*	<Button*/}
+					{/*		variant='outline'*/}
+					{/*		size='sm'*/}
+					{/*		onClick={() => setIsOpen(false)}*/}
+					{/*		className='flex-1'*/}
+					{/*	>*/}
+					{/*		{t('Actions.cancel')}*/}
+					{/*	</Button>*/}
+					{/*	<Button*/}
+					{/*		size='sm'*/}
+					{/*		onClick={handleApply}*/}
+					{/*		className='flex-1 bg-primary text-primary-foreground hover:bg-primary/90'*/}
+					{/*	>*/}
+					{/*		{t('Actions.applyFilters')}*/}
+					{/*	</Button>*/}
+					{/*</div>*/}
 				</div>
 			</PopoverContent>
 		</Popover>

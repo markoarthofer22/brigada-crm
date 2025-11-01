@@ -15,8 +15,6 @@ export async function getAnalytics(payload: AnalyticsPayload) {
 
 	const queryString = new URLSearchParams(queryFromExtra).toString()
 
-	console.log('queryString', queryString === '')
-
 	const response = await api.post(
 		`/analytics${queryString === '' ? '' : `?${queryString}`}`,
 		rest

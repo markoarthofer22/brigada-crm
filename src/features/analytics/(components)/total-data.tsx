@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Clock, MapPin, TrendingUp, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, XAxis, YAxis } from 'recharts'
+import { handleScreenshot } from '@/lib/utils.ts'
+import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -34,6 +36,11 @@ interface TotalDataProps {
 
 export default function TotalData({ data, projectName }: TotalDataProps) {
 	const { t } = useTranslation()
+	const { handleError } = useHandleGenericError()
+
+	const [isZoneImageDownloading, setIsZoneImageDownloading] =
+		useState<boolean>(false)
+
 	const [viewStates, setViewStates] = useState<{
 		[key: string]: 'table' | 'chart'
 	}>({})
@@ -43,6 +50,31 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 			...prev,
 			[key]: prev[key] === 'chart' ? 'table' : 'chart',
 		}))
+	}
+
+	const handleScreenshotDownload = async (
+		id: string,
+		name: string,
+		buttonId: string
+	) => {
+		setIsZoneImageDownloading(true)
+		try {
+			const translatedName = t('Analytics.downloadName', {
+				projectName,
+				name,
+			})
+
+			await handleScreenshot(
+				document.getElementById(id),
+				translatedName,
+				buttonId
+			)
+		} catch (error: unknown) {
+			console.error(error)
+			handleError(error)
+		} finally {
+			setIsZoneImageDownloading(false)
+		}
 	}
 
 	const formatSeconds = (sec: number) => {
@@ -200,17 +232,39 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 				</Card>
 			)}
 
-			<Card>
+			<Card id='age-groups-chart'>
 				<CardHeader className='flex flex-row items-center justify-between'>
 					<div>
 						<CardTitle>{t('Analytics.ageGroups')}</CardTitle>
 						<CardDescription>{t('Analytics.ageGroupsDesc')}</CardDescription>
 					</div>
-					<Button variant='outline' onClick={() => toggleView('age-groups')}>
-						{viewStates['age-groups'] === 'chart'
-							? t('Analytics.showTable')
-							: t('Analytics.showGraphic')}
-					</Button>
+
+					<div
+						id='age-groups-download-button'
+						className='flex items-center gap-2'
+					>
+						{viewStates['age-groups'] === 'chart' && (
+							<Button
+								disabled={isZoneImageDownloading}
+								onClick={async () => {
+									await handleScreenshotDownload(
+										'age-groups-chart',
+										t('Analytics.ageGroups'),
+										'age-groups-download-button'
+									)
+								}}
+								variant='default'
+							>
+								{t('Analytics.downloadImage')}
+							</Button>
+						)}
+
+						<Button variant='outline' onClick={() => toggleView('age-groups')}>
+							{viewStates['age-groups'] === 'chart'
+								? t('Analytics.showTable')
+								: t('Analytics.showGraphic')}
+						</Button>
+					</div>
 				</CardHeader>
 				<CardContent>
 					{viewStates['age-groups'] === 'chart' ? (
@@ -253,7 +307,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 				</CardContent>
 			</Card>
 
-			<Card>
+			<Card id='profile-groups-chart'>
 				<CardHeader className='flex flex-row items-center justify-between'>
 					<div>
 						<CardTitle>{t('Analytics.profileGroups')}</CardTitle>
@@ -261,14 +315,35 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 							{t('Analytics.profileGroupsDesc')}
 						</CardDescription>
 					</div>
-					<Button
-						variant='outline'
-						onClick={() => toggleView('profile-groups')}
+
+					<div
+						id='profile-groups-download-button'
+						className='flex items-center gap-2'
 					>
-						{viewStates['profile-groups'] === 'chart'
-							? t('Analytics.showTable')
-							: t('Analytics.showGraphic')}
-					</Button>
+						{viewStates['profile-groups'] === 'chart' && (
+							<Button
+								disabled={isZoneImageDownloading}
+								onClick={async () => {
+									await handleScreenshotDownload(
+										'profile-groups-chart',
+										t('Analytics.profileGroups'),
+										'profile-groups-download-button'
+									)
+								}}
+								variant='default'
+							>
+								{t('Analytics.downloadImage')}
+							</Button>
+						)}
+						<Button
+							variant='outline'
+							onClick={() => toggleView('profile-groups')}
+						>
+							{viewStates['profile-groups'] === 'chart'
+								? t('Analytics.showTable')
+								: t('Analytics.showGraphic')}
+						</Button>
+					</div>
 				</CardHeader>
 				<CardContent>
 					{viewStates['profile-groups'] === 'chart' ? (

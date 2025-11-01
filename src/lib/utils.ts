@@ -235,3 +235,6 @@ export const handleScreenshot = async (
 		if (tablist) tablist.style.display = 'block'
 	}
 }
+
+export const sanitizeUrl = <T extends Record<string, any>>(obj: T) =>
+	Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== undefined))

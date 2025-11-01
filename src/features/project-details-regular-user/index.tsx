@@ -234,7 +234,9 @@ export default function ProjectDetailsForRegularUser() {
 						<TrackingExam
 							trackingId={activeTrackingId}
 							projectId={projectQuery.data.id_projects}
-							questions={projectQuery.data.questions}
+							questions={projectQuery.data.questions.filter(
+								(q) => !q.data?.static
+							)}
 							staticQuestions={projectQuery.data.static_questions}
 							examName={`${t('ProjectDetails.title')} ${projectQuery.data.name}`}
 							onValidityChange={(isValid) => {

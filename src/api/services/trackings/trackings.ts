@@ -74,6 +74,12 @@ export async function closeTrackingEvent(trackingId: number) {
 	return response.data
 }
 
+export async function invalidateTracking(trackingId: number) {
+	const response = await axios.post('/tracking/invalidate/' + trackingId)
+
+	return response.data
+}
+
 export async function getZonesForActiveTracking(trackingId: number) {
 	const response = await axios.get(`/tracking/zones?id_tracking=${trackingId}`)
 
