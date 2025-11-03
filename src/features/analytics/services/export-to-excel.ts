@@ -105,6 +105,7 @@ export const exportToExcel = async ({
 				return [
 					{
 						id_tracking: '-',
+						email: '',
 						fromDate,
 						toDate,
 						lasted: { formatted: '-' },
@@ -252,8 +253,8 @@ export const exportToExcel = async ({
 		currentCol += 1
 	}
 
-	// Basic info (2 columns: ID, Comments)
-	const basicInfoCols = 2
+	// Basic info (3 columns: ID, Email, Comments)
+	const basicInfoCols = 3
 	if (basicInfoCols > 1) {
 		worksheet.mergeCells(1, currentCol, 1, currentCol + basicInfoCols - 1)
 	}
@@ -433,6 +434,7 @@ export const exportToExcel = async ({
 	headers.push(
 		'ID',
 		t('Analytics.comments'),
+		t('Analytics.email'),
 		t('Analytics.duration'),
 		t('Analytics.start'),
 		t('Analytics.end'),
@@ -500,6 +502,7 @@ export const exportToExcel = async ({
 		// Basic info
 		worksheet.getCell(rowIndex, colIndex++).value = record.id_tracking
 		worksheet.getCell(rowIndex, colIndex++).value = record.comments?.length || 0
+		worksheet.getCell(rowIndex, colIndex++).value = record.email
 
 		// Time info
 		worksheet.getCell(rowIndex, colIndex++).value = record.lasted.formatted

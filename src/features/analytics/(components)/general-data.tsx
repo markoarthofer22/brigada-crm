@@ -77,6 +77,7 @@ interface GeneralDataProps {
 		started_at: string
 		ended_at: string
 		id_tracking: number
+		email: string
 	}[]
 	data: any[]
 	projectName: string
@@ -350,7 +351,7 @@ export default function GeneralData({
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
 
-	const basicInfoCols = 2
+	const basicInfoCols = 3
 	const timeCols = 3
 	const demographicsCols = 5
 	const ageGroupsCols = ageGroups.length
@@ -428,6 +429,9 @@ export default function GeneralData({
 										ID
 									</TableHead>
 									<TableHead className='whitespace-nowrap text-center font-semibold text-black'>
+										{t('Analytics.email')}
+									</TableHead>
+									<TableHead className='whitespace-nowrap text-center font-semibold text-black'>
 										{t('Analytics.start')}
 									</TableHead>
 									<TableHead className='whitespace-nowrap text-center font-semibold text-black'>
@@ -440,6 +444,11 @@ export default function GeneralData({
 									<TableRow key={index} className='hover:bg-muted/30'>
 										<TableCell className='whitespace-nowrap text-center font-medium'>
 											{record.id_tracking}
+										</TableCell>
+										<TableCell className='whitespace-nowrap text-center'>
+											<div className='text-xs text-muted-foreground'>
+												{formatDateTime(record.email)}
+											</div>
 										</TableCell>
 										<TableCell className='whitespace-nowrap text-center'>
 											<div className='text-xs text-muted-foreground'>
@@ -566,6 +575,7 @@ export default function GeneralData({
 									{timespan && <TableHead className='border-r'></TableHead>}
 									<TableHead className='border-r'></TableHead>
 									<TableHead className='border-r'></TableHead>
+									<TableHead className='border-r'></TableHead>
 									<TableHead className='border-r bg-purple-50'></TableHead>
 									<TableHead className='border-r bg-purple-50'></TableHead>
 									<TableHead className='border-r bg-purple-50'></TableHead>
@@ -653,6 +663,9 @@ export default function GeneralData({
 									</TableHead>
 									<TableHead className='whitespace-nowrap border-r text-center text-xs font-semibold'>
 										{t('Analytics.comments')}
+									</TableHead>
+									<TableHead className='whitespace-nowrap border-r text-center text-xs font-semibold'>
+										{t('Analytics.email')}
 									</TableHead>
 									<TableHead className='whitespace-nowrap border-r bg-purple-50 text-center text-xs font-semibold'>
 										{t('Analytics.duration')}
@@ -801,6 +814,12 @@ export default function GeneralData({
 
 												return commentsInfo.display
 											})()}
+										</TableCell>
+
+										<TableCell className='whitespace-nowrap border-r text-center'>
+											<div className='text-xs text-muted-foreground'>
+												{record.email}
+											</div>
 										</TableCell>
 
 										<TableCell className='whitespace-nowrap border-r bg-purple-50/30 text-center'>

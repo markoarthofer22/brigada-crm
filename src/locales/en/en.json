@@ -176,13 +176,11 @@
 		"zoneActivityDesc": "Number of people and duration per zone",
 		"zoneActivityOverview": "Zone Activity Overview",
 		"zoneAnalysis": "Zone Analysis",
-		"zoneId": "Zone ID"
+		"zoneId": "Zone ID",
+		"email": "E-mail"
 	},
 	"Dashboard": {
-		"active": [
-			"Inactive",
-			"Active"
-		],
+		"active": ["Inactive", "Active"],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -589,10 +587,7 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": [
-			"Regular user",
-			"Admin"
-		],
+		"admin": ["Regular user", "Admin"],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",
