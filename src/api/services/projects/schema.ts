@@ -42,12 +42,7 @@ export const StaticQuestionItemResponseSchema = z.object({
 			possible_answers: z.array(z.union([z.number(), z.string()])),
 			id_questions_types: z.number(),
 			label: z.string(),
-			data: z
-				.object({
-					required: z.boolean().optional(),
-				})
-				.optional()
-				.nullable(),
+			data: z.any().optional().nullable(),
 		})
 	),
 })
@@ -66,15 +61,7 @@ export const QuestionItemResponseSchema = z.object({
 	label: z.string(),
 	possible_answers: z.record(z.string()),
 	required: z.boolean().optional(),
-	data: z
-		.object({
-			required: z.boolean().optional(),
-			filter: z.any(),
-			static: z.any(),
-			true_id: z.any(),
-		})
-		.optional()
-		.nullable(),
+	data: z.any().optional().nullable(),
 })
 
 export const ProjectDetailsResponseSchema = ProjectResponseSchema.extend({

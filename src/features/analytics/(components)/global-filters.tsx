@@ -52,6 +52,10 @@ export const GlobalFilters = ({
 		useState<FilterSelection>(initialSelection)
 	const [isOpen, setIsOpen] = useState(false)
 
+	useEffect(() => {
+		setTempFilters(initialSelection)
+	}, [initialSelection])
+
 	const selectedFilters = value || initialSelection
 
 	const isAllSelected = useMemo(() => {

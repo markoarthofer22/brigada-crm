@@ -226,12 +226,14 @@ export default function Analytics() {
 							onDateChange={setPendingEndDate}
 						/>
 					</div>
-					<GlobalFilters
-						className='max-md:w-full'
-						filters={analyticsQuery?.data?.filters}
-						value={tempSelectedFilters}
-						onFilterChange={handleFilterChange}
-					/>
+					{project && (
+						<GlobalFilters
+							className='max-md:w-full'
+							filters={analyticsQuery?.data?.filters}
+							value={tempSelectedFilters}
+							onFilterChange={handleFilterChange}
+						/>
+					)}
 					<div className='flex gap-2'>
 						<Button onClick={handleApplyDateRange}>{t('Actions.apply')}</Button>
 					</div>
