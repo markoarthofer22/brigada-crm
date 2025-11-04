@@ -97,7 +97,7 @@
 			"showBy": "Prikaži po",
 			"showFlow": "Prikaži smjer kreatanja",
 			"table": "Tablični prikaz",
-			"time": "Broju posjeta",
+			"time": "Duljini posjeta",
 			"totalHeat": "Total Heat:"
 		},
 		"image": "Slika #{{value}}",

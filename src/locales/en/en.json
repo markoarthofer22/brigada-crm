@@ -97,7 +97,7 @@
 			"showBy": "Show by",
 			"showFlow": "Flow data",
 			"table": "Table",
-			"time": "Visits",
+			"time": "Duration of visits",
 			"totalHeat": "Total Heat:"
 		},
 		"image": "Image #{{value}}",
