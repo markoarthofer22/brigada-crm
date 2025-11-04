@@ -246,7 +246,7 @@ export default function Analytics() {
 						className='w-full max-sm:overflow-x-auto'
 					>
 						<div className='flex flex-wrap items-center justify-between'>
-							<TabsList className='flex h-auto flex-wrap items-center justify-start space-y-1'>
+							<TabsList className='flex h-auto flex-wrap items-center justify-start'>
 								<TabsTrigger disabled={!project} value={AnalyticsTabs.General}>
 									{t('Analytics.tabs.general')}
 								</TabsTrigger>
