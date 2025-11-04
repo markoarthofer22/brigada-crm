@@ -137,6 +137,7 @@ export function HeatmapViewer({
 		pointCount: number
 		totalHeat: number
 		avgHeat: number
+		number_of_people: number
 	} | null>(null)
 
 	const findAllHeatMapPointsForZone = (zoneId: number) => {
@@ -611,6 +612,10 @@ export function HeatmapViewer({
 					(sum, point) => sum + point.heat.value,
 					0
 				)
+				const number_of_people = zonePoints.reduce(
+					(sum, point) => sum + point.heat.number_of_people,
+					0
+				)
 				const avgHeat =
 					zonePoints.length > 0 ? totalHeat / zonePoints.length : 0
 
@@ -619,8 +624,10 @@ export function HeatmapViewer({
 					x: e.clientX - rect.left + scrollLeft,
 					y: e.clientY - rect.top + scrollTop,
 					pointCount: zonePoints.length,
-					totalHeat: Math.round(totalHeat),
-					avgHeat: Math.round(avgHeat * 10) / 10,
+					totalHeat: parseFloat(totalHeat.toFixed(2)),
+					avgHeat: parseFloat(avgHeat.toFixed(2)),
+					number_of_people: number_of_people,
+					// avgHeat: Math.round(avgHeat * 10) / 10,
 				})
 				return
 			}
@@ -863,7 +870,13 @@ export function HeatmapViewer({
 									</span>
 								</div>
 								<div className='flex justify-between gap-4'>
-									<span>{t('Analytics.heatmap.totalHeat')}</span>
+									<span>{t('Analytics.heatmap.people2')}</span>
+									<span className='font-medium text-white'>
+										{hoveredZone.number_of_people}
+									</span>
+								</div>
+								<div className='flex justify-between gap-4'>
+									<span>{t('Analytics.heatmap.time2')}</span>
 									<span className='font-medium text-white'>
 										{hoveredZone.totalHeat}
 									</span>

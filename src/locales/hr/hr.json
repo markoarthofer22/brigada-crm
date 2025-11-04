@@ -94,10 +94,12 @@
 			"flowData": "Smjer kretanja",
 			"heatmap": "Heatmap",
 			"people": "Broju ljudi",
+			"people2": "Broj ljudi",
 			"showBy": "Prikaži po",
 			"showFlow": "Prikaži smjer kreatanja",
 			"table": "Tablični prikaz",
 			"time": "Duljini posjeta",
+			"time2": "Duljina posjeta",
 			"totalHeat": "Total Heat:"
 		},
 		"image": "Slika #{{value}}",

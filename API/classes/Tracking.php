@@ -209,7 +209,8 @@ class Tracking
 					'{valid}',
 					'false'::jsonb,
 					true
-				)
+				),
+				ended_at = NOW()
 				WHERE id_tracking = :ID_TRACKING;
 		";
 
