@@ -9,10 +9,7 @@ export const QuestionUpsertSchema = z.object({
 	label: z.string(),
 	possible_answers: z.array(z.string()).optional(),
 	required: z.boolean().optional(),
-	data: z
-		.record(z.union([z.string(), z.number(), z.boolean()]))
-		.optional()
-		.nullable(),
+	data: z.any().optional().nullable(),
 })
 
 export const QuestionResponseSchema = QuestionUpsertSchema.omit({

@@ -90,6 +90,7 @@ const CreateProjectFromTemplate = () => {
 				name: data.name,
 				type: data.type,
 				active: data.active,
+				from_template: Number(data.templateId),
 			})
 
 			const activeTemplate = templatesQuery.data?.find(
