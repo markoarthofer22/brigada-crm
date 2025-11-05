@@ -82,7 +82,6 @@ export function QuestionDialog({
 
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
-		// @ts-expect-error - TS doesn't like the fact that we're using a string here
 		name: 'possible_answers',
 	})
 
@@ -139,6 +138,8 @@ export function QuestionDialog({
 			})
 		}
 	}, [defaultValues, zoneId, projectId, form, questionTypes, open])
+
+	console.log('form.', form.formState)
 
 	return (
 		<Dialog open={open} onOpenChange={handleDialogOpenChange}>

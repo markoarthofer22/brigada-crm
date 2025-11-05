@@ -117,6 +117,7 @@ export const ProjectUpsertSchema = z.object({
 	active: z.nativeEnum(ActiveStatus).default(ActiveStatus.ACTIVE),
 	otherField: z.string().optional(),
 	type: z.nativeEnum(ProjectType).default(ProjectType.PROJECT),
+	from_template: z.number().optional(),
 })
 
 export type ProjectUpsert = z.infer<typeof ProjectUpsertSchema>
