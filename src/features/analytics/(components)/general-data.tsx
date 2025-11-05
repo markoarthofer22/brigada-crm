@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { format } from 'date-fns'
+import { debug } from 'console'
 import { hr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
@@ -176,6 +177,23 @@ export default function GeneralData({
 		return Array.from(allAgeGroups)
 	}
 
+	const getGenderGroups = () => {
+		if (data?.length === 0) return []
+
+		const allGenderGroups = new Set<string>()
+		data?.forEach((tracking: any) => {
+			if (tracking.data?.gender?.data) {
+				tracking.data.gender.data?.forEach((gender: any) => {
+					if (gender.label) {
+						allGenderGroups.add(gender.label)
+					}
+				})
+			}
+		})
+
+		return Array.from(allGenderGroups)
+	}
+
 	const getProfileOptions = () => {
 		if (data?.length === 0) return []
 
@@ -347,13 +365,14 @@ export default function GeneralData({
 	}
 
 	const ageGroups = getAgeGroups()
+	const genderGroups = getGenderGroups()
 	const profileOptions = getProfileOptions() // Get profile options
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
 
 	const basicInfoCols = 3
 	const timeCols = 3
-	const demographicsCols = 5
+	const demographicsCols = genderGroups.length + 4
 	const ageGroupsCols = ageGroups.length
 	const profileCols = profileOptions.length // Calculate profile columns
 
@@ -579,11 +598,13 @@ export default function GeneralData({
 									<TableHead className='border-r bg-purple-50'></TableHead>
 									<TableHead className='border-r bg-purple-50'></TableHead>
 									<TableHead className='border-r bg-purple-50'></TableHead>
-									<TableHead className='border-r bg-blue-50'></TableHead>
-									<TableHead className='border-r bg-blue-50'></TableHead>
-									<TableHead className='border-r bg-blue-50'></TableHead>
-									<TableHead className='border-r bg-blue-50'></TableHead>
-									<TableHead className='border-r bg-blue-50'></TableHead>
+
+									{Array.from({ length: demographicsCols }).map((_, index) => (
+										<TableHead
+											key={index}
+											className='border-r bg-blue-50'
+										></TableHead>
+									))}
 
 									{ageGroups.map((ageLabel: any) => (
 										<TableHead
@@ -680,18 +701,19 @@ export default function GeneralData({
 									<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
 										{t('Analytics.totalPeople')}
 									</TableHead>
-									<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-										{t('Analytics.males')}
-									</TableHead>
-									<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-										%
-									</TableHead>
-									<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-										{t('Analytics.females')}
-									</TableHead>
-									<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
-										%
-									</TableHead>
+									{genderGroups.map((genderLabel: any, index: number) => (
+										<>
+											<TableHead
+												key={genderLabel}
+												className={`text-center text-xs font-semibold ${index < genderGroups.length - 1 ? 'border-r' : 'border-r'} whitespace-nowrap bg-blue-50`}
+											>
+												{genderLabel}
+											</TableHead>
+											<TableHead className='whitespace-nowrap border-r bg-blue-50 text-center text-xs font-semibold'>
+												%
+											</TableHead>
+										</>
+									))}
 
 									{ageGroups.map((ageLabel: any, index: number) => (
 										<TableHead
@@ -846,10 +868,36 @@ export default function GeneralData({
 												variant='secondary'
 												className='bg-blue-100 text-xs text-blue-800'
 											>
-												{record.data.broj_ljudi}
+												{record?.data?.gender?.broj_ljudi}
 											</Badge>
 										</TableCell>
-										<TableCell className='whitespace-nowrap border-r bg-blue-50/30 text-center'>
+
+										{record.data.gender.data.map(
+											(gender: any, index: number) => (
+												<React.Fragment key={index}>
+													<TableCell className='whitespace-nowrap border-r bg-blue-50/30 text-center'>
+														<div className='text-sm font-medium text-blue-700'>
+															{gender.count}
+														</div>
+													</TableCell>
+													<TableCell className='whitespace-nowrap border-r bg-blue-50/30 text-center'>
+														<div className='text-xs text-blue-600'>
+															{gender.percentage}%
+														</div>
+													</TableCell>
+												</React.Fragment>
+											)
+										)}
+
+										{/* <TableCell className='whitespace-nowrap border-r bg-blue-50/30 text-center'>
+											<Badge
+												variant='secondary'
+												className='bg-blue-100 text-xs text-blue-800'
+											>
+												{record.data.broj_ljudi}
+											</Badge>
+										</TableCell> */}
+										{/* <TableCell className='whitespace-nowrap border-r bg-blue-50/30 text-center'>
 											<div className='text-sm font-medium text-blue-700'>
 												{record.data.broj_muski}
 											</div>
@@ -868,7 +916,7 @@ export default function GeneralData({
 											<div className='text-xs text-pink-600'>
 												{record.data.broj_zenski_percentage}%
 											</div>
-										</TableCell>
+										</TableCell> */}
 
 										{ageGroups.map((ageLabel: any, index: number) => (
 											<TableCell

@@ -240,9 +240,6 @@ class AnalyticsController extends BaseController
 		// echo json_encode($result["trackings"]);
 		// exit;
 
-		$gender_types = array_column(array_filter($filters, fn($item) => $item['label'] === 'f_spol'), 'possible_answers')[0];
-
-
 		foreach ($result["trackings"] as $key => &$item) {
 
 			// if ($item["id_tracking"] == 130) {
@@ -309,36 +306,22 @@ class AnalyticsController extends BaseController
 				continue;
 			}
 
+			// echo json_encode($item_answers);
+			// exit;
 
 			$item["data"]["broj_ljudi"] = $Analytics->CountPeople($item_answers);
-			// $item["data"]["broj_muski"] = $Analytics->CountGenderPeople($item_answers, "Muški");
-			// $item["data"]["broj_zenski"] = $Analytics->CountGenderPeople($item_answers, "Ženski");
-			// $item["data"]["broj_trece"] = $Analytics->CountGenderPeople($item_answers, "Treće");
+			$item["data"]["broj_muski"] = $Analytics->CountGenderPeople($item_answers, "Muški");
+			$item["data"]["broj_zenski"] = $Analytics->CountGenderPeople($item_answers, "Ženski");
 
 			// Calculate percentages
 			$totalPeople = $item["data"]["broj_ljudi"];
-			// $item["data"]["broj_muski_percentage"] = $totalPeople > 0 ? round(($item["data"]["broj_muski"] / $totalPeople) * 100, 2) : 0;
-			// $item["data"]["broj_zenski_percentage"] = $totalPeople > 0 ? round(($item["data"]["broj_zenski"] / $totalPeople) * 100, 2) : 0;
-
-			foreach ($gender_types as $gender) {
-				$item["data"]["gender"]["broj_ljudi"] = $totalPeople;
-				$item["data"]["gender"]["data"][] = array(
-					"label" => $gender,
-					"count" => $Analytics->CountGenderPeople($item_answers, $gender),
-					"percentage" => $totalPeople > 0 ? round(($Analytics->CountGenderPeople($item_answers, $gender) / $totalPeople) * 100, 2) : 0
-				);
-			}
-
-			// echo json_encode($item["data"]["gender"]);
-			// exit;
+			$item["data"]["broj_muski_percentage"] = $totalPeople > 0 ? round(($item["data"]["broj_muski"] / $totalPeople) * 100, 2) : 0;
+			$item["data"]["broj_zenski_percentage"] = $totalPeople > 0 ? round(($item["data"]["broj_zenski"] / $totalPeople) * 100, 2) : 0;
 
 			$item["data"]["dobna_skupina_raw"] = $Analytics->CountAgeGroup($item_answers);
 			$item["data"]["dobna_skupina"] = $Analytics->PrepareDobnaSkupinaData($item, $result_static_questions);
 			$item["data"]["profile_raw"] = $Analytics->CountProfileGroup($item_answers);
 			$item["data"]["profile"] = $Analytics->PrepareProfileData($item, $result_static_questions);
-
-			// echo json_encode($item);
-			// exit;
 
 			$zones = $Analytics->GetZones((object) array("id_tracking" => $item["id_tracking"], "from" => $params->from, "to" => $params->to));
 
@@ -349,9 +332,6 @@ class AnalyticsController extends BaseController
 				$totalSeconds = $diff->s + ($diff->i * 60) + ($diff->h * 3600) + ($diff->days * 86400);
 
 				$numberOfPeople = $item["data"]["broj_ljudi"];
-
-				// echo json_encode($zone);
-				// exit;
 
 				$zone["lasted"] = [
 					"formatted" => $diff->format('%H:%I:%S'),
@@ -373,17 +353,12 @@ class AnalyticsController extends BaseController
 				// exit;
 
 				$zone["data"] = array(
-					// "broj_ljudi" => $item["data"]["broj_ljudi"],
-					// "broj_muski" => $item["data"]["broj_muski"],
-					// "broj_zenski" => $item["data"]["broj_zenski"],
-					// "broj_trece" => 0,
-					"gender" => $item["data"]["gender"],
+					"broj_ljudi" => $item["data"]["broj_ljudi"],
+					"broj_muski" => $item["data"]["broj_muski"],
+					"broj_zenski" => $item["data"]["broj_zenski"],
 					"dobna_skupina" => $item["data"]["dobna_skupina"],
 					"profile" => $item["data"]["profile"],
 				);
-
-				// echo json_encode($zone);
-				// exit;
 			}
 
 			// $item["zones"] = $zones;
@@ -495,81 +470,32 @@ class AnalyticsController extends BaseController
 		$broj_muski = 0;
 		$broj_zenski = 0;
 		$tracking_lasted = 0;
-		$totalGender = [];
 		foreach ($result["trackings"] as &$item) {
 			$broj_ljudi += $item["data"]["broj_ljudi"];
 			$broj_muski += $item["data"]["broj_muski"];
 			$broj_zenski += $item["data"]["broj_zenski"];
 			$tracking_lasted += $item["lasted"]["seconds"];
-
-
-			$genderData = $item["data"]["gender"]["data"];
-			// echo "<pre>";
-			// print_r($genderData);
-			// exit;
-			foreach ($genderData as $gender) {
-				$label = $gender["label"];
-
-				if (!isset($totalGender[$label])) {
-					$totalGender[$label] = [
-						"label" => $label,
-						"count" => 0,
-						"percentage" => 0,
-					];
-				}
-
-				$totalGender[$label]["count"] += $gender["count"];
-				$totalGender[$label]["percentage"] += $gender["percentage"];
-			}
 		}
 
-		foreach ($totalGender as &$g) {
-			$g["percentage"] = $broj_ljudi > 0
-				? round(($g["count"] / $broj_ljudi) * 100, 2)
-				: 0;
-		}
-		$totalGender = array_values($totalGender);
-		// echo json_encode($totalGender);
-		// exit;
-
-		$result["total_data"]["gender"]["data"] = $totalGender;
-		$result["total_data"]["gender"]["broj_ljudi"] = $broj_ljudi;
-
-		// $result["total_data"]["broj_ljudi"] = $broj_ljudi;
-		// $result["total_data"]["broj_muski"] = $broj_muski;
-		// $result["total_data"]["broj_zenski"] = $broj_zenski;
+		$result["total_data"]["broj_ljudi"] = $broj_ljudi;
+		$result["total_data"]["broj_muski"] = $broj_muski;
+		$result["total_data"]["broj_zenski"] = $broj_zenski;
 
 		// Calculate percentages
-		// $result["total_data"]["broj_muski_percentage"] = $broj_ljudi > 0 ? round(($broj_muski / $broj_ljudi) * 100, 2) : 0;
-		// $result["total_data"]["broj_zenski_percentage"] = $broj_ljudi > 0 ? round(($broj_zenski / $broj_ljudi) * 100, 2) : 0;
+		$result["total_data"]["broj_muski_percentage"] = $broj_ljudi > 0 ? round(($broj_muski / $broj_ljudi) * 100, 2) : 0;
+		$result["total_data"]["broj_zenski_percentage"] = $broj_ljudi > 0 ? round(($broj_zenski / $broj_ljudi) * 100, 2) : 0;
 
 		// Tracking counts
 		$result["total_data"]["trackings"]["count"] = count($result["trackings"]);
 		$result["total_data"]["trackings"]["total_lasted"] = $tracking_lasted;
-		$result["total_data"]["trackings"]["average_people"]["total"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_ljudi / $result["total_data"]["trackings"]["count"] : 0;
-
-		foreach ($totalGender as $gender) {
-			$result["total_data"]["trackings"]["average_people"]["per_gender"][] =
-				array(
-					"label" => $gender["label"],
-					"avg" => $gender["count"] > 0 ? $gender["count"] / $result["total_data"]["trackings"]["count"] : 0
-				);
-		}
-
-		// $result["total_data"]["trackings"]["average_people"]["per_tracking_males"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_muski / $result["total_data"]["trackings"]["count"] : 0;
-		// $result["total_data"]["trackings"]["average_people"]["per_tracking_females"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_zenski / $result["total_data"]["trackings"]["count"] : 0;
-
+		$result["total_data"]["trackings"]["average_people"]["per_tracking"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_ljudi / $result["total_data"]["trackings"]["count"] : 0;
+		$result["total_data"]["trackings"]["average_people"]["per_tracking_males"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_muski / $result["total_data"]["trackings"]["count"] : 0;
+		$result["total_data"]["trackings"]["average_people"]["per_tracking_females"] = $result["total_data"]["trackings"]["count"] > 0 ? $broj_zenski / $result["total_data"]["trackings"]["count"] : 0;
 		$result["total_data"]["trackings"]["average_lasted"]["per_people"] = $broj_ljudi > 0 ? $tracking_lasted / $broj_ljudi : 0;
-		foreach ($totalGender as $gender) {
-			$result["total_data"]["trackings"]["average_lasted"]["per_gender"][] =
-				array(
-					"label" => $gender["label"],
-					"avg" => $result["total_data"]["trackings"]["average_lasted"]["per_people"] * $gender["percentage"] / 100
-				);
-		}
-
-		// $result["total_data"]["trackings"]["average_lasted"]["per_males"] = $result["total_data"]["trackings"]["average_lasted"]["per_people"] * $result["total_data"]["broj_muski_percentage"] / 100;
-		// $result["total_data"]["trackings"]["average_lasted"]["per_females"] = $result["total_data"]["trackings"]["average_lasted"]["per_people"] * $result["total_data"]["broj_zenski_percentage"] / 100;
+		// $result["total_data"]["trackings"]["average_lasted"]["per_males"] = $broj_muski > 0 ? $tracking_lasted / $broj_muski : 0;
+		// $result["total_data"]["trackings"]["average_lasted"]["per_females"] = $broj_zenski > 0 ? $tracking_lasted / $broj_zenski : 0;
+		$result["total_data"]["trackings"]["average_lasted"]["per_males"] = $result["total_data"]["trackings"]["average_lasted"]["per_people"] * $result["total_data"]["broj_muski_percentage"] / 100;
+		$result["total_data"]["trackings"]["average_lasted"]["per_females"] = $result["total_data"]["trackings"]["average_lasted"]["per_people"] * $result["total_data"]["broj_zenski_percentage"] / 100;
 
 		$result["total_data"]["questions_answers"] = $Analytics->PrepareQuestionsAnswersData($result["trackings"]);
 		// $result["total_data"]["questions_answers2"]["general"] = $Analytics->PrepareQuestionsAnswersData($result["trackings"]);

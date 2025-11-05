@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { intervalToDuration } from 'date-fns'
 import { useTranslation } from 'react-i18next'
-import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, Legend, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { handleScreenshot } from '@/lib/utils.ts'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
@@ -160,6 +160,15 @@ export default function Zones({ data, projectName }: ZonesProps) {
 		)
 	}
 
+	const pieColors = [
+		'#2563eb', // blue
+		'#ec4899', // pink
+		'#10b981', // emerald green
+		'#f59e0b', // amber
+		'#8b5cf6', // violet
+		'#ef4444', // red
+	]
+
 	return (
 		<div className='mt-8 space-y-7'>
 			{pastedTextData && (
@@ -188,9 +197,25 @@ export default function Zones({ data, projectName }: ZonesProps) {
 										{t('Analytics.surveyQuestions')}
 									</div>
 								</div>
-								<div className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'>
+								<div className='grid grid-cols-2 gap-4'>
+									{pastedTextData.gender.map((item, index) => (
+										<div
+											key={index}
+											className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'
+										>
+											<div className='text-3xl font-bold text-primary'>
+												{item.label}
+											</div>
+											<div className='text-sm text-primary'>
+												{item.count} ({item.percent}%)
+											</div>
+										</div>
+									))}
+								</div>
+
+								{/* <div className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'>
 									<div className='text-3xl font-bold text-primary'>
-										{pastedTextData.broj_muski}
+										d{pastedTextData.broj_muski}
 									</div>
 									<div className='text-sm text-primary'>
 										{t('Analytics.malesCount')} (
@@ -205,7 +230,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 										{t('Analytics.femalesCount')} (
 										{pastedTextData.percentage_zenski.toFixed(1)}%)
 									</div>
-								</div>
+								</div> */}
 							</div>
 
 							<div className='rounded-lg border border-primary bg-white p-4 shadow-sm'>
@@ -224,18 +249,11 @@ export default function Zones({ data, projectName }: ZonesProps) {
 								>
 									<PieChart>
 										<Pie
-											data={[
-												{
-													name: t('Analytics.males'),
-													value: pastedTextData.broj_muski,
-													fill: '#2563eb',
-												},
-												{
-													name: t('Analytics.females'),
-													value: pastedTextData.broj_zenski,
-													fill: '#ec4899',
-												},
-											]}
+											data={pastedTextData.gender.map((item, index) => ({
+												name: item.label,
+												value: item.count,
+												fill: pieColors[index % pieColors.length],
+											}))}
 											cx='50%'
 											cy='50%'
 											outerRadius={80}
@@ -318,7 +336,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 						<BarChart
 							data={data.per_zone.map((zone: any) => ({
 								name: zone.name,
-								people: zone.data.broj_ljudi,
+								people: zone.data.gender.broj_ljudi,
 								duration: zone.lasted.seconds,
 							}))}
 						>
@@ -371,7 +389,9 @@ export default function Zones({ data, projectName }: ZonesProps) {
 					<CardContent>
 						<div className='mb-4 grid grid-cols-1 gap-4 md:grid-cols-3'>
 							<div className='text-center'>
-								<div className='text-2xl font-bold'>{zone.data.broj_ljudi}</div>
+								<div className='text-2xl font-bold'>
+									{zone.data.gender.broj_ljudi}
+								</div>
 								<div className='text-sm text-muted-foreground'>
 									{t('Analytics.totalPeopleCount')}
 								</div>
@@ -412,22 +432,16 @@ export default function Zones({ data, projectName }: ZonesProps) {
 									>
 										<PieChart>
 											<Pie
-												data={[
-													{
-														name: t('Analytics.males'),
-														value: zone.data.broj_muski,
-														fill: '#0088FE',
-													},
-													{
-														name: t('Analytics.females'),
-														value: zone.data.broj_zenski,
-														fill: '#00C49F',
-													},
-												]}
+												data={zone.data.gender.data.map((item, index) => ({
+													name: item.label,
+													value: item.count,
+													fill: pieColors[index % pieColors.length],
+												}))}
 												cx='50%'
 												cy='50%'
 												outerRadius={80}
 												dataKey='value'
+												labelLine={true}
 												label={({ name, percent }) =>
 													`${name}: ${(percent * 100).toFixed(0)}%`
 												}
@@ -436,7 +450,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 												content={
 													<ChartTooltipContent
 														formatter={(value, name) =>
-															`${name}: ${(((value as number) / zone.data?.broj_ljudi) * 100).toFixed(2)}% (${value})`
+															`${name}: ${(((value as number) / zone.data?.gender?.broj_ljudi) * 100).toFixed(2)}% (${value})`
 														}
 													/>
 												}
@@ -504,14 +518,21 @@ export default function Zones({ data, projectName }: ZonesProps) {
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										<TableRow>
+										{zone.data.gender.data.map((item, index) => (
+											<TableRow key={index}>
+												<TableCell>{item.label}</TableCell>
+												<TableCell>{item.count}</TableCell>
+											</TableRow>
+										))}
+
+										{/* <TableRow>
 											<TableCell>{t('Analytics.males')}</TableCell>
 											<TableCell>{zone.data.broj_muski}</TableCell>
 										</TableRow>
 										<TableRow>
 											<TableCell>{t('Analytics.females')}</TableCell>
 											<TableCell>{zone.data.broj_zenski}</TableCell>
-										</TableRow>
+										</TableRow> */}
 										<TableRow>
 											<TableCell>{t('Analytics.totalDuration')}</TableCell>
 											<TableCell>{zone.lasted.formatted}</TableCell>

@@ -111,10 +111,14 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 						<Users className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{data.broj_ljudi}</div>
+						<div className='text-2xl font-bold'>{data.gender.broj_ljudi}</div>
 						<p className='text-xs text-muted-foreground'>
-							{data.broj_muski} {t('Analytics.males')}, {data.broj_zenski}{' '}
-							{t('Analytics.females')}
+							{data.gender.data.map((item, index) => (
+								<span key={index}>
+									{item.count} {item.label}
+									{index < data.gender.data.length - 1 && ', '}
+								</span>
+							))}
 						</p>
 					</CardContent>
 				</Card>
@@ -133,18 +137,35 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 						<div className='mt-2 space-y-2'>
 							<p className='text-xs text-muted-foreground'>
 								{t('Analytics.avgPeoplePerTracking')}{' '}
-								{data.trackings?.average_people?.per_tracking?.toFixed(1) ||
-									'0'}
+								{data?.trackings?.average_people?.total?.toFixed(1) || '0'}
 							</p>
 							<div className='grid grid-cols-2 gap-2 text-xs'>
-								<div className='rounded bg-blue-50 p-2'>
+								{data?.trackings?.average_people?.per_gender?.map(
+									(item, index) => (
+										<div key={index} className='rounded bg-blue-50 p-2'>
+											<span className='font-medium text-blue-700'>
+												{item.label}
+											</span>
+											<div className='font-semibold text-blue-900'>
+												{item.avg ? item.avg.toFixed(3) : '0'}
+											</div>
+										</div>
+									)
+								)}
+
+								{/* <div className='rounded bg-blue-50 p-2'>
 									<span className='font-medium text-blue-700'>
 										{t('Analytics.males')}
 									</span>
 									<div className='font-semibold text-blue-900'>
-										{data.trackings?.average_people?.per_tracking_males?.toFixed(
-											3
-										) || '0'}
+										{(() => {
+											// debugger // 👈 this pauses execution when DevTools are open
+											return (
+												data?.trackings?.average_people?.per_gender?.[0].avg?.toFixed(
+													3
+												) || '0'
+											)
+										})()}
 									</div>
 								</div>
 								<div className='rounded bg-pink-50 p-2'>
@@ -152,11 +173,11 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 										{t('Analytics.females')}
 									</span>
 									<div className='font-semibold text-pink-900'>
-										{data.trackings?.average_people?.per_tracking_females?.toFixed(
+										{data?.trackings?.average_people?.per_gender?.[1].avg?.toFixed(
 											3
 										) || '0'}
 									</div>
-								</div>
+								</div> */}
 							</div>
 						</div>
 					</CardContent>
@@ -179,22 +200,34 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 								{formatSeconds(data.trackings?.average_lasted?.per_people)}
 							</p>
 							<div className='grid grid-cols-2 gap-2 text-xs'>
-								<div className='rounded bg-blue-50 p-2'>
+								{data?.trackings?.average_lasted?.per_gender?.map(
+									(item, index) => (
+										<div className='rounded bg-blue-50 p-2'>
+											<span className='font-medium text-blue-700'>
+												{item.label}
+											</span>
+											<div className='font-semibold text-blue-900'>
+												{formatSeconds(item.avg)}
+											</div>
+										</div>
+									)
+								)}
+								{/* <div className='rounded bg-blue-50 p-2'>
 									<span className='font-medium text-blue-700'>
 										{t('Analytics.males')}
 									</span>
 									<div className='font-semibold text-blue-900'>
 										{formatSeconds(data.trackings?.average_lasted?.per_males)}
 									</div>
-								</div>
-								<div className='rounded bg-pink-50 p-2'>
+								</div> */}
+								{/* <div className='rounded bg-pink-50 p-2'>
 									<span className='font-medium text-pink-700'>
 										{t('Analytics.females')}
 									</span>
 									<div className='font-semibold text-pink-900'>
 										{formatSeconds(data.trackings?.average_lasted?.per_females)}
 									</div>
-								</div>
+								</div> */}
 							</div>
 						</div>
 					</CardContent>
@@ -406,13 +439,29 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 											{t('Analytics.total')}
 										</span>
 										<span className='text-lg font-bold text-gray-900'>
-											{data.trackings?.average_people?.per_tracking?.toFixed(
-												2
-											) || '0'}
+											{data.trackings?.average_people?.total?.toFixed(2) || '0'}
 										</span>
 									</div>
 								</div>
-								<div className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'>
+								{data.trackings?.average_people?.per_gender?.map(
+									(item, index) => (
+										<div
+											key={index}
+											className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'
+										>
+											<div className='flex items-center justify-between'>
+												<span className='text-sm font-medium text-blue-700'>
+													{item.label}
+												</span>
+												<span className='text-lg font-bold text-blue-900'>
+													{item.avg?.toFixed(2) || '0'}
+												</span>
+											</div>
+										</div>
+									)
+								)}
+
+								{/* <div className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'>
 									<div className='flex items-center justify-between'>
 										<span className='text-sm font-medium text-blue-700'>
 											{t('Analytics.males')}
@@ -435,7 +484,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 											) || '0'}
 										</span>
 									</div>
-								</div>
+								</div> */}
 							</div>
 						</div>
 
@@ -456,7 +505,25 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 										</span>
 									</div>
 								</div>
-								<div className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'>
+								{data.trackings?.average_lasted?.per_gender?.map(
+									(item, index) => (
+										<div
+											key={index}
+											className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'
+										>
+											<div className='flex items-center justify-between'>
+												<span className='text-sm font-medium text-blue-700'>
+													{item.label}
+												</span>
+												<span className='text-lg font-bold text-blue-900'>
+													{formatSeconds(item.avg)}
+												</span>
+											</div>
+										</div>
+									)
+								)}
+
+								{/* <div className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'>
 									<div className='flex items-center justify-between'>
 										<span className='text-sm font-medium text-blue-700'>
 											{t('Analytics.males')}
@@ -477,7 +544,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 											)}
 										</span>
 									</div>
-								</div>
+								</div> */}
 							</div>
 						</div>
 					</div>

@@ -549,11 +549,9 @@ class Analytics
 
 		$labelCounts = [];
 		if ($item["data"]["questions_answers_raw"]) {
-			// echo json_encode($item["data"]);
-			// exit;
 			$broj_ljudi = $item["data"]["broj_ljudi"] ?? 0;
-			// $broj_muski = $item["data"]["broj_muski"] ?? 0;
-			// $broj_zenski = $item["data"]["broj_zenski"] ?? 0;
+			$broj_muski = $item["data"]["broj_muski"] ?? 0;
+			$broj_zenski = $item["data"]["broj_zenski"] ?? 0;
 
 			foreach ($item["data"]["questions_answers_raw"] as $qa) {
 				$label = $qa["label"] ?? null;
@@ -569,15 +567,8 @@ class Analytics
 
 					$labelCounts[$label]["id_zones"] = $id_zones;
 					$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
-					foreach ($item["data"]["gender"]["data"] as $gender) {
-						$labelCounts[$label]["for_question"]["people"]["data"][$gender["label"]] += $gender["count"];
-					}
-					// $labelCounts[$label]["for_question"]["people_"]["broj_ljudi"] += $broj_ljudi;
-					// $labelCounts[$label]["for_question"]["people"]["broj_muski"] += $broj_muski;
-					// $labelCounts[$label]["for_question"]["people"]["broj_zenski"] += $broj_zenski;
-
-					// echo json_encode($labelCounts);
-					// exit;
+					$labelCounts[$label]["for_question"]["people"]["broj_muski"] += $broj_muski;
+					$labelCounts[$label]["for_question"]["people"]["broj_zenski"] += $broj_zenski;
 
 					foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
 						$labelCounts[$label]["for_question"]["dobna_skupina"][$ds] += $v;
@@ -595,11 +586,8 @@ class Analytics
 						$labelCounts[$label]["answers"][$singleAnswer]++;
 
 						$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_ljudi"] += $broj_ljudi;
-						// $labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_muski"] += $broj_muski;
-						// $labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_zenski"] += $broj_zenski;
-						foreach ($item["data"]["gender"]["data"] as $gender) {
-							$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["data"][$gender["label"]] += $gender["count"];
-						}
+						$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_muski"] += $broj_muski;
+						$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_zenski"] += $broj_zenski;
 
 						foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
 							$labelCounts[$label]["for_answers"]["dobna_skupina"][$singleAnswer][$ds] += $v;
@@ -668,17 +656,9 @@ class Analytics
 			$temp = array();
 			$temp = array(
 				array("label" => "broj_ljudi", "count" => $data["for_question"]["people"]["broj_ljudi"], "percentage" => 100),
-				// array("label" => "broj_muski", "count" => $data["for_question"]["people"]["broj_muski"], "percentage" => $data["for_question"]["people"]["broj_muski"] > 0 ? round(($data["for_question"]["people"]["broj_muski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0),
-				// array("label" => "broj_zenski", "count" => $data["for_question"]["people"]["broj_zenski"], "percentage" => $data["for_question"]["people"]["broj_zenski"] > 0 ? round(($data["for_question"]["people"]["broj_zenski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0)
+				array("label" => "broj_muski", "count" => $data["for_question"]["people"]["broj_muski"], "percentage" => $data["for_question"]["people"]["broj_muski"] > 0 ? round(($data["for_question"]["people"]["broj_muski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0),
+				array("label" => "broj_zenski", "count" => $data["for_question"]["people"]["broj_zenski"], "percentage" => $data["for_question"]["people"]["broj_zenski"] > 0 ? round(($data["for_question"]["people"]["broj_zenski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0)
 			);
-
-			foreach ($item["data"]["gender"]["data"] as $gender) {
-				$temp[] = array("label" => $gender["label"], "count" => $data["for_question"]["people"]["data"][$gender["label"]] ?? 0, "percentage" => $data["for_question"]["people"]["broj_ljudi"] > 0 ? round(($data["for_question"]["people"]["data"][$gender["label"]] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0);
-			}
-
-			// echo json_encode($temp);
-			// echo json_encode($temp);
-			// exit;
 			$data["for_question"]["people"] = $temp;
 
 			$temp = array();
@@ -697,16 +677,9 @@ class Analytics
 			foreach ($data["for_answers"]["people"] as $key => $it) {
 				$temp[] = array("label" => $key, "people" =>  array(
 					array("label" => "broj_ljudi", "count" => $it["broj_ljudi"], "percentage" => 100),
-					// array("label" => "broj_muski", "count" => $it["broj_muski"], "percentage" => $it["broj_muski"] > 0 ? round(($it["broj_muski"] / $it["broj_ljudi"]) * 100, 2) : 0),
-					// array("label" => "broj_zenski", "count" => $it["broj_zenski"], "percentage" => $it["broj_zenski"] > 0 ? round(($it["broj_zenski"] / $it["broj_ljudi"]) * 100, 2) : 0)
+					array("label" => "broj_muski", "count" => $it["broj_muski"], "percentage" => $it["broj_muski"] > 0 ? round(($it["broj_muski"] / $it["broj_ljudi"]) * 100, 2) : 0),
+					array("label" => "broj_zenski", "count" => $it["broj_zenski"], "percentage" => $it["broj_zenski"] > 0 ? round(($it["broj_zenski"] / $it["broj_ljudi"]) * 100, 2) : 0)
 				));
-				foreach ($item["data"]["gender"]["data"] as $gender) {
-					$temp[] = array("label" => $key, "people" =>  array(
-						"label" => $gender["label"],
-						"count" => $it["data"][$gender["label"]] ?? 0,
-						"percentage" => $it["broj_ljudi"] > 0 ? round(($it["data"][$gender["label"]] / $it["broj_ljudi"]) * 100, 2) : 0
-					));
-				}
 			}
 			$data["for_answers"]["people"] = $temp;
 
@@ -775,8 +748,8 @@ class Analytics
 			// }
 			if ($item["data"]["questions_answers_raw"]) {
 				$broj_ljudi = $item["data"]["broj_ljudi"] ?? 0;
-				// $broj_muski = $item["data"]["broj_muski"] ?? 0;
-				// $broj_zenski = $item["data"]["broj_zenski"] ?? 0;
+				$broj_muski = $item["data"]["broj_muski"] ?? 0;
+				$broj_zenski = $item["data"]["broj_zenski"] ?? 0;
 
 				foreach ($item["data"]["questions_answers_raw"] as $qa) {
 					$label = $qa["label"] ?? null;
@@ -792,16 +765,9 @@ class Analytics
 
 						$labelCounts[$label]["id_zones"] = $id_zones;
 						$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
+						$labelCounts[$label]["for_question"]["people"]["broj_muski"] += $broj_muski;
+						$labelCounts[$label]["for_question"]["people"]["broj_zenski"] += $broj_zenski;
 
-						foreach ($item["data"]["gender"]["data"] as $gender) {
-							$labelCounts[$label]["for_question"]["people"]["data"][$gender["label"]] += $gender["count"];
-						}
-
-						// $labelCounts[$label]["for_question"]["people"]["broj_muski"] += $broj_muski;
-						// $labelCounts[$label]["for_question"]["people"]["broj_zenski"] += $broj_zenski;
-
-						// echo json_encode($labelCounts);
-						// exit;
 						foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
 							$labelCounts[$label]["for_question"]["dobna_skupina"][$ds] += $v;
 						}
@@ -819,12 +785,8 @@ class Analytics
 
 
 							$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_ljudi"] += $broj_ljudi;
-							// $labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_muski"] += $broj_muski;
-							// $labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_zenski"] += $broj_zenski;
-
-							foreach ($item["data"]["gender"]["data"] as $gender) {
-								$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["data"][$gender["label"]] += $gender["count"];
-							}
+							$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_muski"] += $broj_muski;
+							$labelCounts[$label]["for_answers"]["people"][$singleAnswer]["broj_zenski"] += $broj_zenski;
 
 							foreach ($item["data"]["dobna_skupina_raw"] as $ds => $v) {
 								$labelCounts[$label]["for_answers"]["dobna_skupina"][$singleAnswer][$ds] += $v;
@@ -872,16 +834,9 @@ class Analytics
 			// print_r($data["for_question"]["people"]);
 			$temp = array(
 				array("label" => "broj_ljudi", "count" => $data["for_question"]["people"]["broj_ljudi"], "percentage" => 100),
-				// array("label" => "broj_muski", "count" => $data["for_question"]["people"]["broj_muski"], "percentage" => $data["for_question"]["people"]["broj_muski"] > 0 ? round(($data["for_question"]["people"]["broj_muski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0),
-				// array("label" => "broj_zenski", "count" => $data["for_question"]["people"]["broj_zenski"], "percentage" => $data["for_question"]["people"]["broj_zenski"] > 0 ? round(($data["for_question"]["people"]["broj_zenski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0)
+				array("label" => "broj_muski", "count" => $data["for_question"]["people"]["broj_muski"], "percentage" => $data["for_question"]["people"]["broj_muski"] > 0 ? round(($data["for_question"]["people"]["broj_muski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0),
+				array("label" => "broj_zenski", "count" => $data["for_question"]["people"]["broj_zenski"], "percentage" => $data["for_question"]["people"]["broj_zenski"] > 0 ? round(($data["for_question"]["people"]["broj_zenski"] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0)
 			);
-			foreach ($item["data"]["gender"]["data"] as $gender) {
-				$temp[] = array(
-					"label" => $gender["label"],
-					"count" => $data["for_question"]["people"]["data"][$gender["label"]] ?? 0,
-					"percentage" => $data["for_question"]["people"]["broj_ljudi"] > 0 ? round(($data["for_question"]["people"]["data"][$gender["label"]] / $data["for_question"]["people"]["broj_ljudi"]) * 100, 2) : 0
-				);
-			}
 			$data["for_question"]["people"] = $temp;
 
 			$temp = array();
@@ -901,43 +856,11 @@ class Analytics
 
 			$temp = array();
 			foreach ($data["for_answers"]["people"] as $key => $it) {
-				$people = [];
-				// Total people
-				$people[] = array(
-					"label" => "broj_ljudi",
-					"count" => $it["broj_ljudi"],
-					"percentage" => 100
-				);
-
-				// Gender breakdown
-				foreach ($item["data"]["gender"]["data"] as $gender) {
-					$people[] = array(
-						"label" => $gender["label"],
-						"count" => $it["data"][$gender["label"]] ?? 0,
-						"percentage" => $it["broj_ljudi"] > 0 ? round(($it["data"][$gender["label"]] / $it["broj_ljudi"]) * 100, 2) : 0
-					);
-				}
-
-				// Append full structure
-				$temp[] = array(
-					"label" => $key,
-					"people" => $people
-				);
-
-				// $temp[] = array("label" => $key, "people" => array(
-				// 	array("label" => "broj_ljudi", "count" => $it["broj_ljudi"], "percentage" => 100),
-				// 	// array("label" => "broj_muski", "count" => $it["broj_muski"], "percentage" => $it["broj_muski"] > 0 ? round(($it["broj_muski"] / $it["broj_ljudi"]) * 100, 2) : 0),
-				// 	// array("label" => "broj_zenski", "count" => $it["broj_zenski"], "percentage" => $it["broj_zenski"] > 0 ? round(($it["broj_zenski"] / $it["broj_ljudi"]) * 100, 2) : 0)
-				// ));
-				// foreach ($item["data"]["gender"]["data"] as $gender) {
-				// 	$temp = array(
-				// 		"label" => $gender["label"],
-				// 		"count" => $it["data"][$gender["label"]] ?? 0,
-				// 		"percentage" => $it["broj_ljudi"] > 0 ? round(($it["data"][$gender["label"]] / $it["broj_ljudi"]) * 100, 2) : 0
-				// 	);
-				// }
-				// echo json_encode($temp);
-				// exit;
+				$temp[] = array("label" => $key, "people" =>  array(
+					array("label" => "broj_ljudi", "count" => $it["broj_ljudi"], "percentage" => 100),
+					array("label" => "broj_muski", "count" => $it["broj_muski"], "percentage" => $it["broj_muski"] > 0 ? round(($it["broj_muski"] / $it["broj_ljudi"]) * 100, 2) : 0),
+					array("label" => "broj_zenski", "count" => $it["broj_zenski"], "percentage" => $it["broj_zenski"] > 0 ? round(($it["broj_zenski"] / $it["broj_ljudi"]) * 100, 2) : 0)
+				));
 			}
 			$data["for_answers"]["people"] = $temp;
 
@@ -1401,7 +1324,7 @@ class Analytics
 		$zoneDurations = []; // Track durations separately for summing
 
 		// echo "<pre>";
-		// echo json_encode($trackings);
+		// print_r($trackings);
 		// exit;
 		foreach ($trackings as $item) {
 
@@ -1418,19 +1341,11 @@ class Analytics
 				$diff = $start->diff($end);
 				$durationInSeconds = ($diff->h * 3600) + ($diff->i * 60) + $diff->s;
 
-				// if ($zoneId != 418) {
-				// 	continue;
-				// }
 				// echo $zoneId;
 				// echo "<br>";
 				// print_r($zones);
 
 				if (isset($zones[$zoneId])) {
-
-					// if ($zoneId == 412) {
-					// 	echo json_encode($zone);
-					// 	exit;
-					// }
 					// echo "<hr>";
 					// echo $zoneId;
 					// echo "<br>";
@@ -1440,98 +1355,10 @@ class Analytics
 
 					// $zones[$zoneId]["questions_answers_raw"] = $item["data"]["questions_answers_raw"];
 					// $zones[$zoneId]["questions_answers"] = $item["data"]["questions_answers"];
-					// $zones[$zoneId]["data"]["id_zones"] = $item["data"]["id_zones"];
-					// $zones[$zoneId]["data"]["broj_ljudi"] += $zones[$zoneId]["data"]["gender"]["broj_ljudi"] ?? 0;
-					// $zones[$zoneId]["data"]["broj_muski"] += $item["data"]["broj_muski"];
-					// $zones[$zoneId]["data"]["broj_zenski"] += $item["data"]["broj_zenski"];
-
-					// print_r($zoneId);
-					// echo json_encode($zone);
-					// exit;
-					$zones[$zoneId]["data"]["gender"]["broj_ljudi"] += $zone["data"]["gender"]["broj_ljudi"] ?? 0;
-					// echo json_encode($zones[$zoneId]);
-					// exit;
-
-					// if ($zoneId == 412) {
-					// 	echo json_encode($zones[412]);
-					// 	exit;
-					// }
-
-					// foreach ($item["data"]["gender"]["data"] as $gender) {
-					// 	$zones[$zoneId]["data"]["gender"]["data"][$gender["label"]] += $zone["data"]["gender"]["data"][$gender["label"]] ?? 0;
-					// 	// $zones[$zoneId]["data"]["gender"]["data"]["asd"] += $gender["count"];
-					// }
-					// echo json_encode($zone);
-					// exit;
-
-					// if ($zoneId == 412) {
-					// echo json_encode($zone);
-					// exit;
-					// }
-
-					foreach ($zones[$zoneId]["data"]["gender"]["data"] as $key => $item) {
-						$data = $zone["data"]["gender"]["data"];
-						$labels = array_column($data, 'label');
-						$index = array_search($item["label"], $labels);
-						$count = $index !== false ? $data[$index]['count'] : 0;
-						$zones[$zoneId]["data"]["gender"]["data"][$key]["count"] += $count;
-					}
-
-					// echo "<pre>";
-					// echo json_encode($zone["data"]["gender"]["data"]);
-					// echo "<hr>";
-					// echo json_encode($zones[$zoneId]["data"]["gender"]["data"]);
-					// echo "<hr><hr>";
-					// if ($zoneId == 412) {
-					// echo json_encode($zones);
-					// exit;
-					// }
-
-					// exit;
-
-					// foreach ($item["data"]["gender"]["data"] as $gender) {
-					// 	$labels = array_column($zone["data"]["gender"]["data"], 'label');
-					// 	$index = array_search($gender["label"], $labels);
-					// 	$count = $index !== false ? $zone["data"]["gender"]["data"][$index]['count'] : 0;
-
-					// 	// echo $count;
-
-					// 	$found = false;
-
-					// 	foreach ($zones[$zoneId]["data"]["gender"]["data"] as &$item) {
-					// 		// echo $count . ":" . $item["label"] . " - " . $gender["label"] . " - " . $item["count"] . " --> " . ($item["label"] == $gender["label"]) . "<br>";
-					// 		if ($item["label"] == $gender["label"]) {
-					// 			$item["count"] += $count;
-					// 			$found = true;
-					// 			break;
-					// 		}
-					// 	}
-
-					// 	unset($item); // always do this when using a reference in foreach
-
-					// 	if (!$found) {
-					// 		$zones[$zoneId]["data"]["gender"]["data"][] = [
-					// 			"label" => $gender["label"],
-					// 			"count" => 0,
-					// 			"percentage" => 0
-					// 		];
-					// 	}
-
-					// if (!isset($zones[$zoneId]["data"]["gender"]["data"][$label])) {
-					// 	$zones[$zoneId]["data"]["gender"]["data"][$label]["count"] = 0;
-					// }
-
-					// $zones[$zoneId]["data"]["gender"]["data"][$label]["count"] += $count;
-					// }
-
-					// if ($zoneId == 412) {
-					// 	echo json_encode($zones[412]);
-					// 	exit;
-					// }
-
-					// echo json_encode($zone);
-					// echo json_encode($zones[$zoneId]);
-					// exit;
+					$zones[$zoneId]["data"]["id_zones"] = $item["data"]["id_zones"];
+					$zones[$zoneId]["data"]["broj_ljudi"] += $item["data"]["broj_ljudi"];
+					$zones[$zoneId]["data"]["broj_muski"] += $item["data"]["broj_muski"];
+					$zones[$zoneId]["data"]["broj_zenski"] += $item["data"]["broj_zenski"];
 
 					foreach ($zone["data"]["dobna_skupina"]["data"] as $index => $value) {
 						$zones[$zoneId]["data"]["dobna_skupina"]["data"][$index]["count"] += $value["count"];
@@ -1635,58 +1462,25 @@ class Analytics
 					// // print_r($zones[$zoneId]);
 					// // exit;
 				} else {
-
-					// $gender = array();
-					// foreach ($item["data"]["gender"]["data"] as $_gender) {
-					// 	$gender["data"][$_gender["label"]] = $_gender["count"];
-					// }
-					// $gender["broj_ljudi"] = $item["data"]["broj_ljudi"];
-					// echo json_encode($item["zones"]);
-					// exit;
-
-					// echo json_encode($zone);
-					// exit;
-
 					$zones[$zoneId] = [
 						"id_zones" => $zoneId,
 						"name" => $zone["name"],
 						"data" => [
-							// "broj_ljudi" => $item["data"]["broj_ljudi"],
-							// "broj_muski" => $item["data"]["broj_muski"],
-							// "broj_zenski" => $item["data"]["broj_zenski"],
-							"gender" => $zone["data"]["gender"],
+							"broj_ljudi" => $item["data"]["broj_ljudi"],
+							"broj_muski" => $item["data"]["broj_muski"],
+							"broj_zenski" => $item["data"]["broj_zenski"],
 							"dobna_skupina" => $zone["data"]["dobna_skupina"], // Copy the entire structure
 							"profile" => $zone["data"]["profile"], // Copy the entire structure
 						],
 						"questions_answers" => $zone["questions_answers"], // Copy the entire structure
 					];
-
-					// echo json_encode($zones);
-					// exit;
 					$zoneDurations[$zoneId] = $durationInSeconds;
 					// print_r($zones);
 					// exit;
 				}
 				// print_r($zones);
-				// echo json_encode($zones);
-				// exit;
 			}
-
-			// echo json_encode($zones);
-			// exit;
 		}
-
-		foreach ($zones as $key => $zone) {
-
-			foreach ($zone["data"]["gender"]["data"] as $k => $g) {
-				$zones[$key]["data"]["gender"]["data"][$k]["percentage"] = $g["count"] > 0 ? $g["count"] / ($zone["data"]["gender"]["broj_ljudi"] > 0 ? $zone["data"]["gender"]["broj_ljudi"] : 1) * 100 : 0;
-			}
-			// echo json_encode($zone);
-			// exit;
-		}
-
-		// echo json_encode($zones);
-		// exit;
 
 		// header('Content-Type: application/json');
 
@@ -1788,10 +1582,8 @@ class Analytics
 			$totalDuration = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 
 			// Calculate average lasted time per person
-			$numberOfPeople = $zone["data"]["gender"]["broj_ljudi"];
+			$numberOfPeople = $zone["data"]["broj_ljudi"];
 
-			// echo $numberOfPeople;
-			// exit;
 			// Convert lasted from string to array structure
 			$zone["lasted"] = [
 				"formatted" => $totalDuration,
@@ -1811,8 +1603,6 @@ class Analytics
 
 		// echo "<pre>";
 		$total = [];
-		$gender_total_count = [];
-		$total_broj_ljudi = 0;
 		foreach ($result as &$r) {
 
 
@@ -1871,30 +1661,14 @@ class Analytics
 				}
 			}
 
-			// $total["data"] = array(
-			// 	"broj_ljudi" => $total["data"]["broj_ljudi"] + $r["data"]["broj_ljudi"],
-			// 	"broj_muski" => $total["data"]["broj_muski"] + $r["data"]["broj_muski"],
-			// 	"broj_zenski" => $total["data"]["broj_zenski"] + $r["data"]["broj_zenski"],
-			// 	"percentage_muski" =>  $total["data"]["broj_ljudi"] > 0 ? round($total["data"]["broj_muski"] / $total["data"]["broj_ljudi"] * 100, 2) : 0,
-			// 	"percentage_zenski" =>  $total["data"]["broj_ljudi"] > 0 ? round($total["data"]["broj_zenski"] / $total["data"]["broj_ljudi"] * 100, 2) : 0,
-			// );
+			$total["data"] = array(
+				"broj_ljudi" => $total["data"]["broj_ljudi"] + $r["data"]["broj_ljudi"],
+				"broj_muski" => $total["data"]["broj_muski"] + $r["data"]["broj_muski"],
+				"broj_zenski" => $total["data"]["broj_zenski"] + $r["data"]["broj_zenski"],
+				"percentage_muski" =>  $total["data"]["broj_ljudi"] > 0 ? round($total["data"]["broj_muski"] / $total["data"]["broj_ljudi"] * 100, 2) : 0,
+				"percentage_zenski" =>  $total["data"]["broj_ljudi"] > 0 ? round($total["data"]["broj_zenski"] / $total["data"]["broj_ljudi"] * 100, 2) : 0,
+			);
 
-
-
-			foreach ($r["data"]["gender"]["data"] as $i => $ds) {
-				if (!isset($gender_total_count[$ds["label"]])) {
-					$gender_total_count[$ds["label"]] = $ds;
-					$total_broj_ljudi += $ds["count"];
-				} else {
-					$gender_total_count[$ds["label"]]["count"] += $ds["count"];
-					$total_broj_ljudi += $ds["count"];
-				}
-			}
-
-			// echo json_encode($gender_total_count);
-			// exit;
-
-			// $total["data"]["gender"] = 
 
 			$t = array_sum(array_column($r['data']["dobna_skupina"]["data"], 'count'));
 			foreach ($r['data']["dobna_skupina"]["data"] as &$item) {
@@ -1909,8 +1683,6 @@ class Analytics
 			// exit;
 		}
 
-		$total["data"]["gender"] = array_values($gender_total_count);
-		$total["data"]["broj_ljudi"] = $total_broj_ljudi;
 
 		// echo "<pre>";
 		// foreach ($questions_answers as &$q) {
@@ -1996,8 +1768,8 @@ class Analytics
 				$totalSeconds += (int)$timeParts[0] * 3600 + (int)$timeParts[1] * 60 + (int)$timeParts[2];
 
 				$numberOfPeople = $zone["data"]["broj_ljudi"];
-				// $males = $zone["data"]["broj_muski"];
-				// $females = $zone["data"]["broj_zenski"];
+				$males = $zone["data"]["broj_muski"];
+				$females = $zone["data"]["broj_zenski"];
 			}
 			$hours = str_pad(floor($totalSeconds / 3600), 2, '0', STR_PAD_LEFT);
 			$minutes = str_pad(floor(($totalSeconds % 3600) / 60), 2, '0', STR_PAD_LEFT);
@@ -2009,9 +1781,9 @@ class Analytics
 				'by_number_of_people_seconds' => $this->getLastingAverageByNumberOfPeople($totalSeconds, $numberOfPeople, false)
 			];
 
-			// $base['data']['broj_ljudi'] = $numberOfPeople;
-			// $base['data']['broj_muski'] = $males;
-			// $base['data']['broj_zenski'] = $females;
+			$base['data']['broj_ljudi'] = $numberOfPeople;
+			$base['data']['broj_muski'] = $males;
+			$base['data']['broj_zenski'] = $females;
 
 			$result[] = $base;
 		}
