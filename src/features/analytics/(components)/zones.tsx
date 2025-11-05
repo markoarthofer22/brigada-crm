@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { intervalToDuration } from 'date-fns'
 import { useTranslation } from 'react-i18next'
-import { Bar, BarChart, Legend, Pie, PieChart, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { handleScreenshot } from '@/lib/utils.ts'
 import { useHandleGenericError } from '@/hooks/use-handle-generic-error.tsx'
 import { Button } from '@/components/ui/button'
@@ -198,7 +198,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 									</div>
 								</div>
 								<div className='grid grid-cols-2 gap-4'>
-									{pastedTextData.gender.map((item, index) => (
+									{pastedTextData.gender.map((item: any, index: number) => (
 										<div
 											key={index}
 											className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'
@@ -249,11 +249,13 @@ export default function Zones({ data, projectName }: ZonesProps) {
 								>
 									<PieChart>
 										<Pie
-											data={pastedTextData.gender.map((item, index) => ({
-												name: item.label,
-												value: item.count,
-												fill: pieColors[index % pieColors.length],
-											}))}
+											data={pastedTextData.gender.map(
+												(item: any, index: number) => ({
+													name: item.label,
+													value: item.count,
+													fill: pieColors[index % pieColors.length],
+												})
+											)}
 											cx='50%'
 											cy='50%'
 											outerRadius={80}
@@ -432,11 +434,13 @@ export default function Zones({ data, projectName }: ZonesProps) {
 									>
 										<PieChart>
 											<Pie
-												data={zone.data.gender.data.map((item, index) => ({
-													name: item.label,
-													value: item.count,
-													fill: pieColors[index % pieColors.length],
-												}))}
+												data={zone.data.gender.data.map(
+													(item: any, index: number) => ({
+														name: item.label,
+														value: item.count,
+														fill: pieColors[index % pieColors.length],
+													})
+												)}
 												cx='50%'
 												cy='50%'
 												outerRadius={80}
@@ -518,7 +522,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										{zone.data.gender.data.map((item, index) => (
+										{zone.data.gender.data.map((item: any, index: number) => (
 											<TableRow key={index}>
 												<TableCell>{item.label}</TableCell>
 												<TableCell>{item.count}</TableCell>

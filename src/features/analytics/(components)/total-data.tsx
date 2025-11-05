@@ -113,7 +113,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 					<CardContent>
 						<div className='text-2xl font-bold'>{data.gender.broj_ljudi}</div>
 						<p className='text-xs text-muted-foreground'>
-							{data.gender.data.map((item, index) => (
+							{data.gender.data.map((item: any, index: number) => (
 								<span key={index}>
 									{item.count} {item.label}
 									{index < data.gender.data.length - 1 && ', '}
@@ -141,7 +141,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 							</p>
 							<div className='grid grid-cols-2 gap-2 text-xs'>
 								{data?.trackings?.average_people?.per_gender?.map(
-									(item, index) => (
+									(item: any, index: number) => (
 										<div key={index} className='rounded bg-blue-50 p-2'>
 											<span className='font-medium text-blue-700'>
 												{item.label}
@@ -201,7 +201,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 							</p>
 							<div className='grid grid-cols-2 gap-2 text-xs'>
 								{data?.trackings?.average_lasted?.per_gender?.map(
-									(item, index) => (
+									(item: any) => (
 										<div className='rounded bg-blue-50 p-2'>
 											<span className='font-medium text-blue-700'>
 												{item.label}
@@ -444,7 +444,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 									</div>
 								</div>
 								{data.trackings?.average_people?.per_gender?.map(
-									(item, index) => (
+									(item: any, index: number) => (
 										<div
 											key={index}
 											className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'
@@ -506,7 +506,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 									</div>
 								</div>
 								{data.trackings?.average_lasted?.per_gender?.map(
-									(item, index) => (
+									(item: any, index: number) => (
 										<div
 											key={index}
 											className='rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3'

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { format } from 'date-fns'
-import { debug } from 'console'
+// import { debug } from 'console'
 import { hr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
