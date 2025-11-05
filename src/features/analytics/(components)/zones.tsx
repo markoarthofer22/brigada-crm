@@ -94,6 +94,40 @@ const CustomTooltipContent = ({ active, payload, label }: any) => {
 	)
 }
 
+const createRenderCustomLabel = (genderData: any[]) => {
+	return (props: any) => {
+		const { cx, cy, midAngle, outerRadius, fill, name, percent, value, index } =
+			props
+		const RADIAN = Math.PI / 180
+
+		let angle = midAngle
+		if (value === 0) {
+			// Distribute zero-value labels evenly in unused space
+			const zeroIndex = genderData.filter(
+				(d, i) => i < index && d.count === 0
+			).length
+			angle = zeroIndex * 20 // Spread zeros at bottom/sides
+		}
+
+		const radius = outerRadius + 20
+		const x = cx + radius * Math.cos(-angle * RADIAN)
+		const y = cy + radius * Math.sin(-angle * RADIAN)
+
+		return (
+			<text
+				x={x}
+				y={y}
+				fill={fill}
+				textAnchor={x > cx ? 'start' : 'end'}
+				dominantBaseline='central'
+				className='text-xs font-medium'
+			>
+				{`${name}: ${(percent * 100).toFixed(0)}%`}
+			</text>
+		)
+	}
+}
+
 export default function Zones({ data, projectName }: ZonesProps) {
 	const { t } = useTranslation()
 	const { handleError } = useHandleGenericError()
@@ -197,13 +231,13 @@ export default function Zones({ data, projectName }: ZonesProps) {
 										{t('Analytics.surveyQuestions')}
 									</div>
 								</div>
-								<div className='grid grid-cols-2 gap-4'>
+								<div className='col-span-2 grid grid-cols-2 gap-4'>
 									{pastedTextData.gender.map((item: any, index: number) => (
 										<div
 											key={index}
 											className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'
 										>
-											<div className='text-3xl font-bold text-primary'>
+											<div className='text-base font-bold text-primary'>
 												{item.label}
 											</div>
 											<div className='text-sm text-primary'>
@@ -423,13 +457,16 @@ export default function Zones({ data, projectName }: ZonesProps) {
 										{t('Analytics.genderDistribution')}
 									</h3>
 									<ChartContainer
-										config={{
-											males: { label: t('Analytics.males'), color: '#0088FE' },
-											females: {
-												label: t('Analytics.females'),
-												color: '#00C49F',
+										config={zone.data.gender.data.reduce(
+											(acc: any, item: any, i: number) => {
+												acc[item.label] = {
+													label: item.label,
+													color: pieColors[i % pieColors.length],
+												}
+												return acc
 											},
-										}}
+											{}
+										)}
 										className='h-[300px] w-full'
 									>
 										<PieChart>
@@ -445,10 +482,11 @@ export default function Zones({ data, projectName }: ZonesProps) {
 												cy='50%'
 												outerRadius={80}
 												dataKey='value'
-												labelLine={true}
-												label={({ name, percent }) =>
-													`${name}: ${(percent * 100).toFixed(0)}%`
-												}
+												label={createRenderCustomLabel(zone.data.gender.data)}
+												labelLine={{
+													stroke: 'hsl(var(--border))',
+													strokeWidth: 1,
+												}}
 											/>
 											<ChartTooltip
 												content={

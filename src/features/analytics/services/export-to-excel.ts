@@ -51,6 +51,21 @@ const getAgeGroupCount = (ageGroupsData: any[], ageLabel: string) => {
 	return ageGroup ? ageGroup.count : 0
 }
 
+const getGenderGroups = (data: any[]) => {
+	if (data.length === 0) return []
+	const allGenderGroups = new Set<string>()
+	data.forEach((tracking: any) => {
+		if (tracking.data?.gender?.data) {
+			tracking.data.gender.data.forEach((gender: any) => {
+				if (gender.label) {
+					allGenderGroups.add(gender.label)
+				}
+			})
+		}
+	})
+	return Array.from(allGenderGroups)
+}
+
 const getPossibleAnswersForQuestion = (
 	data: any[],
 	questionLabel: string
@@ -210,6 +225,7 @@ export const exportToExcel = async ({
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
 	const profileOptions = getProfileOptions(data)
+	const genderGroups = getGenderGroups(data)
 
 	const questionsCols = mainQuestions.reduce(
 		(total: number, questionLabel: string) => {
@@ -302,7 +318,7 @@ export const exportToExcel = async ({
 	currentCol += timeCols
 
 	// Demographics (5 columns: Total, Males, %, Females, %)
-	const demographicsCols = 5
+	const demographicsCols = 1 + genderGroups.length * 2 // 1 for total + (count + percentage for each gender)
 	if (demographicsCols > 1) {
 		worksheet.mergeCells(1, currentCol, 1, currentCol + demographicsCols - 1)
 	}
@@ -438,13 +454,16 @@ export const exportToExcel = async ({
 		t('Analytics.duration'),
 		t('Analytics.start'),
 		t('Analytics.end'),
-		t('Analytics.totalPeople'),
-		t('Analytics.males'),
-		'%',
-		t('Analytics.females'),
-		'%',
-		...ageGroups
+		t('Analytics.totalPeople')
 	)
+
+	// Add dynamic gender headers
+	genderGroups.forEach((genderLabel: string) => {
+		headers.push(genderLabel)
+		headers.push('%')
+	})
+
+	headers.push(...ageGroups)
 
 	profileOptions.forEach((profileLabel: string) => {
 		headers.push(`${profileLabel} (${t('Analytics.count')})`)
@@ -513,14 +532,19 @@ export const exportToExcel = async ({
 			record.ended_at
 		)
 
-		// Demographics
-		worksheet.getCell(rowIndex, colIndex++).value = record.data.broj_ljudi
-		worksheet.getCell(rowIndex, colIndex++).value = record.data.broj_muski
+		// Demographics - Total people
 		worksheet.getCell(rowIndex, colIndex++).value =
-			record.data.broj_muski_percentage + '%'
-		worksheet.getCell(rowIndex, colIndex++).value = record.data.broj_zenski
-		worksheet.getCell(rowIndex, colIndex++).value =
-			record.data.broj_zenski_percentage + '%'
+			record.data.gender?.broj_ljudi || 0
+
+		// Demographics - Iterate through gender groups
+		genderGroups.forEach((genderLabel: string) => {
+			const genderData = record.data.gender?.data?.find(
+				(g: any) => g.label === genderLabel
+			)
+			worksheet.getCell(rowIndex, colIndex++).value = genderData?.count || 0
+			worksheet.getCell(rowIndex, colIndex++).value =
+				(genderData?.percentage || 0) + '%'
+		})
 
 		// Age groups
 		ageGroups.forEach((ageLabel: any) => {
@@ -617,14 +641,14 @@ export const exportToExcel = async ({
 			currentColCheck += 3
 
 			// Demographics columns
-			if (col >= currentColCheck && col < currentColCheck + 5) {
+			if (col >= currentColCheck && col < currentColCheck + demographicsCols) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.demographicsBg },
 				}
 			}
-			currentColCheck += 5
+			currentColCheck += demographicsCols
 
 			// Age groups columns
 			if (col >= currentColCheck && col < currentColCheck + ageGroups.length) {
