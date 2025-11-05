@@ -237,17 +237,11 @@ export default function Zones({ data, projectName }: ZonesProps) {
 											key={index}
 											className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'
 										>
-<<<<<<< HEAD
 											<div className='text-base font-bold text-primary'>
 												{item.label}
-=======
-											<div className='text-sm text-primary'>{item.label}</div>
-											<div className='text-3xl font-bold text-primary'>
-												{item.count}
->>>>>>> 333833fb70a04b3f362bf99f380a9d57c0f7b954
 											</div>
 											<div className='text-sm text-primary'>
-												({item.percentage}%)
+												{item.count} ({item.percent}%)
 											</div>
 										</div>
 									))}
