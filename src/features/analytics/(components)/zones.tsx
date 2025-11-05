@@ -203,11 +203,12 @@ export default function Zones({ data, projectName }: ZonesProps) {
 											key={index}
 											className='flex flex-col items-center justify-center rounded-lg border border-primary bg-white p-4 text-center shadow-sm'
 										>
+											<div className='text-sm text-primary'>{item.label}</div>
 											<div className='text-3xl font-bold text-primary'>
-												{item.label}
+												{item.count}
 											</div>
 											<div className='text-sm text-primary'>
-												{item.count} ({item.percent}%)
+												({item.percentage}%)
 											</div>
 										</div>
 									))}
