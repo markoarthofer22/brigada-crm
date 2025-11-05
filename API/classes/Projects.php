@@ -119,7 +119,7 @@ class Projects
 
 		$id_projects = (int)$result['id_projects'];
 
-		if (!isset($params->from_template) || !$params->from_template) {
+		if (!isset($params->data->from_template) || !$params->data->from_template) {
 			/// ADD DEFAULT STATIC QUESTIONS TO PROJECT
 			$default_static_questions = $Settings->Get((object)array("key" => "static_questions"));
 			foreach ($default_static_questions["value"] as $key => $value) {
@@ -151,7 +151,7 @@ class Projects
 					WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL AND jsonb_exists(data, 'static')
 			";
 			$stmt = $this->database->prepare($sql);
-			$stmt->bindParam(':ID_PROJECTS', $params->from_template);
+			$stmt->bindParam(':ID_PROJECTS', $params->data->from_template);
 			$stmt->execute();
 			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
