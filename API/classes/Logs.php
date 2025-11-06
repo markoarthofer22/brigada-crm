@@ -122,7 +122,7 @@ class Logs
 					END AS time_since_last_log
 				FROM ranked_logs rl
 				LEFT JOIN brigada.users bu ON bu.id_users = rl.id_users
-				WHERE rl.rn = 1
+				WHERE rl.rn = 1 and bu.firstname != '' and bu.lastname != ''
 				ORDER BY rl.created_at DESC
 				LIMIT 10
 		";
