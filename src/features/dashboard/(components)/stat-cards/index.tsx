@@ -55,7 +55,7 @@ export function StatCards({
 				</CardHeader>
 				<CardContent>
 					<div className='text-2xl font-bold'>{activeUsers ?? 'N/A'}</div>
-					{usersInLastMonth && (
+					{usersInLastMonth != null && (
 						<p className='text-xs text-muted-foreground'>
 							{t('Dashboard.lastMonth', {
 								value: usersInLastMonth,
