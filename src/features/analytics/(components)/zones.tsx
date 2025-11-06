@@ -241,7 +241,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 												{item.label}
 											</div>
 											<div className='text-sm text-primary'>
-												{item.count} ({item.percent}%)
+												{item.count} ({item.percentage}%)
 											</div>
 										</div>
 									))}
