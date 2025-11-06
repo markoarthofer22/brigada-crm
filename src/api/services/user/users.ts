@@ -9,7 +9,6 @@ import {
 
 export async function getUsers() {
 	const response = await axios.get('/user')
-
 	const parsedData = AllUsersResponseSchema.parse(response.data)
 
 	return parsedData.results

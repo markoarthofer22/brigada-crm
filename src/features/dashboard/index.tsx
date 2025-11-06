@@ -86,7 +86,6 @@ export default function Dashboard() {
 						usersInLastMonth={usersInLastMonth}
 					/>
 					<RecentProjects projects={projectsQuery.data ?? []} />
-
 					<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
 						<UserDistribution users={usersQuery.data ?? []} />
 						<RecentUsers />
