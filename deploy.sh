@@ -34,10 +34,10 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo -e "${YELLOW}Pushing to 'live' remote (main branch)...${NC}"
-git push live main
+echo -e "${YELLOW}Pushing to 'test' remote (main branch)...${NC}"
+git push test main
 if [ $? -ne 0 ]; then
-  echo -e "${RED}[ERROR] Push to live failed.${NC}"
+  echo -e "${RED}[ERROR] Push to test failed.${NC}"
   exit 1
 fi
 
