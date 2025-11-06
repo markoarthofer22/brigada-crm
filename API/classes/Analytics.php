@@ -1911,7 +1911,6 @@ class Analytics
 
 		$total["data"]["gender"] = array_values($gender_total_count);
 		$t = array_sum(array_column($total['data']["gender"], 'count'));
-		$total["data"]["gender_sum"] = $t;
 		foreach ($total["data"]["gender"] as &$item) {
 			$item['percentage'] = $t > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
 		}
@@ -1965,6 +1964,9 @@ class Analytics
 		// exit;
 
 		// print_R($dobna_skupina);
+		// exit;
+
+		// echo json_encode($total);
 		// exit;
 
 		$output = array("per_zone" => $result, "total" => $total);

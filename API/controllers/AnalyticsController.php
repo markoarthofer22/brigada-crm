@@ -630,9 +630,18 @@ class AnalyticsController extends BaseController
 		// this is to avoid showing zones for trackings that are not part of the filtered data
 		$result["zones_heatmap"] = $Analytics->GetZonesForHeatMap($params);
 		$all_tracking_ids = array_column($result["trackings"], 'id_tracking');
+
+		$result["zones_heatmap__"] = $all_tracking_ids;
+
 		$result["zones_heatmap"] = array_filter($result["zones_heatmap"], function ($zone) use ($all_tracking_ids) {
 			return in_array($zone["id_tracking"], $all_tracking_ids);
 		});
+		foreach ($result["zones_heatmap"] as $key => $value) {
+			$broj_ljudi = array_values(array_column(array_filter($result["trackings"], fn($i) => $i['id_tracking'] == $value["id_tracking"]), 'data'))[0]['broj_ljudi'] ?? null;
+			$result["zones_heatmap"][$key]["number_of_people"] = $broj_ljudi;
+			$result["zones_heatmap"][$key]["heat"]["number_of_people"] = $broj_ljudi;
+			$result["zones_heatmap"][$key]["heat_centroid"]["number_of_people"] = $broj_ljudi;
+		}
 		$result["zones_heatmap"] = array_values($result["zones_heatmap"]);
 
 		///////////////////////////////////////////
