@@ -42,3 +42,4 @@ if [ $? -ne 0 ]; then
 fi
 
 echo -e "${GREEN}✅ All done! Code pushed successfully.${NC}"
+
