@@ -372,7 +372,7 @@ export default function GeneralData({
 
 	const basicInfoCols = 3
 	const timeCols = 3
-	const demographicsCols = genderGroups.length + 4
+	const demographicsCols = genderGroups.length * 2 + 1
 	const ageGroupsCols = ageGroups.length
 	const profileCols = profileOptions.length // Calculate profile columns
 

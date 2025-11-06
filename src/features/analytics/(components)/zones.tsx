@@ -322,9 +322,37 @@ export default function Zones({ data, projectName }: ZonesProps) {
 												<div className='text-sm font-medium text-primary'>
 													{ageGroup.label}
 												</div>
-												<div className='text-sm text-primary'>
-													({ageGroup.percentage}%)
+											</div>
+											<div className='text-sm text-primary'>
+												({ageGroup.percentage}%)
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+
+						{pastedTextData.profile && (
+							<div className='mt-6'>
+								<h4 className='mb-3 text-lg font-semibold text-primary'>
+									{t('Analytics.profileGroups')}
+								</h4>
+								<div className='grid grid-cols-2 gap-2 xl:grid-cols-6'>
+									{pastedTextData.profile.data.map((profile: any) => (
+										<div
+											key={profile.label}
+											className='rounded-lg border border-destructive bg-white p-3 text-center shadow-sm'
+										>
+											<div className='text-lg font-bold text-destructive'>
+												{profile.count}
+											</div>
+											<div className='flex items-center justify-center gap-2'>
+												<div className='text-sm font-medium text-primary'>
+													{profile.label}
 												</div>
+											</div>
+											<div className='text-sm text-primary'>
+												({profile.percentage}%)
 											</div>
 										</div>
 									))}

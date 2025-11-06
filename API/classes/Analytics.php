@@ -118,7 +118,7 @@ class Analytics
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count,
 						(SELECT email FROM brigada.users WHERE id_users = t.id_users) as email
 					FROM brigada.tracking t
-					{$_where} {$_ended}--AND id_tracking in (192)
+					{$_where} {$_ended} --AND id_tracking in (224)
 					ORDER BY t.started_at ASC
 				)
 				SELECT * FROM all_data
@@ -1898,11 +1898,11 @@ class Analytics
 
 			$t = array_sum(array_column($r['data']["dobna_skupina"]["data"], 'count'));
 			foreach ($r['data']["dobna_skupina"]["data"] as &$item) {
-				$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+				$item['percentage'] = $t > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
 			}
 			$t = array_sum(array_column($r['data']["profile"]["data"], 'count'));
 			foreach ($r['data']["profile"]["data"] as &$item) {
-				$item['percentage'] = $total > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+				$item['percentage'] = $t > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
 			}
 
 			// echo json_encode($r);
@@ -1910,6 +1910,11 @@ class Analytics
 		}
 
 		$total["data"]["gender"] = array_values($gender_total_count);
+		$t = array_sum(array_column($total['data']["gender"], 'count'));
+		$total["data"]["gender_sum"] = $t;
+		foreach ($total["data"]["gender"] as &$item) {
+			$item['percentage'] = $t > 0 ? round(($item['count'] / $t) * 100, 2) : 0;
+		}
 		$total["data"]["broj_ljudi"] = $total_broj_ljudi;
 
 		// echo "<pre>";
@@ -1974,6 +1979,9 @@ class Analytics
 		// echo "<pre>";
 		$grouped = [];
 
+		// echo json_encode($zones);
+		// exit;
+
 		// Group by id_zones
 		foreach ($zones as $zone) {
 			$id_zones = $zone['id_zones'];
@@ -1985,20 +1993,59 @@ class Analytics
 
 		$result = [];
 
-		foreach ($grouped as $group) {
+		// $grouped = array_values($grouped);
+
+		// echo json_encode($grouped);
+		// exit;
+
+		foreach ($grouped as $key => $group) {
+			// echo $key . "<br>";
 			// Take first zone as base structure (keep everything as is)
 			$base = $group[0];
 
+			// echo json_encode($base);
+			// exit;
+
 			// Only sum lasted field
 			$totalSeconds = 0;
-			foreach ($group as $zone) {
+			$numberOfPeople = 0;
+			foreach ($group as $k => $zone) {
 				$timeParts = explode(':', $zone['lasted']['formatted']);
 				$totalSeconds += (int)$timeParts[0] * 3600 + (int)$timeParts[1] * 60 + (int)$timeParts[2];
 
-				$numberOfPeople = $zone["data"]["broj_ljudi"];
+				$numberOfPeople += $zone["data"]["gender"]["broj_ljudi"];
 				// $males = $zone["data"]["broj_muski"];
 				// $females = $zone["data"]["broj_zenski"];
+
+				if ($k > 0) {
+					foreach ($zone["data"]["dobna_skupina"]["data"] as $z_key => $z_value) {
+						foreach ($base["data"]["dobna_skupina"]["data"] as $b_key => $b_value) {
+							if ($z_value["label"] == $b_value["label"]) {
+								$base["data"]["dobna_skupina"]["data"][$b_key]["count"] += $z_value["count"];
+							}
+						}
+					}
+
+					foreach ($zone["data"]["profile"]["data"] as $z_key => $z_value) {
+						foreach ($base["data"]["profile"]["data"] as $b_key => $b_value) {
+							if ($z_value["label"] == $b_value["label"]) {
+								$base["data"]["profile"]["data"][$b_key]["count"] += $z_value["count"];
+							}
+						}
+					}
+
+					foreach ($zone["data"]["gender"]["data"] as $z_key => $z_value) {
+						foreach ($base["data"]["gender"]["data"] as $b_key => $b_value) {
+							if ($z_value["label"] == $b_value["label"]) {
+								$base["data"]["gender"]["data"][$b_key]["count"] += $z_value["count"];
+							}
+						}
+					}
+					$base["data"]["gender"]["broj_ljudi"] += $zone["data"]["gender"]["broj_ljudi"];
+				}
 			}
+			// echo json_encode($base);
+			// exit;
 			$hours = str_pad(floor($totalSeconds / 3600), 2, '0', STR_PAD_LEFT);
 			$minutes = str_pad(floor(($totalSeconds % 3600) / 60), 2, '0', STR_PAD_LEFT);
 			$seconds = str_pad($totalSeconds % 60, 2, '0', STR_PAD_LEFT);
@@ -2015,6 +2062,9 @@ class Analytics
 
 			$result[] = $base;
 		}
+
+		// echo json_encode($result);
+		// exit;
 
 		return $result;
 	}
