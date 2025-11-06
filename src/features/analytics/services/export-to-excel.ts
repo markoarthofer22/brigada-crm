@@ -621,14 +621,14 @@ export const exportToExcel = async ({
 			}
 
 			// Basic info columns
-			if (col >= currentColCheck && col < currentColCheck + 2) {
+			if (col >= currentColCheck && col < currentColCheck + 3) {
 				cell.style.fill = {
 					type: 'pattern',
 					pattern: 'solid',
 					fgColor: { argb: colors.basicBg },
 				}
 			}
-			currentColCheck += 2
+			currentColCheck += 3
 
 			// Time columns
 			if (col >= currentColCheck && col < currentColCheck + 3) {
