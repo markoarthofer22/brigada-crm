@@ -96,7 +96,9 @@ class Logs
 					SELECT id_users, created_at,
 						ROW_NUMBER() OVER (PARTITION BY id_users ORDER BY created_at DESC) AS rn
 					FROM brigada.logs
-					WHERE id_users IS NOT NULL
+					WHERE 
+						id_users IS NOT NULL
+						AND created_at > NOW() - INTERVAL '6 months'
 				)
 				SELECT 
 					rl.id_users, 
