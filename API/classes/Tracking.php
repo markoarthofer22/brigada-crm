@@ -45,7 +45,7 @@ class Tracking
 					SELECT 
 						*,
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
-					FROM brigada.tracking t
+					FROM {$_SESSION["SCHEMA"]}.tracking t
 					{$_where} AND t.id_users = {$_SESSION["user"]["id_users"]} AND (t.data->>'valid')::boolean IS NOT FALSE 
 					ORDER BY t.started_at ASC
 				)

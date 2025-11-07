@@ -95,7 +95,7 @@ class Logs
 		$sql = "WITH ranked_logs AS (
 					SELECT id_users, created_at,
 						ROW_NUMBER() OVER (PARTITION BY id_users ORDER BY created_at DESC) AS rn
-					FROM brigada.logs
+					FROM {$_SESSION["SCHEMA"]}.logs
 					WHERE 
 						id_users IS NOT NULL
 						AND created_at > NOW() - INTERVAL '6 months'
@@ -123,7 +123,7 @@ class Logs
 							)
 					END AS time_since_last_log
 				FROM ranked_logs rl
-				LEFT JOIN brigada.users bu ON bu.id_users = rl.id_users
+				LEFT JOIN {$_SESSION["SCHEMA"]}.users bu ON bu.id_users = rl.id_users
 				WHERE rl.rn = 1 and bu.firstname != '' and bu.lastname != ''
 				ORDER BY rl.created_at DESC
 				LIMIT 10

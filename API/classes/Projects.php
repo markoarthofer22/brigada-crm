@@ -147,7 +147,7 @@ class Projects
 
 			// STATIC QUESTIONS
 			$sql = "SELECT *
-					FROM brigada.questions 
+					FROM {$_SESSION["SCHEMA"]}.questions 
 					WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL AND jsonb_exists(data, 'static')
 			";
 			$stmt = $this->database->prepare($sql);
@@ -157,7 +157,7 @@ class Projects
 
 			foreach ($results as $r) {
 				$r["data"] = json_decode($r["data"]);
-				$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
+				$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
 							VALUES
 							(:ID_PROJECTS_NEW,null,:LABEL,:ID_QUESTIONS_TYPES,:POSSIBLE_ANSWERS,:ORDER,:DATA)
 							RETURNING id_questions
@@ -173,19 +173,19 @@ class Projects
 				$stmt->execute();
 			}
 
-			$sql = "UPDATE brigada.questions AS q1
+			$sql = "UPDATE {$_SESSION["SCHEMA"]}.questions AS q1
 					SET data = jsonb_set(
 								q1.data - 'old_id',
 								'{parent_id}',
 								to_jsonb(q2.id_questions)
 							)
-					FROM brigada.questions AS q2
+					FROM {$_SESSION["SCHEMA"]}.questions AS q2
 					WHERE q1.data->>'parent_id' = q2.data->>'old_id'
 					AND q1.id_projects = :ID_PROJECTS_NEW_1
 					AND q2.id_projects = :ID_PROJECTS_NEW_2
 					AND q2.id_questions = (
 						SELECT q3.id_questions
-						FROM brigada.questions AS q3
+						FROM {$_SESSION["SCHEMA"]}.questions AS q3
 						WHERE q3.data->>'old_id' = q1.data->>'parent_id'
 							AND q3.id_projects = :ID_PROJECTS_NEW_3
 						ORDER BY q3.id_questions
@@ -328,7 +328,7 @@ class Projects
 	{
 
 		// IMAGES
-		$sql = "SELECT * FROM brigada.projects_images WHERE id_projects = :ID_PROJECTS";
+		$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.projects_images WHERE id_projects = :ID_PROJECTS";
 		$stmt = $this->database->prepare($sql);
 		$stmt->bindParam(':ID_PROJECTS', $params->id_projects);
 		$stmt->execute();
@@ -336,7 +336,7 @@ class Projects
 
 		$uploadedImages = [];
 		foreach ($images as $image) {
-			$sql = "SELECT * FROM brigada.images WHERE id_images = :ID_IMAGES";
+			$sql = "SELECT * FROM {$_SESSION["SCHEMA"]}.images WHERE id_images = :ID_IMAGES";
 			$stmt = $this->database->prepare($sql);
 			$stmt->bindParam(':ID_IMAGES', $image["id_images"]);
 			$stmt->execute();
@@ -367,13 +367,13 @@ class Projects
 		// exit;
 
 		// PROJECTS
-		$sql = "INSERT INTO brigada.projects (data)
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.projects (data)
 				SELECT jsonb_set(
 						data, 
 						'{name}', 
 						to_jsonb((data->>'name') || ' copy')
 					)
-				FROM brigada.projects
+				FROM {$_SESSION["SCHEMA"]}.projects
 				WHERE id_projects = :ID_PROJECTS
 				RETURNING id_projects
 		";
@@ -389,21 +389,21 @@ class Projects
 
 			// ZONES
 			// $sql = "WITH inserted AS (
-			// 			INSERT INTO brigada.zones (id_projects, id_images, name, coordinates, data)
+			// 			INSERT INTO {$_SESSION["SCHEMA"]}.zones (id_projects, id_images, name, coordinates, data)
 			// 			SELECT 
 			// 				:ID_PROJECTS_NEW,
 			// 				:ID_IMAGES_NEW,
 			// 				name,
 			// 				coordinates,
 			// 				data
-			// 			FROM brigada.zones
+			// 			FROM {$_SESSION["SCHEMA"]}.zones
 			// 			WHERE id_projects = :ID_PROJECTS AND id_images = :ID_IMAGES
 			// 			RETURNING id_zones
 			// 		)
 			// 		SELECT 
 			// 			inserted.id_zones AS id_zones_new,
 			// 			z.id_zones AS id_zones_old
-			// 		FROM inserted, brigada.zones z
+			// 		FROM inserted, {$_SESSION["SCHEMA"]}.zones z
 			// 		WHERE z.id_projects = :ID_PROJECTS AND z.id_images = :ID_IMAGES;
 			// ";
 			$sql = "WITH source AS (
@@ -412,11 +412,11 @@ class Projects
 							name,
 							coordinates,
 							data
-						FROM brigada.zones
+						FROM {$_SESSION["SCHEMA"]}.zones
 						WHERE id_projects = :ID_PROJECTS AND id_images = :ID_IMAGES
 					),
 					inserted AS (
-						INSERT INTO brigada.zones (id_projects, id_images, name, coordinates, data)
+						INSERT INTO {$_SESSION["SCHEMA"]}.zones (id_projects, id_images, name, coordinates, data)
 						SELECT 
 							:ID_PROJECTS_NEW,
 							:ID_IMAGES_NEW,
@@ -448,8 +448,8 @@ class Projects
 				$id_zones_old = $nz['id_zones_old'];
 
 				// QUESTIONS WITHIN ZONES
-				$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
-						SELECT :ID_PROJECTS_NEW,:ID_ZONES_NEW,label,id_questions_types,possible_answers,\"order\",data FROM brigada.questions WHERE id_projects = :ID_PROJECTS AND id_zones = :ID_ZONES_OLD
+				$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
+						SELECT :ID_PROJECTS_NEW,:ID_ZONES_NEW,label,id_questions_types,possible_answers,\"order\",data FROM {$_SESSION["SCHEMA"]}.questions WHERE id_projects = :ID_PROJECTS AND id_zones = :ID_ZONES_OLD
 				";
 				// echo "sql: " . $sql . "\n";
 				// echo "old zone id: " . $id_zones_old . " => new zone id: " . $id_zones_new . "\n";
@@ -468,9 +468,9 @@ class Projects
 
 		// QUESTIONS WITHOUT ZONES
 		// NON STATIC QUESTIONS
-		$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
 				SELECT :ID_PROJECTS_NEW,null,label,id_questions_types,possible_answers,\"order\",data 
-				FROM brigada.questions 
+				FROM {$_SESSION["SCHEMA"]}.questions 
 				WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL AND NOT jsonb_exists(data, 'static')
 		";
 		$stmt = $this->database->prepare($sql);
@@ -481,7 +481,7 @@ class Projects
 
 		// STATIC QUESTIONS
 		$sql = "SELECT *
-				FROM brigada.questions 
+				FROM {$_SESSION["SCHEMA"]}.questions 
 				WHERE id_projects = :ID_PROJECTS AND id_zones IS NULL AND jsonb_exists(data, 'static')
 		";
 		$stmt = $this->database->prepare($sql);
@@ -491,7 +491,7 @@ class Projects
 
 		foreach ($results as $r) {
 			$r["data"] = json_decode($r["data"]);
-			$sql = "INSERT INTO brigada.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
+			$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.questions (id_projects,id_zones,label,id_questions_types,possible_answers,\"order\",data)
 						VALUES
 						(:ID_PROJECTS_NEW,null,:LABEL,:ID_QUESTIONS_TYPES,:POSSIBLE_ANSWERS,:ORDER,:DATA)
 						RETURNING id_questions
@@ -507,19 +507,19 @@ class Projects
 			$stmt->execute();
 		}
 
-		$sql = "UPDATE brigada.questions AS q1
+		$sql = "UPDATE {$_SESSION["SCHEMA"]}.questions AS q1
 				SET data = jsonb_set(
 							q1.data - 'old_id',
 							'{parent_id}',
 							to_jsonb(q2.id_questions)
 						)
-				FROM brigada.questions AS q2
+				FROM {$_SESSION["SCHEMA"]}.questions AS q2
 				WHERE q1.data->>'parent_id' = q2.data->>'old_id'
 				AND q1.id_projects = :ID_PROJECTS_NEW_1
 				AND q2.id_projects = :ID_PROJECTS_NEW_2
 				AND q2.id_questions = (
 					SELECT q3.id_questions
-					FROM brigada.questions AS q3
+					FROM {$_SESSION["SCHEMA"]}.questions AS q3
 					WHERE q3.data->>'old_id' = q1.data->>'parent_id'
 						AND q3.id_projects = :ID_PROJECTS_NEW_3
 					ORDER BY q3.id_questions
