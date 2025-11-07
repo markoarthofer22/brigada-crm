@@ -159,7 +159,7 @@ export function TrackingExam({
 
 	const answerQuestionMutation = useMutation({
 		mutationFn: (data: TrackingsAnswerUpsert) => addTrackingAnswer(data),
-		onSuccess: (data, req) => {
+		onSuccess: async (data, req) => {
 			if (!req.isStatic) {
 				toast.success(
 					t(
@@ -169,7 +169,10 @@ export function TrackingExam({
 					)
 				)
 			}
-			activeQuestionAnswers.refetch()
+			await activeQuestionAnswers.refetch()
+			await queryClient.invalidateQueries({
+				queryKey: ['trackings', projectId],
+			})
 		},
 		onError: (err: unknown) => handleError(err),
 	})

@@ -55,6 +55,7 @@ export default function ProjectDetailsForRegularUser() {
 		onSuccess: () => {
 			toast.success(t('ProjectDetailsRegularUser.commentAdded'))
 			setIsCommentModalOpen(false)
+			trackingQuery.refetch()
 		},
 		onError: (error: unknown) => {
 			handleError(error)
@@ -65,11 +66,9 @@ export default function ProjectDetailsForRegularUser() {
 		mutationFn: () => {
 			return startNewTackingEvent(Number(id))
 		},
-		onSuccess: (data) => {
-			if (data) {
-				toast.success(t('ProjectDetailsRegularUser.startTrackingSuccess'))
-				trackingQuery.refetch()
-			}
+		onSuccess: () => {
+			toast.success(t('ProjectDetailsRegularUser.startTrackingSuccess'))
+			trackingQuery.refetch()
 		},
 		onError: (error: unknown) => {
 			handleError(error)
