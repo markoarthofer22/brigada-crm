@@ -116,8 +116,8 @@ class Analytics
 					SELECT 
 						*,
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count,
-						(SELECT email FROM brigada.users WHERE id_users = t.id_users) as email
-					FROM brigada.tracking t
+						(SELECT email FROM {$_SESSION["SCHEMA"]}.users WHERE id_users = t.id_users) as email
+					FROM {$_SESSION["SCHEMA"]}.tracking t
 					{$_where} {$_ended} --AND id_tracking in (224)
 					ORDER BY t.started_at ASC
 				)
@@ -211,7 +211,7 @@ class Analytics
 					) AS number_of_people
 				FROM {$_SESSION["SCHEMA"]}.tracking_zones tz 
 				LEFT JOIN {$_SESSION["SCHEMA"]}.zones z ON tz.id_zones = z.id_zones
-				LEFT JOIN brigada.tracking_answers ta ON ta.id_tracking = tz.id_tracking AND ta.id_questions = 1
+				LEFT JOIN {$_SESSION["SCHEMA"]}.tracking_answers ta ON ta.id_tracking = tz.id_tracking AND ta.id_questions = 1
 				{$_where} -- and tz.id_tracking in (206,207)
 				ORDER BY tz.started_at ASC
 		";

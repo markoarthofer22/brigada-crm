@@ -87,7 +87,7 @@ class Questions
 	public function Add(object $params): int
 	{
 
-		$sql = "INSERT INTO brigada.questions 
+		$sql = "INSERT INTO {$_SESSION["SCHEMA"]}.questions 
 					(
 						id_projects,
 						id_zones,
@@ -104,7 +104,7 @@ class Questions
 						:LABEL,
 						:ID_QUESTIONS_TYPES,
 						:POSSIBLE_ANSWERS::jsonb,
-						(SELECT COALESCE(MAX(\"order\"), 0) + 1 FROM brigada.questions q WHERE q.id_projects = :ID_PROJECTS),
+						(SELECT COALESCE(MAX(\"order\"), 0) + 1 FROM {$_SESSION["SCHEMA"]}.questions q WHERE q.id_projects = :ID_PROJECTS),
 						:DATA
 					)
 				RETURNING id_questions
@@ -176,7 +176,7 @@ class Questions
 					SELECT id_questions::INTEGER, ord
 					FROM unnest(ARRAY[{$params->id_questions}]) WITH ORDINALITY AS t(id_questions, ord)
 				)
-				UPDATE brigada.questions q
+				UPDATE {$_SESSION["SCHEMA"]}.questions q
 					SET \"order\" = c.new_order
 				FROM custom_order c
 				WHERE q.id_questions = c.id_questions
