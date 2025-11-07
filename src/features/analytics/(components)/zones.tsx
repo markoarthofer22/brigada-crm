@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { intervalToDuration } from 'date-fns'
+import { CHART_COLORS } from '@/consts'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { handleScreenshot } from '@/lib/utils.ts'
@@ -34,17 +35,6 @@ interface ZonesProps {
 		total?: any
 	}
 }
-
-const pieChartColors = [
-	'#0088FE',
-	'#00C49F',
-	'#FFBB28',
-	'#FF8042',
-	'#AF19FF',
-	'#FF4560',
-	'#00E396',
-	'#775DD0',
-]
 
 const CustomTooltipContent = ({ active, payload, label }: any) => {
 	if (!active || !payload) return null
@@ -194,15 +184,6 @@ export default function Zones({ data, projectName }: ZonesProps) {
 		)
 	}
 
-	const pieColors = [
-		'#2563eb', // blue
-		'#ec4899', // pink
-		'#10b981', // emerald green
-		'#f59e0b', // amber
-		'#8b5cf6', // violet
-		'#ef4444', // red
-	]
-
 	return (
 		<div className='mt-8 space-y-7'>
 			{pastedTextData && (
@@ -272,13 +253,16 @@ export default function Zones({ data, projectName }: ZonesProps) {
 									{t('Analytics.genderBreakdown')}
 								</h4>
 								<ChartContainer
-									config={{
-										males: { label: t('Analytics.males'), color: '#2563eb' },
-										females: {
-											label: t('Analytics.females'),
-											color: '#ec4899',
+									config={pastedTextData.gender.reduce(
+										(acc: any, item: any, i: number) => {
+											acc[item.label] = {
+												label: item.label,
+												color: CHART_COLORS[i % CHART_COLORS.length],
+											}
+											return acc
 										},
-									}}
+										{}
+									)}
 									className='h-[250px]'
 								>
 									<PieChart>
@@ -287,7 +271,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 												(item: any, index: number) => ({
 													name: item.label,
 													value: item.count,
-													fill: pieColors[index % pieColors.length],
+													fill: CHART_COLORS[index % CHART_COLORS.length],
 												})
 											)}
 											cx='50%'
@@ -388,13 +372,13 @@ export default function Zones({ data, projectName }: ZonesProps) {
 				</CardHeader>
 				<CardContent>
 					<ChartContainer
-						config={{
-							people: { label: t('Analytics.people'), color: '#8884D8' },
-							duration: {
-								label: t('Analytics.durationSeconds'),
-								color: '#82CA9D',
-							},
-						}}
+						config={data.per_zone.reduce((acc: any, item: any, i: number) => {
+							acc[item.label] = {
+								label: item.name,
+								color: CHART_COLORS[i % CHART_COLORS.length],
+							}
+							return acc
+						}, {})}
 						className='h-[400px]'
 					>
 						<BarChart
@@ -407,8 +391,8 @@ export default function Zones({ data, projectName }: ZonesProps) {
 							<XAxis dataKey='name' />
 							<YAxis />
 							<ChartTooltip content={<CustomTooltipContent />} />
-							<Bar dataKey='people' fill='#8884D8' />
-							<Bar dataKey='duration' fill='#82CA9D' />
+							<Bar dataKey='people' fill={CHART_COLORS[0]} />
+							<Bar dataKey='duration' fill={CHART_COLORS[0]} />
 						</BarChart>
 					</ChartContainer>
 				</CardContent>
@@ -489,7 +473,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 											(acc: any, item: any, i: number) => {
 												acc[item.label] = {
 													label: item.label,
-													color: pieColors[i % pieColors.length],
+													color: CHART_COLORS[i % CHART_COLORS.length],
 												}
 												return acc
 											},
@@ -503,7 +487,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 													(item: any, index: number) => ({
 														name: item.label,
 														value: item.count,
-														fill: pieColors[index % pieColors.length],
+														fill: CHART_COLORS[index % CHART_COLORS.length],
 													})
 												)}
 												cx='50%'
@@ -538,7 +522,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 												(acc: any, [label, _]: [string, any], i: number) => {
 													acc[label] = {
 														label,
-														color: pieChartColors[i],
+														color: CHART_COLORS[i],
 													}
 													return acc
 												},
@@ -553,7 +537,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 															name: label,
 															value: value.count,
 															percentage: value.percentage,
-															fill: pieChartColors[k],
+															fill: CHART_COLORS[k],
 														})
 													)}
 													cx='50%'

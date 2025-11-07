@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { CHART_COLORS } from '@/consts'
 import { useTranslation } from 'react-i18next'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { handleScreenshot } from '@/lib/utils.ts'
@@ -168,21 +169,6 @@ export default function AnalyticsChart({
 		)
 	}
 
-	const contrastColors = [
-		'hsl(var(--chart-1))',
-		'hsl(var(--chart-2))',
-		'hsl(var(--chart-3))',
-		'hsl(var(--chart-4))',
-		'hsl(var(--chart-5))',
-		'#1f77b4',
-		'#ff7f0e',
-		'#2ca02c',
-		'#d62728',
-		'#9467bd',
-		'#8c564b',
-		'#e377c2',
-	]
-
 	const handleScreenshotDownload = async (
 		id: string,
 		name: string,
@@ -219,11 +205,11 @@ export default function AnalyticsChart({
 		getChartKeys().forEach((key, index) => {
 			config[key] = {
 				label: key,
-				color: contrastColors[index % contrastColors.length],
+				color: CHART_COLORS[index % CHART_COLORS.length],
 			}
 		})
 		return config
-	}, [contrastColors, getChartKeys])
+	}, [CHART_COLORS, getChartKeys])
 
 	const handleTrackingToggle = (trackingId: number) => {
 		setSelectedTrackings((prev) =>
@@ -418,16 +404,12 @@ export default function AnalyticsChart({
 											>
 												<stop
 													offset='5%'
-													stopColor={
-														contrastColors[index % contrastColors.length]
-													}
+													stopColor={CHART_COLORS[index % CHART_COLORS.length]}
 													stopOpacity={0.8}
 												/>
 												<stop
 													offset='95%'
-													stopColor={
-														contrastColors[index % contrastColors.length]
-													}
+													stopColor={CHART_COLORS[index % CHART_COLORS.length]}
 													stopOpacity={0.1}
 												/>
 											</linearGradient>
@@ -467,7 +449,7 @@ export default function AnalyticsChart({
 											dataKey={key}
 											type='natural'
 											fill={`url(#fill${key.replace(/\s+/g, '').replace(/#/g, '')})`}
-											stroke={contrastColors[index % contrastColors.length]}
+											stroke={CHART_COLORS[index % CHART_COLORS.length]}
 											strokeWidth={2}
 											stackId='a'
 										/>

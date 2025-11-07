@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { CHART_COLORS } from '@/consts'
 import { Clock, MapPin, TrendingUp, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, XAxis, YAxis } from 'recharts'
@@ -201,8 +202,8 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 							</p>
 							<div className='grid grid-cols-2 gap-2 text-xs'>
 								{data?.trackings?.average_lasted?.per_gender?.map(
-									(item: any) => (
-										<div className='rounded bg-blue-50 p-2'>
+									(item: any, index: number) => (
+										<div key={index} className='rounded bg-blue-50 p-2'>
 											<span className='font-medium text-blue-700'>
 												{item.label}
 											</span>
@@ -303,7 +304,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 					{viewStates['age-groups'] === 'chart' ? (
 						<ChartContainer
 							config={{
-								count: { label: t('Analytics.count'), color: '#8884D8' },
+								count: { label: t('Analytics.count'), color: CHART_COLORS[0] },
 							}}
 							className='h-[400px]'
 						>
@@ -314,7 +315,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 								<XAxis dataKey='label' />
 								<YAxis />
 								<ChartTooltip content={<ChartTooltipContent />} />
-								<Bar dataKey='count' fill='#8884D8' />
+								<Bar dataKey='count' fill={CHART_COLORS[0]} />
 							</BarChart>
 						</ChartContainer>
 					) : (
@@ -382,7 +383,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 					{viewStates['profile-groups'] === 'chart' ? (
 						<ChartContainer
 							config={{
-								count: { label: t('Analytics.count'), color: '#8884D8' },
+								count: { label: t('Analytics.count'), color: CHART_COLORS[0] },
 							}}
 							className='h-[400px]'
 						>
@@ -393,7 +394,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 								<XAxis dataKey='label' />
 								<YAxis />
 								<ChartTooltip content={<ChartTooltipContent />} />
-								<Bar dataKey='count' fill='#8884D8' />
+								<Bar dataKey='count' fill={CHART_COLORS[0]} />
 							</BarChart>
 						</ChartContainer>
 					) : (

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { CHART_COLORS } from '@/consts'
 import { ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, XAxis, YAxis } from 'recharts'
@@ -197,7 +198,7 @@ const AnswersDetailsAccordions = ({
 														config={{
 															count: {
 																label: t('Analytics.count'),
-																color: '#3b82f6',
+																color: CHART_COLORS[0],
 															},
 														}}
 														className='h-[250px] w-full md:h-[300px]'
@@ -228,7 +229,7 @@ const AnswersDetailsAccordions = ({
 																	t('Analytics.responses'),
 																]}
 															/>
-															<Bar dataKey='count' fill='#3b82f6' />
+															<Bar dataKey='count' fill={CHART_COLORS[0]} />
 														</BarChart>
 													</ChartContainer>
 												</div>
@@ -274,7 +275,7 @@ const AnswersDetailsAccordions = ({
 														config={{
 															count: {
 																label: t('Analytics.count'),
-																color: '#10b981',
+																color: CHART_COLORS[1],
 															},
 														}}
 														className='h-[250px] w-full md:h-[300px]'
@@ -292,7 +293,7 @@ const AnswersDetailsAccordions = ({
 															<XAxis dataKey='label' fontSize={12} />
 															<YAxis fontSize={12} />
 															<ChartTooltip content={<ChartTooltipContent />} />
-															<Bar dataKey='count' fill='#10b981' />
+															<Bar dataKey='count' fill={CHART_COLORS[1]} />
 														</BarChart>
 													</ChartContainer>
 												</div>
@@ -323,7 +324,7 @@ const AnswersDetailsAccordions = ({
 														config={{
 															count: {
 																label: t('Analytics.count'),
-																color: '#f59e0b',
+																color: CHART_COLORS[2],
 															},
 														}}
 														className='h-[250px] w-full md:h-[300px]'
@@ -341,7 +342,7 @@ const AnswersDetailsAccordions = ({
 															<XAxis dataKey='label' fontSize={12} />
 															<YAxis fontSize={12} />
 															<ChartTooltip content={<ChartTooltipContent />} />
-															<Bar dataKey='count' fill='#f59e0b' />
+															<Bar dataKey='count' fill={CHART_COLORS[2]} />
 														</BarChart>
 													</ChartContainer>
 												</div>
@@ -382,7 +383,7 @@ const AnswersDetailsAccordions = ({
 																config={{
 																	count: {
 																		label: t('Analytics.count'),
-																		color: '#8b5cf6',
+																		color: CHART_COLORS[3],
 																	},
 																}}
 																className='h-[200px] w-full'
@@ -402,7 +403,7 @@ const AnswersDetailsAccordions = ({
 																	<ChartTooltip
 																		content={<ChartTooltipContent />}
 																	/>
-																	<Bar dataKey='count' fill='#8b5cf6' />
+																	<Bar dataKey='count' fill={CHART_COLORS[3]} />
 																</BarChart>
 															</ChartContainer>
 														</div>
@@ -450,7 +451,7 @@ const AnswersDetailsAccordions = ({
 																		config={{
 																			count: {
 																				label: t('Analytics.count'),
-																				color: '#10b981',
+																				color: CHART_COLORS[4],
 																			},
 																		}}
 																		className='h-[250px] w-full md:h-[300px]'
@@ -470,7 +471,10 @@ const AnswersDetailsAccordions = ({
 																			<ChartTooltip
 																				content={<ChartTooltipContent />}
 																			/>
-																			<Bar dataKey='count' fill='#10b981' />
+																			<Bar
+																				dataKey='count'
+																				fill={CHART_COLORS[4]}
+																			/>
 																		</BarChart>
 																	</ChartContainer>
 																</div>
@@ -521,7 +525,7 @@ const AnswersDetailsAccordions = ({
 																		config={{
 																			count: {
 																				label: t('Analytics.count'),
-																				color: '#8b5cf6',
+																				color: CHART_COLORS[5],
 																			},
 																		}}
 																		className='h-[250px] w-full md:h-[300px]'
@@ -541,7 +545,10 @@ const AnswersDetailsAccordions = ({
 																			<ChartTooltip
 																				content={<ChartTooltipContent />}
 																			/>
-																			<Bar dataKey='count' fill='#8b5cf6' />
+																			<Bar
+																				dataKey='count'
+																				fill={CHART_COLORS[5]}
+																			/>
 																		</BarChart>
 																	</ChartContainer>
 																</div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CHART_COLORS } from '@/consts'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
@@ -26,15 +27,6 @@ import {
 interface QuestionsAnswersProps {
 	data: any[]
 }
-
-const COLORS = [
-	'#0088FE',
-	'#00C49F',
-	'#FFBB28',
-	'#FF8042',
-	'#8884D8',
-	'#82CA9D',
-]
 
 export default function QuestionsAndAnswers({ data }: QuestionsAnswersProps) {
 	const { t } = useTranslation()
@@ -88,7 +80,10 @@ export default function QuestionsAndAnswers({ data }: QuestionsAnswersProps) {
 						{viewStates[`question-${index}`] === 'chart' ? (
 							<ChartContainer
 								config={{
-									count: { label: t('Analytics.count'), color: '#0088FE' },
+									count: {
+										label: t('Analytics.count'),
+										color: CHART_COLORS[2],
+									},
 								}}
 								className='h-[400px]'
 							>
@@ -99,7 +94,7 @@ export default function QuestionsAndAnswers({ data }: QuestionsAnswersProps) {
 												([key, value]: [string, any], idx) => ({
 													name: key,
 													value: value.count,
-													fill: COLORS[idx % COLORS.length],
+													fill: CHART_COLORS[idx % CHART_COLORS.length],
 												})
 											)}
 											cx='50%'
