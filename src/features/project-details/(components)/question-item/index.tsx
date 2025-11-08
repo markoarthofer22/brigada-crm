@@ -121,7 +121,6 @@ export function QuestionItem({
 
 	const handleEditSubmit = (data: QuestionUpsertType) => {
 		if (onEdit) {
-			console.log('tu sam', data)
 			onEdit({ ...data, id_zones: zoneId ?? undefined })
 		}
 

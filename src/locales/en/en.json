@@ -64,6 +64,7 @@
 		"downloadName": "Project_{{projectName}}_zone_{{name}}",
 		"duration": "Duration",
 		"durationSeconds": "Duration (min)",
+		"email": "E-mail",
 		"end": "End",
 		"exportError": "Export failed. Please try again.",
 		"exportToExcel": "Export to excel",
@@ -178,11 +179,13 @@
 		"zoneActivityDesc": "Number of people and duration per zone",
 		"zoneActivityOverview": "Zone Activity Overview",
 		"zoneAnalysis": "Zone Analysis",
-		"zoneId": "Zone ID",
-		"email": "E-mail"
+		"zoneId": "Zone ID"
 	},
 	"Dashboard": {
-		"active": ["Inactive", "Active"],
+		"active": [
+			"Inactive",
+			"Active"
+		],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -315,6 +318,7 @@
 			"json": "Invalid JSON format",
 			"maxFiles": "Max allowed files to upload is {value}",
 			"minLength": "Field must be at least {length} chars long.",
+			"nonEmpty": "This field can't be empty.",
 			"password": {
 				"max": "Password must be at most {{max}} characters long",
 				"min": "Password must be at least {{min}} characters long"
@@ -589,7 +593,10 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": ["Regular user", "Admin"],
+		"admin": [
+			"Regular user",
+			"Admin"
+		],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",

@@ -113,7 +113,6 @@ const FlowTable = ({ className, flows }: Props) => {
 				}),
 				t,
 			})
-			console.log('Export flow data:', flows)
 		} catch (error) {
 			console.error('Export failed:', error)
 		} finally {

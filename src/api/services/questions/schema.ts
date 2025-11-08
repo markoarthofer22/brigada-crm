@@ -7,7 +7,9 @@ export const QuestionUpsertSchema = z.object({
 	order: z.number().optional(),
 	id_zones: z.number().optional().nullable(),
 	label: z.string(),
-	possible_answers: z.array(z.string()).optional(),
+	possible_answers: z
+		.array(z.string().trim().min(1, 'Input.validation.nonEmpty'))
+		.optional(),
 	required: z.boolean().optional(),
 	data: z.any().optional().nullable(),
 })

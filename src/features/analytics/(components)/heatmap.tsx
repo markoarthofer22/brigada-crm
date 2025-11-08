@@ -305,7 +305,7 @@ export function HeatmapViewer({
 				ctx.stroke()
 				ctx.setLineDash([])
 
-				const arrowSize = 72	 * scale
+				const arrowSize = 72 * scale
 				const angle = Math.atan2(toY - controlY, toX - controlX)
 
 				ctx.beginPath()

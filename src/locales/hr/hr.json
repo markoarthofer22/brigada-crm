@@ -64,6 +64,7 @@
 		"downloadName": "Projekt_{{projectName}}_zona_{{name}}",
 		"duration": "Trajanje",
 		"durationSeconds": "Trajanje (min)",
+		"email": "E-mail",
 		"end": "Kraj",
 		"exportError": "Izvoz nije uspio. Pokušajte ponovno.",
 		"exportToExcel": "Izvezi u Excel",
@@ -178,11 +179,13 @@
 		"zoneActivityDesc": "Broj ljudi i trajanje po zonama",
 		"zoneActivityOverview": "Pregled Aktivnosti Zona",
 		"zoneAnalysis": "Analiza Zona",
-		"zoneId": "ID Zone",
-		"email": "E-mail"
+		"zoneId": "ID Zone"
 	},
 	"Dashboard": {
-		"active": ["Neaktivan", "Aktivan"],
+		"active": [
+			"Neaktivan",
+			"Aktivan"
+		],
 		"analytics": "Analitika",
 		"lastAdded": "Zadnje dodano - {{value}}",
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
@@ -315,6 +318,7 @@
 			"json": "Neispravan JSON format",
 			"maxFiles": "Možete učitati maksimalno {value} datoteka",
 			"minLength": "Polje mora imati minimalno {length} znakova.",
+			"nonEmpty": "Ovo polje ne može biti prazno.",
 			"password": {
 				"max": "Lozinka mora imati najviše {{max}} znakova",
 				"min": "Lozinka mora imati najmanje {{min}} znakova"
@@ -589,7 +593,10 @@
 	},
 	"Users": {
 		"add": "Dodaj korisnika",
-		"admin": ["Korisnik", "Administrator"],
+		"admin": [
+			"Korisnik",
+			"Administrator"
+		],
 		"createSuccess": "Korisnik {{value}} je uspješno kreiran.",
 		"delete": "Izbriši korisnika",
 		"deletePlaceholder": "Unesite email za potvrdu brisanja",

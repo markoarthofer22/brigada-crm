@@ -139,8 +139,6 @@ export function QuestionDialog({
 		}
 	}, [defaultValues, zoneId, projectId, form, questionTypes, open])
 
-	console.log('form.', form.formState)
-
 	return (
 		<Dialog open={open} onOpenChange={handleDialogOpenChange}>
 			<DialogContent className='sm:max-w-[500px]'>
@@ -275,26 +273,28 @@ export function QuestionDialog({
 											name={`possible_answers.${index}`}
 											render={({ field }) => (
 												<FormItem className='flex-1'>
-													<FormControl>
-														<Input
+													<div className='flex items-center justify-between'>
+														<FormControl>
+															<Input
+																disabled={isLoading}
+																placeholder={`Option ${index + 1}`}
+																{...field}
+															/>
+														</FormControl>
+														<Button
+															type='button'
 															disabled={isLoading}
-															placeholder={`Option ${index + 1}`}
-															{...field}
-														/>
-													</FormControl>
+															variant='ghost'
+															size='icon'
+															onClick={() => remove(index)}
+														>
+															<Trash2 className='h-4 w-4 text-destructive' />
+														</Button>
+													</div>
 													<FormMessage />
 												</FormItem>
 											)}
 										/>
-										<Button
-											type='button'
-											disabled={isLoading}
-											variant='ghost'
-											size='icon'
-											onClick={() => remove(index)}
-										>
-											<Trash2 className='h-4 w-4 text-destructive' />
-										</Button>
 									</div>
 								))}
 							</div>
