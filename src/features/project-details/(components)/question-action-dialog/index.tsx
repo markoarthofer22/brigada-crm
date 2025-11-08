@@ -109,6 +109,8 @@ export function QuestionDialog({
 			id_projects: projectId,
 			id_zones: zoneId ?? null,
 		})
+
+		form.reset()
 	}
 
 	const addPossibleAnswer = () => {

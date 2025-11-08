@@ -175,6 +175,7 @@ const QuestionLayout = ({
 		const nonStaticQuestions = questions?.filter(
 			(question) => !question.data?.static
 		)
+
 		setQuestions(nonStaticQuestions.map((x) => ({ ...x, id: x.order })))
 	}, [questions])
 
