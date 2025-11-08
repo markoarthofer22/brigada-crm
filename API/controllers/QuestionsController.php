@@ -109,7 +109,7 @@ class QuestionsController extends BaseController
 		];
 
 		$params->possible_answers = $params->possible_answers ?? [];
-		foreach ($params->possible_answers as $answer) {
+		foreach ($params->possible_answers as &$answer) {
 			$answer = trim($answer);
 			if (!preg_match('/[A-Za-z0-9]/', $answer)) {
 				return Message::WriteMessage(
@@ -119,6 +119,7 @@ class QuestionsController extends BaseController
 				);
 			}
 		}
+		unset($answer);
 		$params->id_projects = $params->id_projects ?: null;
 		$params->id_zones = $params->id_zones ?: null;
 
@@ -171,7 +172,7 @@ class QuestionsController extends BaseController
 		];
 
 		$params->possible_answers = $params->possible_answers ?? [];
-		foreach ($params->possible_answers as $answer) {
+		foreach ($params->possible_answers as &$answer) {
 			$answer = trim($answer);
 			if (!preg_match('/[A-Za-z0-9]/', $answer)) {
 				return Message::WriteMessage(
@@ -181,6 +182,7 @@ class QuestionsController extends BaseController
 				);
 			}
 		}
+		unset($answer);
 		$params->id_projects = $params->id_projects ?: null;
 		$params->id_zones = $params->id_zones ?: null;
 
