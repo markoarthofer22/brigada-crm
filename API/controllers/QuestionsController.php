@@ -109,6 +109,15 @@ class QuestionsController extends BaseController
 		];
 
 		$params->possible_answers = $params->possible_answers ?? [];
+		foreach ($params->possible_answers as $answer) {
+			if (!preg_match('/[A-Za-z0-9]/', $answer)) {
+				return Message::WriteMessage(
+					400,
+					["Message" => $Language->Translate(["phrase" => "Data malformed: each possible answer must contain at least one character or number."])],
+					$response
+				);
+			}
+		}
 		$params->id_projects = $params->id_projects ?: null;
 		$params->id_zones = $params->id_zones ?: null;
 
@@ -161,6 +170,15 @@ class QuestionsController extends BaseController
 		];
 
 		$params->possible_answers = $params->possible_answers ?? [];
+		foreach ($params->possible_answers as $answer) {
+			if (!preg_match('/[A-Za-z0-9]/', $answer)) {
+				return Message::WriteMessage(
+					400,
+					["Message" => $Language->Translate(["phrase" => "Data malformed: each possible answer must contain at least one character or number."])],
+					$response
+				);
+			}
+		}
 		$params->id_projects = $params->id_projects ?: null;
 		$params->id_zones = $params->id_zones ?: null;
 
