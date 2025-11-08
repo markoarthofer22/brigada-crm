@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { AxiosError } from 'axios'
 import {
@@ -10,10 +11,11 @@ import i18n from '@/i18n'
 import { NuqsAdapter } from 'nuqs/adapters/react'
 import { I18nextProvider } from 'react-i18next'
 import { toast } from 'sonner'
-import { registerSW } from 'virtual:pwa-register'
+import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useMiscellaneousStore } from '@/stores/miscStore.ts'
 import { handleServerError } from '@/lib/utils.ts'
 import { LoaderProvider } from '@/context/loader-provider.tsx'
+import { Button } from '@/components/ui/button.tsx'
 import { IosInstallPrompt } from '@/components/pwa/IosInstallPrompt.tsx'
 import InstallButton from '@/components/pwa/install-button.tsx'
 import { FontProvider } from './context/font-context'
@@ -22,7 +24,62 @@ import './index.css'
 // Generated Routes
 import { routeTree } from './routeTree.gen'
 
-registerSW({ immediate: true })
+const ServiceWorkerUpdater = () => {
+	const {
+		needRefresh: [needRefresh],
+		updateServiceWorker,
+	} = useRegisterSW({
+		// optional logging
+		onRegisteredSW(swUrl, registration) {
+			console.log('SW registered:', swUrl, registration)
+		},
+		onRegisterError(error) {
+			console.error('SW registration error', error)
+		},
+	})
+
+	const [visible, setVisible] = useState<boolean>(false)
+
+	useEffect(() => {
+		if (needRefresh) {
+			setVisible(true)
+		}
+	}, [needRefresh])
+
+	if (!visible) return null
+
+	return (
+		<div className='fixed inset-x-4 bottom-4 z-50'>
+			<div className='mx-auto flex max-w-xl items-center gap-3 rounded-2xl border bg-background/95 px-4 py-3 shadow-lg backdrop-blur'>
+				<div className='flex-1'>
+					<p className='text-sm font-medium'>New version available</p>
+					<p className='text-xs text-muted-foreground'>
+						We’ve updated the app. Reload to get the latest version.
+					</p>
+				</div>
+
+				<div className='flex items-center gap-2'>
+					<Button
+						size='sm'
+						onClick={() => {
+							// activate new SW + reload
+							updateServiceWorker(true)
+						}}
+					>
+						Update
+					</Button>
+					<button
+						type='button'
+						className='text-xs text-muted-foreground hover:text-foreground'
+						onClick={() => setVisible(false)}
+					>
+						Dismiss
+					</button>
+				</div>
+			</div>
+		</div>
+	)
+}
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -103,6 +160,7 @@ if (!rootElement.innerHTML) {
 								<RouterProvider router={router} />
 								<InstallButton />
 								<IosInstallPrompt />
+								<ServiceWorkerUpdater />
 							</NuqsAdapter>
 						</FontProvider>
 					</ThemeProvider>
