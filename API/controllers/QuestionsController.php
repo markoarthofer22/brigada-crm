@@ -110,6 +110,7 @@ class QuestionsController extends BaseController
 
 		$params->possible_answers = $params->possible_answers ?? [];
 		foreach ($params->possible_answers as $answer) {
+			$answer = trim($answer);
 			if (!preg_match('/[A-Za-z0-9]/', $answer)) {
 				return Message::WriteMessage(
 					400,
@@ -171,6 +172,7 @@ class QuestionsController extends BaseController
 
 		$params->possible_answers = $params->possible_answers ?? [];
 		foreach ($params->possible_answers as $answer) {
+			$answer = trim($answer);
 			if (!preg_match('/[A-Za-z0-9]/', $answer)) {
 				return Message::WriteMessage(
 					400,
