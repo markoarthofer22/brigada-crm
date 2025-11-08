@@ -55,7 +55,8 @@ export default defineConfig(({ mode }) => {
 			VitePWA({
 				// @ts-expect-error: not yet in plugin’s types
 				enableWorkboxModulesLogs: false,
-				registerType: 'autoUpdate',
+				// registerType: 'autoUpdate',
+				registerType: 'prompt',
 				devOptions: {
 					enabled: false,
 					suppressWarnings: true,

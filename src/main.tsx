@@ -41,6 +41,7 @@ const ServiceWorkerUpdater = () => {
 	const [visible, setVisible] = useState<boolean>(false)
 
 	useEffect(() => {
+		console.log('needRefresh', needRefresh)
 		if (needRefresh) {
 			setVisible(true)
 		}
