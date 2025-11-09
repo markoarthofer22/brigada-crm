@@ -555,11 +555,17 @@ class Analytics
 			// $broj_muski = $item["data"]["broj_muski"] ?? 0;
 			// $broj_zenski = $item["data"]["broj_zenski"] ?? 0;
 
+			// echo json_encode($item["data"]["questions_answers_raw"]);
+			// exit;
+
 			foreach ($item["data"]["questions_answers_raw"] as $qa) {
-				$label = $qa["label"] ?? null;
+				$label = $qa["id_questions"] ?? null;
 				$answer = $qa["answer"] ?? null;
 				$id_zones = $qa["id_zones"] ?? null;
 				$possible_answers = $qa["possible_answers"] ?? [];
+
+				// echo json_encode($qa);
+				// exit;
 
 				if ($label && $answer) {
 					if (!isset($labelCounts[$label])) {
@@ -568,6 +574,7 @@ class Analytics
 					}
 
 					$labelCounts[$label]["id_zones"] = $id_zones;
+					$labelCounts[$label]["label"] = $qa["label"];
 					$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
 					foreach ($item["data"]["gender"]["data"] as $gender) {
 						$labelCounts[$label]["for_question"]["people"]["data"][$gender["label"]] += $gender["count"];
@@ -613,6 +620,8 @@ class Analytics
 			}
 		}
 
+		// echo json_encode($labelCounts);
+		// exit;
 
 		// echo json_encode($item);
 		// echo json_encode($labelCounts);
@@ -626,7 +635,8 @@ class Analytics
 		$questions_answers = [];
 		$possible_answers = [];
 		foreach ($labelCounts as $label => $data) {
-			// print_r($data);
+			// echo $label . "<br>";
+			// echo json_encode($data);
 			// exit;
 			$totalCountAnswers = array_sum($data["answers"]);
 			$totalDobnaSkupinaQuestion = array_sum($data["for_question"]["dobna_skupina"]);
@@ -732,18 +742,23 @@ class Analytics
 			}
 			$data["for_answers"]["profile"] = $temp;
 
+			// echo json_encode($data);
+			// exit;
+
 			$questions_answers[] = [
-				"label" => $label,
+				"label" => $data["label"],
 				"id_zones" => $data["id_zones"],
 				"possible_answers" => $possible_answers[$label],
 				"count" => $data,
 				"count_percentage" => $countWithPercentages
 			];
 
-			// echo "<pre>";
-			// print_r($questions_answers);
+			// echo json_encode($questions_answers);
 			// exit;
 		}
+
+		// echo json_encode($questions_answers);
+		// exit;
 
 		// echo "<pre>";
 		// print_r($questions_answers);
@@ -779,7 +794,7 @@ class Analytics
 				// $broj_zenski = $item["data"]["broj_zenski"] ?? 0;
 
 				foreach ($item["data"]["questions_answers_raw"] as $qa) {
-					$label = $qa["label"] ?? null;
+					$label = $qa["id_questions"] ?? null;
 					$answer = $qa["answer"] ?? null;
 					$id_zones = $qa["id_zones"] ?? null;
 					$possible_answers = $qa["possible_answers"] ?? [];
@@ -791,6 +806,7 @@ class Analytics
 						}
 
 						$labelCounts[$label]["id_zones"] = $id_zones;
+						$labelCounts[$label]["label"] = $qa["label"];
 						$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
 
 						foreach ($item["data"]["gender"]["data"] as $gender) {
@@ -966,7 +982,7 @@ class Analytics
 			$data["for_answers"]["profile"] = $temp;
 
 			$questions_answers[] = [
-				"label" => $label,
+				"label" => $data["label"],
 				"id_zones" => $data["id_zones"],
 				"possible_answers" => $possible_answers[$label],
 				"count" => $data,
@@ -1424,6 +1440,9 @@ class Analytics
 				// echo $zoneId;
 				// echo "<br>";
 				// print_r($zones);
+
+				// echo json_encode($zone);
+				// exit;
 
 				if (isset($zones[$zoneId])) {
 

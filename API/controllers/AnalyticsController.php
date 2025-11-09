@@ -582,7 +582,8 @@ class AnalyticsController extends BaseController
 
 		$result["total_data"]["zones"] = $Analytics->PrepareDataZones2($result["trackings"]);
 
-
+		// echo json_encode($result["total_data"]["questions_answers"]);
+		// exit;
 
 
 		// Assign questions_answers to each zone
@@ -593,7 +594,10 @@ class AnalyticsController extends BaseController
 				fn($qa) => $qa["id_zones"] == $zoneId
 			));
 		}
+		unset($zone);
 
+		// echo json_encode($result["total_data"]["questions_answers"]);
+		// exit;
 		// echo json_encode($result["trackings"]);
 		// echo json_encode($result["total_data"]["questions_answers"]);
 		// exit;
