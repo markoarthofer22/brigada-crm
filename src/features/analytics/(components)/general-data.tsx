@@ -370,8 +370,6 @@ export default function GeneralData({
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
 
-	debugger
-
 	const basicInfoCols = 3
 	const timeCols = 3
 	const demographicsCols = genderGroups.length * 2 + 1
