@@ -201,9 +201,10 @@ const QuestionLayout = ({
 					{t('TemplateDetails.questions.static')}
 				</h4>
 				<div className='mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-					{staticQuestions?.map((question) => (
+					{staticQuestions?.map((question, index) => (
 						<QuestionItem
 							zoneId={zoneId}
+							orderLabel={index + 1}
 							question={question}
 							key={question.id_questions}
 							onEdit={handleUpsert}
