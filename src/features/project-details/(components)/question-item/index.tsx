@@ -254,10 +254,16 @@ export function QuestionItem({
 				})}
 			>
 				<CardHeader>
-					<CardTitle className='_capitalize flex items-center gap-1.5 text-lg'>
-						{orderLabel && <span className='text-base'>{orderLabel}.</span>}
-						{question.label}
-						{question.required && <sup className='text-destructive'>*</sup>}
+					<CardTitle className='_capitalize flex items-start gap-1.5 text-lg'>
+						{orderLabel && <span>{orderLabel}.</span>}
+						<span>
+							{question.label}
+							{question.required && (
+								<span className='relative -top-1.5 left-1 text-sm text-destructive'>
+									*
+								</span>
+							)}
+						</span>
 					</CardTitle>
 					<CardDescription>{questionType?.label}</CardDescription>
 				</CardHeader>
@@ -287,26 +293,28 @@ export function QuestionItem({
 					</CardFooter>
 				)}
 			</Card>
-			<QuestionDialog
-				open={editDialogOpen}
-				onOpenChange={handleDialogOpenChange}
-				onSubmit={handleEditSubmit}
-				isLoading={isLoading}
-				defaultValues={{
-					id_zones: question?.id_zones ?? null,
-					id_questions: question.id_questions,
-					id_projects: question.id_projects,
-					label: question.label,
-					data: question.data || {},
-					required: question.required,
-					id_questions_types: question.id_questions_types,
-					possible_answers:
-						Object.values(question.possible_answers).map((x) => x) || [],
-				}}
-				projectId={question.id_projects}
-				isEditing={true}
-				isStatic={question?.data?.static}
-			/>
+			{editDialogOpen && (
+				<QuestionDialog
+					open={editDialogOpen}
+					onOpenChange={handleDialogOpenChange}
+					onSubmit={handleEditSubmit}
+					isLoading={isLoading}
+					defaultValues={{
+						id_zones: question?.id_zones ?? null,
+						id_questions: question.id_questions,
+						id_projects: question.id_projects,
+						label: question.label,
+						data: question.data || {},
+						required: question.required,
+						id_questions_types: question.id_questions_types,
+						possible_answers:
+							Object.values(question.possible_answers).map((x) => x) || [],
+					}}
+					projectId={question.id_projects}
+					isEditing={true}
+					isStatic={question?.data?.static}
+				/>
+			)}
 		</>
 	)
 }
