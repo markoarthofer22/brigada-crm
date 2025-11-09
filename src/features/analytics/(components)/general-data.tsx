@@ -214,12 +214,12 @@ export default function GeneralData({
 	const getMainQuestions = () => {
 		if (data?.length === 0) return []
 
-		const allQuestions = new Set<string>()
+		const allQuestions: string[] = []
 		data?.forEach((tracking: any) => {
 			if (tracking.data?.questions_answers) {
 				tracking.data.questions_answers.forEach((q: any) => {
-					if (q.label) {
-						allQuestions.add(q.label)
+					if (q.label && q.id_zones === null) {
+						allQuestions.push(q.label)
 					}
 				})
 			}
@@ -369,6 +369,8 @@ export default function GeneralData({
 	const profileOptions = getProfileOptions() // Get profile options
 	const mainQuestions = getMainQuestions()
 	const zones = getZones()
+
+	debugger
 
 	const basicInfoCols = 3
 	const timeCols = 3
