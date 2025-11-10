@@ -2,12 +2,7 @@
 
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-	IconDownload,
-	IconMinus,
-	IconPlus,
-	IconRestore,
-} from '@tabler/icons-react'
+import { IconDownload, IconMinus, IconPlus, IconRestore, } from '@tabler/icons-react'
 import * as d3 from 'd3'
 import h337 from 'heatmap.js'
 import { useTranslation } from 'react-i18next'
@@ -15,13 +10,7 @@ import { hexToRgba } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select'
 
 export interface Zone {
 	id_zones: number
@@ -360,6 +349,34 @@ export function HeatmapViewer({
 			nodes = Array.from(nodesMap.values())
 		}
 
+		nodes = nodes.filter((node) => {
+			const isValid =
+				typeof node.x === 'number' &&
+				!isNaN(node.x) &&
+				typeof node.y === 'number' &&
+				!isNaN(node.y) &&
+				typeof node.value === 'number' &&
+				!isNaN(node.value) &&
+				node.value > 0
+
+			return isValid
+		})
+
+		const validNodeIds = new Set(nodes.map((n) => n.id))
+		linksArray = linksArray.filter((link) => {
+			const isValid =
+				validNodeIds.has(link.source) && validNodeIds.has(link.target)
+			if (!isValid) {
+				console.warn('[v0] Filtering out invalid link:', link)
+			}
+			return isValid
+		})
+
+		if (nodes.length === 0 || linksArray.length === 0) {
+			console.log('[v0] No valid nodes or links to display')
+			return
+		}
+
 		const nodesMap = new Map<string, D3FlowNode>()
 		nodes.forEach((node) => nodesMap.set(node.id, node))
 
@@ -420,8 +437,8 @@ export function HeatmapViewer({
 					targetNode.y - sourceNode.y,
 					targetNode.x - sourceNode.x
 				)
-				const sourceRadius = Math.pow(sourceNode.value, 0.85) * 3.5
-				const strokeWidth = sourceNode.id === selectedFlowNode ? 6 : 4
+				const sourceRadius = Math.pow(sourceNode.value, 0.85) * 5
+				const strokeWidth = sourceNode.id === selectedFlowNode ? 8 : 6
 				return sourceNode.x + (sourceRadius + strokeWidth / 2) * Math.cos(angle)
 			})
 			.attr('y1', (d) => {
@@ -433,8 +450,8 @@ export function HeatmapViewer({
 					targetNode.y - sourceNode.y,
 					targetNode.x - sourceNode.x
 				)
-				const sourceRadius = Math.pow(sourceNode.value, 0.85) * 3.5
-				const strokeWidth = sourceNode.id === selectedFlowNode ? 6 : 4
+				const sourceRadius = Math.pow(sourceNode.value, 0.85) * 5
+				const strokeWidth = sourceNode.id === selectedFlowNode ? 8 : 6
 				return sourceNode.y + (sourceRadius + strokeWidth / 2) * Math.sin(angle)
 			})
 			.attr('x2', (d) => {
@@ -446,8 +463,8 @@ export function HeatmapViewer({
 					targetNode.y - sourceNode.y,
 					targetNode.x - sourceNode.x
 				)
-				const targetRadius = Math.pow(targetNode.value, 0.85) * 3.5
-				const strokeWidth = targetNode.id === selectedFlowNode ? 6 : 4
+				const targetRadius = Math.pow(targetNode.value, 0.85) * 5
+				const strokeWidth = targetNode.id === selectedFlowNode ? 8 : 6
 				return targetNode.x - (targetRadius + strokeWidth / 2) * Math.cos(angle)
 			})
 			.attr('y2', (d) => {
@@ -459,8 +476,8 @@ export function HeatmapViewer({
 					targetNode.y - sourceNode.y,
 					targetNode.x - sourceNode.x
 				)
-				const targetRadius = Math.pow(targetNode.value, 0.85) * 3.5
-				const strokeWidth = targetNode.id === selectedFlowNode ? 6 : 4
+				const targetRadius = Math.pow(targetNode.value, 0.85) * 5
+				const strokeWidth = targetNode.id === selectedFlowNode ? 8 : 6
 				return targetNode.y - (targetRadius + strokeWidth / 2) * Math.sin(angle)
 			})
 			.attr('stroke', (d) => {
@@ -470,7 +487,7 @@ export function HeatmapViewer({
 			})
 			.attr('stroke-width', (d) => {
 				const linkKey = `${d.source}-${d.target}`
-				const baseWidth = Math.pow(d.value, 1.2) * 2
+				const baseWidth = Math.pow(d.value, 1.2) * 3
 				if (!selectedFlowNode) return baseWidth
 				return connectedLinks.has(linkKey) ? baseWidth * 1.8 : baseWidth
 			})
@@ -495,13 +512,19 @@ export function HeatmapViewer({
 			.append('circle')
 			.attr('cx', (d) => d.x)
 			.attr('cy', (d) => d.y)
-			.attr('r', (d) => Math.pow(d.value, 0.85) * 3.5)
+			.attr('r', (d) =>
+				d.value < 2
+					? 40
+					: d.value < 6
+						? d.value * 14
+						: Math.pow(d.value, 0.85) * 5
+			)
 			.attr('fill', (d) => getZoneColor(d.id))
 			.attr('stroke', (d) => (d.id === selectedFlowNode ? '#fbbf24' : 'white'))
-			.attr('stroke-width', (d) => (d.id === selectedFlowNode ? 6 : 4))
+			.attr('stroke-width', (d) => (d.id === selectedFlowNode ? 8 : 3))
 			.attr('opacity', (d) => {
 				if (!selectedFlowNode) return 0.9
-				return connectedNodes.has(d.id) ? 1 : 0.2
+				return connectedNodes.has(d.id) ? 1 : 0.4
 			})
 			.style('cursor', 'pointer')
 			.on('click', (event, d) => {
@@ -509,34 +532,14 @@ export function HeatmapViewer({
 				setSelectedFlowNode((prev) => (prev === d.id ? null : d.id))
 			})
 			.on('mouseenter', function () {
-				d3.select(this).transition().duration(200).attr('stroke-width', 6)
+				d3.select(this).transition().duration(200).attr('stroke-width', 8)
 			})
 			.on('mouseleave', function (_event, d) {
 				d3.select(this)
 					.transition()
 					.duration(200)
-					.attr('stroke-width', d.id === selectedFlowNode ? 6 : 4)
+					.attr('stroke-width', d.id === selectedFlowNode ? 8 : 3)
 			})
-
-		g.append('g')
-			.selectAll('text')
-			.data(nodes)
-			.enter()
-			.append('text')
-			.attr('x', (d) => d.x + Math.pow(d.value, 0.85) * 3.5 + 10)
-			.attr('y', (d) => d.y + 5)
-			.text((d) => d.id)
-			.attr('font-size', 15)
-			.attr('font-weight', '700')
-			.attr('fill', '#1e293b')
-			.attr('stroke', 'white')
-			.attr('stroke-width', 4)
-			.attr('paint-order', 'stroke')
-			.attr('opacity', (d) => {
-				if (!selectedFlowNode) return 1
-				return connectedNodes.has(d.id) ? 1 : 0.3
-			})
-			.style('pointer-events', 'none')
 
 		svg.on('click', () => setSelectedFlowNode(null))
 	}, [
@@ -553,50 +556,64 @@ export function HeatmapViewer({
 		if (!heatmapContainerRef.current || heatmaps.length === 0) return
 
 		const container = heatmapContainerRef.current
+		container.style.width = `${width * zoomLevel}px`
+		container.style.height = `${height * zoomLevel}px`
 
-		const heatmapInstance = heatmapInstanceRef.current
-		if (heatmapInstance && typeof heatmapInstance.remove === 'function') {
-			heatmapInstance.remove()
+		if (heatmapInstanceRef.current) {
+			const existingCanvas = container.querySelector('canvas')
+			if (existingCanvas) {
+				existingCanvas.remove()
+			}
+			heatmapInstanceRef.current = null
 		}
 
-		const heatmap = h337.create({
-			container: container,
-			radius: radius * zoomLevel,
-			blur: blur * zoomLevel,
-		})
+		try {
+			heatmapInstanceRef.current = h337.create({
+				container: container,
+				radius: radius * zoomLevel,
+				maxOpacity: 0.8,
+				minOpacity: 0.1,
+				blur: blur,
+				gradient: {
+					0.0: 'rgba(0, 0, 255, 0.3)',
+					0.25: 'cyan',
+					0.5: 'lime',
+					0.75: 'yellow',
+					1.0: 'red',
+				},
+			})
 
-		heatmapInstanceRef.current = heatmap
-
-		const max =
-			maxValue ||
-			Math.max(
-				...heatmaps.map((h) =>
-					heatmapMode === 'people' ? h.heat.number_of_people : h.heat.value
-				),
-				1
-			)
-
-		const data = {
-			max: max,
-			min: 0,
-			data: heatmaps.map((item) => ({
-				x: item.heat.x,
-				y: item.heat.y,
+			const max =
+				maxValue ||
+				Math.max(
+					...heatmaps.map((h) =>
+						heatmapMode === 'people' ? h.heat.number_of_people : h.heat.value
+					),
+					1
+				)
+			const data = heatmaps.map((item) => ({
+				x: Math.round(item.heat.x * zoomLevel),
+				y: Math.round(item.heat.y * zoomLevel),
 				value:
 					heatmapMode === 'people'
 						? item.heat.number_of_people
 						: item.heat.value,
-			})),
+			}))
+
+			if (data.length > 0) {
+				heatmapInstanceRef.current.setData({ min: 0, max, data })
+			}
+		} catch (error) {
+			console.error('Heatmap rendering error:', error)
 		}
 
-		heatmap.setData(data)
-
 		return () => {
-			if (
-				heatmapInstanceRef.current &&
-				typeof heatmapInstanceRef.current.remove === 'function'
-			) {
-				heatmapInstanceRef.current.remove()
+			if (heatmapInstanceRef.current) {
+				const canvas = container.querySelector('canvas')
+				if (canvas) {
+					canvas.remove()
+				}
+				heatmapInstanceRef.current = null
 			}
 		}
 	}, [heatmaps, maxValue, radius, blur, width, height, zoomLevel, heatmapMode])
@@ -732,33 +749,10 @@ export function HeatmapViewer({
 				ctx.drawImage(img, 0, 0, width, height)
 				ctx.filter = 'none'
 
-				const heatmapInstance = heatmapInstanceRef.current
-				if (heatmapInstance) {
-					const heatmapCanvas2D = document.createElement('canvas')
-					heatmapCanvas2D.width = width
-					heatmapCanvas2D.height = height
-
-					const tempContainer = document.createElement('div')
-					tempContainer.style.width = `${width}px`
-					tempContainer.style.height = `${height}px`
-					tempContainer.style.position = 'absolute'
-					tempContainer.style.left = '-9999px'
-					document.body.appendChild(tempContainer)
-
-					const tempHeatmap = h337.create({
-						container: tempContainer,
-						radius: radius,
-						blur: blur,
-					})
-
-					tempHeatmap.setData(heatmapInstance.getData())
-
-					const tempCanvas = tempContainer.querySelector('canvas')
-					if (tempCanvas) {
-						ctx.drawImage(tempCanvas, 0, 0, width, height)
-					}
-
-					document.body.removeChild(tempContainer)
+				const heatmapCanvas =
+					heatmapContainerRef.current?.querySelector('canvas')
+				if (heatmapCanvas) {
+					ctx.drawImage(heatmapCanvas, 0, 0, width, height)
 				}
 
 				if (zones.length > 0) {
@@ -804,18 +798,46 @@ export function HeatmapViewer({
 					})
 				}
 
-				exportCanvas.toBlob((blob) => {
-					if (!blob) return
-					const url = URL.createObjectURL(blob)
-					const link = document.createElement('a')
-					link.href = url
-					link.download = exportName ?? `heatmap-${exportName}.png`
-					link.click()
-					URL.revokeObjectURL(url)
-				}, 'image/png')
+				if (showFlowData && d3FlowSvgRef.current) {
+					const svgElement = d3FlowSvgRef.current
+					const serializer = new XMLSerializer()
+					const svgString = serializer.serializeToString(svgElement)
+
+					const svgBlob = new Blob([svgString], {
+						type: 'image/svg+xml;charset=utf-8',
+					})
+					const svgUrl = URL.createObjectURL(svgBlob)
+
+					const svgImg = new Image()
+					svgImg.onload = () => {
+						ctx.drawImage(svgImg, 0, 0, width, height)
+						URL.revokeObjectURL(svgUrl)
+
+						exportCanvas.toBlob((blob) => {
+							if (!blob) return
+							const url = URL.createObjectURL(blob)
+							const link = document.createElement('a')
+							link.href = url
+							link.download = exportName ?? `heatmap-${exportName}.png`
+							link.click()
+							URL.revokeObjectURL(url)
+						}, 'image/png')
+					}
+					svgImg.src = svgUrl
+				} else {
+					exportCanvas.toBlob((blob) => {
+						if (!blob) return
+						const url = URL.createObjectURL(blob)
+						const link = document.createElement('a')
+						link.href = url
+						link.download = exportName ?? `heatmap-${exportName}.png`
+						link.click()
+						URL.revokeObjectURL(url)
+					}, 'image/png')
+				}
 			}
 		}
-	}, [width, height, backgroundImage, zones, exportName, radius, blur])
+	}, [width, height, backgroundImage, zones, exportName, showFlowData])
 
 	return (
 		<>
@@ -865,9 +887,13 @@ export function HeatmapViewer({
 						/>
 						<Label
 							htmlFor='show-flow'
-							className='cursor-pointer text-xs font-medium'
+							className='flex cursor-pointer flex-col gap-y-1 text-xs font-medium'
 						>
 							{t('Analytics.heatmap.showFlow')}
+
+							{selectedFlowNode && (
+								<span className='bold uppercase'>({selectedFlowNode})</span>
+							)}
 						</Label>
 					</div>
 					<Button
@@ -950,12 +976,6 @@ export function HeatmapViewer({
 									</span>
 								</div>
 							</div>
-						</div>
-					)}
-					{selectedFlowNode && (
-						<div className='pointer-events-none absolute bottom-4 right-4 z-40 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm shadow-lg'>
-							<span className='font-medium text-blue-700'>Selected:</span>
-							<span className='ml-2 text-blue-900'>{selectedFlowNode}</span>
 						</div>
 					)}
 				</div>
