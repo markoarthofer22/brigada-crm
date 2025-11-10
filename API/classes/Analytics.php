@@ -1110,7 +1110,7 @@ class Analytics
 		return $result;
 	}
 
-
+	// OVO SE NE KORISTI VIŠE
 	public function PrepareDataZones(array $trackings): array
 	{
 		$zones = [];
@@ -1709,6 +1709,11 @@ class Analytics
 
 					// // print_r($zones[$zoneId]);
 					// // exit;
+
+					$zoneDurations[$zoneId] += $durationInSeconds;
+
+					// echo json_encode($zoneDurations);
+					// exit;
 				} else {
 
 					// $gender = array();
@@ -1746,10 +1751,9 @@ class Analytics
 				// echo json_encode($zones);
 				// exit;
 			}
-
-			// echo json_encode($zones);
-			// exit;
 		}
+		// echo json_encode($zoneDurations);
+		// exit;
 
 		foreach ($zones as $key => $zone) {
 
