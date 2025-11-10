@@ -212,20 +212,23 @@ export default function GeneralData({
 	}
 
 	const getMainQuestions = () => {
-		if (data?.length === 0) return []
+		if (!data || data.length === 0) return []
 
+		const seenIds = new Set()
 		const allQuestions: string[] = []
-		data?.forEach((tracking: any) => {
+
+		data.forEach((tracking: any) => {
 			if (tracking.data?.questions_answers) {
 				tracking.data.questions_answers.forEach((q: any) => {
-					if (q.label && q.id_zones === null) {
+					if (q.label && q.id_zones === null && !seenIds.has(q.id_questions)) {
+						seenIds.add(q.id_questions)
 						allQuestions.push(q.label)
 					}
 				})
 			}
 		})
 
-		return Array.from(allQuestions)
+		return allQuestions
 	}
 
 	const getZones = () => {

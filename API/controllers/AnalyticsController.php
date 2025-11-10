@@ -364,6 +364,9 @@ class AnalyticsController extends BaseController
 
 				$zone["questions"] = $Questions->GetForZone((object) array("id" => $zone["id_zones"]));
 				$zone["questions_answers_raw"] = $Analytics->GetAnswers((object) array("id_tracking" => $zone["id_tracking"], "id_zones" => $zone["id_zones"]));
+
+				// echo json_encode($zone["questions_answers_raw"]);
+				// exit;
 				// $zone["questions_answers"] = $Analytics->PrepareQuestionsAnswersDataZones($zone, $item);
 				// $zone["questions"] = [];
 				// $zone["questions_answers_raw"] = [];
@@ -406,14 +409,14 @@ class AnalyticsController extends BaseController
 				// continue;
 
 				foreach ($r as $value) {
-					// echo $value["answer"];
-					// echo "\n---\n";
+					// echo json_encode($q);
+					// exit;
 					$item["data"]["questions_answers_raw"][] = array(
 						"id_questions" => $q["id_questions"],
 						"id_zones" => $q["id_zones"] ?? null,
 						"label" => $q["label"],
 						"answer" => $value["answer"] ?? "",
-						"possible_answers" => $value["possible_answers"] ?? [],
+						"possible_answers" => $q["possible_answers"] ?? [],
 					);
 				}
 			}
