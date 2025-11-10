@@ -749,7 +749,24 @@ class Analytics
 			// echo json_encode($data);
 			// exit;
 
-			$questions_answers[] = [
+			// $questions_answers[] = [
+			// 	"label" => $data["label"],
+			// 	"id_zones" => $data["id_zones"],
+			// 	"id_questions" => $data["id_questions"],
+			// 	"possible_answers" => $possible_answers[$label],
+			// 	"count" => $data,
+			// 	"count_percentage" => $countWithPercentages
+			// ];
+
+
+			foreach ($possible_answers[$label] as $answer) {
+				if (!array_key_exists($answer, $data['answers'])) {
+					$data['answers'][$answer] = 0;
+					$countWithPercentages[$answer] = ["count" => 0, "percentage" => 0];
+				}
+			}
+
+			$finally = [
 				"label" => $data["label"],
 				"id_zones" => $data["id_zones"],
 				"id_questions" => $data["id_questions"],
@@ -757,6 +774,16 @@ class Analytics
 				"count" => $data,
 				"count_percentage" => $countWithPercentages
 			];
+
+			// print_r($data["answers"]);
+			// exit;
+
+
+
+			// echo json_encode($data);
+			// exit;
+
+			$questions_answers[] = $finally;
 
 			// echo json_encode($questions_answers);
 			// exit;
@@ -988,7 +1015,15 @@ class Analytics
 			}
 			$data["for_answers"]["profile"] = $temp;
 
-			$questions_answers[] = [
+
+			foreach ($possible_answers[$label] as $answer) {
+				if (!array_key_exists($answer, $data['answers'])) {
+					$data['answers'][$answer] = 0;
+					$countWithPercentages[$answer] = ["count" => 0, "percentage" => 0];
+				}
+			}
+
+			$finally = [
 				"label" => $data["label"],
 				"id_zones" => $data["id_zones"],
 				"id_questions" => $data["id_questions"],
@@ -996,6 +1031,19 @@ class Analytics
 				"count" => $data,
 				"count_percentage" => $countWithPercentages
 			];
+
+			// print_r($data["answers"]);
+			// exit;
+
+
+
+			// echo json_encode($data);
+			// exit;
+
+			$questions_answers[] = $finally;
+
+			// echo json_encode($questions_answers);
+			// exit;
 		}
 
 		// echo "<pre>";
