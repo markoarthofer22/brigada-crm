@@ -379,7 +379,7 @@ export default function Zones({ data, projectName }: ZonesProps) {
 							}
 							return acc
 						}, {})}
-						className='h-[400px]'
+						className='h-[400px] w-full'
 					>
 						<BarChart
 							data={data.per_zone.map((zone: any) => ({
@@ -387,12 +387,19 @@ export default function Zones({ data, projectName }: ZonesProps) {
 								people: zone.data.gender.broj_ljudi,
 								duration: zone.lasted.seconds,
 							}))}
+							margin={{ bottom: 80 }} // adds space for rotated labels
 						>
-							<XAxis dataKey='name' />
+							<XAxis
+								dataKey='name'
+								angle={-90} // rotate labels vertically
+								textAnchor='end' // align text properly
+								interval={0} // show all labels
+								dy={10} // adjust vertical position
+							/>
 							<YAxis />
 							<ChartTooltip content={<CustomTooltipContent />} />
 							<Bar dataKey='people' fill={CHART_COLORS[0]} />
-							<Bar dataKey='duration' fill={CHART_COLORS[0]} />
+							<Bar dataKey='duration' fill={CHART_COLORS[1]} />
 						</BarChart>
 					</ChartContainer>
 				</CardContent>

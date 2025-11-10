@@ -306,7 +306,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 							config={{
 								count: { label: t('Analytics.count'), color: CHART_COLORS[0] },
 							}}
-							className='h-[400px]'
+							className='h-[400px] w-full'
 						>
 							<BarChart
 								data={data.dobna_skupina.data}
@@ -385,7 +385,7 @@ export default function TotalData({ data, projectName }: TotalDataProps) {
 							config={{
 								count: { label: t('Analytics.count'), color: CHART_COLORS[0] },
 							}}
-							className='h-[400px]'
+							className='h-[400px] w-full'
 						>
 							<BarChart
 								data={data.profile.data}

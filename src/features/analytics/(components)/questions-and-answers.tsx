@@ -85,7 +85,7 @@ export default function QuestionsAndAnswers({ data }: QuestionsAnswersProps) {
 										color: CHART_COLORS[2],
 									},
 								}}
-								className='h-[400px]'
+								className='h-[400px] w-full'
 							>
 								{shouldUsePieChart(question) ? (
 									<PieChart>

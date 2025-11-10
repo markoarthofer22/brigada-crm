@@ -766,6 +766,21 @@ class Analytics
 				}
 			}
 
+
+			// echo json_encode($data['answers']);
+			// print_r($data['answers']);
+			// exit;
+
+			$answersOrder = (array) $possible_answers[$label]; // convert stdClass to array
+
+			uksort($data['answers'], function ($a, $b) use ($answersOrder) {
+				return array_search($a, $answersOrder) <=> array_search($b, $answersOrder);
+			});
+
+			uksort($countWithPercentages, function ($a, $b) use ($answersOrder, $label) {
+				return array_search($a, $answersOrder) <=> array_search($b, $answersOrder);
+			});
+
 			$finally = [
 				"label" => $data["label"],
 				"id_zones" => $data["id_zones"],
@@ -1022,6 +1037,16 @@ class Analytics
 					$countWithPercentages[$answer] = ["count" => 0, "percentage" => 0];
 				}
 			}
+
+			$answersOrder = (array) $possible_answers[$label]; // convert stdClass to array
+
+			uksort($data['answers'], function ($a, $b) use ($answersOrder) {
+				return array_search($a, $answersOrder) <=> array_search($b, $answersOrder);
+			});
+
+			uksort($countWithPercentages, function ($a, $b) use ($answersOrder, $label) {
+				return array_search($a, $answersOrder) <=> array_search($b, $answersOrder);
+			});
 
 			$finally = [
 				"label" => $data["label"],
