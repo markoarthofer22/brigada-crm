@@ -496,6 +496,7 @@ class Analytics
 			$totalCount += isset($ds[$answer]) ? $ds[$answer] : 0;
 		}
 
+		$dobna_skupina["data"] = array();
 		foreach ($dobna_skupina["possible_answers"] as $answer) {
 			$count = isset($ds[$answer]) ? $ds[$answer] : 0;
 			$percentage = $totalCount > 0 ? round(($count / $totalCount) * 100, 2) : 0;
@@ -530,6 +531,7 @@ class Analytics
 			$totalCount += isset($ds[$answer]) ? $ds[$answer] : 0;
 		}
 
+		$profile["data"] = array();
 		foreach ($profile["possible_answers"] as $answer) {
 			$count = isset($ds[$answer]) ? $ds[$answer] : 0;
 			$percentage = $totalCount > 0 ? round(($count / $totalCount) * 100, 2) : 0;
