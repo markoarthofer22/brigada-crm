@@ -2186,6 +2186,7 @@ class Analytics
 	public function GetZonesPathsInDepth($paths)
 	{
 		$zoneCounts = [];
+		$zoneCoords = [];
 		$transitions = [];
 		$entryPoints = [];
 		$exitPoints = [];
@@ -2196,11 +2197,19 @@ class Analytics
 			$path = $pathData['path'];
 			$totalPathLength += count($path);
 
-			// Count zones
+			// Count zones and store coordinates
 			foreach ($path as $zone) {
 				$name = $zone['name'];
 				$people = $zone['coordinates']['number_of_people'] ?? 1;
-				if (!isset($zoneCounts[$name])) $zoneCounts[$name] = 0;
+				$x = $zone['coordinates']['x'] ?? null;
+				$y = $zone['coordinates']['y'] ?? null;
+
+				if (!isset($zoneCounts[$name])) {
+					$zoneCounts[$name] = 0;
+					// Store first found coordinates for that zone
+					$zoneCoords[$name] = ["x" => $x, "y" => $y];
+				}
+
 				$zoneCounts[$name] += $people;
 			}
 
@@ -2230,43 +2239,66 @@ class Analytics
 		arsort($entryPoints);
 		arsort($exitPoints);
 
-		$averagePathLength = $totalPathLength / $totalPaths;
+		$average_path_length = $totalPaths > 0 ? $totalPathLength / $totalPaths : 0;
 
-		$mvz = [];
-		foreach (array_slice($zoneCounts, 0, 10, true) as $zone => $count) {
-			$mvz[] = array("zone" => $zone, "count" => $count);
+		// Prepare final arrays
+		$most_visited_zones = [];
+		foreach ($zoneCounts as $zone => $count) {
+			$coords = $zoneCoords[$zone] ?? ["x" => null, "y" => null];
+			$most_visited_zones[] = [
+				"zone" => $zone,
+				"count" => $count,
+				"x" => $coords["x"],
+				"y" => $coords["y"]
+			];
 		}
 
-		$mct = [];
-		foreach (array_slice($transitions, 0, 10, true) as $pair => $count) {
-			$mct[] = array("transition" => $pair, "count" => $count);
+		$most_common_transitions = [];
+		foreach ($transitions as $pair => $count) {
+			$most_common_transitions[] = [
+				"transition" => $pair,
+				"count" => $count
+			];
 		}
 
 		$entry_points = [];
 		foreach ($entryPoints as $zone => $count) {
-			$entry_points[] = array("zone" => $zone, "count" => $count);
+			$coords = $zoneCoords[$zone] ?? ["x" => null, "y" => null];
+			$entry_points[] = [
+				"zone" => $zone,
+				"count" => $count,
+				"x" => $coords["x"],
+				"y" => $coords["y"]
+			];
 		}
 
 		$exit_points = [];
 		foreach ($exitPoints as $zone => $count) {
-			$exit_points[] = array("zone" => $zone, "count" => $count);
+			$coords = $zoneCoords[$zone] ?? ["x" => null, "y" => null];
+			$exit_points[] = [
+				"zone" => $zone,
+				"count" => $count,
+				"x" => $coords["x"],
+				"y" => $coords["y"]
+			];
 		}
 
-		return array(
-			"most_visited_zones" => $mvz,
-			"most_common_transitions" => $mct,
+		return [
+			"most_visited_zones" => $most_visited_zones,
+			"most_common_transitions" => $most_common_transitions,
 			"entry_points" => $entry_points,
 			"exit_points" => $exit_points,
-			"average_path_length" => $averagePathLength
-		);
+			"average_path_length" => $average_path_length
+		];
 	}
+
 
 	public function GetZonesPathsInDepthD3($zonesPathsInDepth)
 	{
 		$nodes = [];
 		$links = [];
 
-		// Extract transitions from your previous summary
+		// Extract transitions from previous summary
 		if (!empty($zonesPathsInDepth['most_common_transitions'])) {
 			foreach ($zonesPathsInDepth['most_common_transitions'] as $transition) {
 				// Each transition looks like "A → B"
@@ -2283,22 +2315,32 @@ class Analytics
 						"value" => $count
 					];
 
-					// Collect unique nodes
-					$nodes[$from] = ["id" => $from];
-					$nodes[$to] = ["id" => $to];
+					// Create basic node entries if not already added
+					if (!isset($nodes[$from])) $nodes[$from] = ["id" => $from];
+					if (!isset($nodes[$to])) $nodes[$to] = ["id" => $to];
 				}
 			}
 		}
 
-		// Add node weights (visits)
+		// Add node weights (visits) and coordinates
 		if (!empty($zonesPathsInDepth['most_visited_zones'])) {
 			foreach ($zonesPathsInDepth['most_visited_zones'] as $zoneData) {
 				$zoneName = $zoneData['zone'];
-				$count = (int)$zoneData['count'];
+				$count = (int)($zoneData['count'] ?? 0);
+				$x = isset($zoneData['x']) ? (float)$zoneData['x'] : null;
+				$y = isset($zoneData['y']) ? (float)$zoneData['y'] : null;
+
 				if (isset($nodes[$zoneName])) {
 					$nodes[$zoneName]['value'] = $count;
+					$nodes[$zoneName]['x'] = $x;
+					$nodes[$zoneName]['y'] = $y;
 				} else {
-					$nodes[$zoneName] = ["id" => $zoneName, "value" => $count];
+					$nodes[$zoneName] = [
+						"id" => $zoneName,
+						"value" => $count,
+						"x" => $x,
+						"y" => $y
+					];
 				}
 			}
 		}
