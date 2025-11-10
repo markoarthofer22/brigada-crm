@@ -564,6 +564,7 @@ class Analytics
 				$label = $qa["id_questions"] ?? null;
 				$answer = $qa["answer"] ?? null;
 				$id_zones = $qa["id_zones"] ?? null;
+				$id_questions = $qa["id_questions"] ?? null;
 				$possible_answers = $qa["possible_answers"] ?? [];
 
 				// echo json_encode($qa);
@@ -576,6 +577,7 @@ class Analytics
 					}
 
 					$labelCounts[$label]["id_zones"] = $id_zones;
+					$labelCounts[$label]["id_questions"] = $id_questions;
 					$labelCounts[$label]["label"] = $qa["label"];
 					$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
 					foreach ($item["data"]["gender"]["data"] as $gender) {
@@ -750,6 +752,7 @@ class Analytics
 			$questions_answers[] = [
 				"label" => $data["label"],
 				"id_zones" => $data["id_zones"],
+				"id_questions" => $data["id_questions"],
 				"possible_answers" => $possible_answers[$label],
 				"count" => $data,
 				"count_percentage" => $countWithPercentages
@@ -799,6 +802,7 @@ class Analytics
 					$label = $qa["id_questions"] ?? null;
 					$answer = $qa["answer"] ?? null;
 					$id_zones = $qa["id_zones"] ?? null;
+					$id_questions = $qa["id_questions"] ?? null;
 					$possible_answers = $qa["possible_answers"] ?? [];
 
 					if ($label && $answer) {
@@ -808,6 +812,7 @@ class Analytics
 						}
 
 						$labelCounts[$label]["id_zones"] = $id_zones;
+						$labelCounts[$label]["id_questions"] = $id_questions;
 						$labelCounts[$label]["label"] = $qa["label"];
 						$labelCounts[$label]["for_question"]["people"]["broj_ljudi"] += $broj_ljudi;
 
@@ -986,6 +991,7 @@ class Analytics
 			$questions_answers[] = [
 				"label" => $data["label"],
 				"id_zones" => $data["id_zones"],
+				"id_questions" => $data["id_questions"],
 				"possible_answers" => $possible_answers[$label],
 				"count" => $data,
 				"count_percentage" => $countWithPercentages
