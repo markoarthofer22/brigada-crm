@@ -32,6 +32,7 @@ const HeatmapWrapper = ({
 	zones = [],
 	exportName,
 	flowData = [],
+	zonesPathsInDepthD3,
 }: Props) => {
 	const { t } = useTranslation()
 
@@ -101,6 +102,7 @@ const HeatmapWrapper = ({
 				<FlowTable flows={flowData} />
 			) : (
 				<HeatmapViewer
+					zonesPathsInDepthD3={zonesPathsInDepthD3}
 					exportName={exportName}
 					zones={zones}
 					selectedTrackingId={selectedTrackingId}

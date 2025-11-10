@@ -8,6 +8,7 @@ import {
 	IconPlus,
 	IconRestore,
 } from '@tabler/icons-react'
+import * as d3 from 'd3'
 import h337 from 'heatmap.js'
 import { useTranslation } from 'react-i18next'
 import { hexToRgba } from '@/lib/utils'
@@ -65,6 +66,24 @@ export interface FlowData {
 	total_visits: number
 }
 
+export interface D3FlowNode {
+	id: string
+	value: number
+	x: number
+	y: number
+}
+
+export interface D3FlowLink {
+	source: string
+	target: string
+	value: number
+}
+
+export interface D3FlowData {
+	nodes: D3FlowNode[]
+	links: D3FlowLink[]
+}
+
 export interface HeatmapViewerProps {
 	heatmaps: HeatmapData[]
 	backgroundImage?: string
@@ -80,6 +99,7 @@ export interface HeatmapViewerProps {
 	trackings?: any[]
 	exportName?: string
 	flowData?: FlowData[]
+	zonesPathsInDepthD3?: D3FlowData
 }
 
 const INITIAL_ZOOM_LEVEL = 1
@@ -87,18 +107,26 @@ const MIN_ZOOM_LEVEL = 0.15
 const MAX_ZOOM_LEVEL = 2
 const CHANGE_ZOOM_STEP = 0.1
 
-const ZONE_COLORS: Record<string, string> = {
-	'Gondola 1': '#3b82f6', // bright blue
-	'Gondola 2': '#a855f7', // bright purple
-	'Gondola 3': '#ec4899', // bright pink
-	'nova zona': '#10b981', // bright green
-	Postament: '#f59e0b', // bright amber
-	Izlog: '#ef4444', // bright red
-	default: '#6366f1', // bright indigo
-}
+const CHART_COLORS = [
+	'#A02214',
+	'#BC5D28',
+	'#FEC87C',
+	'#6E2405',
+	'#6C7039',
+	'#C3B49B',
+	'#0A3542',
+	'#507282',
+	'#875A64',
+	'#C49A6C',
+]
 
-const getZoneColor = (zoneName: string): string => {
-	return ZONE_COLORS[zoneName] || ZONE_COLORS.default
+const getZoneColor = (zoneId: string): string => {
+	let hash = 0
+	for (let i = 0; i < zoneId.length; i++) {
+		hash = zoneId.charCodeAt(i) + ((hash << 5) - hash)
+	}
+	const index = Math.abs(hash) % CHART_COLORS.length
+	return CHART_COLORS[index]
 }
 
 export function HeatmapViewer({
@@ -116,6 +144,7 @@ export function HeatmapViewer({
 	trackings = [],
 	exportName,
 	flowData = [],
+	zonesPathsInDepthD3,
 }: HeatmapViewerProps) {
 	const { t } = useTranslation()
 
@@ -124,12 +153,13 @@ export function HeatmapViewer({
 	const heatmapContainerRef = useRef<HTMLDivElement>(null)
 	const debugCanvasRef = useRef<HTMLCanvasElement>(null)
 	const zonesCanvasRef = useRef<HTMLCanvasElement>(null)
-	const flowCanvasRef = useRef<HTMLCanvasElement>(null)
-	const heatmapInstanceRef = useRef<any>(null) // Store heatmap instance in ref to reuse
+	const d3FlowSvgRef = useRef<SVGSVGElement>(null)
+	const heatmapInstanceRef = useRef<any>(null)
 	const initialZoomRef = useRef<number | null>(null)
 	const [zoomLevel, setZoomLevel] = useState<number>(INITIAL_ZOOM_LEVEL)
 	const [heatmapMode, setHeatmapMode] = useState<'time' | 'people'>('time')
 	const [showFlowData, setShowFlowData] = useState<boolean>(true)
+	const [selectedFlowNode, setSelectedFlowNode] = useState<string | null>(null)
 	const [hoveredZone, setHoveredZone] = useState<{
 		name: string
 		x: number
@@ -272,280 +302,304 @@ export function HeatmapViewer({
 		})
 	}, [zones, width, height, zoomLevel])
 
-	const drawFlowArrows = useCallback(
-		(ctx: CanvasRenderingContext2D, scale = 1) => {
-			const drawCurvedArrow = (
-				fromX: number,
-				fromY: number,
-				toX: number,
-				toY: number,
-				curvature: number,
-				color: string,
-				label: string
-			) => {
-				const midX = (fromX + toX) / 2
-				const midY = (fromY + toY) / 2
+	useEffect(() => {
+		if (!showFlowData || !d3FlowSvgRef.current) return
 
-				const dx = toX - fromX
-				const dy = toY - fromY
-				const dist = Math.sqrt(dx * dx + dy * dy)
-				const perpX = -dy / dist
-				const perpY = dx / dist
+		const hasD3Data =
+			zonesPathsInDepthD3 && zonesPathsInDepthD3.nodes.length > 0
+		const hasFlowData = flowData.length > 0
 
-				const controlX = midX + perpX * curvature
-				const controlY = midY + perpY * curvature
+		if (!hasD3Data && !hasFlowData) return
 
-				// Draw curved line
-				ctx.beginPath()
-				ctx.moveTo(fromX, fromY)
-				ctx.quadraticCurveTo(controlX, controlY, toX, toY)
-				ctx.strokeStyle = color
-				ctx.lineWidth = 16 * scale
-				ctx.setLineDash([20 * scale, 10 * scale])
-				ctx.stroke()
-				ctx.setLineDash([])
+		const svg = d3.select(d3FlowSvgRef.current)
+		svg.selectAll('*').remove()
 
-				const arrowSize = 72 * scale
-				const angle = Math.atan2(toY - controlY, toX - controlX)
+		svg.attr('width', width * zoomLevel).attr('height', height * zoomLevel)
 
-				ctx.beginPath()
-				ctx.moveTo(toX, toY)
-				ctx.lineTo(
-					toX - arrowSize * Math.cos(angle - Math.PI / 6),
-					toY - arrowSize * Math.sin(angle - Math.PI / 6)
-				)
-				ctx.lineTo(
-					toX - arrowSize * Math.cos(angle + Math.PI / 6),
-					toY - arrowSize * Math.sin(angle + Math.PI / 6)
-				)
-				ctx.closePath()
-				ctx.fillStyle = color
-				ctx.fill()
+		const g = svg.append('g').attr('transform', `scale(${zoomLevel})`)
 
-				// Calculate actual midpoint of quadratic bezier curve at t=0.5
-				const t = 0.5
-				const labelX =
-					(1 - t) * (1 - t) * fromX + 2 * (1 - t) * t * controlX + t * t * toX
-				const labelY =
-					(1 - t) * (1 - t) * fromY + 2 * (1 - t) * t * controlY + t * t * toY
+		let nodes: D3FlowNode[] = []
+		let linksArray: D3FlowLink[] = []
 
-				// Draw label with better readability
-				ctx.font = `bold ${32 * scale}px sans-serif`
-				const textMetrics = ctx.measureText(label)
-				const padding = 16 * scale
-				const bgWidth = textMetrics.width + padding * 2
-				const bgHeight = 48 * scale
+		if (hasD3Data) {
+			nodes = zonesPathsInDepthD3.nodes
+			linksArray = zonesPathsInDepthD3.links
+		} else {
+			const nodesMap = new Map<string, D3FlowNode>()
 
-				// Fully opaque white background
-				ctx.fillStyle = 'rgba(255, 255, 255, 1)'
-				ctx.fillRect(
-					labelX - bgWidth / 2,
-					labelY - bgHeight / 2,
-					bgWidth,
-					bgHeight
-				)
-
-				// Thick colored border
-				ctx.strokeStyle = color
-				ctx.lineWidth = 5 * scale
-				ctx.strokeRect(
-					labelX - bgWidth / 2,
-					labelY - bgHeight / 2,
-					bgWidth,
-					bgHeight
-				)
-
-				// Black text with white outline for maximum contrast
-				ctx.textAlign = 'center'
-				ctx.textBaseline = 'middle'
-
-				// White outline
-				ctx.strokeStyle = 'white'
-				ctx.lineWidth = 6 * scale
-				ctx.strokeText(label, labelX, labelY)
-
-				// Black text
-				ctx.fillStyle = 'black'
-				ctx.fillText(label, labelX, labelY)
-			}
-
-			const flowMap = new Map<string, FlowData[]>()
 			flowData.forEach((flow) => {
-				if (flow.path.length < 2) return
-				for (let i = 0; i < flow.path.length - 1; i++) {
-					const from = flow.path[i]
-					const to = flow.path[i + 1]
-					const key = `${from.name}→${to.name}`
-					if (!flowMap.has(key)) {
-						flowMap.set(key, [])
+				flow.path.forEach((zone) => {
+					if (!nodesMap.has(zone.name)) {
+						nodesMap.set(zone.name, {
+							id: zone.name,
+							x: zone.coordinates.x,
+							y: zone.coordinates.y,
+							value: zone.coordinates.number_of_people,
+						})
 					}
-					flowMap.get(key)!.push(flow)
-				}
-			})
-
-			const drawnConnections = new Set<string>()
-
-			// Draw forward directions
-			flowData.forEach((flow) => {
-				if (flow.path.length < 2) return
+				})
 
 				for (let i = 0; i < flow.path.length - 1; i++) {
-					const from = flow.path[i]
-					const to = flow.path[i + 1]
-					const forwardKey = `${from.name}→${to.name}`
-					const reverseKey = `${to.name}→${from.name}`
-
-					if (drawnConnections.has(forwardKey)) continue
-					drawnConnections.add(forwardKey)
-
-					const hasReverse = flowMap.has(reverseKey)
-					const curvature = hasReverse ? 120 : 100
-					const color = getZoneColor(from.name)
-					const label = t('Analytics.flow.totalPeopleLabel', {
-						value: from.coordinates.number_of_people,
-					})
-
-					drawCurvedArrow(
-						from.coordinates.x,
-						from.coordinates.y,
-						to.coordinates.x,
-						to.coordinates.y,
-						curvature,
-						color,
-						label
+					const source = flow.path[i].name
+					const target = flow.path[i + 1].name
+					const existingLink = linksArray.find(
+						(l) => l.source === source && l.target === target
 					)
+					if (existingLink) {
+						existingLink.value += flow.path[i].coordinates.number_of_people
+					} else {
+						linksArray.push({
+							source,
+							target,
+							value: flow.path[i].coordinates.number_of_people,
+						})
+					}
 				}
 			})
 
-			// Draw reverse directions
-			flowData.forEach((flow) => {
-				if (flow.path.length < 2) return
+			nodes = Array.from(nodesMap.values())
+		}
 
-				for (let i = 0; i < flow.path.length - 1; i++) {
-					const from = flow.path[i]
-					const to = flow.path[i + 1]
+		const nodesMap = new Map<string, D3FlowNode>()
+		nodes.forEach((node) => nodesMap.set(node.id, node))
 
-					const forwardKey = `${from.name}→${to.name}`
-					const reverseKey = `${to.name}→${from.name}`
+		const defs = svg.append('defs')
+		;['small', 'medium', 'large', 'highlight'].forEach((size) => {
+			const markerWidth = size === 'small' ? 2 : size === 'medium' ? 3 : 4
+			const color = size === 'highlight' ? '#3b82f6' : '#64748b'
 
-					if (drawnConnections.has(reverseKey) || !flowMap.has(reverseKey))
-						continue
+			defs
+				.append('marker')
+				.attr('id', `arrow-${size}`)
+				.attr('viewBox', '0 -5 10 10')
+				.attr('refX', 10)
+				.attr('refY', 0)
+				.attr('markerWidth', markerWidth)
+				.attr('markerHeight', markerWidth)
+				.attr('orient', 'auto')
+				.append('path')
+				.attr('d', 'M0,-5L10,0L0,5')
+				.attr('fill', color)
+		})
 
-					const hasForward = flowMap.has(forwardKey)
-					if (!hasForward) continue
-
-					drawnConnections.add(reverseKey)
-
-					const curvature = -120
-					const color = getZoneColor(from.name)
-					const reverseFlows = flowMap.get(reverseKey)!
-					const totalPeople = reverseFlows.reduce(
-						(sum, f) => sum + f.total_people,
-						0
-					)
-					const label = t('Analytics.flow.totalPeopleLabel', {
-						value: totalPeople,
-					})
-
-					drawCurvedArrow(
-						from.coordinates.x,
-						from.coordinates.y,
-						to.coordinates.x,
-						to.coordinates.y,
-						curvature,
-						color,
-						label
-					)
+		const getConnectedLinks = (nodeId: string | null) => {
+			if (!nodeId) return new Set()
+			const connected = new Set<string>()
+			linksArray.forEach((link) => {
+				if (link.source === nodeId || link.target === nodeId) {
+					connected.add(`${link.source}-${link.target}`)
 				}
 			})
-		},
-		[flowData, t]
-	)
+			return connected
+		}
+
+		const getConnectedNodes = (nodeId: string | null) => {
+			if (!nodeId) return new Set()
+			const connected = new Set([nodeId])
+			linksArray.forEach((link) => {
+				if (link.source === nodeId) connected.add(link.target)
+				if (link.target === nodeId) connected.add(link.source)
+			})
+			return connected
+		}
+
+		const connectedLinks = getConnectedLinks(selectedFlowNode)
+		const connectedNodes = getConnectedNodes(selectedFlowNode)
+
+		g.append('g')
+			.selectAll('line')
+			.data(linksArray)
+			.enter()
+			.append('line')
+			.attr('x1', (d) => {
+				const sourceNode = nodesMap.get(d.source)
+				const targetNode = nodesMap.get(d.target)
+				if (!sourceNode || !targetNode) return 0
+
+				const angle = Math.atan2(
+					targetNode.y - sourceNode.y,
+					targetNode.x - sourceNode.x
+				)
+				const sourceRadius = Math.pow(sourceNode.value, 0.85) * 3.5
+				const strokeWidth = sourceNode.id === selectedFlowNode ? 6 : 4
+				return sourceNode.x + (sourceRadius + strokeWidth / 2) * Math.cos(angle)
+			})
+			.attr('y1', (d) => {
+				const sourceNode = nodesMap.get(d.source)
+				const targetNode = nodesMap.get(d.target)
+				if (!sourceNode || !targetNode) return 0
+
+				const angle = Math.atan2(
+					targetNode.y - sourceNode.y,
+					targetNode.x - sourceNode.x
+				)
+				const sourceRadius = Math.pow(sourceNode.value, 0.85) * 3.5
+				const strokeWidth = sourceNode.id === selectedFlowNode ? 6 : 4
+				return sourceNode.y + (sourceRadius + strokeWidth / 2) * Math.sin(angle)
+			})
+			.attr('x2', (d) => {
+				const sourceNode = nodesMap.get(d.source)
+				const targetNode = nodesMap.get(d.target)
+				if (!sourceNode || !targetNode) return 0
+
+				const angle = Math.atan2(
+					targetNode.y - sourceNode.y,
+					targetNode.x - sourceNode.x
+				)
+				const targetRadius = Math.pow(targetNode.value, 0.85) * 3.5
+				const strokeWidth = targetNode.id === selectedFlowNode ? 6 : 4
+				return targetNode.x - (targetRadius + strokeWidth / 2) * Math.cos(angle)
+			})
+			.attr('y2', (d) => {
+				const sourceNode = nodesMap.get(d.source)
+				const targetNode = nodesMap.get(d.target)
+				if (!sourceNode || !targetNode) return 0
+
+				const angle = Math.atan2(
+					targetNode.y - sourceNode.y,
+					targetNode.x - sourceNode.x
+				)
+				const targetRadius = Math.pow(targetNode.value, 0.85) * 3.5
+				const strokeWidth = targetNode.id === selectedFlowNode ? 6 : 4
+				return targetNode.y - (targetRadius + strokeWidth / 2) * Math.sin(angle)
+			})
+			.attr('stroke', (d) => {
+				const linkKey = `${d.source}-${d.target}`
+				if (!selectedFlowNode) return '#64748b'
+				return connectedLinks.has(linkKey) ? '#3b82f6' : '#94a3b8'
+			})
+			.attr('stroke-width', (d) => {
+				const linkKey = `${d.source}-${d.target}`
+				const baseWidth = Math.pow(d.value, 1.2) * 2
+				if (!selectedFlowNode) return baseWidth
+				return connectedLinks.has(linkKey) ? baseWidth * 1.8 : baseWidth
+			})
+			.attr('marker-end', (d) => {
+				const linkKey = `${d.source}-${d.target}`
+				if (selectedFlowNode && connectedLinks.has(linkKey))
+					return 'url(#arrow-highlight)'
+				if (d.value >= 5) return 'url(#arrow-large)'
+				if (d.value >= 3) return 'url(#arrow-medium)'
+				return 'url(#arrow-small)'
+			})
+			.attr('opacity', (d) => {
+				const linkKey = `${d.source}-${d.target}`
+				if (!selectedFlowNode) return 0.7
+				return connectedLinks.has(linkKey) ? 0.95 : 0.15
+			})
+
+		g.append('g')
+			.selectAll('circle')
+			.data(nodes)
+			.enter()
+			.append('circle')
+			.attr('cx', (d) => d.x)
+			.attr('cy', (d) => d.y)
+			.attr('r', (d) => Math.pow(d.value, 0.85) * 3.5)
+			.attr('fill', (d) => getZoneColor(d.id))
+			.attr('stroke', (d) => (d.id === selectedFlowNode ? '#fbbf24' : 'white'))
+			.attr('stroke-width', (d) => (d.id === selectedFlowNode ? 6 : 4))
+			.attr('opacity', (d) => {
+				if (!selectedFlowNode) return 0.9
+				return connectedNodes.has(d.id) ? 1 : 0.2
+			})
+			.style('cursor', 'pointer')
+			.on('click', (event, d) => {
+				event.stopPropagation()
+				setSelectedFlowNode((prev) => (prev === d.id ? null : d.id))
+			})
+			.on('mouseenter', function () {
+				d3.select(this).transition().duration(200).attr('stroke-width', 6)
+			})
+			.on('mouseleave', function (_event, d) {
+				d3.select(this)
+					.transition()
+					.duration(200)
+					.attr('stroke-width', d.id === selectedFlowNode ? 6 : 4)
+			})
+
+		g.append('g')
+			.selectAll('text')
+			.data(nodes)
+			.enter()
+			.append('text')
+			.attr('x', (d) => d.x + Math.pow(d.value, 0.85) * 3.5 + 10)
+			.attr('y', (d) => d.y + 5)
+			.text((d) => d.id)
+			.attr('font-size', 15)
+			.attr('font-weight', '700')
+			.attr('fill', '#1e293b')
+			.attr('stroke', 'white')
+			.attr('stroke-width', 4)
+			.attr('paint-order', 'stroke')
+			.attr('opacity', (d) => {
+				if (!selectedFlowNode) return 1
+				return connectedNodes.has(d.id) ? 1 : 0.3
+			})
+			.style('pointer-events', 'none')
+
+		svg.on('click', () => setSelectedFlowNode(null))
+	}, [
+		showFlowData,
+		flowData,
+		zonesPathsInDepthD3,
+		width,
+		height,
+		zoomLevel,
+		selectedFlowNode,
+	])
 
 	useEffect(() => {
 		if (!heatmapContainerRef.current || heatmaps.length === 0) return
 
 		const container = heatmapContainerRef.current
-		container.style.width = `${width * zoomLevel}px`
-		container.style.height = `${height * zoomLevel}px`
 
-		// Clean up existing heatmap instance
-		if (heatmapInstanceRef.current) {
-			const existingCanvas = container.querySelector('canvas')
-			if (existingCanvas) {
-				existingCanvas.remove()
-			}
-			heatmapInstanceRef.current = null
+		const heatmapInstance = heatmapInstanceRef.current
+		if (heatmapInstance && typeof heatmapInstance.remove === 'function') {
+			heatmapInstance.remove()
 		}
 
-		// Create new heatmap instance
-		try {
-			heatmapInstanceRef.current = h337.create({
-				container: container,
-				radius: radius * zoomLevel,
-				maxOpacity: 0.8,
-				minOpacity: 0.1,
-				blur: blur,
-				gradient: {
-					0.0: 'rgba(0, 0, 255, 0.3)',
-					0.25: 'cyan',
-					0.5: 'lime',
-					0.75: 'yellow',
-					1.0: 'red',
-				},
-			})
+		const heatmap = h337.create({
+			container: container,
+			radius: radius * zoomLevel,
+			blur: blur * zoomLevel,
+		})
 
-			const max =
-				maxValue ||
-				Math.max(
-					...heatmaps.map((h) =>
-						heatmapMode === 'people' ? h.heat.number_of_people : h.heat.value
-					),
-					1
-				)
-			const data = heatmaps.map((item) => ({
-				x: Math.round(item.heat.x * zoomLevel),
-				y: Math.round(item.heat.y * zoomLevel),
+		heatmapInstanceRef.current = heatmap
+
+		const max =
+			maxValue ||
+			Math.max(
+				...heatmaps.map((h) =>
+					heatmapMode === 'people' ? h.heat.number_of_people : h.heat.value
+				),
+				1
+			)
+
+		const data = {
+			max: max,
+			min: 0,
+			data: heatmaps.map((item) => ({
+				x: item.heat.x,
+				y: item.heat.y,
 				value:
 					heatmapMode === 'people'
 						? item.heat.number_of_people
 						: item.heat.value,
-			}))
-
-			if (data.length > 0) {
-				heatmapInstanceRef.current.setData({ min: 0, max, data })
-			}
-		} catch (error) {
-			console.error('Heatmap rendering error:', error)
+			})),
 		}
 
+		heatmap.setData(data)
+
 		return () => {
-			if (heatmapInstanceRef.current) {
-				const canvas = container.querySelector('canvas')
-				if (canvas) {
-					canvas.remove()
-				}
-				heatmapInstanceRef.current = null
+			if (
+				heatmapInstanceRef.current &&
+				typeof heatmapInstanceRef.current.remove === 'function'
+			) {
+				heatmapInstanceRef.current.remove()
 			}
 		}
 	}, [heatmaps, maxValue, radius, blur, width, height, zoomLevel, heatmapMode])
-
-	useEffect(() => {
-		if (!showFlowData || !flowData.length || !flowCanvasRef.current) return
-
-		const canvas = flowCanvasRef.current
-		const ctx = canvas.getContext('2d')
-		if (!ctx) return
-
-		canvas.width = width * zoomLevel
-		canvas.height = height * zoomLevel
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height)
-		ctx.save()
-		ctx.scale(zoomLevel, zoomLevel)
-		drawFlowArrows(ctx, 1)
-		ctx.restore()
-	}, [showFlowData, flowData, width, height, zoomLevel, drawFlowArrows])
 
 	const handleZoom = (direction: 'in' | 'out') => {
 		setZoomLevel((prev) => {
@@ -623,10 +677,9 @@ export function HeatmapViewer({
 					x: e.clientX - rect.left + scrollLeft,
 					y: e.clientY - rect.top + scrollTop,
 					pointCount: zonePoints.length,
-					totalHeat: parseFloat(totalHeat.toFixed(2)),
-					avgHeat: parseFloat(avgHeat.toFixed(2)),
+					totalHeat: Number.parseFloat(totalHeat.toFixed(2)),
+					avgHeat: Number.parseFloat(avgHeat.toFixed(2)),
 					number_of_people: number_of_people,
-					// avgHeat: Math.round(avgHeat * 10) / 10,
 				})
 				return
 			}
@@ -679,10 +732,33 @@ export function HeatmapViewer({
 				ctx.drawImage(img, 0, 0, width, height)
 				ctx.filter = 'none'
 
-				const heatmapCanvas =
-					heatmapContainerRef.current?.querySelector('canvas')
-				if (heatmapCanvas) {
-					ctx.drawImage(heatmapCanvas, 0, 0, width, height)
+				const heatmapInstance = heatmapInstanceRef.current
+				if (heatmapInstance) {
+					const heatmapCanvas2D = document.createElement('canvas')
+					heatmapCanvas2D.width = width
+					heatmapCanvas2D.height = height
+
+					const tempContainer = document.createElement('div')
+					tempContainer.style.width = `${width}px`
+					tempContainer.style.height = `${height}px`
+					tempContainer.style.position = 'absolute'
+					tempContainer.style.left = '-9999px'
+					document.body.appendChild(tempContainer)
+
+					const tempHeatmap = h337.create({
+						container: tempContainer,
+						radius: radius,
+						blur: blur,
+					})
+
+					tempHeatmap.setData(heatmapInstance.getData())
+
+					const tempCanvas = tempContainer.querySelector('canvas')
+					if (tempCanvas) {
+						ctx.drawImage(tempCanvas, 0, 0, width, height)
+					}
+
+					document.body.removeChild(tempContainer)
 				}
 
 				if (zones.length > 0) {
@@ -728,10 +804,6 @@ export function HeatmapViewer({
 					})
 				}
 
-				if (showFlowData && flowData.length > 0) {
-					drawFlowArrows(ctx, 1)
-				}
-
 				exportCanvas.toBlob((blob) => {
 					if (!blob) return
 					const url = URL.createObjectURL(blob)
@@ -743,16 +815,7 @@ export function HeatmapViewer({
 				}, 'image/png')
 			}
 		}
-	}, [
-		width,
-		height,
-		backgroundImage,
-		zones,
-		exportName,
-		flowData,
-		drawFlowArrows,
-		showFlowData,
-	])
+	}, [width, height, backgroundImage, zones, exportName, radius, blur])
 
 	return (
 		<>
@@ -840,10 +903,10 @@ export function HeatmapViewer({
 							className='pointer-events-none absolute inset-0'
 						/>
 					)}
-					{showFlowData && flowData.length > 0 && (
-						<canvas
-							ref={flowCanvasRef}
-							className='pointer-events-none absolute inset-0 z-30'
+					{showFlowData && (flowData.length > 0 || zonesPathsInDepthD3) && (
+						<svg
+							ref={d3FlowSvgRef}
+							className='pointer-events-auto absolute inset-0 z-30'
 						/>
 					)}
 					{showDebugPoints && (
@@ -887,6 +950,12 @@ export function HeatmapViewer({
 									</span>
 								</div>
 							</div>
+						</div>
+					)}
+					{selectedFlowNode && (
+						<div className='pointer-events-none absolute bottom-4 right-4 z-40 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm shadow-lg'>
+							<span className='font-medium text-blue-700'>Selected:</span>
+							<span className='ml-2 text-blue-900'>{selectedFlowNode}</span>
 						</div>
 					)}
 				</div>

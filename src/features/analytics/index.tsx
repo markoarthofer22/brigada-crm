@@ -334,6 +334,9 @@ export default function Analytics() {
 										radius={150}
 										blur={0.85}
 										flowData={analyticsQuery.data.zones_paths}
+										zonesPathsInDepthD3={
+											analyticsQuery.data.zones_paths_in_depth_D3
+										}
 									/>
 								)}
 						</TabsContent>
