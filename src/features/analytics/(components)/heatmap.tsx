@@ -393,6 +393,8 @@ export function HeatmapViewer({
 					const from = flow.path[i]
 					const to = flow.path[i + 1]
 
+					console.log('from', from)
+
 					const forwardKey = `${from.name}→${to.name}`
 					const reverseKey = `${to.name}→${from.name}`
 
@@ -403,7 +405,7 @@ export function HeatmapViewer({
 					const curvature = hasReverse ? 120 : 100
 					const color = getZoneColor(from.name)
 					const label = t('Analytics.flow.totalPeopleLabel', {
-						value: flow.total_people,
+						value: from.coordinates.number_of_people,
 					})
 
 					drawCurvedArrow(
