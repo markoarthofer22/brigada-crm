@@ -2181,4 +2181,134 @@ class Analytics
 
 		return $inside;
 	}
+
+
+	public function GetZonesPathsInDepth($paths)
+	{
+		$zoneCounts = [];
+		$transitions = [];
+		$entryPoints = [];
+		$exitPoints = [];
+		$totalPathLength = 0;
+		$totalPaths = count($paths);
+
+		foreach ($paths as $pathData) {
+			$path = $pathData['path'];
+			$totalPathLength += count($path);
+
+			// Count zones
+			foreach ($path as $zone) {
+				$name = $zone['name'];
+				$people = $zone['coordinates']['number_of_people'] ?? 1;
+				if (!isset($zoneCounts[$name])) $zoneCounts[$name] = 0;
+				$zoneCounts[$name] += $people;
+			}
+
+			// Count transitions (A → B)
+			for ($i = 0; $i < count($path) - 1; $i++) {
+				$from = $path[$i]['name'];
+				$to = $path[$i + 1]['name'];
+				$key = "$from → $to";
+				if (!isset($transitions[$key])) $transitions[$key] = 0;
+				$transitions[$key]++;
+			}
+
+			// Entry / Exit zones
+			$first = $path[0]['name'];
+			$last = end($path)['name'];
+
+			if (!isset($entryPoints[$first])) $entryPoints[$first] = 0;
+			$entryPoints[$first]++;
+
+			if (!isset($exitPoints[$last])) $exitPoints[$last] = 0;
+			$exitPoints[$last]++;
+		}
+
+		// Sort by frequency
+		arsort($zoneCounts);
+		arsort($transitions);
+		arsort($entryPoints);
+		arsort($exitPoints);
+
+		$averagePathLength = $totalPathLength / $totalPaths;
+
+		$mvz = [];
+		foreach (array_slice($zoneCounts, 0, 10, true) as $zone => $count) {
+			$mvz[] = array("zone" => $zone, "count" => $count);
+		}
+
+		$mct = [];
+		foreach (array_slice($transitions, 0, 10, true) as $pair => $count) {
+			$mct[] = array("transition" => $pair, "count" => $count);
+		}
+
+		$entry_points = [];
+		foreach ($entryPoints as $zone => $count) {
+			$entry_points[] = array("zone" => $zone, "count" => $count);
+		}
+
+		$exit_points = [];
+		foreach ($exitPoints as $zone => $count) {
+			$exit_points[] = array("zone" => $zone, "count" => $count);
+		}
+
+		return array(
+			"most_visited_zones" => $mvz,
+			"most_common_transitions" => $mct,
+			"entry_points" => $entry_points,
+			"exit_points" => $exit_points,
+			"average_path_length" => $averagePathLength
+		);
+	}
+
+	public function GetZonesPathsInDepthD3($zonesPathsInDepth)
+	{
+		$nodes = [];
+		$links = [];
+
+		// Extract transitions from your previous summary
+		if (!empty($zonesPathsInDepth['most_common_transitions'])) {
+			foreach ($zonesPathsInDepth['most_common_transitions'] as $transition) {
+				// Each transition looks like "A → B"
+				$parts = explode(" → ", $transition['transition']);
+				if (count($parts) === 2) {
+					$from = trim($parts[0]);
+					$to = trim($parts[1]);
+					$count = (int)$transition['count'];
+
+					// Add to links
+					$links[] = [
+						"source" => $from,
+						"target" => $to,
+						"value" => $count
+					];
+
+					// Collect unique nodes
+					$nodes[$from] = ["id" => $from];
+					$nodes[$to] = ["id" => $to];
+				}
+			}
+		}
+
+		// Add node weights (visits)
+		if (!empty($zonesPathsInDepth['most_visited_zones'])) {
+			foreach ($zonesPathsInDepth['most_visited_zones'] as $zoneData) {
+				$zoneName = $zoneData['zone'];
+				$count = (int)$zoneData['count'];
+				if (isset($nodes[$zoneName])) {
+					$nodes[$zoneName]['value'] = $count;
+				} else {
+					$nodes[$zoneName] = ["id" => $zoneName, "value" => $count];
+				}
+			}
+		}
+
+		// Convert associative array of nodes to a simple array
+		$nodes = array_values($nodes);
+
+		return [
+			"nodes" => $nodes,
+			"links" => $links
+		];
+	}
 }

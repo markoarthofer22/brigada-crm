@@ -753,6 +753,8 @@ class AnalyticsController extends BaseController
 		usort($_results, fn($a, $b) => $b['count'] <=> $a['count']);
 
 		$result["zones_paths"] = $_results;
+		$result["zones_paths_in_depth"] = $Analytics->GetZonesPathsInDepth($result["zones_paths"]);
+		$result["zones_paths_in_depth_D3"] = $Analytics->GetZonesPathsInDepthD3($result["zones_paths_in_depth"]);
 
 		///////////////////////////////////////////
 		///////////////////////////////////////////
