@@ -264,7 +264,7 @@ export function HeatmapViewer({
 			center.x /= points.length
 			center.y /= points.length
 
-			ctx.font = '20px sans-serif'
+			ctx.font = '32px sans-serif'
 			ctx.fillStyle = 'black'
 			ctx.textAlign = 'center'
 			ctx.textBaseline = 'middle'
@@ -392,9 +392,6 @@ export function HeatmapViewer({
 				for (let i = 0; i < flow.path.length - 1; i++) {
 					const from = flow.path[i]
 					const to = flow.path[i + 1]
-
-					console.log('from', from)
-
 					const forwardKey = `${from.name}→${to.name}`
 					const reverseKey = `${to.name}→${from.name}`
 
@@ -519,7 +516,7 @@ export function HeatmapViewer({
 				heatmapInstanceRef.current.setData({ min: 0, max, data })
 			}
 		} catch (error) {
-			console.error('[v0] Heatmap rendering error:', error)
+			console.error('Heatmap rendering error:', error)
 		}
 
 		return () => {
@@ -723,7 +720,7 @@ export function HeatmapViewer({
 						center.x /= points.length
 						center.y /= points.length
 
-						ctx.font = '20px sans-serif'
+						ctx.font = '32px sans-serif'
 						ctx.fillStyle = 'black'
 						ctx.textAlign = 'center'
 						ctx.textBaseline = 'middle'
