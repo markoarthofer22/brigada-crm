@@ -461,7 +461,7 @@ export function HeatmapViewer({
 			return connected
 		}
 
-		const connectedLinks = getConnectedLinks(selectedFlowNode)
+		// const connectedLinks = getConnectedLinks(selectedFlowNode)
 		const connectedNodes = getConnectedNodes(selectedFlowNode)
 
 		g.append('g')
