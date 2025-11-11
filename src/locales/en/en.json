@@ -93,7 +93,7 @@
 			"data": "Data points:",
 			"entryDataExcelTitle": "Entry points data",
 			"entryFilename": "entry_point_data_{{time}}.xlsx",
-			"entryPoint": "Entry point",
+			"entryPoint": "Entry points",
 			"excel": "Generate excel",
 			"exitDataExcelTitle": "Exit points data",
 			"exitFilename": "exit_point_data_{{time}}.xlsx",
@@ -102,13 +102,14 @@
 			"exportToExcel": "Export to excel",
 			"flowData": "Flow data",
 			"heatmap": "Heatmap",
-			"mostCommon": "Most common",
+			"mostCommon": "Most common transitions",
 			"mostCommonExcelTitle": "Most common data",
 			"mostCommonFilename": "most_common_data_{{time}}.xlsx",
 			"mostVisited": "Most visited",
 			"mostVisitedExcelTitle": "Most visited data",
 			"mostVisitedFilename": "most_visited_data_{{time}}.xlsx",
 			"people": "Number of people",
+			"people2": "Number of people",
 			"showBy": "Show by",
 			"showFlow": "Flow data",
 			"table": "Table",
@@ -198,10 +199,7 @@
 		"zoneId": "Zone ID"
 	},
 	"Dashboard": {
-		"active": [
-			"Inactive",
-			"Active"
-		],
+		"active": ["Inactive", "Active"],
 		"analytics": "Analytics",
 		"lastAdded": "Last added - {{value}}",
 		"lastMonth": "+ {{value}} in last month",
@@ -610,10 +608,7 @@
 	},
 	"Users": {
 		"add": "Add user",
-		"admin": [
-			"Regular user",
-			"Admin"
-		],
+		"admin": ["Regular user", "Admin"],
 		"createSuccess": "User {{value}} has been created successfully.",
 		"delete": "Delete user",
 		"deletePlaceholder": "Enter email to confirm deletion",
