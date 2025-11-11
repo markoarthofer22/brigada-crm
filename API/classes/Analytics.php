@@ -2300,7 +2300,7 @@ class Analytics
 				}
 
 				$zoneCounts[$name]["people"] += $people;
-				$zoneCounts[$name]["visits"] += $zoneCounts[$name]["people"] * $pathData['count'];
+				$zoneCounts[$name]["visits"] += $people * $pathData['count'];
 			}
 
 			// echo json_encode($zoneCounts);
@@ -2316,7 +2316,7 @@ class Analytics
 				}
 				$transitions[$key]["count"]++;
 				$transitions[$key]["people"] += $path[$i]['coordinates']['number_of_people'] ?? 0;
-				$transitions[$key]["visits"] += $transitions[$key]["people"] * $pathData['count'];
+				$transitions[$key]["visits"] += $path[$i]['coordinates']['number_of_people'] * $pathData['count'];
 				// echo json_encode($path[$i]);
 
 				// $transitions[$key]["people"] += ;
@@ -2335,6 +2335,9 @@ class Analytics
 			if (!isset($exitPoints[$last])) $exitPoints[$last] = 0;
 			$exitPoints[$last]++;
 		}
+
+		// echo json_encode($transitions);
+		// exit;
 
 		// Sort by frequency
 		arsort($zoneCounts);
