@@ -9,11 +9,13 @@ import { DataTableViewOptions } from './data-table-view-options.tsx'
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>
 	facetFilters?: React.ReactNode
+	tableViewTranslationKey?: string
 }
 
 export function DataTableToolbar<TData>({
 	table,
 	facetFilters,
+	tableViewTranslationKey,
 }: DataTableToolbarProps<TData>) {
 	const { t } = useTranslation()
 	const isFiltered = table.getState().columnFilters.length > 0
@@ -39,7 +41,10 @@ export function DataTableToolbar<TData>({
 					</Button>
 				)}
 			</div>
-			<DataTableViewOptions table={table} />
+			<DataTableViewOptions
+				table={table}
+				tableViewTranslationKey={tableViewTranslationKey}
+			/>
 		</div>
 	)
 }

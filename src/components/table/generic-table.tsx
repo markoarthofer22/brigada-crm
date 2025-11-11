@@ -43,6 +43,7 @@ interface DataTableProps<T> {
 	onRowClick?: (row: T) => void
 	perPage?: number
 	initialPageIndex?: number
+	tableViewTranslationKey?: string
 }
 
 export function GenericTable<T>({
@@ -52,6 +53,7 @@ export function GenericTable<T>({
 	onRowClick,
 	perPage = 10,
 	initialPageIndex = 0,
+	tableViewTranslationKey,
 }: DataTableProps<T>) {
 	const { t } = useTranslation()
 	const [pagination, setPagination] = useState<PaginationState>({
@@ -98,6 +100,7 @@ export function GenericTable<T>({
 						: null
 				}
 				table={table}
+				tableViewTranslationKey={tableViewTranslationKey}
 			/>
 			<div className='rounded-md border'>
 				<Table>

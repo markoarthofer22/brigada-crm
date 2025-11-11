@@ -13,12 +13,21 @@ import {
 
 interface DataTableViewOptionsProps<TData> {
 	table: Table<TData>
+	tableViewTranslationKey?: string
 }
 
 export function DataTableViewOptions<TData>({
 	table,
+	tableViewTranslationKey,
 }: DataTableViewOptionsProps<TData>) {
 	const { t } = useTranslation()
+
+	const translateColumnHeader = (columnId: string) => {
+		if (tableViewTranslationKey) {
+			return t(`${tableViewTranslationKey}.${columnId}`)
+		}
+		return t('Table.header.' + columnId)
+	}
 
 	return (
 		<DropdownMenu modal={false}>
@@ -51,7 +60,7 @@ export function DataTableViewOptions<TData>({
 								checked={column.getIsVisible()}
 								onCheckedChange={(value) => column.toggleVisibility(!!value)}
 							>
-								{t('Table.header.' + column.id)}
+								{translateColumnHeader(column.id)}
 							</DropdownMenuCheckboxItem>
 						)
 					})}
