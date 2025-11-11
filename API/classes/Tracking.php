@@ -46,11 +46,14 @@ class Tracking
 						*,
 						ROW_NUMBER() OVER(ORDER BY t.id_tracking ASC) AS id_tracking_count
 					FROM {$_SESSION["SCHEMA"]}.tracking t
-					{$_where} AND t.id_users = {$_SESSION["user"]["id_users"]} AND (t.data->>'valid')::boolean IS NOT FALSE 
+					{$_where} AND t.id_users = {$_SESSION["user"]["id_users"]} AND (t.data->>'valid')::boolean IS NOT FALSE AND T.ended_at IS NULL
 					ORDER BY t.started_at ASC
 				)
-				SELECT * FROM all_data WHERE ended_at IS NULL
+				SELECT * FROM all_data
 		";
+
+		// echo $sql;
+		// exit;
 
 		$stmt = $this->database->prepare($sql);
 		$stmt->execute();
