@@ -106,10 +106,11 @@ export default function ProjectDetailsForRegularUser() {
 			)
 
 			const lastActive = activeTrackings[activeTrackings.length - 1]
-
 			if (lastActive) {
 				setActiveTrackingId(lastActive.id_tracking)
 			}
+		} else {
+			setActiveTrackingId(null)
 		}
 	}, [trackingQuery.data])
 

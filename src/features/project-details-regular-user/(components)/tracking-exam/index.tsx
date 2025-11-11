@@ -172,6 +172,7 @@ export function TrackingExam({
 			await activeQuestionAnswers.refetch()
 			await queryClient.invalidateQueries({
 				queryKey: ['trackings', projectId],
+				exact: true,
 			})
 		},
 		onError: (err: unknown) => handleError(err),
@@ -184,6 +185,7 @@ export function TrackingExam({
 			await queryClient.invalidateQueries({
 				queryKey: ['trackings', projectId],
 			})
+			setIsInvalidateDialogOpen(false)
 		},
 		onError: (err: unknown) => handleError(err),
 	})
