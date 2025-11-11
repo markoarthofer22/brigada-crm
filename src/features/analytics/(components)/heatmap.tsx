@@ -77,6 +77,8 @@ export interface D3FlowLink {
 	source: string
 	target: string
 	value: number
+	people: number
+	visits: number
 }
 
 export interface D3FlowData {
@@ -361,6 +363,8 @@ export function HeatmapViewer({
 							source,
 							target,
 							value: flow.path[i].coordinates.number_of_people,
+							people: flow.path[i].coordinates.number_of_people,
+							visits: flow.path[i].coordinates.number_of_people,
 						})
 					}
 				}
