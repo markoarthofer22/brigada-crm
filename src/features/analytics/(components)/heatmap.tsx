@@ -402,7 +402,7 @@ export function HeatmapViewer({
 
 		// Create markers for each size and color combination
 		;['small', 'medium', 'large'].forEach((size) => {
-			const markerWidth = size === 'small' ? 1 : size === 'medium' ? 1.2 : 1.5
+			const markerWidth = size === 'small' ? 1.3 : size === 'medium' ? 1.5 : 1.8
 
 			// Gray (default)
 			defs
@@ -504,14 +504,19 @@ export function HeatmapViewer({
 				const targetRadius = Math.pow(targetNode.value, 0.85) * 5
 				const strokeWidth = 2 // Use fixed stroke width for calculation
 
+				// Add extra gap for arrow visibility (10 pixels)
+				const arrowGap = 10
+
 				const x1 =
 					sourceNode.x + (sourceRadius + strokeWidth / 2) * Math.cos(angle)
 				const y1 =
 					sourceNode.y + (sourceRadius + strokeWidth / 2) * Math.sin(angle)
 				const x2 =
-					targetNode.x - (targetRadius + strokeWidth / 2) * Math.cos(angle)
+					targetNode.x -
+					(targetRadius + strokeWidth / 2 + arrowGap) * Math.cos(angle)
 				const y2 =
-					targetNode.y - (targetRadius + strokeWidth / 2) * Math.sin(angle)
+					targetNode.y -
+					(targetRadius + strokeWidth / 2 + arrowGap) * Math.sin(angle)
 
 				// Control point for quadratic curve
 				const cx = midX + perpX
@@ -566,7 +571,7 @@ export function HeatmapViewer({
 				return isConnected ? 0.95 : 0.15
 			})
 			.style('cursor', 'pointer')
-			.on('mouseenter', function (event, d) {
+			.on('mouseenter', function (_event, d) {
 				const sourceNode = nodesMap.get(d.source)
 				const targetNode = nodesMap.get(d.target)
 				if (!sourceNode || !targetNode) return
@@ -587,7 +592,9 @@ export function HeatmapViewer({
 				const pt = svg.createSVGPoint()
 				pt.x = (midX + perpX) * zoomLevel
 				pt.y = (midY + perpY) * zoomLevel
-				const screenPt = pt.matrixTransform(svg.getScreenCTM())
+				const ctm = svg.getScreenCTM()
+				if (!ctm) return
+				const screenPt = pt.matrixTransform(ctm)
 
 				setHoveredLink({
 					source: d.source,
@@ -606,7 +613,7 @@ export function HeatmapViewer({
 						return baseWidth * 2
 					})
 			})
-			.on('mouseleave', function (event, d) {
+			.on('mouseleave', function (_event, _d) {
 				setHoveredLink(null)
 
 				// Restore original width
