@@ -160,6 +160,13 @@ export function HeatmapViewer({
 	const [heatmapMode, setHeatmapMode] = useState<'time' | 'people'>('time')
 	const [showFlowData, setShowFlowData] = useState<boolean>(true)
 	const [selectedFlowNode, setSelectedFlowNode] = useState<string | null>(null)
+	const [hoveredLink, setHoveredLink] = useState<{
+		source: string
+		target: string
+		value: number
+		x: number
+		y: number
+	} | null>(null)
 	const [hoveredZone, setHoveredZone] = useState<{
 		name: string
 		x: number
@@ -440,16 +447,16 @@ export function HeatmapViewer({
 				.attr('fill', '#ef4444')
 		})
 
-		const getConnectedLinks = (nodeId: string | null) => {
-			if (!nodeId) return new Set()
-			const connected = new Set<string>()
-			linksArray.forEach((link) => {
-				if (link.source === nodeId || link.target === nodeId) {
-					connected.add(`${link.source}-${link.target}`)
-				}
-			})
-			return connected
-		}
+		// const getConnectedLinks = (nodeId: string | null) => {
+		// 	if (!nodeId) return new Set()
+		// 	const connected = new Set<string>()
+		// 	linksArray.forEach((link) => {
+		// 		if (link.source === nodeId || link.target === nodeId) {
+		// 			connected.add(`${link.source}-${link.target}`)
+		// 		}
+		// 	})
+		// 	return connected
+		// }
 
 		const getConnectedNodes = (nodeId: string | null) => {
 			if (!nodeId) return new Set()
@@ -557,6 +564,62 @@ export function HeatmapViewer({
 				const isConnected =
 					d.source === selectedFlowNode || d.target === selectedFlowNode
 				return isConnected ? 0.95 : 0.15
+			})
+			.style('cursor', 'pointer')
+			.on('mouseenter', function (event, d) {
+				const sourceNode = nodesMap.get(d.source)
+				const targetNode = nodesMap.get(d.target)
+				if (!sourceNode || !targetNode) return
+
+				// Calculate midpoint of the curve for tooltip positioning
+				const dx = targetNode.x - sourceNode.x
+				const dy = targetNode.y - sourceNode.y
+				const distance = Math.sqrt(dx * dx + dy * dy)
+				const curveOffset = distance * 0.15
+				const midX = (sourceNode.x + targetNode.x) / 2
+				const midY = (sourceNode.y + targetNode.y) / 2
+				const perpX = (-dy / distance) * curveOffset
+				const perpY = (dx / distance) * curveOffset
+
+				// Get screen coordinates
+				const svg = d3FlowSvgRef.current
+				if (!svg) return
+				const pt = svg.createSVGPoint()
+				pt.x = (midX + perpX) * zoomLevel
+				pt.y = (midY + perpY) * zoomLevel
+				const screenPt = pt.matrixTransform(svg.getScreenCTM())
+
+				setHoveredLink({
+					source: d.source,
+					target: d.target,
+					value: d.value,
+					x: screenPt.x,
+					y: screenPt.y,
+				})
+
+				// Highlight the line
+				d3.select(this)
+					.transition()
+					.duration(200)
+					.attr('stroke-width', (d: any) => {
+						const baseWidth = Math.pow(d.value, 1.2) * 1.5
+						return baseWidth * 2
+					})
+			})
+			.on('mouseleave', function (event, d) {
+				setHoveredLink(null)
+
+				// Restore original width
+				d3.select(this)
+					.transition()
+					.duration(200)
+					.attr('stroke-width', (d: any) => {
+						const baseWidth = Math.pow(d.value, 1.2) * 1.5
+						if (!selectedFlowNode) return baseWidth
+						const isConnected =
+							d.source === selectedFlowNode || d.target === selectedFlowNode
+						return isConnected ? baseWidth * 1.5 : baseWidth
+					})
 			})
 
 		g.append('g')
@@ -1053,6 +1116,41 @@ export function HeatmapViewer({
 									<span>{t('Analytics.heatmap.avgHeat')}</span>
 									<span className='font-medium text-white'>
 										{hoveredZone.avgHeat}
+									</span>
+								</div>
+							</div>
+						</div>
+					)}
+					{hoveredLink && (
+						<div
+							className='pointer-events-none absolute z-50 rounded-lg border border-white/20 bg-black/95 px-4 py-3 text-sm text-white shadow-xl'
+							style={{
+								left: `${hoveredLink.x}px`,
+								top: `${hoveredLink.y}px`,
+								transform: 'translate(-50%, -100%)',
+								marginTop: '-10px',
+							}}
+						>
+							<div className='mb-2 font-semibold text-white'>
+								Transition Flow
+							</div>
+							<div className='space-y-1 text-xs text-gray-300'>
+								<div className='flex items-center gap-2'>
+									<span className='text-green-400'>From:</span>
+									<span className='font-medium text-white'>
+										{hoveredLink.source}
+									</span>
+								</div>
+								<div className='flex items-center gap-2'>
+									<span className='text-red-400'>To:</span>
+									<span className='font-medium text-white'>
+										{hoveredLink.target}
+									</span>
+								</div>
+								<div className='mt-1 flex justify-between gap-4 border-t border-white/10 pt-1'>
+									<span>People:</span>
+									<span className='font-medium text-white'>
+										{hoveredLink.value}
 									</span>
 								</div>
 							</div>
