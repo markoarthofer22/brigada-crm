@@ -93,7 +93,7 @@
 			"data": "Ukupno točaka:",
 			"entryDataExcelTitle": "Podaci o ulaznim točkama",
 			"entryFilename": "entry_point_data_{{time}}.xlsx",
-			"entryPoint": "Ulazna točka",
+			"entryPoint": "Ulazne točka",
 			"excel": "Izvezi tablicu",
 			"exitDataExcelTitle": "Podaci o izlaznim točkama",
 			"exitFilename": "exit_point_data_{{time}}.xlsx",
@@ -102,13 +102,14 @@
 			"exportToExcel": "Preuzmi kao excel",
 			"flowData": "Smjer kretanja",
 			"heatmap": "Heatmap",
-			"mostCommon": "Najčešći",
+			"mostCommon": "Najčešće tranzicije",
 			"mostCommonExcelTitle": "Podaci o najčešće posjećenim zonama",
 			"mostCommonFilename": "podaci_o_najčešće_posjećenim_zonama_{{time}}.xlsx",
 			"mostVisited": "Najposjećenije",
 			"mostVisitedExcelTitle": "Podaci o najposjećenijim zonama",
 			"mostVisitedFilename": "podaci_o_najposjećenijim_zonama_{{time}}.xlsx",
-			"people": "Broj ljudi",
+			"people": "Broju ljudi",
+			"people2": "Broj ljudi",
 			"showBy": "Prikaži po",
 			"showFlow": "Prikaži smjer kreatanja",
 			"table": "Tablični prikaz",
@@ -198,10 +199,7 @@
 		"zoneId": "ID Zone"
 	},
 	"Dashboard": {
-		"active": [
-			"Neaktivan",
-			"Aktivan"
-		],
+		"active": ["Neaktivan", "Aktivan"],
 		"analytics": "Analitika",
 		"lastAdded": "Zadnje dodano - {{value}}",
 		"lastMonth": "+ {{value}} tokom prošlog mjeseca",
@@ -610,10 +608,7 @@
 	},
 	"Users": {
 		"add": "Dodaj korisnika",
-		"admin": [
-			"Korisnik",
-			"Administrator"
-		],
+		"admin": ["Korisnik", "Administrator"],
 		"createSuccess": "Korisnik {{value}} je uspješno kreiran.",
 		"delete": "Izbriši korisnika",
 		"deletePlaceholder": "Unesite email za potvrdu brisanja",
