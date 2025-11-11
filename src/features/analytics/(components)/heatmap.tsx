@@ -164,6 +164,8 @@ export function HeatmapViewer({
 		source: string
 		target: string
 		value: number
+		people: number
+		visits: number
 		x: number
 		y: number
 	} | null>(null)
@@ -504,8 +506,8 @@ export function HeatmapViewer({
 				const targetRadius = Math.pow(targetNode.value, 0.85) * 5
 				const strokeWidth = 2 // Use fixed stroke width for calculation
 
-				// Add extra gap for arrow visibility (10 pixels)
-				const arrowGap = 10
+				// Add extra gap for arrow visibility
+				const arrowGap = 0
 
 				const x1 =
 					sourceNode.x + (sourceRadius + strokeWidth / 2) * Math.cos(angle)
@@ -571,37 +573,26 @@ export function HeatmapViewer({
 				return isConnected ? 0.95 : 0.15
 			})
 			.style('cursor', 'pointer')
-			.on('mouseenter', function (_event, d) {
+			.on('mouseenter', function (event, d) {
 				const sourceNode = nodesMap.get(d.source)
 				const targetNode = nodesMap.get(d.target)
 				if (!sourceNode || !targetNode) return
 
-				// Calculate midpoint of the curve for tooltip positioning
-				const dx = targetNode.x - sourceNode.x
-				const dy = targetNode.y - sourceNode.y
-				const distance = Math.sqrt(dx * dx + dy * dy)
-				const curveOffset = distance * 0.15
-				const midX = (sourceNode.x + targetNode.x) / 2
-				const midY = (sourceNode.y + targetNode.y) / 2
-				const perpX = (-dy / distance) * curveOffset
-				const perpY = (dx / distance) * curveOffset
-
-				// Get screen coordinates
-				const svg = d3FlowSvgRef.current
-				if (!svg) return
-				const pt = svg.createSVGPoint()
-				pt.x = (midX + perpX) * zoomLevel
-				pt.y = (midY + perpY) * zoomLevel
-				const ctm = svg.getScreenCTM()
-				if (!ctm) return
-				const screenPt = pt.matrixTransform(ctm)
+				// Get mouse position relative to the container
+				if (!containerRef.current) return
+				const containerRect = containerRef.current.getBoundingClientRect()
 
 				setHoveredLink({
 					source: d.source,
 					target: d.target,
 					value: d.value,
-					x: screenPt.x,
-					y: screenPt.y,
+					people: d.people,
+					visits: d.visits,
+					x:
+						event.clientX -
+						containerRect.left +
+						containerRef.current.scrollLeft,
+					y: event.clientY - containerRect.top + containerRef.current.scrollTop,
 				})
 
 				// Highlight the line
@@ -612,6 +603,24 @@ export function HeatmapViewer({
 						const baseWidth = Math.pow(d.value, 1.2) * 1.5
 						return baseWidth * 2
 					})
+			})
+			.on('mousemove', function (event, d) {
+				// Update tooltip position as mouse moves
+				if (!containerRef.current) return
+				const containerRect = containerRef.current.getBoundingClientRect()
+
+				setHoveredLink({
+					source: d.source,
+					target: d.target,
+					value: d.value,
+					people: d.people,
+					visits: d.visits,
+					x:
+						event.clientX -
+						containerRect.left +
+						containerRef.current.scrollLeft,
+					y: event.clientY - containerRect.top + containerRef.current.scrollTop,
+				})
 			})
 			.on('mouseleave', function (_event, _d) {
 				setHoveredLink(null)
@@ -884,6 +893,31 @@ export function HeatmapViewer({
 		return { left, top }
 	}
 
+	const getLinkTooltipPosition = () => {
+		if (!hoveredLink || !containerRef.current) return { left: 0, top: 0 }
+
+		const TOOLTIP_OFFSET = 15
+		const ESTIMATED_TOOLTIP_HEIGHT = 100
+		const ESTIMATED_TOOLTIP_WIDTH = 180
+
+		const containerRect = containerRef.current.getBoundingClientRect()
+		const containerHeight = containerRect.height
+		const containerWidth = containerRect.width
+
+		let left = hoveredLink.x + TOOLTIP_OFFSET
+		let top = hoveredLink.y + TOOLTIP_OFFSET
+
+		if (hoveredLink.y + ESTIMATED_TOOLTIP_HEIGHT > containerHeight) {
+			top = hoveredLink.y - ESTIMATED_TOOLTIP_HEIGHT - TOOLTIP_OFFSET
+		}
+
+		if (hoveredLink.x + ESTIMATED_TOOLTIP_WIDTH > containerWidth) {
+			left = hoveredLink.x - ESTIMATED_TOOLTIP_WIDTH - TOOLTIP_OFFSET
+		}
+
+		return { left, top }
+	}
+
 	const exportAsImage = useCallback(() => {
 		const exportCanvas = document.createElement('canvas')
 		exportCanvas.width = width
@@ -1132,10 +1166,8 @@ export function HeatmapViewer({
 						<div
 							className='pointer-events-none absolute z-50 rounded-lg border border-white/20 bg-black/95 px-4 py-3 text-sm text-white shadow-xl'
 							style={{
-								left: `${hoveredLink.x}px`,
-								top: `${hoveredLink.y}px`,
-								transform: 'translate(-50%, -100%)',
-								marginTop: '-10px',
+								left: `${getLinkTooltipPosition().left}px`,
+								top: `${getLinkTooltipPosition().top}px`,
 							}}
 						>
 							<div className='mb-2 font-semibold text-white'>
@@ -1155,9 +1187,21 @@ export function HeatmapViewer({
 									</span>
 								</div>
 								<div className='mt-1 flex justify-between gap-4 border-t border-white/10 pt-1'>
-									<span>People:</span>
+									<span>Flow:</span>
 									<span className='font-medium text-white'>
 										{hoveredLink.value}
+									</span>
+								</div>
+								<div className='mt-1 flex justify-between gap-4 border-t border-white/10 pt-1'>
+									<span>People:</span>
+									<span className='font-medium text-white'>
+										{hoveredLink.people}
+									</span>
+								</div>
+								<div className='mt-1 flex justify-between gap-4 border-t border-white/10 pt-1'>
+									<span>Visits:</span>
+									<span className='font-medium text-white'>
+										{hoveredLink.visits}
 									</span>
 								</div>
 							</div>
