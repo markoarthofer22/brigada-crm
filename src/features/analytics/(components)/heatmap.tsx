@@ -2,7 +2,12 @@
 
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { IconDownload, IconMinus, IconPlus, IconRestore, } from '@tabler/icons-react'
+import {
+	IconDownload,
+	IconMinus,
+	IconPlus,
+	IconRestore,
+} from '@tabler/icons-react'
 import * as d3 from 'd3'
 import h337 from 'heatmap.js'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +15,13 @@ import { hexToRgba } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 
 export interface Zone {
 	id_zones: number
@@ -381,13 +392,15 @@ export function HeatmapViewer({
 		nodes.forEach((node) => nodesMap.set(node.id, node))
 
 		const defs = svg.append('defs')
-		;['small', 'medium', 'large', 'highlight'].forEach((size) => {
-			const markerWidth = size === 'small' ? 2 : size === 'medium' ? 3 : 4
-			const color = size === 'highlight' ? '#3b82f6' : '#64748b'
 
+		// Create markers for each size and color combination
+		;['small', 'medium', 'large'].forEach((size) => {
+			const markerWidth = size === 'small' ? 1 : size === 'medium' ? 1.2 : 1.5
+
+			// Gray (default)
 			defs
 				.append('marker')
-				.attr('id', `arrow-${size}`)
+				.attr('id', `arrow-${size}-gray`)
 				.attr('viewBox', '0 -5 10 10')
 				.attr('refX', 10)
 				.attr('refY', 0)
@@ -396,7 +409,35 @@ export function HeatmapViewer({
 				.attr('orient', 'auto')
 				.append('path')
 				.attr('d', 'M0,-5L10,0L0,5')
-				.attr('fill', color)
+				.attr('fill', '#94a3b8')
+
+			// Green (outgoing from selected node)
+			defs
+				.append('marker')
+				.attr('id', `arrow-${size}-green`)
+				.attr('viewBox', '0 -5 10 10')
+				.attr('refX', 10)
+				.attr('refY', 0)
+				.attr('markerWidth', markerWidth)
+				.attr('markerHeight', markerWidth)
+				.attr('orient', 'auto')
+				.append('path')
+				.attr('d', 'M0,-5L10,0L0,5')
+				.attr('fill', '#10b981')
+
+			// Red (incoming to selected node)
+			defs
+				.append('marker')
+				.attr('id', `arrow-${size}-red`)
+				.attr('viewBox', '0 -5 10 10')
+				.attr('refX', 10)
+				.attr('refY', 0)
+				.attr('markerWidth', markerWidth)
+				.attr('markerHeight', markerWidth)
+				.attr('orient', 'auto')
+				.append('path')
+				.attr('d', 'M0,-5L10,0L0,5')
+				.attr('fill', '#ef4444')
 		})
 
 		const getConnectedLinks = (nodeId: string | null) => {
@@ -424,85 +465,98 @@ export function HeatmapViewer({
 		const connectedNodes = getConnectedNodes(selectedFlowNode)
 
 		g.append('g')
-			.selectAll('line')
+			.selectAll('path')
 			.data(linksArray)
 			.enter()
-			.append('line')
-			.attr('x1', (d) => {
+			.append('path')
+			.attr('d', (d) => {
 				const sourceNode = nodesMap.get(d.source)
 				const targetNode = nodesMap.get(d.target)
-				if (!sourceNode || !targetNode) return 0
+				if (!sourceNode || !targetNode) return ''
 
-				const angle = Math.atan2(
-					targetNode.y - sourceNode.y,
-					targetNode.x - sourceNode.x
-				)
+				const dx = targetNode.x - sourceNode.x
+				const dy = targetNode.y - sourceNode.y
+				const distance = Math.sqrt(dx * dx + dy * dy)
+
+				// Safety check for zero or very small distance
+				if (distance < 1) {
+					return '' // Don't draw if nodes are too close
+				}
+
+				// Calculate curve offset (15% of distance)
+				const curveOffset = distance * 0.15
+
+				// Calculate perpendicular offset for the control point
+				const midX = (sourceNode.x + targetNode.x) / 2
+				const midY = (sourceNode.y + targetNode.y) / 2
+				const perpX = (-dy / distance) * curveOffset
+				const perpY = (dx / distance) * curveOffset
+
+				const angle = Math.atan2(dy, dx)
 				const sourceRadius = Math.pow(sourceNode.value, 0.85) * 5
-				const strokeWidth = sourceNode.id === selectedFlowNode ? 8 : 6
-				return sourceNode.x + (sourceRadius + strokeWidth / 2) * Math.cos(angle)
-			})
-			.attr('y1', (d) => {
-				const sourceNode = nodesMap.get(d.source)
-				const targetNode = nodesMap.get(d.target)
-				if (!sourceNode || !targetNode) return 0
-
-				const angle = Math.atan2(
-					targetNode.y - sourceNode.y,
-					targetNode.x - sourceNode.x
-				)
-				const sourceRadius = Math.pow(sourceNode.value, 0.85) * 5
-				const strokeWidth = sourceNode.id === selectedFlowNode ? 8 : 6
-				return sourceNode.y + (sourceRadius + strokeWidth / 2) * Math.sin(angle)
-			})
-			.attr('x2', (d) => {
-				const sourceNode = nodesMap.get(d.source)
-				const targetNode = nodesMap.get(d.target)
-				if (!sourceNode || !targetNode) return 0
-
-				const angle = Math.atan2(
-					targetNode.y - sourceNode.y,
-					targetNode.x - sourceNode.x
-				)
 				const targetRadius = Math.pow(targetNode.value, 0.85) * 5
-				const strokeWidth = targetNode.id === selectedFlowNode ? 8 : 6
-				return targetNode.x - (targetRadius + strokeWidth / 2) * Math.cos(angle)
-			})
-			.attr('y2', (d) => {
-				const sourceNode = nodesMap.get(d.source)
-				const targetNode = nodesMap.get(d.target)
-				if (!sourceNode || !targetNode) return 0
+				const strokeWidth = 2 // Use fixed stroke width for calculation
 
-				const angle = Math.atan2(
-					targetNode.y - sourceNode.y,
-					targetNode.x - sourceNode.x
-				)
-				const targetRadius = Math.pow(targetNode.value, 0.85) * 5
-				const strokeWidth = targetNode.id === selectedFlowNode ? 8 : 6
-				return targetNode.y - (targetRadius + strokeWidth / 2) * Math.sin(angle)
+				const x1 =
+					sourceNode.x + (sourceRadius + strokeWidth / 2) * Math.cos(angle)
+				const y1 =
+					sourceNode.y + (sourceRadius + strokeWidth / 2) * Math.sin(angle)
+				const x2 =
+					targetNode.x - (targetRadius + strokeWidth / 2) * Math.cos(angle)
+				const y2 =
+					targetNode.y - (targetRadius + strokeWidth / 2) * Math.sin(angle)
+
+				// Control point for quadratic curve
+				const cx = midX + perpX
+				const cy = midY + perpY
+
+				// Final safety check
+				if (
+					isNaN(x1) ||
+					isNaN(y1) ||
+					isNaN(x2) ||
+					isNaN(y2) ||
+					isNaN(cx) ||
+					isNaN(cy)
+				) {
+					return '' // Don't draw if any coordinate is invalid
+				}
+
+				return `M ${x1},${y1} Q ${cx},${cy} ${x2},${y2}`
 			})
 			.attr('stroke', (d) => {
-				const linkKey = `${d.source}-${d.target}`
-				if (!selectedFlowNode) return '#64748b'
-				return connectedLinks.has(linkKey) ? '#3b82f6' : '#94a3b8'
+				if (!selectedFlowNode) return '#94a3b8' // gray default
+				// Green if outgoing from selected node, red if incoming to selected node
+				if (d.source === selectedFlowNode) return '#10b981' // green for outgoing
+				if (d.target === selectedFlowNode) return '#ef4444' // red for incoming
+				return '#94a3b8' // gray for unrelated
 			})
 			.attr('stroke-width', (d) => {
-				const linkKey = `${d.source}-${d.target}`
-				const baseWidth = Math.pow(d.value, 1.2) * 3
+				const baseWidth = Math.pow(d.value, 1.2) * 1.5 // Reduced from 3 to 1.5
 				if (!selectedFlowNode) return baseWidth
-				return connectedLinks.has(linkKey) ? baseWidth * 1.8 : baseWidth
+				const isConnected =
+					d.source === selectedFlowNode || d.target === selectedFlowNode
+				return isConnected ? baseWidth * 1.5 : baseWidth // Reduced multiplier from 1.8 to 1.5
 			})
+			.attr('fill', 'none')
 			.attr('marker-end', (d) => {
-				const linkKey = `${d.source}-${d.target}`
-				if (selectedFlowNode && connectedLinks.has(linkKey))
-					return 'url(#arrow-highlight)'
-				if (d.value >= 5) return 'url(#arrow-large)'
-				if (d.value >= 3) return 'url(#arrow-medium)'
-				return 'url(#arrow-small)'
+				const sizeMarker =
+					d.value >= 5 ? 'large' : d.value >= 3 ? 'medium' : 'small'
+
+				if (!selectedFlowNode) return `url(#arrow-${sizeMarker}-gray)`
+
+				if (d.source === selectedFlowNode)
+					return `url(#arrow-${sizeMarker}-green)` // outgoing
+				if (d.target === selectedFlowNode)
+					return `url(#arrow-${sizeMarker}-red)` // incoming
+
+				return `url(#arrow-${sizeMarker}-gray)`
 			})
 			.attr('opacity', (d) => {
-				const linkKey = `${d.source}-${d.target}`
 				if (!selectedFlowNode) return 0.7
-				return connectedLinks.has(linkKey) ? 0.95 : 0.15
+				const isConnected =
+					d.source === selectedFlowNode || d.target === selectedFlowNode
+				return isConnected ? 0.95 : 0.15
 			})
 
 		g.append('g')
@@ -540,6 +594,32 @@ export function HeatmapViewer({
 					.duration(200)
 					.attr('stroke-width', d.id === selectedFlowNode ? 8 : 3)
 			})
+
+		// Add node labels above circles
+		g.append('g')
+			.selectAll('text')
+			.data(nodes)
+			.enter()
+			.append('text')
+			.attr('x', (d) => d.x)
+			.attr('y', (d) => {
+				const radius =
+					d.value < 2
+						? 40
+						: d.value < 6
+							? d.value * 14
+							: Math.pow(d.value, 0.85) * 5
+				return d.y - radius - 20 // Position above the circle
+			})
+			.attr('text-anchor', 'middle')
+			.attr('font-size', '48px')
+			.attr('font-weight', 'bold')
+			.attr('fill', (d) => (d.id === selectedFlowNode ? '#fbbf24' : 'white'))
+			.attr('stroke', 'black')
+			.attr('stroke-width', 3)
+			.attr('paint-order', 'stroke')
+			.attr('pointer-events', 'none')
+			.text((d) => d.id)
 
 		svg.on('click', () => setSelectedFlowNode(null))
 	}, [
@@ -909,7 +989,7 @@ export function HeatmapViewer({
 
 				<div
 					ref={containerRef}
-					className='relative h-[550px] w-full overflow-auto rounded-lg border border-primary'
+					className='Xh-[550px] relative w-full overflow-auto rounded-lg border border-primary'
 					onMouseMove={handleMouseMove}
 					onMouseLeave={handleMouseLeave}
 				>
