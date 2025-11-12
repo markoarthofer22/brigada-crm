@@ -93,7 +93,7 @@
 			"data": "Ukupno točaka:",
 			"entryDataExcelTitle": "Podaci o ulaznim točkama",
 			"entryFilename": "entry_point_data_{{time}}.xlsx",
-			"entryPoint": "Ulazne točka",
+			"entryPoint": "Ulazne točke",
 			"excel": "Izvezi tablicu",
 			"exitDataExcelTitle": "Podaci o izlaznim točkama",
 			"exitFilename": "exit_point_data_{{time}}.xlsx",
